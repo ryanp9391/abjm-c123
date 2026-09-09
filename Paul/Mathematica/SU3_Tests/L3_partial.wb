@@ -1,0 +1,108 @@
+{
+ "cells": [
+  {
+   "kind": 2,
+   "value": "(*su(3) generators*)\nps[rep_] := \n  ps[rep] = \n   Block[{res = (Prepend[rep, #] & /@ (Tuples[\n          Table[Range[rep[[1, i + 1]], rep[[1, i]]], {i, 1, \n            Length[rep[[1]]] - 1}]]))}, \n    If[Length[res[[1, 1]]] == 1, Reverse@Sort@res, \n     Reverse@Sort@Flatten[ps /@ res, 1]]];\ndim[rep_] := dim[rep] = Length[ps[{rep}]];\nJ0[k_][pat_] := \n  J0[k][pat] = \n   Sum[pat[[k, i]], {i, 1, k}] - Sum[pat[[k - 1, i]], {i, 1, k - 1}];\nJp[k_][pat_] := \n  Jp[k][pat] = -Sum[\n     Product[pat[[k, i]] - i - pat[[k + 1, j]] + j, {j, \n         Range[k + 1]}]/\n       Product[pat[[k, i]] - i - pat[[k, j]] + j, {j, \n         Complement[Range[k], {i}]}] v[\n       ReplacePart[pat, {k, i} -> pat[[k, i]] + 1]], {i, 1, k}];\nJm[k_][pat_] := \n  Jm[k][pat] = \n   Sum[Product[\n       pat[[k, i]] - i - pat[[k - 1, j]] + j, {j, Range[k - 1]}]/\n      Product[pat[[k, i]] - i - pat[[k, j]] + j, {j, \n        Complement[Range[k], {i}]}] v[\n      ReplacePart[pat, {k, i} -> pat[[k, i]] - 1]], {i, 1, k}];\nJJ[k_, l_, rep_] := \n  JJ[k, l, rep] = \n   Which[k == l, DiagonalMatrix[J0[k] /@ ps[{rep}]], l == k + 1, \n    Transpose[\n     Table[Coefficient[Jp[k][ps[{rep}][[i]]], v[#]] & /@ \n       ps[{rep}], {i, 1, Length[ps[{rep}]]}]], l == k - 1, \n    Transpose[\n     Table[Coefficient[Jm[l][ps[{rep}][[i]]], v[#]] & /@ \n       ps[{rep}], {i, 1, Length[ps[{rep}]]}]], l > k + 1, \n    JJ[k, k + 1, rep] . JJ[k + 1, l, rep] - \n     JJ[k + 1, l, rep] . JJ[k, k + 1, rep], l < k - 1, \n    JJ[k, k - 1, rep] . JJ[k - 1, l, rep] - \n     JJ[k - 1, l, rep] . JJ[k, k - 1, rep]];",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "(*Ee[λ][i,j] are gl(3) generators in rep λ={λ1,λ2,λ3}*)\n(*id[λ] is identity matrix in rep λ, idd[λ1,λ2] is in rep λ1 x λ2*)\n(*EE[λ1,λ2][i,j] is global Lie algebra generator in λ1 x λ2*)\nClearAll[Ee,id,EE,idd];\nEe[λ_][i_,j_]:=JJ[i,j,λ];\nid[λ_]:=IdentityMatrix[dim[λ]];\nidd[λ1_,λ2_]:=KroneckerProduct[id[λ1],id[λ2]];\nEE[λ1_,λ2_][i_,j_]:=KroneckerProduct[Ee[λ1][i,j],id[λ2]]+KroneckerProduct[id[λ1],Ee[λ2][i,j]];",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "(*Lax operator for a general gl(3) rep λ={λ1,λ2,λ3} at the site*)\nClearAll[L];\nL[λ_][i_,j_][u_]:=IdentityMatrix[dim[λ]] u KroneckerDelta[i,j] - h JJ[j,i,λ];",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "(*companion twist matrix eith eigenvalues z[1],z[2],z[3]*)\nG={{χ1,-χ2,χ3},{1,0,0},{0,1,0}};\nχ1=z[1]+z[2]+z[3];\nχ2=z[1] z[2]+z[1]z[3]+z[2]z[3];\nχ3=z[1]z[2]z[3];",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "(*monodromy with no twist, diagonal twist, and companion twist*)\nClearAll[T,TG];\nT[i_,j_][u_]:=Sum[KroneckerProduct[L[{1,1,0}][i,ii][u-θ1],L[{1,0,0}][ii,jj][u-θ2],L[{1,1,0}][jj,j][u-θ3]],{ii,3},{jj,3}];\nTG[i_,j_][u_]:=Sum[T[i,ii][u] G[[ii,j]],{ii,3}];",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "ClearAll[T,TG];\nT[i_,j_][u_]:=Sum[KroneckerProduct[L[{1,0,0}][i,ii][u-θ1],L[{1,1,0}][ii,jj][u-θ2],L[{1,0,0}][jj,j][u-θ3]],{ii,3},{jj,3}];\nTG[i_,j_][u_]:=Sum[T[i,ii][u] G[[ii,j]],{ii,3}];",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "(*quantum minors (q-determinants) of the monodromy matrix with diagonal twist g or companion twist G*)\nClearAll[qminG];\nqminG[II_List, JJ_List][u_] := \n    qminG[II, JJ][u] = \n     Sum[Signature[σ] \n        Dot @@ Table[TG[II[[σ[[k]]]], JJ[[k]]][u - (k - 1) h], {k, \n            Length[II]}], {σ, Permutations[Range[Length[II]]]}];",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "(*transfer matrices with companion twist*)\nClearAll[tG];\ntG[a_,1][u_]:= Total[qminG[#, #][u] & /@ Subsets[{1, 2, 3}, {a}]]",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "vac=KroneckerProduct[{{0,0,1}},{{0,0,1}},{{0,0,1}}];",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "ν1[u_]=(u-θ1-h)(u-θ2-h)(u-θ3-h);",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "vac.(IdentityMatrix[27]+κ tG[1,1][θ1]/ν1[θ1]+s tG[1,1][θ3]/ν1[θ3]+ q^2 tG[1,1][θ1].tG[1,1][θ3]/(ν1[θ1]ν1[θ3]));\n\n%-vac.MatrixExp[q (KroneckerProduct[Ee[{1,0,0}][3,2],IdentityMatrix[3],IdentityMatrix[3]]+n KroneckerProduct[IdentityMatrix[3],Ee[{1,1,0}][3,2],IdentityMatrix[3]]+KroneckerProduct[IdentityMatrix[3],IdentityMatrix[3],Ee[{1,0,0}][3,2]])];\nSolve[%==0,{κ,s}]",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wl-output-block\"><div class=\"wl-output-header\" style=\"display:flex;align-items:center;gap:6px;width:100%;min-height:22px;\" data-session-epoch=\"941597\" data-output-id=\"1160\" data-out-n=\"96\" data-sub-idx=\"2\" data-output-format=\"WLLatex\" data-output-is-graphics=\"0\" data-cell-idx=\"10\" data-sub-start=\"3\" data-sub-end=\"3\"><span style=\"font-size:10px;color:#888;margin-right:8px;\">Out[96]=</span></div><div class=\"wl-output-content\"><div class=\"vscode-wolfram-wllatex-prerendered wl-lb-pending\" data-lb-id=\"lb-mrrewini-zwvagca\" data-page-width-em=\"48\" data-latex-b64=\"XGxlZnRce1xsZWZ0XHtca2FwcGEgXHRvIC1cZnJhY3txXCxcbGVmdChoLVx0aGV0YTErXHRoZXRhM1xyaWdodCl9e1x0aGV0YTEtXHRoZXRhM30sc1x0byBcZnJhY3txXCxcbGVmdChoK1x0aGV0YTEtXHRoZXRhM1xyaWdodCl9e1x0aGV0YTEtXHRoZXRhM31ccmlnaHRcfVxyaWdodFx9\" style=\"opacity:0.65;transition:opacity 0.35s\"><div class=\"wl-lb-content\"><span class=\"katex-display\"><span class=\"katex\"><span class=\"katex-html\" aria-hidden=\"true\"><span class=\"base\"><span class=\"strut\" style=\"height:2.4em;vertical-align:-0.95em;\"></span><span class=\"minner\"><span class=\"mopen delimcenter\" style=\"top:0em;\"><span class=\"delimsizing size3\">{</span></span><span class=\"minner\"><span class=\"mopen delimcenter\" style=\"top:0em;\"><span class=\"delimsizing size3\">{</span></span><span class=\"mord mathnormal\">κ</span><span class=\"mspace\" style=\"margin-right:0.2778em;\"></span><span class=\"mrel\">→</span><span class=\"mspace\" style=\"margin-right:0.2778em;\"></span><span class=\"mord\">−</span><span class=\"mord\"><span class=\"mopen nulldelimiter\"></span><span class=\"mfrac\"><span class=\"vlist-t vlist-t2\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:1.427em;\"><span style=\"top:-2.314em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord mathnormal\" style=\"margin-right:0.02778em;\">θ</span><span class=\"mord\">1</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mbin\">−</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mord mathnormal\" style=\"margin-right:0.02778em;\">θ</span><span class=\"mord\">3</span></span></span><span style=\"top:-3.23em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"frac-line\" style=\"border-bottom-width:0.04em;\"></span></span><span style=\"top:-3.677em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord mathnormal\" style=\"margin-right:0.03588em;\">q</span><span class=\"mspace\" style=\"margin-right:0.1667em;\"></span><span class=\"mspace\" style=\"margin-right:0.1667em;\"></span><span class=\"minner\"><span class=\"mopen delimcenter\" style=\"top:0em;\">(</span><span class=\"mord mathnormal\">h</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mbin\">−</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mord mathnormal\" style=\"margin-right:0.02778em;\">θ</span><span class=\"mord\">1</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mbin\">+</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mord mathnormal\" style=\"margin-right:0.02778em;\">θ</span><span class=\"mord\">3</span><span class=\"mclose delimcenter\" style=\"top:0em;\">)</span></span></span></span></span><span class=\"vlist-s\">​</span></span><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:0.7693em;\"><span></span></span></span></span></span><span class=\"mclose nulldelimiter\"></span></span><span class=\"mpunct\">,</span><span class=\"mspace\" style=\"margin-right:0.1667em;\"></span><span class=\"mord mathnormal\">s</span><span class=\"mspace\" style=\"margin-right:0.2778em;\"></span><span class=\"mrel\">→</span><span class=\"mspace\" style=\"margin-right:0.2778em;\"></span><span class=\"mord\"><span class=\"mopen nulldelimiter\"></span><span class=\"mfrac\"><span class=\"vlist-t vlist-t2\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:1.427em;\"><span style=\"top:-2.314em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord mathnormal\" style=\"margin-right:0.02778em;\">θ</span><span class=\"mord\">1</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mbin\">−</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mord mathnormal\" style=\"margin-right:0.02778em;\">θ</span><span class=\"mord\">3</span></span></span><span style=\"top:-3.23em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"frac-line\" style=\"border-bottom-width:0.04em;\"></span></span><span style=\"top:-3.677em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord mathnormal\" style=\"margin-right:0.03588em;\">q</span><span class=\"mspace\" style=\"margin-right:0.1667em;\"></span><span class=\"mspace\" style=\"margin-right:0.1667em;\"></span><span class=\"minner\"><span class=\"mopen delimcenter\" style=\"top:0em;\">(</span><span class=\"mord mathnormal\">h</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mbin\">+</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mord mathnormal\" style=\"margin-right:0.02778em;\">θ</span><span class=\"mord\">1</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mbin\">−</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mord mathnormal\" style=\"margin-right:0.02778em;\">θ</span><span class=\"mord\">3</span><span class=\"mclose delimcenter\" style=\"top:0em;\">)</span></span></span></span></span><span class=\"vlist-s\">​</span></span><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:0.7693em;\"><span></span></span></span></span></span><span class=\"mclose nulldelimiter\"></span></span><span class=\"mclose delimcenter\" style=\"top:0em;\"><span class=\"delimsizing size3\">}</span></span></span><span class=\"mclose delimcenter\" style=\"top:0em;\"><span class=\"delimsizing size3\">}</span></span></span></span></span></span></span></div></div></div></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "Out[96]= \\left\\{\\left\\{\\kappa \\to -\\frac{q\\,\\left(h-\\theta1+\\theta3\\right)}{\\theta1-\\theta3},s\\to \\frac{q\\,\\left(h+\\theta1-\\theta3\\right)}{\\theta1-\\theta3}\\right\\}\\right\\}",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "38745e2e-bbc1-4680-a599-667769403843"
+    }
+   ],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  }
+ ],
+ "metadata": {
+  "wolframSettings": {
+   "backgroundColor": "",
+   "backgroundImagePath": ""
+  }
+ }
+}

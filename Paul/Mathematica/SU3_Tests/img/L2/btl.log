@@ -1,0 +1,399 @@
+-- renderedPx: 2730.1  pageWidthEm: 47  containerPx: 952  overflow: true  lineBroken: false
+-- note: calibration disabled (pageWidthPx is authoritative)  pageWidthPx: 761  pageWidthEm: 47
+========================================================================
+2026-07-19T08:19:57.842Z
+-- kernel output --
+
+-- btl input (cleaned boxes) --
+RowBox[{"(", "\[NoBreak]", GridBox[{{RowBox[{FractionBox["1", "2"], " ", RowBox[{"(", RowBox[{RowBox[{"2", " ", RowBox[{"c", "(", "6", ")"}], " ", SuperscriptBox["h", "3"], " ", "q", " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"2", " ", "h"}], "+", "\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{"h", "-", "\[Theta]1", "+", "\[Theta]2"}], ")"}]}], "-", RowBox[{SuperscriptBox["w", "3"], " ", RowBox[{"(", RowBox[{"q", "+", "w"}], ")"}]}], "+", SuperscriptBox["w", "4"]}], ")"}]}], RowBox[{"-", FractionBox[RowBox[{"q", " ", SuperscriptBox["w", "2"]}], "2"]}], RowBox[{FractionBox["1", "2"], " ", RowBox[{"(", RowBox[{RowBox[{"2", " ", RowBox[{"c", "(", "4", ")"}], " ", SuperscriptBox["h", "3"], " ", RowBox[{"(", RowBox[{"\[Theta]2", "-", "\[Theta]1"}], ")"}]}], "+", RowBox[{RowBox[{"c", "(", "2", ")"}], " ", "h", " ", "q", " ", RowBox[{"(", RowBox[{"h", "-", "\[Theta]1", "+", "\[Theta]2"}], ")"}]}], "-", RowBox[{"q", " ", "w"}]}], ")"}]}], RowBox[{FractionBox["1", "2"], " ", RowBox[{"(", RowBox[{RowBox[{"-", RowBox[{"q", " ", RowBox[{"(", RowBox[{SuperscriptBox["w", "2"], "-", RowBox[{"2", " ", RowBox[{"c", "(", "4", ")"}], " ", SuperscriptBox["h", "2"], " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"2", " ", "h"}], "+", "\[Theta]1", "-", "\[Theta]2"}], ")"}]}]}], ")"}]}]}], "-", RowBox[{RowBox[{"2"}], " ", RowBox[{"c", "(", "6", ")"}], " ", SuperscriptBox["h", "3"], " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"-", RowBox[{RowBox[{"2"}], " ", SuperscriptBox["h", "2"]}]}], "+", RowBox[{"h", " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}]}], "+", SuperscriptBox[RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}], "2"]}], ")"}]}], "-", SuperscriptBox["w", "3"]}], ")"}]}], RowBox[{RowBox[{RowBox[{"c", "(", "4", ")"}], " ", SuperscriptBox["h", "3"], " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}]}], "-", RowBox[{FractionBox["1", "2"], " ", "w", " ", RowBox[{"(", RowBox[{"q", "+", "w"}], ")"}]}]}], RowBox[{FractionBox["1", "2"], " ", RowBox[{"(", RowBox[{RowBox[{RowBox[{"c", "(", "2", ")"}], " ", "h", " ", RowBox[{"(", RowBox[{"h", "-", "\[Theta]1", "+", "\[Theta]2"}], ")"}]}], "-", "w"}], ")"}]}], RowBox[{RowBox[{"2", " ", RowBox[{"c", "(", "4", ")"}], " ", SuperscriptBox["h", "2"], " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{"h", "+", "\[Theta]1", "-", "\[Theta]2"}], ")"}]}], "-", SuperscriptBox["w", "2"]}], RowBox[{"-", "w"}], "0"}}, RowSpacings -> 1, ColumnSpacings -> 1, RowAlignments -> Baseline, ColumnAlignments -> Center], "\[NoBreak]", ")"}]
+-- btl output (latex) --
+\begin{pmatrix}\frac{1}{2}\,\left(2\,c\left(6\right)\,h^3\,q\,\left(\theta1-\theta2\right)\,\left(2\,h+\theta1-\theta2\right)\,\left(h-\theta1+\theta2\right)-w^3\,\left(q+w\right)+w^4\right) & -\frac{q\,w^2}{2} & \frac{1}{2}\,\left(2\,c\left(4\right)\,h^3\,\left(\theta2-\theta1\right)+c\left(2\right)\,h\,q\,\left(h-\theta1+\theta2\right)-q\,w\right) & \frac{1}{2}\,\left(-q\,\left(w^2-2\,c\left(4\right)\,h^2\,\left(\theta1-\theta2\right)\,\left(2\,h+\theta1-\theta2\right)\right)-2\,c\left(6\right)\,h^3\,\left(\theta1-\theta2\right)\,\left(-2\,h^2+h\,\left(\theta1-\theta2\right)+\left(\theta1-\theta2\right)^2\right)-w^3\right) & c\left(4\right)\,h^3\,\left(\theta1-\theta2\right)-\frac{1}{2}\,w\,\left(q+w\right) & \frac{1}{2}\,\left(c\left(2\right)\,h\,\left(h-\theta1+\theta2\right)-w\right) & 2\,c\left(4\right)\,h^2\,\left(\theta1-\theta2\right)\,\left(h+\theta1-\theta2\right)-w^2 & -w & 0\end{pmatrix}
+-- pageWidthEm: 47  lineBreak: no-change (fits in width)  opts: {"pageWidth":47,"pageWidthPx":761,"baseFontSizePx":16,"indentStep":2,"compact":false,"maxDelimDepth":2,"maxIterations":5,"maxRows":100,"allPages":true} --
+2026-07-19T08:20:11.376Z  [render-width-debug]
+-- headerW: 952  preRenderWidth: 968  containerW: 952  windowInnerWidth: 1028
+-- pageWidthPx: 761  pageWidthEm: 47
+-- divs: {pw:47 lb:false rendW:2730.1}  katexWidths: [2730]
+========================================================================
+2026-07-19T08:20:11.380Z  [katex-feedback]
+-- renderedPx: 2730.1  pageWidthEm: 47  containerPx: 952  overflow: true  lineBroken: false
+-- note: calibration disabled (pageWidthPx is authoritative)  pageWidthPx: 761  pageWidthEm: 47
+2026-07-19T08:20:11.471Z  [render-width-debug]
+-- headerW: 952  preRenderWidth: 968  containerW: 952  windowInnerWidth: 1028
+-- pageWidthPx: 761  pageWidthEm: 47
+-- divs: {pw:47 lb:false rendW:2434.9}  katexWidths: [2435]
+========================================================================
+2026-07-19T08:20:11.475Z  [katex-feedback]
+-- renderedPx: 2434.9  pageWidthEm: 47  containerPx: 952  overflow: true  lineBroken: false
+-- note: calibration disabled (pageWidthPx is authoritative)  pageWidthPx: 761  pageWidthEm: 47
+========================================================================
+2026-07-19T08:20:11.487Z
+-- kernel output --
+
+-- btl input (cleaned boxes) --
+RowBox[{"(", "\[NoBreak]", GridBox[{{RowBox[{FractionBox["1", "2"], " ", RowBox[{"(", RowBox[{RowBox[{"2", " ", RowBox[{"c", "(", "6", ")"}], " ", SuperscriptBox["h", "3"], " ", "q", " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"2", " ", "h"}], "+", "\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{"h", "-", "\[Theta]1", "+", "\[Theta]2"}], ")"}]}], "+", RowBox[{"p", " ", "r", " ", "w"}], "+", SuperscriptBox["r", "2"]}], ")"}]}], RowBox[{RowBox[{"-", FractionBox["1", "2"]}], " ", "w", " ", RowBox[{"(", RowBox[{RowBox[{"p", " ", "w"}], "+", "r"}], ")"}]}], RowBox[{FractionBox["1", "2"], " ", RowBox[{"(", RowBox[{RowBox[{"h", " ", RowBox[{"(", RowBox[{RowBox[{"2", " ", RowBox[{"c", "(", "4", ")"}], " ", SuperscriptBox["h", "2"], " ", RowBox[{"(", RowBox[{"\[Theta]2", "-", "\[Theta]1"}], ")"}]}], "+", RowBox[{RowBox[{"c", "(", "2", ")"}], " ", "h", " ", "q"}], "+", RowBox[{RowBox[{"c", "(", "2", ")"}], " ", "q", " ", RowBox[{"(", RowBox[{"\[Theta]2", "-", "\[Theta]1"}], ")"}]}]}], ")"}]}], "-", RowBox[{"p", " ", "w"}], "-", RowBox[{"r"}]}], ")"}]}], RowBox[{RowBox[{SuperscriptBox["h", "2"], " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"2", " ", "h"}], "+", "\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{RowBox[{RowBox[{"c", "(", "6", ")"}], " ", "h", " ", RowBox[{"(", RowBox[{"h", "-", "\[Theta]1", "+", "\[Theta]2"}], ")"}]}], "+", RowBox[{RowBox[{"c", "(", "4", ")"}], " ", "q"}]}], ")"}]}], "+", FractionBox[RowBox[{"p", " ", "r"}], "2"]}], RowBox[{RowBox[{RowBox[{"c", "(", "4", ")"}], " ", SuperscriptBox["h", "3"], " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}]}], "-", FractionBox[RowBox[{"p", " ", "w"}], "2"]}], RowBox[{FractionBox["1", "2"], " ", RowBox[{"(", RowBox[{RowBox[{RowBox[{"c", "(", "2", ")"}], " ", "h", " ", RowBox[{"(", RowBox[{"h", "-", "\[Theta]1", "+", "\[Theta]2"}], ")"}]}], "-", RowBox[{"p"}], "+", "q"}], ")"}]}], RowBox[{RowBox[{"2", " ", RowBox[{"c", "(", "4", ")"}], " ", SuperscriptBox["h", "2"], " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{"h", "+", "\[Theta]1", "-", "\[Theta]2"}], ")"}]}], "+", "r"}], RowBox[{"-", "w"}], "0"}}, RowSpacings -> 1, ColumnSpacings -> 1, RowAlignments -> Baseline, ColumnAlignments -> Center], "\[NoBreak]", ")"}]
+-- btl output (latex) --
+\begin{pmatrix}\frac{1}{2}\,\left(2\,c\left(6\right)\,h^3\,q\,\left(\theta1-\theta2\right)\,\left(2\,h+\theta1-\theta2\right)\,\left(h-\theta1+\theta2\right)+p\,r\,w+r^2\right) & -\frac{1}{2}\,w\,\left(p\,w+r\right) & \frac{1}{2}\,\left(h\,\left(2\,c\left(4\right)\,h^2\,\left(\theta2-\theta1\right)+c\left(2\right)\,h\,q+c\left(2\right)\,q\,\left(\theta2-\theta1\right)\right)-p\,w-r\right) & h^2\,\left(\theta1-\theta2\right)\,\left(2\,h+\theta1-\theta2\right)\,\left(c\left(6\right)\,h\,\left(h-\theta1+\theta2\right)+c\left(4\right)\,q\right)+\frac{p\,r}{2} & c\left(4\right)\,h^3\,\left(\theta1-\theta2\right)-\frac{p\,w}{2} & \frac{1}{2}\,\left(c\left(2\right)\,h\,\left(h-\theta1+\theta2\right)-p+q\right) & 2\,c\left(4\right)\,h^2\,\left(\theta1-\theta2\right)\,\left(h+\theta1-\theta2\right)+r & -w & 0\end{pmatrix}
+-- pageWidthEm: 47  lineBreak: no-change (fits in width)  opts: {"pageWidth":47,"pageWidthPx":761,"baseFontSizePx":16,"indentStep":2,"compact":false,"maxDelimDepth":2,"maxIterations":5,"maxRows":100,"allPages":true} --
+2026-07-19T08:20:22.912Z  [render-width-debug]
+-- headerW: 952  preRenderWidth: 968  containerW: 952  windowInnerWidth: 1028
+-- pageWidthPx: 761  pageWidthEm: 47
+-- divs: {pw:47 lb:false rendW:2434.9}  katexWidths: [2435]
+========================================================================
+2026-07-19T08:20:22.925Z  [katex-feedback]
+-- renderedPx: 2434.9  pageWidthEm: 47  containerPx: 952  overflow: true  lineBroken: false
+-- note: calibration disabled (pageWidthPx is authoritative)  pageWidthPx: 761  pageWidthEm: 47
+2026-07-19T08:20:23.015Z  [render-width-debug]
+-- headerW: 952  preRenderWidth: 968  containerW: 952  windowInnerWidth: 1028
+-- pageWidthPx: 761  pageWidthEm: 47
+-- divs: {pw:47 lb:false rendW:2136.3}  katexWidths: [2136]
+========================================================================
+2026-07-19T08:20:23.018Z  [katex-feedback]
+-- renderedPx: 2136.3  pageWidthEm: 47  containerPx: 952  overflow: true  lineBroken: false
+-- note: calibration disabled (pageWidthPx is authoritative)  pageWidthPx: 761  pageWidthEm: 47
+========================================================================
+2026-07-19T08:20:23.024Z
+-- kernel output --
+
+-- btl input (cleaned boxes) --
+RowBox[{"(", "\[NoBreak]", GridBox[{{RowBox[{RowBox[{RowBox[{"c", "(", "6", ")"}], " ", SuperscriptBox["h", "3"], " ", "q", " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"2", " ", "h"}], "+", "\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{"h", "-", "\[Theta]1", "+", "\[Theta]2"}], ")"}]}], "+", FractionBox[SuperscriptBox["r", "2"], "2"]}], "0", RowBox[{FractionBox["1", "2"], " ", RowBox[{"(", RowBox[{RowBox[{"h", " ", RowBox[{"(", RowBox[{RowBox[{"2", " ", RowBox[{"c", "(", "4", ")"}], " ", SuperscriptBox["h", "2"], " ", RowBox[{"(", RowBox[{"\[Theta]2", "-", "\[Theta]1"}], ")"}]}], "+", RowBox[{RowBox[{"c", "(", "2", ")"}], " ", "h", " ", "q"}], "+", RowBox[{RowBox[{"c", "(", "2", ")"}], " ", "q", " ", RowBox[{"(", RowBox[{"\[Theta]2", "-", "\[Theta]1"}], ")"}]}]}], ")"}]}], "-", "r"}], ")"}]}], RowBox[{RowBox[{SuperscriptBox["h", "2"], " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"2", " ", "h"}], "+", "\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{RowBox[{RowBox[{"c", "(", "6", ")"}], " ", "h", " ", RowBox[{"(", RowBox[{"h", "-", "\[Theta]1", "+", "\[Theta]2"}], ")"}]}], "+", RowBox[{RowBox[{"c", "(", "4", ")"}], " ", "q"}]}], ")"}]}], "+", FractionBox[RowBox[{"p", " ", "r"}], "2"]}], RowBox[{RowBox[{"c", "(", "4", ")"}], " ", SuperscriptBox["h", "3"], " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}]}], RowBox[{FractionBox["1", "2"], " ", RowBox[{"(", RowBox[{RowBox[{RowBox[{"c", "(", "2", ")"}], " ", "h", " ", RowBox[{"(", RowBox[{"h", "-", "\[Theta]1", "+", "\[Theta]2"}], ")"}]}], "-", RowBox[{"p"}], "+", "q"}], ")"}]}], RowBox[{RowBox[{"2", " ", RowBox[{"c", "(", "4", ")"}], " ", SuperscriptBox["h", "2"], " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{"h", "+", "\[Theta]1", "-", "\[Theta]2"}], ")"}]}], "+", "r"}], "0", "0"}}, RowSpacings -> 1, ColumnSpacings -> 1, RowAlignments -> Baseline, ColumnAlignments -> Center], "\[NoBreak]", ")"}]
+-- btl output (latex) --
+\begin{pmatrix}c\left(6\right)\,h^3\,q\,\left(\theta1-\theta2\right)\,\left(2\,h+\theta1-\theta2\right)\,\left(h-\theta1+\theta2\right)+\frac{r^2}{2} & 0 & \frac{1}{2}\,\left(h\,\left(2\,c\left(4\right)\,h^2\,\left(\theta2-\theta1\right)+c\left(2\right)\,h\,q+c\left(2\right)\,q\,\left(\theta2-\theta1\right)\right)-r\right) & h^2\,\left(\theta1-\theta2\right)\,\left(2\,h+\theta1-\theta2\right)\,\left(c\left(6\right)\,h\,\left(h-\theta1+\theta2\right)+c\left(4\right)\,q\right)+\frac{p\,r}{2} & c\left(4\right)\,h^3\,\left(\theta1-\theta2\right) & \frac{1}{2}\,\left(c\left(2\right)\,h\,\left(h-\theta1+\theta2\right)-p+q\right) & 2\,c\left(4\right)\,h^2\,\left(\theta1-\theta2\right)\,\left(h+\theta1-\theta2\right)+r & 0 & 0\end{pmatrix}
+-- pageWidthEm: 47  lineBreak: no-change (fits in width)  opts: {"pageWidth":47,"pageWidthPx":761,"baseFontSizePx":16,"indentStep":2,"compact":false,"maxDelimDepth":2,"maxIterations":5,"maxRows":100,"allPages":true} --
+2026-07-19T08:20:47.193Z  [render-width-debug]
+-- headerW: 952  preRenderWidth: 968  containerW: 952  windowInnerWidth: 1028
+-- pageWidthPx: 761  pageWidthEm: 47
+-- divs: {pw:47 lb:false rendW:2136.3}  katexWidths: [2136]
+========================================================================
+2026-07-19T08:20:47.197Z  [katex-feedback]
+-- renderedPx: 2136.3  pageWidthEm: 47  containerPx: 952  overflow: true  lineBroken: false
+-- note: calibration disabled (pageWidthPx is authoritative)  pageWidthPx: 761  pageWidthEm: 47
+2026-07-19T08:20:47.260Z  [render-width-debug]
+-- headerW: 0  preRenderWidth: 968  containerW: 968  windowInnerWidth: 1028
+-- pageWidthPx: 761  pageWidthEm: 47
+-- divs: (none)  katexWidths: []
+2026-07-19T08:20:47.298Z  [render-width-debug]
+-- headerW: 952  preRenderWidth: 968  containerW: 952  windowInnerWidth: 1028
+-- pageWidthPx: 774  pageWidthEm: 48
+-- divs: {pw:47 lb:false rendW:1619.6}  katexWidths: [1620]
+========================================================================
+2026-07-19T08:20:47.301Z  [katex-feedback]
+-- renderedPx: 1619.6  pageWidthEm: 47  containerPx: 952  overflow: true  lineBroken: false
+-- note: calibration disabled (pageWidthPx is authoritative)  pageWidthPx: 761  pageWidthEm: 47
+========================================================================
+2026-07-19T08:20:47.309Z
+-- kernel output --
+
+-- btl input (cleaned boxes) --
+RowBox[{"{", RowBox[{RowBox[{"{", RowBox[{RowBox[{"p", "\[Rule]", "q"}], ",", RowBox[{"r", "\[Rule]", "0"}], ",", RowBox[{RowBox[{"c", "(", "2", ")"}], "\[Rule]", "0"}], ",", RowBox[{"\[Theta]2", "\[Rule]", "\[Theta]1"}]}], "}"}], ",", RowBox[{"{", RowBox[{RowBox[{"p", "\[Rule]", "q"}], ",", RowBox[{"r", "\[Rule]", "0"}], ",", RowBox[{RowBox[{"c", "(", "4", ")"}], "\[Rule]", "0"}], ",", RowBox[{"\[Theta]2", "\[Rule]", RowBox[{"\[Theta]1", "-", "h"}]}]}], "}"}], ",", RowBox[{"{", RowBox[{RowBox[{"p", "\[Rule]", "q"}], ",", RowBox[{"r", "\[Rule]", "0"}], ",", RowBox[{RowBox[{"c", "(", "2", ")"}], "\[Rule]", "0"}], ",", RowBox[{RowBox[{"c", "(", "4", ")"}], "\[Rule]", "0"}], ",", RowBox[{"\[Theta]2", "\[Rule]", "\[Theta]1"}]}], "}"}], ",", RowBox[{"{", RowBox[{RowBox[{"p", "\[Rule]", "q"}], ",", RowBox[{"r", "\[Rule]", "0"}], ",", RowBox[{RowBox[{"c", "(", "2", ")"}], "\[Rule]", "0"}], ",", RowBox[{RowBox[{"c", "(", "4", ")"}], "\[Rule]", "0"}], ",", RowBox[{"\[Theta]2", "\[Rule]", RowBox[{RowBox[{"2", " ", "h"}], "+", "\[Theta]1"}]}]}], "}"}], ",", RowBox[{"{", RowBox[{RowBox[{"p", "\[Rule]", "q"}], ",", RowBox[{"r", "\[Rule]", "0"}], ",", RowBox[{RowBox[{"c", "(", "2", ")"}], "\[Rule]", "0"}], ",", RowBox[{RowBox[{"c", "(", "4", ")"}], "\[Rule]", "0"}], ",", RowBox[{RowBox[{"c", "(", "6", ")"}], "\[Rule]", "0"}]}], "}"}]}], "}"}]
+-- btl output (latex) --
+\left\{\left\{p\to q,r\to 0,c\left(2\right)\to 0,\theta2\to \theta1\right\},\left\{p\to q,r\to 0,c\left(4\right)\to 0,\theta2\to \theta1-h\right\},\left\{p\to q,r\to 0,c\left(2\right)\to 0,c\left(4\right)\to 0,\theta2\to \theta1\right\},\left\{p\to q,r\to 0,c\left(2\right)\to 0,c\left(4\right)\to 0,\theta2\to 2\,h+\theta1\right\},\left\{p\to q,r\to 0,c\left(2\right)\to 0,c\left(4\right)\to 0,c\left(6\right)\to 0\right\}\right\}
+-- pageWidthEm: 47  lineBreak: applied  opts: {"pageWidth":47,"pageWidthPx":761,"baseFontSizePx":16,"indentStep":2,"compact":false,"maxDelimDepth":2,"maxIterations":5,"maxRows":100,"allPages":true} --
+2026-07-19T08:20:47.316Z  [render-width-debug]
+-- headerW: 0  preRenderWidth: 968  containerW: 968  windowInnerWidth: 1028
+-- pageWidthPx: 761  pageWidthEm: 47
+-- divs: (none)  katexWidths: []
+2026-07-19T08:21:33.454Z  [render-width-debug]
+-- headerW: 0  preRenderWidth: 968  containerW: 968  windowInnerWidth: 1028
+-- pageWidthPx: 774  pageWidthEm: 48
+-- divs: (none)  katexWidths: []
+2026-07-19T08:21:33.507Z  [render-width-debug]
+-- headerW: 952  preRenderWidth: 968  containerW: 952  windowInnerWidth: 1028
+-- pageWidthPx: 774  pageWidthEm: 48
+-- divs: {pw:48 lb:false rendW:1619.6}  katexWidths: [1620]
+========================================================================
+2026-07-19T08:21:33.512Z  [katex-feedback]
+-- renderedPx: 1619.6  pageWidthEm: 48  containerPx: 952  overflow: true  lineBroken: false
+-- note: calibration disabled (pageWidthPx is authoritative)  pageWidthPx: 761  pageWidthEm: 47
+========================================================================
+2026-07-19T08:21:33.538Z
+-- kernel output --
+
+-- btl input (cleaned boxes) --
+RowBox[{"{", RowBox[{RowBox[{"{", RowBox[{RowBox[{"p", "\[Rule]", "q"}], ",", RowBox[{"r", "\[Rule]", "0"}], ",", RowBox[{RowBox[{"c", "(", "2", ")"}], "\[Rule]", "0"}], ",", RowBox[{"\[Theta]2", "\[Rule]", "\[Theta]1"}]}], "}"}], ",", RowBox[{"{", RowBox[{RowBox[{"p", "\[Rule]", "q"}], ",", RowBox[{"r", "\[Rule]", "0"}], ",", RowBox[{RowBox[{"c", "(", "4", ")"}], "\[Rule]", "0"}], ",", RowBox[{"\[Theta]2", "\[Rule]", RowBox[{"\[Theta]1", "-", "h"}]}]}], "}"}], ",", RowBox[{"{", RowBox[{RowBox[{"p", "\[Rule]", "q"}], ",", RowBox[{"r", "\[Rule]", "0"}], ",", RowBox[{RowBox[{"c", "(", "2", ")"}], "\[Rule]", "0"}], ",", RowBox[{RowBox[{"c", "(", "4", ")"}], "\[Rule]", "0"}], ",", RowBox[{"\[Theta]2", "\[Rule]", "\[Theta]1"}]}], "}"}], ",", RowBox[{"{", RowBox[{RowBox[{"p", "\[Rule]", "q"}], ",", RowBox[{"r", "\[Rule]", "0"}], ",", RowBox[{RowBox[{"c", "(", "2", ")"}], "\[Rule]", "0"}], ",", RowBox[{RowBox[{"c", "(", "4", ")"}], "\[Rule]", "0"}], ",", RowBox[{"\[Theta]2", "\[Rule]", RowBox[{RowBox[{"2", " ", "h"}], "+", "\[Theta]1"}]}]}], "}"}], ",", RowBox[{"{", RowBox[{RowBox[{"p", "\[Rule]", "q"}], ",", RowBox[{"r", "\[Rule]", "0"}], ",", RowBox[{RowBox[{"c", "(", "2", ")"}], "\[Rule]", "0"}], ",", RowBox[{RowBox[{"c", "(", "4", ")"}], "\[Rule]", "0"}], ",", RowBox[{RowBox[{"c", "(", "6", ")"}], "\[Rule]", "0"}]}], "}"}]}], "}"}]
+-- btl output (latex) --
+\left\{\left\{p\to q,r\to 0,c\left(2\right)\to 0,\theta2\to \theta1\right\},\left\{p\to q,r\to 0,c\left(4\right)\to 0,\theta2\to \theta1-h\right\},\left\{p\to q,r\to 0,c\left(2\right)\to 0,c\left(4\right)\to 0,\theta2\to \theta1\right\},\left\{p\to q,r\to 0,c\left(2\right)\to 0,c\left(4\right)\to 0,\theta2\to 2\,h+\theta1\right\},\left\{p\to q,r\to 0,c\left(2\right)\to 0,c\left(4\right)\to 0,c\left(6\right)\to 0\right\}\right\}
+-- pageWidthEm: 48  lineBreak: applied  opts: {"pageWidth":48,"pageWidthPx":774,"baseFontSizePx":16,"indentStep":2,"compact":false,"maxDelimDepth":2,"maxIterations":5,"maxRows":100,"allPages":true} --
+2026-07-19T08:21:33.540Z  [render-width-debug]
+-- headerW: 0  preRenderWidth: 968  containerW: 968  windowInnerWidth: 1028
+-- pageWidthPx: 761  pageWidthEm: 47
+-- divs: (none)  katexWidths: []
+========================================================================
+2026-07-19T08:55:22.927Z
+-- kernel output --
+
+-- btl input (cleaned boxes) --
+RowBox[{"tstvac", ".", RowBox[{"(", "\[NoBreak]", GridBox[{{RowBox[{RowBox[{"2", " ", SuperscriptBox["h", "2"], " ", "r", " ", RowBox[{"(", RowBox[{RowBox[{RowBox[{"z", "(", "2", ")"}], " ", RowBox[{"z", "(", "3", ")"}]}], "+", RowBox[{RowBox[{"z", "(", "1", ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"z", "(", "2", ")"}], "+", RowBox[{"z", "(", "3", ")"}]}], ")"}]}]}], ")"}], " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"2", " ", "h"}], "+", "\[Theta]1", "-", "\[Theta]2"}], ")"}]}], "+", "1"}], RowBox[{RowBox[{"-", "2"}], " ", SuperscriptBox["h", "2"], " ", "r", " ", RowBox[{"z", "(", "1", ")"}], " ", RowBox[{"z", "(", "2", ")"}], " ", RowBox[{"z", "(", "3", ")"}], " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"2", " ", "h"}], "+", "\[Theta]1", "-", "\[Theta]2"}], ")"}]}], "0", "0", "0", "0", "0", "0", "0"}, {RowBox[{"2", " ", SuperscriptBox["h", "2"], " ", "r", " ", RowBox[{"(", RowBox[{RowBox[{"z", "(", "1", ")"}], "+", RowBox[{"z", "(", "2", ")"}], "+", RowBox[{"z", "(", "3", ")"}]}], ")"}], " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"2", " ", "h"}], "+", "\[Theta]1", "-", "\[Theta]2"}], ")"}]}], "1", RowBox[{RowBox[{"-", "2"}], " ", SuperscriptBox["h", "2"], " ", "r", " ", RowBox[{"z", "(", "1", ")"}], " ", RowBox[{"z", "(", "2", ")"}], " ", RowBox[{"z", "(", "3", ")"}], " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{"h", "+", "\[Theta]1", "-", "\[Theta]2"}], ")"}]}], "0", RowBox[{"2", " ", SuperscriptBox["h", "3"], " ", "r", " ", RowBox[{"z", "(", "1", ")"}], " ", RowBox[{"z", "(", "2", ")"}], " ", RowBox[{"z", "(", "3", ")"}], " ", RowBox[{"(", RowBox[{"\[Theta]2", "-", "\[Theta]1"}], ")"}]}], "0", RowBox[{"4", " ", SuperscriptBox["h", "3"], " ", "r", " ", RowBox[{"z", "(", "1", ")"}], " ", RowBox[{"z", "(", "2", ")"}], " ", RowBox[{"z", "(", "3", ")"}], " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}]}], "0", "0"}, {RowBox[{"2", " ", SuperscriptBox["h", "2"], " ", "r", " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"2", " ", "h"}], "+", "\[Theta]1", "-", "\[Theta]2"}], ")"}]}], "0", "1", "0", "0", "0", "0", "0", "0"}, {"0", "0", RowBox[{"2", " ", SuperscriptBox["h", "3"], " ", "r", " ", RowBox[{"z", "(", "1", ")"}], " ", RowBox[{"z", "(", "2", ")"}], " ", RowBox[{"z", "(", "3", ")"}], " ", RowBox[{"(", RowBox[{"\[Theta]2", "-", "\[Theta]1"}], ")"}]}], RowBox[{RowBox[{"-", RowBox[{RowBox[{"2"}], " ", SuperscriptBox["h", "4"], " ", "r", " ", RowBox[{"(", RowBox[{RowBox[{RowBox[{"z", "(", "2", ")"}], " ", RowBox[{"z", "(", "3", ")"}]}], "+", RowBox[{RowBox[{"z", "(", "1", ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"z", "(", "2", ")"}], "+", RowBox[{"z", "(", "3", ")"}]}], ")"}]}]}], ")"}]}]}], "+", RowBox[{"2", " ", SuperscriptBox["h", "2"], " ", "r", " ", RowBox[{"(", RowBox[{RowBox[{RowBox[{"z", "(", "2", ")"}], " ", RowBox[{"z", "(", "3", ")"}]}], "+", RowBox[{RowBox[{"z", "(", "1", ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"z", "(", "2", ")"}], "+", RowBox[{"z", "(", "3", ")"}]}], ")"}]}]}], ")"}], " ", SuperscriptBox[RowBox[{"(", RowBox[{"h", "+", "\[Theta]1", "-", "\[Theta]2"}], ")"}], "2"]}], "+", "1"}], RowBox[{RowBox[{"-", "2"}], " ", SuperscriptBox["h", "2"], " ", "r", " ", RowBox[{"z", "(", "1", ")"}], " ", RowBox[{"z", "(", "2", ")"}], " ", RowBox[{"z", "(", "3", ")"}], " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{"h", "+", "\[Theta]1", "-", "\[Theta]2"}], ")"}]}], "0", RowBox[{"4", " ", SuperscriptBox["h", "3"], " ", "r", " ", RowBox[{"z", "(", "1", ")"}], " ", RowBox[{"z", "(", "2", ")"}], " ", RowBox[{"z", "(", "3", ")"}], " ", RowBox[{"(", RowBox[{"\[Theta]2", "-", "\[Theta]1"}], ")"}]}], "0", "0"}, {"0", "0", "0", RowBox[{"2", " ", SuperscriptBox["h", "2"], " ", "r", " ", RowBox[{"(", RowBox[{RowBox[{"z", "(", "1", ")"}], "+", RowBox[{"z", "(", "2", ")"}], "+", RowBox[{"z", "(", "3", ")"}]}], ")"}], " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"2", " ", "h"}], "+", "\[Theta]1", "-", "\[Theta]2"}], ")"}]}], "1", RowBox[{RowBox[{"-", "2"}], " ", SuperscriptBox["h", "2"], " ", "r", " ", RowBox[{"z", "(", "1", ")"}], " ", RowBox[{"z", "(", "2", ")"}], " ", RowBox[{"z", "(", "3", ")"}], " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"2", " ", "h"}], "+", "\[Theta]1", "-", "\[Theta]2"}], ")"}]}], "0", "0", "0"}, {"0", "0", "0", RowBox[{"2", " ", SuperscriptBox["h", "2"], " ", "r", " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"2", " ", "h"}], "+", "\[Theta]1", "-", "\[Theta]2"}], ")"}]}], "0", "1", "0", "0", "0"}, {"0", "0", RowBox[{RowBox[{"-", SuperscriptBox["h", "3"]}], " ", "r", " ", RowBox[{"(", RowBox[{RowBox[{RowBox[{"z", "(", "2", ")"}], " ", RowBox[{"z", "(", "3", ")"}]}], "+", RowBox[{RowBox[{"z", "(", "1", ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"z", "(", "2", ")"}], "+", RowBox[{"z", "(", "3", ")"}]}], ")"}]}]}], ")"}], " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}]}], "0", RowBox[{SuperscriptBox["h", "3"], " ", "r", " ", RowBox[{"(", RowBox[{RowBox[{RowBox[{"z", "(", "2", ")"}], " ", RowBox[{"z", "(", "3", ")"}]}], "+", RowBox[{RowBox[{"z", "(", "1", ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"z", "(", "2", ")"}], "+", RowBox[{"z", "(", "3", ")"}]}], ")"}]}]}], ")"}], " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}]}], "0", RowBox[{RowBox[{"2", " ", SuperscriptBox["h", "2"], " ", "r", " ", RowBox[{"(", RowBox[{RowBox[{RowBox[{"z", "(", "2", ")"}], " ", RowBox[{"z", "(", "3", ")"}]}], "+", RowBox[{RowBox[{"z", "(", "1", ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"z", "(", "2", ")"}], "+", RowBox[{"z", "(", "3", ")"}]}], ")"}]}]}], ")"}], " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{"h", "+", "\[Theta]1", "-", "\[Theta]2"}], ")"}]}], "+", "1"}], RowBox[{RowBox[{"-", "2"}], " ", SuperscriptBox["h", "2"], " ", "r", " ", RowBox[{"z", "(", "1", ")"}], " ", RowBox[{"z", "(", "2", ")"}], " ", RowBox[{"z", "(", "3", ")"}], " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"2", " ", "h"}], "+", "\[Theta]1", "-", "\[Theta]2"}], ")"}]}], "0"}, {"0", "0", RowBox[{SuperscriptBox["h", "3"], " ", "r", " ", RowBox[{"(", RowBox[{RowBox[{"z", "(", "1", ")"}], "+", RowBox[{"z", "(", "2", ")"}], "+", RowBox[{"z", "(", "3", ")"}]}], ")"}], " ", RowBox[{"(", RowBox[{"\[Theta]2", "-", "\[Theta]1"}], ")"}]}], "0", RowBox[{SuperscriptBox["h", "3"], " ", "r", " ", RowBox[{"(", RowBox[{RowBox[{"z", "(", "1", ")"}], "+", RowBox[{"z", "(", "2", ")"}], "+", RowBox[{"z", "(", "3", ")"}]}], ")"}], " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}]}], "0", RowBox[{"2", " ", SuperscriptBox["h", "2"], " ", "r", " ", RowBox[{"(", RowBox[{RowBox[{"z", "(", "1", ")"}], "+", RowBox[{"z", "(", "2", ")"}], "+", RowBox[{"z", "(", "3", ")"}]}], ")"}], " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{"h", "+", "\[Theta]1", "-", "\[Theta]2"}], ")"}]}], "1", RowBox[{RowBox[{"-", "2"}], " ", SuperscriptBox["h", "2"], " ", "r", " ", RowBox[{"z", "(", "1", ")"}], " ", RowBox[{"z", "(", "2", ")"}], " ", RowBox[{"z", "(", "3", ")"}], " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"2", " ", "h"}], "+", "\[Theta]1", "-", "\[Theta]2"}], ")"}]}]}, {"0", "0", RowBox[{SuperscriptBox["h", "3"], " ", "r", " ", RowBox[{"(", RowBox[{"\[Theta]2", "-", "\[Theta]1"}], ")"}]}], "0", RowBox[{SuperscriptBox["h", "3"], " ", "r", " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}]}], "0", RowBox[{"2", " ", SuperscriptBox["h", "2"], " ", "r", " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{"h", "+", "\[Theta]1", "-", "\[Theta]2"}], ")"}]}], "0", "1"}}, RowSpacings -> 1, ColumnSpacings -> 1, RowAlignments -> Baseline, ColumnAlignments -> Center], "\[NoBreak]", ")"}]}]
+-- btl output (latex) --
+\mathrm{tstvac}.\,\begin{pmatrix}2\,h^2\,r\,\left(z\left(2\right)\,z\left(3\right)+z\left(1\right)\,\left(z\left(2\right)+z\left(3\right)\right)\right)\,\left(\theta1-\theta2\right)\,\left(2\,h+\theta1-\theta2\right)+1 & -2\,h^2\,r\,z\left(1\right)\,z\left(2\right)\,z\left(3\right)\,\left(\theta1-\theta2\right)\,\left(2\,h+\theta1-\theta2\right) & 0 & 0 & 0 & 0 & 0 & 0 & 0\\2\,h^2\,r\,\left(z\left(1\right)+z\left(2\right)+z\left(3\right)\right)\,\left(\theta1-\theta2\right)\,\left(2\,h+\theta1-\theta2\right) & 1 & -2\,h^2\,r\,z\left(1\right)\,z\left(2\right)\,z\left(3\right)\,\left(\theta1-\theta2\right)\,\left(h+\theta1-\theta2\right) & 0 & 2\,h^3\,r\,z\left(1\right)\,z\left(2\right)\,z\left(3\right)\,\left(\theta2-\theta1\right) & 0 & 4\,h^3\,r\,z\left(1\right)\,z\left(2\right)\,z\left(3\right)\,\left(\theta1-\theta2\right) & 0 & 0\\2\,h^2\,r\,\left(\theta1-\theta2\right)\,\left(2\,h+\theta1-\theta2\right) & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0\\0 & 0 & 2\,h^3\,r\,z\left(1\right)\,z\left(2\right)\,z\left(3\right)\,\left(\theta2-\theta1\right) & -2\,h^4\,r\,\left(z\left(2\right)\,z\left(3\right)+z\left(1\right)\,\left(z\left(2\right)+z\left(3\right)\right)\right)+2\,h^2\,r\,\left(z\left(2\right)\,z\left(3\right)+z\left(1\right)\,\left(z\left(2\right)+z\left(3\right)\right)\right)\,\left(h+\theta1-\theta2\right)^2+1 & -2\,h^2\,r\,z\left(1\right)\,z\left(2\right)\,z\left(3\right)\,\left(\theta1-\theta2\right)\,\left(h+\theta1-\theta2\right) & 0 & 4\,h^3\,r\,z\left(1\right)\,z\left(2\right)\,z\left(3\right)\,\left(\theta2-\theta1\right) & 0 & 0\\0 & 0 & 0 & 2\,h^2\,r\,\left(z\left(1\right)+z\left(2\right)+z\left(3\right)\right)\,\left(\theta1-\theta2\right)\,\left(2\,h+\theta1-\theta2\right) & 1 & -2\,h^2\,r\,z\left(1\right)\,z\left(2\right)\,z\left(3\right)\,\left(\theta1-\theta2\right)\,\left(2\,h+\theta1-\theta2\right) & 0 & 0 & 0\\0 & 0 & 0 & 2\,h^2\,r\,\left(\theta1-\theta2\right)\,\left(2\,h+\theta1-\theta2\right) & 0 & 1 & 0 & 0 & 0\\0 & 0 & -h^3\,r\,\left(z\left(2\right)\,z\left(3\right)+z\left(1\right)\,\left(z\left(2\right)+z\left(3\right)\right)\right)\,\left(\theta1-\theta2\right) & 0 & h^3\,r\,\left(z\left(2\right)\,z\left(3\right)+z\left(1\right)\,\left(z\left(2\right)+z\left(3\right)\right)\right)\,\left(\theta1-\theta2\right) & 0 & 2\,h^2\,r\,\left(z\left(2\right)\,z\left(3\right)+z\left(1\right)\,\left(z\left(2\right)+z\left(3\right)\right)\right)\,\left(\theta1-\theta2\right)\,\left(h+\theta1-\theta2\right)+1 & -2\,h^2\,r\,z\left(1\right)\,z\left(2\right)\,z\left(3\right)\,\left(\theta1-\theta2\right)\,\left(2\,h+\theta1-\theta2\right) & 0\\0 & 0 & h^3\,r\,\left(z\left(1\right)+z\left(2\right)+z\left(3\right)\right)\,\left(\theta2-\theta1\right) & 0 & h^3\,r\,\left(z\left(1\right)+z\left(2\right)+z\left(3\right)\right)\,\left(\theta1-\theta2\right) & 0 & 2\,h^2\,r\,\left(z\left(1\right)+z\left(2\right)+z\left(3\right)\right)\,\left(\theta1-\theta2\right)\,\left(h+\theta1-\theta2\right) & 1 & -2\,h^2\,r\,z\left(1\right)\,z\left(2\right)\,z\left(3\right)\,\left(\theta1-\theta2\right)\,\left(2\,h+\theta1-\theta2\right)\\0 & 0 & h^3\,r\,\left(\theta2-\theta1\right) & 0 & h^3\,r\,\left(\theta1-\theta2\right) & 0 & 2\,h^2\,r\,\left(\theta1-\theta2\right)\,\left(h+\theta1-\theta2\right) & 0 & 1\end{pmatrix}
+-- pageWidthEm: 48  lineBreak: no-change (fits in width)  opts: {"pageWidth":48,"pageWidthPx":774,"baseFontSizePx":16,"indentStep":2,"compact":false,"maxDelimDepth":2,"maxIterations":5,"maxRows":100,"allPages":true} --
+2026-07-19T08:55:22.930Z  [render-width-debug]
+-- headerW: 952  preRenderWidth: 968  containerW: 952  windowInnerWidth: 1028
+-- pageWidthPx: 774  pageWidthEm: 48
+-- divs: {pw:48 lb:false rendW:4100.3}  katexWidths: [4100]
+========================================================================
+2026-07-19T08:55:22.933Z  [katex-feedback]
+-- renderedPx: 4100.3  pageWidthEm: 48  containerPx: 952  overflow: true  lineBroken: false
+-- note: calibration disabled (pageWidthPx is authoritative)  pageWidthPx: 761  pageWidthEm: 47
+2026-07-19T08:55:31.912Z  [render-width-debug]
+-- headerW: 952  preRenderWidth: 968  containerW: 952  windowInnerWidth: 1028
+-- pageWidthPx: 761  pageWidthEm: 47
+-- divs: {pw:48 lb:false rendW:4100.3}  katexWidths: [4100]
+========================================================================
+2026-07-19T08:55:31.916Z  [katex-feedback]
+-- renderedPx: 4100.3  pageWidthEm: 48  containerPx: 952  overflow: true  lineBroken: false
+-- note: calibration disabled (pageWidthPx is authoritative)  pageWidthPx: 761  pageWidthEm: 47
+2026-07-19T08:55:31.934Z  [render-width-debug]
+-- headerW: 952  preRenderWidth: 968  containerW: 952  windowInnerWidth: 1028
+-- pageWidthPx: 761  pageWidthEm: 47
+-- divs: {pw:47 lb:false rendW:838.5}  katexWidths: [838]
+========================================================================
+2026-07-19T08:55:31.948Z
+-- kernel output --
+
+-- btl input (cleaned boxes) --
+RowBox[{"(", "\[NoBreak]", GridBox[{{"0", "0", RowBox[{SuperscriptBox["h", "3"], " ", "r", " ", RowBox[{"(", RowBox[{"\[Theta]2", "-", "\[Theta]1"}], ")"}]}], RowBox[{SuperscriptBox["h", "2"], " ", "q", " ", "r", " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"2", " ", "h"}], "+", "\[Theta]1", "-", "\[Theta]2"}], ")"}]}], RowBox[{SuperscriptBox["h", "3"], " ", "r", " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}]}], FractionBox["q", "2"], RowBox[{"2", " ", SuperscriptBox["h", "2"], " ", "r", " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{"h", "+", "\[Theta]1", "-", "\[Theta]2"}], ")"}]}], "0", "1"}}, RowSpacings -> 1, ColumnSpacings -> 1, RowAlignments -> Baseline, ColumnAlignments -> Center], "\[NoBreak]", ")"}]
+-- btl output (latex) --
+\begin{pmatrix}0 & 0 & h^3\,r\,\left(\theta2-\theta1\right) & h^2\,q\,r\,\left(\theta1-\theta2\right)\,\left(2\,h+\theta1-\theta2\right) & h^3\,r\,\left(\theta1-\theta2\right) & \frac{q}{2} & 2\,h^2\,r\,\left(\theta1-\theta2\right)\,\left(h+\theta1-\theta2\right) & 0 & 1\end{pmatrix}
+-- pageWidthEm: 47  lineBreak: no-change (fits in width)  opts: {"pageWidth":47,"pageWidthPx":761,"baseFontSizePx":16,"indentStep":2,"compact":false,"maxDelimDepth":2,"maxIterations":5,"maxRows":100,"allPages":true} --
+2026-07-19T08:56:03.575Z  [render-width-debug]
+-- headerW: 952  preRenderWidth: 968  containerW: 952  windowInnerWidth: 1028
+-- pageWidthPx: 761  pageWidthEm: 47
+-- divs: {pw:47 lb:false rendW:838.5}  katexWidths: [838]
+2026-07-19T08:56:03.609Z  [render-width-debug]
+-- headerW: 952  preRenderWidth: 968  containerW: 952  windowInnerWidth: 1028
+-- pageWidthPx: 761  pageWidthEm: 47
+-- divs: {pw:47 lb:false rendW:1169.7}  katexWidths: [1170]
+========================================================================
+2026-07-19T08:56:03.612Z  [katex-feedback]
+-- renderedPx: 1169.7  pageWidthEm: 47  containerPx: 952  overflow: true  lineBroken: false
+-- note: calibration disabled (pageWidthPx is authoritative)  pageWidthPx: 761  pageWidthEm: 47
+========================================================================
+2026-07-19T08:56:03.629Z
+-- kernel output --
+
+-- btl input (cleaned boxes) --
+RowBox[{"(", "\[NoBreak]", GridBox[{{"0", "0", RowBox[{RowBox[{SuperscriptBox["h", "3"], " ", "r", " ", RowBox[{"(", RowBox[{"\[Theta]2", "-", "\[Theta]1"}], ")"}]}], "+", RowBox[{FractionBox["1", "2"], " ", SuperscriptBox["h", "2"], " ", "p", " ", "q"}]}], RowBox[{SuperscriptBox["h", "2"], " ", "q", " ", "r", " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"2", " ", "h"}], "+", "\[Theta]1", "-", "\[Theta]2"}], ")"}]}], RowBox[{FractionBox["1", "2"], " ", "h", " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"2", " ", SuperscriptBox["h", "2"], " ", "r"}], "+", RowBox[{"p", " ", "q"}]}], ")"}]}], RowBox[{FractionBox["1", "2"], " ", RowBox[{"(", RowBox[{RowBox[{SuperscriptBox["h", "2"], " ", "p"}], "+", "q"}], ")"}]}], RowBox[{"2", " ", SuperscriptBox["h", "2"], " ", "r", " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{"h", "+", "\[Theta]1", "-", "\[Theta]2"}], ")"}]}], RowBox[{"h", " ", "p", " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}]}], "1"}}, RowSpacings -> 1, ColumnSpacings -> 1, RowAlignments -> Baseline, ColumnAlignments -> Center], "\[NoBreak]", ")"}]
+-- btl output (latex) --
+\begin{pmatrix}0 & 0 & h^3\,r\,\left(\theta2-\theta1\right)+\frac{1}{2}\,h^2\,p\,q & h^2\,q\,r\,\left(\theta1-\theta2\right)\,\left(2\,h+\theta1-\theta2\right) & \frac{1}{2}\,h\,\left(\theta1-\theta2\right)\,\left(2\,h^2\,r+p\,q\right) & \frac{1}{2}\,\left(h^2\,p+q\right) & 2\,h^2\,r\,\left(\theta1-\theta2\right)\,\left(h+\theta1-\theta2\right) & h\,p\,\left(\theta1-\theta2\right) & 1\end{pmatrix}
+-- pageWidthEm: 47  lineBreak: no-change (fits in width)  opts: {"pageWidth":47,"pageWidthPx":761,"baseFontSizePx":16,"indentStep":2,"compact":false,"maxDelimDepth":2,"maxIterations":5,"maxRows":100,"allPages":true} --
+2026-07-19T08:57:53.930Z  [render-width-debug]
+-- headerW: 952  preRenderWidth: 968  containerW: 952  windowInnerWidth: 1028
+-- pageWidthPx: 761  pageWidthEm: 47
+-- divs: {pw:47 lb:false rendW:1169.7}  katexWidths: [1170]
+========================================================================
+2026-07-19T08:57:53.932Z  [katex-feedback]
+-- renderedPx: 1169.7  pageWidthEm: 47  containerPx: 952  overflow: true  lineBroken: false
+-- note: calibration disabled (pageWidthPx is authoritative)  pageWidthPx: 761  pageWidthEm: 47
+2026-07-19T08:57:54.131Z  [render-width-debug]
+-- headerW: 952  preRenderWidth: 968  containerW: 952  windowInnerWidth: 1028
+-- pageWidthPx: 761  pageWidthEm: 47
+-- divs: {pw:47 lb:false rendW:6288.6}  katexWidths: [6289]
+========================================================================
+2026-07-19T08:57:54.133Z  [katex-feedback]
+-- renderedPx: 6288.6  pageWidthEm: 47  containerPx: 952  overflow: true  lineBroken: false
+-- note: calibration disabled (pageWidthPx is authoritative)  pageWidthPx: 761  pageWidthEm: 47
+========================================================================
+2026-07-19T08:57:54.135Z
+-- kernel output --
+
+-- btl input (cleaned boxes) --
+RowBox[{"(", "\[NoBreak]", GridBox[{{"0", "0", RowBox[{FractionBox["1", "2"], " ", SuperscriptBox["h", "2"], " ", RowBox[{"(", RowBox[{RowBox[{RowBox[{"(", RowBox[{"d", "-", "2"}], ")"}], " ", RowBox[{"(", RowBox[{"d", "-", "1"}], ")"}], " ", "h", " ", "r", " ", RowBox[{"(", RowBox[{RowBox[{"d", " ", "h"}], "-", "\[Theta]1", "+", "\[Theta]2"}], ")"}]}], "-", RowBox[{RowBox[{"(", RowBox[{"c", "-", "1"}], ")"}], " ", "p", " ", "q"}]}], ")"}]}], RowBox[{RowBox[{"-", FractionBox["1", "2"]}], " ", RowBox[{"(", RowBox[{"d", "-", "2"}], ")"}], " ", SuperscriptBox["h", "2"], " ", "q", " ", "r", " ", RowBox[{"(", RowBox[{RowBox[{SuperscriptBox["d", "2"], " ", SuperscriptBox["h", "2"]}], "-", RowBox[{"2", " ", "d", " ", "h", " ", RowBox[{"(", RowBox[{"h", "+", "\[Theta]1", "-", "\[Theta]2"}], ")"}]}], "+", RowBox[{RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"2", " ", "h"}], "+", "\[Theta]1", "-", "\[Theta]2"}], ")"}]}]}], ")"}]}], RowBox[{RowBox[{FractionBox["1", "2"], " ", "h", " ", RowBox[{"(", RowBox[{RowBox[{RowBox[{"(", RowBox[{"d", "-", "2"}], ")"}], " ", SuperscriptBox["h", "2"], " ", "r", " ", RowBox[{"(", RowBox[{RowBox[{"d", " ", "h"}], "-", "\[Theta]1", "+", "\[Theta]2"}], ")"}]}], "-", RowBox[{"p", " ", "q", " ", RowBox[{"(", RowBox[{RowBox[{"c", " ", "h"}], "-", "\[Theta]1", "+", "\[Theta]2"}], ")"}]}]}], ")"}]}], "-", FractionBox[RowBox[{"s", " ", "w"}], "2"]}], RowBox[{RowBox[{FractionBox["1", "2"], " ", RowBox[{"(", RowBox[{RowBox[{"-", RowBox[{RowBox[{"(", RowBox[{"c", "-", "1"}], ")"}], " ", SuperscriptBox["h", "2"], " ", "p"}]}], "+", RowBox[{"c", " ", "h", " ", "p", " ", "q", " ", RowBox[{"(", RowBox[{RowBox[{"z", "(", "1", ")"}], "+", RowBox[{"z", "(", "2", ")"}], "+", RowBox[{"z", "(", "3", ")"}]}], ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"c", " ", "h"}], "-", "\[Theta]1", "+", "\[Theta]2"}], ")"}]}], "-", RowBox[{RowBox[{"(", RowBox[{"d", "-", "2"}], ")"}], " ", "d", " ", SuperscriptBox["h", "2"], " ", "q", " ", "r", " ", RowBox[{"(", RowBox[{RowBox[{"-", RowBox[{RowBox[{RowBox[{"z", "(", "2", ")"}]}], " ", RowBox[{"z", "(", "3", ")"}]}]}], "-", RowBox[{RowBox[{"z", "(", "1", ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"z", "(", "2", ")"}], "+", RowBox[{"z", "(", "3", ")"}]}], ")"}]}]}], ")"}], " ", RowBox[{"(", RowBox[{RowBox[{SuperscriptBox["d", "2"], " ", SuperscriptBox["h", "2"]}], "-", RowBox[{"2", " ", "d", " ", "h", " ", RowBox[{"(", RowBox[{"h", "+", "\[Theta]1", "-", "\[Theta]2"}], ")"}]}], "+", RowBox[{RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"2", " ", "h"}], "+", "\[Theta]1", "-", "\[Theta]2"}], ")"}]}]}], ")"}]}], "-", RowBox[{RowBox[{"(", RowBox[{RowBox[{"(", RowBox[{"d", "-", "2"}], ")"}], " ", "d", " ", SuperscriptBox["h", "3"], " ", "r", " ", RowBox[{"(", RowBox[{RowBox[{"z", "(", "1", ")"}], "+", RowBox[{"z", "(", "2", ")"}], "+", RowBox[{"z", "(", "3", ")"}]}], ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"d", " ", "h"}], "-", "\[Theta]1", "+", "\[Theta]2"}], ")"}]}], ")"}]}], "+", "q"}], ")"}]}], "-", FractionBox["s", "2"]}], RowBox[{"-", RowBox[{"(", RowBox[{RowBox[{"(", RowBox[{"d", "-", "2"}], ")"}], " ", SuperscriptBox["h", "2"], " ", "r", " ", RowBox[{"(", RowBox[{RowBox[{RowBox[{"(", RowBox[{"d", "-", "1"}], ")"}], " ", "h"}], "-", "\[Theta]1", "+", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"d", " ", "h"}], "-", "\[Theta]1", "+", "\[Theta]2"}], ")"}]}], ")"}]}], RowBox[{RowBox[{"-", RowBox[{"h", " ", "p", " ", RowBox[{"(", RowBox[{RowBox[{"c", " ", "h"}], "-", "\[Theta]1", "+", "\[Theta]2"}], ")"}]}]}], "-", RowBox[{"w"}]}], RowBox[{RowBox[{"c", " ", "h", " ", "p", " ", RowBox[{"(", RowBox[{RowBox[{"z", "(", "1", ")"}], "+", RowBox[{"z", "(", "2", ")"}], "+", RowBox[{"z", "(", "3", ")"}]}], ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"c", " ", "h"}], "-", "\[Theta]1", "+", "\[Theta]2"}], ")"}]}], "+", RowBox[{SuperscriptBox[RowBox[{"(", RowBox[{"d", "-", "1"}], ")"}], "2"], " ", SuperscriptBox["h", "4"], " ", "q", " ", "r", " ", RowBox[{"z", "(", "1", ")"}], " ", RowBox[{"z", "(", "2", ")"}], " ", RowBox[{"z", "(", "3", ")"}]}], "+", RowBox[{SuperscriptBox[RowBox[{"(", RowBox[{"d", "-", "1"}], ")"}], "2"], " ", SuperscriptBox["h", "3"], " ", "q", " ", "r", " ", RowBox[{"z", "(", "1", ")"}], " ", RowBox[{"z", "(", "2", ")"}], " ", RowBox[{"z", "(", "3", ")"}], " ", RowBox[{"(", RowBox[{RowBox[{RowBox[{"(", RowBox[{"d", "-", "1"}], ")"}], " ", "h"}], "-", "\[Theta]1", "+", "\[Theta]2"}], ")"}]}], "-", RowBox[{SuperscriptBox["h", "3"], " ", "q", " ", "r", " ", RowBox[{"z", "(", "1", ")"}], " ", RowBox[{"z", "(", "2", ")"}], " ", RowBox[{"z", "(", "3", ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"d", " ", "h"}], "-", "\[Theta]1", "+", "\[Theta]2"}], ")"}]}], "+", RowBox[{SuperscriptBox[RowBox[{"(", RowBox[{"d", "-", "1"}], ")"}], "2"], " ", SuperscriptBox["h", "2"], " ", "r", " ", RowBox[{"(", RowBox[{RowBox[{RowBox[{"z", "(", "2", ")"}], " ", RowBox[{"z", "(", "3", ")"}]}], "+", RowBox[{RowBox[{"z", "(", "1", ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"z", "(", "2", ")"}], "+", RowBox[{"z", "(", "3", ")"}]}], ")"}]}]}], ")"}], " ", RowBox[{"(", RowBox[{RowBox[{RowBox[{"(", RowBox[{"d", "-", "1"}], ")"}], " ", "h"}], "-", "\[Theta]1", "+", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"d", " ", "h"}], "-", "\[Theta]1", "+", "\[Theta]2"}], ")"}]}], "-", RowBox[{SuperscriptBox["h", "2"], " ", "r", " ", RowBox[{"(", RowBox[{RowBox[{RowBox[{"z", "(", "2", ")"}], " ", RowBox[{"z", "(", "3", ")"}]}], "+", RowBox[{RowBox[{"z", "(", "1", ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"z", "(", "2", ")"}], "+", RowBox[{"z", "(", "3", ")"}]}], ")"}]}]}], ")"}], " ", RowBox[{"(", RowBox[{RowBox[{RowBox[{"(", RowBox[{"d", "-", "1"}], ")"}], " ", "h"}], "-", "\[Theta]1", "+", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"d", " ", "h"}], "-", "\[Theta]1", "+", "\[Theta]2"}], ")"}]}]}]}}, RowSpacings -> 1, ColumnSpacings -> 1, RowAlignments -> Baseline, ColumnAlignments -> Center], "\[NoBreak]", ")"}]
+-- btl output (latex) --
+\begin{pmatrix}0 & 0 & \frac{1}{2}\,h^2\,\left(\left(d-2\right)\,\left(d-1\right)\,h\,r\,\left(d\,h-\theta1+\theta2\right)-\left(c-1\right)\,p\,q\right) & -\frac{1}{2}\,\left(d-2\right)\,h^2\,q\,r\,\left(d^2\,h^2-2\,d\,h\,\left(h+\theta1-\theta2\right)+\left(\theta1-\theta2\right)\,\left(2\,h+\theta1-\theta2\right)\right) & \frac{1}{2}\,h\,\left(\left(d-2\right)\,h^2\,r\,\left(d\,h-\theta1+\theta2\right)-p\,q\,\left(c\,h-\theta1+\theta2\right)\right)-\frac{s\,w}{2} & \frac{1}{2}\,\left(-\left(c-1\right)\,h^2\,p+c\,h\,p\,q\,\left(z\left(1\right)+z\left(2\right)+z\left(3\right)\right)\,\left(c\,h-\theta1+\theta2\right)-\left(d-2\right)\,d\,h^2\,q\,r\,\left(-z\left(2\right)\,z\left(3\right)-z\left(1\right)\,\left(z\left(2\right)+z\left(3\right)\right)\right)\,\left(d^2\,h^2-2\,d\,h\,\left(h+\theta1-\theta2\right)+\left(\theta1-\theta2\right)\,\left(2\,h+\theta1-\theta2\right)\right)-\left(\left(d-2\right)\,d\,h^3\,r\,\left(z\left(1\right)+z\left(2\right)+z\left(3\right)\right)\,\left(d\,h-\theta1+\theta2\right)\right)+q\right)-\frac{s}{2} & -\left(\left(d-2\right)\,h^2\,r\,\left(\left(d-1\right)\,h-\theta1+\theta2\right)\,\left(d\,h-\theta1+\theta2\right)\right) & -h\,p\,\left(c\,h-\theta1+\theta2\right)-w & c\,h\,p\,\left(z\left(1\right)+z\left(2\right)+z\left(3\right)\right)\,\left(c\,h-\theta1+\theta2\right)+\left(d-1\right)^2\,h^4\,q\,r\,z\left(1\right)\,z\left(2\right)\,z\left(3\right)+\left(d-1\right)^2\,h^3\,q\,r\,z\left(1\right)\,z\left(2\right)\,z\left(3\right)\,\left(\left(d-1\right)\,h-\theta1+\theta2\right)-h^3\,q\,r\,z\left(1\right)\,z\left(2\right)\,z\left(3\right)\,\left(d\,h-\theta1+\theta2\right)+\left(d-1\right)^2\,h^2\,r\,\left(z\left(2\right)\,z\left(3\right)+z\left(1\right)\,\left(z\left(2\right)+z\left(3\right)\right)\right)\,\left(\left(d-1\right)\,h-\theta1+\theta2\right)\,\left(d\,h-\theta1+\theta2\right)-h^2\,r\,\left(z\left(2\right)\,z\left(3\right)+z\left(1\right)\,\left(z\left(2\right)+z\left(3\right)\right)\right)\,\left(\left(d-1\right)\,h-\theta1+\theta2\right)\,\left(d\,h-\theta1+\theta2\right)\end{pmatrix}
+-- pageWidthEm: 47  lineBreak: no-change (fits in width)  opts: {"pageWidth":47,"pageWidthPx":761,"baseFontSizePx":16,"indentStep":2,"compact":false,"maxDelimDepth":2,"maxIterations":5,"maxRows":100,"allPages":true} --
+2026-07-19T08:58:35.127Z  [render-width-debug]
+-- headerW: 952  preRenderWidth: 968  containerW: 952  windowInnerWidth: 1028
+-- pageWidthPx: 761  pageWidthEm: 47
+-- divs: {pw:47 lb:false rendW:6288.6}  katexWidths: [6289]
+========================================================================
+2026-07-19T08:58:35.129Z  [katex-feedback]
+-- renderedPx: 6288.6  pageWidthEm: 47  containerPx: 952  overflow: true  lineBroken: false
+-- note: calibration disabled (pageWidthPx is authoritative)  pageWidthPx: 761  pageWidthEm: 47
+2026-07-19T08:58:35.181Z  [render-width-debug]
+-- headerW: 952  preRenderWidth: 968  containerW: 952  windowInnerWidth: 1028
+-- pageWidthPx: 761  pageWidthEm: 47
+-- divs: {pw:47 lb:false rendW:1548.3}  katexWidths: [1548]
+========================================================================
+2026-07-19T08:58:35.184Z  [katex-feedback]
+-- renderedPx: 1548.3  pageWidthEm: 47  containerPx: 952  overflow: true  lineBroken: false
+-- note: calibration disabled (pageWidthPx is authoritative)  pageWidthPx: 761  pageWidthEm: 47
+========================================================================
+2026-07-19T08:58:35.189Z
+-- kernel output --
+
+-- btl input (cleaned boxes) --
+RowBox[{"(", "\[NoBreak]", GridBox[{{"0", "0", RowBox[{RowBox[{"-", FractionBox["1", "2"]}], " ", RowBox[{"(", RowBox[{"c", "-", "1"}], ")"}], " ", SuperscriptBox["h", "2"], " ", "p", " ", "q"}], "0", RowBox[{RowBox[{"-", RowBox[{FractionBox["1", "2"], " ", "h", " ", "p", " ", "q", " ", RowBox[{"(", RowBox[{RowBox[{"c", " ", "h"}], "-", "\[Theta]1", "+", "\[Theta]2"}], ")"}]}]}], "-", RowBox[{FractionBox[RowBox[{"s", " ", "w"}], "2"]}]}], RowBox[{RowBox[{FractionBox["1", "2"], " ", RowBox[{"(", RowBox[{RowBox[{"-", RowBox[{RowBox[{"(", RowBox[{RowBox[{"(", RowBox[{"c", "-", "1"}], ")"}], " ", SuperscriptBox["h", "2"], " ", "p"}], ")"}]}]}], "+", RowBox[{"c", " ", "h", " ", "p", " ", "q", " ", RowBox[{"(", RowBox[{RowBox[{"z", "(", "1", ")"}], "+", RowBox[{"z", "(", "2", ")"}], "+", RowBox[{"z", "(", "3", ")"}]}], ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"c", " ", "h"}], "-", "\[Theta]1", "+", "\[Theta]2"}], ")"}]}], "+", "q"}], ")"}]}], "-", FractionBox["s", "2"]}], "0", RowBox[{RowBox[{"-", RowBox[{"h", " ", "p", " ", RowBox[{"(", RowBox[{RowBox[{"c", " ", "h"}], "-", "\[Theta]1", "+", "\[Theta]2"}], ")"}]}]}], "-", RowBox[{"w"}]}], RowBox[{"c", " ", "h", " ", "p", " ", RowBox[{"(", RowBox[{RowBox[{"z", "(", "1", ")"}], "+", RowBox[{"z", "(", "2", ")"}], "+", RowBox[{"z", "(", "3", ")"}]}], ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"c", " ", "h"}], "-", "\[Theta]1", "+", "\[Theta]2"}], ")"}]}]}}, RowSpacings -> 1, ColumnSpacings -> 1, RowAlignments -> Baseline, ColumnAlignments -> Center], "\[NoBreak]", ")"}]
+-- btl output (latex) --
+\begin{pmatrix}0 & 0 & -\frac{1}{2}\,\left(c-1\right)\,h^2\,p\,q & 0 & -\frac{1}{2}\,h\,p\,q\,\left(c\,h-\theta1+\theta2\right)-\frac{s\,w}{2} & \frac{1}{2}\,\left(-\left(\left(c-1\right)\,h^2\,p\right)+c\,h\,p\,q\,\left(z\left(1\right)+z\left(2\right)+z\left(3\right)\right)\,\left(c\,h-\theta1+\theta2\right)+q\right)-\frac{s}{2} & 0 & -h\,p\,\left(c\,h-\theta1+\theta2\right)-w & c\,h\,p\,\left(z\left(1\right)+z\left(2\right)+z\left(3\right)\right)\,\left(c\,h-\theta1+\theta2\right)\end{pmatrix}
+-- pageWidthEm: 47  lineBreak: no-change (fits in width)  opts: {"pageWidth":47,"pageWidthPx":761,"baseFontSizePx":16,"indentStep":2,"compact":false,"maxDelimDepth":2,"maxIterations":5,"maxRows":100,"allPages":true} --
+2026-07-19T08:59:00.459Z  [render-width-debug]
+-- headerW: 952  preRenderWidth: 968  containerW: 952  windowInnerWidth: 1028
+-- pageWidthPx: 761  pageWidthEm: 47
+-- divs: {pw:47 lb:false rendW:1548.3}  katexWidths: [1548]
+========================================================================
+2026-07-19T08:59:00.461Z  [katex-feedback]
+-- renderedPx: 1548.3  pageWidthEm: 47  containerPx: 952  overflow: true  lineBroken: false
+-- note: calibration disabled (pageWidthPx is authoritative)  pageWidthPx: 761  pageWidthEm: 47
+2026-07-19T08:59:00.526Z  [render-width-debug]
+-- headerW: 952  preRenderWidth: 968  containerW: 952  windowInnerWidth: 1028
+-- pageWidthPx: 761  pageWidthEm: 47
+-- divs: {pw:47 lb:false rendW:1275.0}  katexWidths: [1275]
+========================================================================
+2026-07-19T08:59:00.532Z  [katex-feedback]
+-- renderedPx: 1275.0  pageWidthEm: 47  containerPx: 952  overflow: true  lineBroken: false
+-- note: calibration disabled (pageWidthPx is authoritative)  pageWidthPx: 761  pageWidthEm: 47
+========================================================================
+2026-07-19T08:59:00.541Z
+-- kernel output --
+
+-- btl input (cleaned boxes) --
+RowBox[{"(", "\[NoBreak]", GridBox[{{"0", "0", RowBox[{RowBox[{SuperscriptBox["h", "3"], " ", "r", " ", RowBox[{"(", RowBox[{"\[Theta]2", "-", "\[Theta]1"}], ")"}]}], "+", RowBox[{FractionBox["1", "2"], " ", SuperscriptBox["h", "2"], " ", "p", " ", "q"}]}], RowBox[{SuperscriptBox["h", "2"], " ", "q", " ", "r", " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"2", " ", "h"}], "+", "\[Theta]1", "-", "\[Theta]2"}], ")"}]}], RowBox[{RowBox[{FractionBox["1", "2"], " ", "h", " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"2", " ", SuperscriptBox["h", "2"], " ", "r"}], "+", RowBox[{"p", " ", "q"}]}], ")"}]}], "-", FractionBox[RowBox[{"s", " ", "w"}], "2"]}], RowBox[{RowBox[{FractionBox["1", "2"], " ", RowBox[{"(", RowBox[{RowBox[{SuperscriptBox["h", "2"], " ", "p"}], "+", "q"}], ")"}]}], "-", FractionBox["s", "2"]}], RowBox[{"2", " ", SuperscriptBox["h", "2"], " ", "r", " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{"h", "+", "\[Theta]1", "-", "\[Theta]2"}], ")"}]}], RowBox[{RowBox[{"h", " ", "p", " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}]}], "-", "w"}], "0"}}, RowSpacings -> 1, ColumnSpacings -> 1, RowAlignments -> Baseline, ColumnAlignments -> Center], "\[NoBreak]", ")"}]
+-- btl output (latex) --
+\begin{pmatrix}0 & 0 & h^3\,r\,\left(\theta2-\theta1\right)+\frac{1}{2}\,h^2\,p\,q & h^2\,q\,r\,\left(\theta1-\theta2\right)\,\left(2\,h+\theta1-\theta2\right) & \frac{1}{2}\,h\,\left(\theta1-\theta2\right)\,\left(2\,h^2\,r+p\,q\right)-\frac{s\,w}{2} & \frac{1}{2}\,\left(h^2\,p+q\right)-\frac{s}{2} & 2\,h^2\,r\,\left(\theta1-\theta2\right)\,\left(h+\theta1-\theta2\right) & h\,p\,\left(\theta1-\theta2\right)-w & 0\end{pmatrix}
+-- pageWidthEm: 47  lineBreak: no-change (fits in width)  opts: {"pageWidth":47,"pageWidthPx":761,"baseFontSizePx":16,"indentStep":2,"compact":false,"maxDelimDepth":2,"maxIterations":5,"maxRows":100,"allPages":true} --
+2026-07-19T08:59:26.394Z  [render-width-debug]
+-- headerW: 952  preRenderWidth: 968  containerW: 952  windowInnerWidth: 1028
+-- pageWidthPx: 761  pageWidthEm: 47
+-- divs: {pw:47 lb:false rendW:1275.0}  katexWidths: [1275]
+========================================================================
+2026-07-19T08:59:26.398Z  [katex-feedback]
+-- renderedPx: 1275.0  pageWidthEm: 47  containerPx: 952  overflow: true  lineBroken: false
+-- note: calibration disabled (pageWidthPx is authoritative)  pageWidthPx: 761  pageWidthEm: 47
+2026-07-19T08:59:26.494Z  [render-width-debug]
+-- headerW: 952  preRenderWidth: 968  containerW: 952  windowInnerWidth: 1028
+-- pageWidthPx: 761  pageWidthEm: 47
+-- divs: {pw:47 lb:false rendW:1289.6}  katexWidths: [1290]
+========================================================================
+2026-07-19T08:59:26.495Z  [katex-feedback]
+-- renderedPx: 1289.6  pageWidthEm: 47  containerPx: 952  overflow: true  lineBroken: false
+-- note: calibration disabled (pageWidthPx is authoritative)  pageWidthPx: 761  pageWidthEm: 47
+========================================================================
+2026-07-19T08:59:26.518Z
+-- kernel output --
+
+-- btl input (cleaned boxes) --
+RowBox[{"(", "\[NoBreak]", GridBox[{{"0", "0", RowBox[{RowBox[{SuperscriptBox["h", "3"], " ", "r", " ", RowBox[{"(", RowBox[{"\[Theta]2", "-", "\[Theta]1"}], ")"}]}], "+", RowBox[{FractionBox["1", "2"], " ", SuperscriptBox["h", "2"], " ", "p", " ", "q"}]}], RowBox[{SuperscriptBox["h", "2"], " ", "q", " ", "r", " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"2", " ", "h"}], "+", "\[Theta]1", "-", "\[Theta]2"}], ")"}]}], RowBox[{RowBox[{FractionBox["1", "2"], " ", "h", " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"2", " ", SuperscriptBox["h", "2"], " ", "r"}], "+", RowBox[{"p", " ", "q"}]}], ")"}]}], "-", FractionBox[RowBox[{SuperscriptBox["s", "2"], " ", "w"}], "2"]}], RowBox[{RowBox[{FractionBox["1", "2"], " ", RowBox[{"(", RowBox[{RowBox[{SuperscriptBox["h", "2"], " ", "p"}], "+", "q"}], ")"}]}], "-", FractionBox[SuperscriptBox["s", "2"], "2"]}], RowBox[{"2", " ", SuperscriptBox["h", "2"], " ", "r", " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{"h", "+", "\[Theta]1", "-", "\[Theta]2"}], ")"}]}], RowBox[{RowBox[{"h", " ", "p", " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}]}], "-", "w"}], "0"}}, RowSpacings -> 1, ColumnSpacings -> 1, RowAlignments -> Baseline, ColumnAlignments -> Center], "\[NoBreak]", ")"}]
+-- btl output (latex) --
+\begin{pmatrix}0 & 0 & h^3\,r\,\left(\theta2-\theta1\right)+\frac{1}{2}\,h^2\,p\,q & h^2\,q\,r\,\left(\theta1-\theta2\right)\,\left(2\,h+\theta1-\theta2\right) & \frac{1}{2}\,h\,\left(\theta1-\theta2\right)\,\left(2\,h^2\,r+p\,q\right)-\frac{s^2\,w}{2} & \frac{1}{2}\,\left(h^2\,p+q\right)-\frac{s^2}{2} & 2\,h^2\,r\,\left(\theta1-\theta2\right)\,\left(h+\theta1-\theta2\right) & h\,p\,\left(\theta1-\theta2\right)-w & 0\end{pmatrix}
+-- pageWidthEm: 47  lineBreak: no-change (fits in width)  opts: {"pageWidth":47,"pageWidthPx":761,"baseFontSizePx":16,"indentStep":2,"compact":false,"maxDelimDepth":2,"maxIterations":5,"maxRows":100,"allPages":true} --
+2026-07-19T08:59:36.929Z  [render-width-debug]
+-- headerW: 952  preRenderWidth: 968  containerW: 952  windowInnerWidth: 1028
+-- pageWidthPx: 761  pageWidthEm: 47
+-- divs: {pw:47 lb:false rendW:1289.6}  katexWidths: [1290]
+========================================================================
+2026-07-19T08:59:36.931Z  [katex-feedback]
+-- renderedPx: 1289.6  pageWidthEm: 47  containerPx: 952  overflow: true  lineBroken: false
+-- note: calibration disabled (pageWidthPx is authoritative)  pageWidthPx: 761  pageWidthEm: 47
+========================================================================
+2026-07-19T08:59:36.993Z
+-- kernel output --
+
+-- btl input (cleaned boxes) --
+RowBox[{"(", "\[NoBreak]", GridBox[{{"0", "0", RowBox[{RowBox[{SuperscriptBox["h", "3"], " ", "r", " ", RowBox[{"(", RowBox[{"\[Theta]2", "-", "\[Theta]1"}], ")"}]}], "+", RowBox[{FractionBox["1", "2"], " ", SuperscriptBox["h", "2"], " ", "p", " ", "q"}]}], RowBox[{SuperscriptBox["h", "2"], " ", "q", " ", "r", " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"2", " ", "h"}], "+", "\[Theta]1", "-", "\[Theta]2"}], ")"}]}], RowBox[{RowBox[{FractionBox["1", "2"], " ", "h", " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{RowBox[{"2", " ", SuperscriptBox["h", "2"], " ", "r"}], "+", RowBox[{"p", " ", "q"}]}], ")"}]}], "-", FractionBox[RowBox[{"s", " ", "w"}], "2"]}], RowBox[{RowBox[{FractionBox["1", "2"], " ", RowBox[{"(", RowBox[{RowBox[{SuperscriptBox["h", "2"], " ", "p"}], "+", "q"}], ")"}]}], "-", FractionBox["s", "2"]}], RowBox[{"2", " ", SuperscriptBox["h", "2"], " ", "r", " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}], " ", RowBox[{"(", RowBox[{"h", "+", "\[Theta]1", "-", "\[Theta]2"}], ")"}]}], RowBox[{RowBox[{"h", " ", "p", " ", RowBox[{"(", RowBox[{"\[Theta]1", "-", "\[Theta]2"}], ")"}]}], "-", "w"}], "0"}}, RowSpacings -> 1, ColumnSpacings -> 1, RowAlignments -> Baseline, ColumnAlignments -> Center], "\[NoBreak]", ")"}]
+-- btl output (latex) --
+\begin{pmatrix}0 & 0 & h^3\,r\,\left(\theta2-\theta1\right)+\frac{1}{2}\,h^2\,p\,q & h^2\,q\,r\,\left(\theta1-\theta2\right)\,\left(2\,h+\theta1-\theta2\right) & \frac{1}{2}\,h\,\left(\theta1-\theta2\right)\,\left(2\,h^2\,r+p\,q\right)-\frac{s\,w}{2} & \frac{1}{2}\,\left(h^2\,p+q\right)-\frac{s}{2} & 2\,h^2\,r\,\left(\theta1-\theta2\right)\,\left(h+\theta1-\theta2\right) & h\,p\,\left(\theta1-\theta2\right)-w & 0\end{pmatrix}
+-- pageWidthEm: 47  lineBreak: no-change (fits in width)  opts: {"pageWidth":47,"pageWidthPx":761,"baseFontSizePx":16,"indentStep":2,"compact":false,"maxDelimDepth":2,"maxIterations":5,"maxRows":100,"allPages":true} --
+2026-07-19T08:59:37.037Z  [render-width-debug]
+-- headerW: 952  preRenderWidth: 968  containerW: 952  windowInnerWidth: 1028
+-- pageWidthPx: 761  pageWidthEm: 47
+-- divs: {pw:47 lb:false rendW:1275.0}  katexWidths: [1275]
+========================================================================
+2026-07-19T08:59:37.039Z  [katex-feedback]
+-- renderedPx: 1275.0  pageWidthEm: 47  containerPx: 952  overflow: true  lineBroken: false
+-- note: calibration disabled (pageWidthPx is authoritative)  pageWidthPx: 761  pageWidthEm: 47
+2026-07-19T08:59:47.909Z  [render-width-debug]
+-- headerW: 952  preRenderWidth: 968  containerW: 952  windowInnerWidth: 1028
+-- pageWidthPx: 761  pageWidthEm: 47
+-- divs: {pw:47 lb:false rendW:1275.0}  katexWidths: [1275]
+========================================================================
+2026-07-19T08:59:47.912Z  [katex-feedback]
+-- renderedPx: 1275.0  pageWidthEm: 47  containerPx: 952  overflow: true  lineBroken: false
+-- note: calibration disabled (pageWidthPx is authoritative)  pageWidthPx: 761  pageWidthEm: 47
+2026-07-19T08:59:47.994Z  [render-width-debug]
+-- headerW: 952  preRenderWidth: 968  containerW: 952  windowInnerWidth: 1028
+-- pageWidthPx: 761  pageWidthEm: 47
+-- divs: {pw:47 lb:false rendW:232.4}  katexWidths: [232]
+========================================================================
+2026-07-19T08:59:47.997Z
+-- kernel output --
+
+-- btl input (cleaned boxes) --
+RowBox[{"{", RowBox[{"{", RowBox[{RowBox[{"p", "\[Rule]", "0"}], ",", RowBox[{"r", "\[Rule]", "0"}], ",", RowBox[{"s", "\[Rule]", "q"}], ",", RowBox[{"w", "\[Rule]", "0"}]}], "}"}], "}"}]
+-- btl output (latex) --
+\left\{\left\{p\to 0,r\to 0,s\to q,w\to 0\right\}\right\}
+-- pageWidthEm: 47  lineBreak: no-change (fits in width)  opts: {"pageWidth":47,"pageWidthPx":761,"baseFontSizePx":16,"indentStep":2,"compact":false,"maxDelimDepth":2,"maxIterations":5,"maxRows":100,"allPages":true} --
+2026-07-19T08:59:51.656Z  [render-width-debug]
+-- headerW: 952  preRenderWidth: 968  containerW: 952  windowInnerWidth: 1028
+-- pageWidthPx: 761  pageWidthEm: 47
+-- divs: {pw:47 lb:false rendW:232.4}  katexWidths: [232]
+2026-07-19T08:59:51.690Z  [render-width-debug]
+-- headerW: 0  preRenderWidth: 968  containerW: 968  windowInnerWidth: 1028
+-- pageWidthPx: 761  pageWidthEm: 47
+-- divs: (none)  katexWidths: []
+2026-07-19T08:59:51.733Z  [render-width-debug]
+-- headerW: 952  preRenderWidth: 968  containerW: 952  windowInnerWidth: 1028
+-- pageWidthPx: 774  pageWidthEm: 48
+-- divs: {pw:47 lb:false rendW:475.5}  katexWidths: [475]
+========================================================================
+2026-07-19T08:59:51.744Z
+-- kernel output --
+
+-- btl input (cleaned boxes) --
+RowBox[{"{", RowBox[{RowBox[{"{", RowBox[{RowBox[{"p", "\[Rule]", "0"}], ",", RowBox[{"r", "\[Rule]", "0"}], ",", RowBox[{"s", "\[Rule]", "q"}], ",", RowBox[{"w", "\[Rule]", "0"}]}], "}"}], ",", RowBox[{"{", RowBox[{RowBox[{"p", "\[Rule]", "0"}], ",", RowBox[{"s", "\[Rule]", "q"}], ",", RowBox[{"w", "\[Rule]", "0"}], ",", RowBox[{"\[Theta]2", "\[Rule]", "\[Theta]1"}]}], "}"}]}], "}"}]
+-- btl output (latex) --
+\left\{\left\{p\to 0,r\to 0,s\to q,w\to 0\right\},\left\{p\to 0,s\to q,w\to 0,\theta2\to \theta1\right\}\right\}
+-- pageWidthEm: 47  lineBreak: no-change (fits in width)  opts: {"pageWidth":47,"pageWidthPx":761,"baseFontSizePx":16,"indentStep":2,"compact":false,"maxDelimDepth":2,"maxIterations":5,"maxRows":100,"allPages":true} --
+2026-07-19T08:59:51.761Z  [render-width-debug]
+-- headerW: 0  preRenderWidth: 968  containerW: 968  windowInnerWidth: 1028
+-- pageWidthPx: 761  pageWidthEm: 47
+-- divs: (none)  katexWidths: []
+2026-07-19T09:00:24.708Z  [render-width-debug]
+-- headerW: 0  preRenderWidth: 968  containerW: 968  windowInnerWidth: 1028
+-- pageWidthPx: 774  pageWidthEm: 48
+-- divs: (none)  katexWidths: []
+2026-07-19T09:00:24.745Z  [render-width-debug]
+-- headerW: 952  preRenderWidth: 968  containerW: 952  windowInnerWidth: 1028
+-- pageWidthPx: 774  pageWidthEm: 48
+-- divs: {pw:48 lb:false rendW:2600.6}  katexWidths: [2601]
+========================================================================
+2026-07-19T09:00:24.746Z
+-- kernel output --
+
+-- btl input (cleaned boxes) --
+RowBox[{"{", RowBox[{RowBox[{"{", RowBox[{RowBox[{"p", "\[Rule]", "0"}], ",", RowBox[{"s", "\[Rule]", "q"}], ",", RowBox[{"w", "\[Rule]", "0"}], ",", RowBox[{"b", "\[Rule]", "2"}]}], "}"}], ",", RowBox[{"{", RowBox[{RowBox[{"p", "\[Rule]", "0"}], ",", RowBox[{"r", "\[Rule]", "0"}], ",", RowBox[{"s", "\[Rule]", "q"}], ",", RowBox[{"w", "\[Rule]", "0"}]}], "}"}], ",", RowBox[{"{", RowBox[{RowBox[{"p", "\[Rule]", "0"}], ",", RowBox[{"s", "\[Rule]", "q"}], ",", RowBox[{"w", "\[Rule]", "0"}], ",", RowBox[{"\[Theta]2", "\[Rule]", RowBox[{"\[Theta]1", "-", RowBox[{"b", " ", "h"}]}]}]}], "}"}], ",", RowBox[{"{", RowBox[{RowBox[{"s", "\[Rule]", "q"}], ",", RowBox[{"w", "\[Rule]", "0"}], ",", RowBox[{"\[Theta]2", "\[Rule]", RowBox[{"\[Theta]1", "-", "h"}]}], ",", RowBox[{"a", "\[Rule]", "1"}], ",", RowBox[{"b", "\[Rule]", "1"}]}], "}"}], ",", RowBox[{"{", RowBox[{RowBox[{"p", "\[Rule]", "0"}], ",", RowBox[{"s", "\[Rule]", "q"}], ",", RowBox[{"w", "\[Rule]", "0"}], ",", RowBox[{"a", "\[Rule]", "1"}], ",", RowBox[{"b", "\[Rule]", "2"}]}], "}"}], ",", RowBox[{"{", RowBox[{RowBox[{"s", "\[Rule]", "q"}], ",", RowBox[{"w", "\[Rule]", "0"}], ",", RowBox[{"\[Theta]2", "\[Rule]", RowBox[{"\[Theta]1", "-", "h"}]}], ",", RowBox[{"a", "\[Rule]", "1"}], ",", RowBox[{"b", "\[Rule]", "2"}]}], "}"}], ",", RowBox[{"{", RowBox[{RowBox[{"p", "\[Rule]", "0"}], ",", RowBox[{"r", "\[Rule]", "0"}], ",", RowBox[{"s", "\[Rule]", "q"}], ",", RowBox[{"w", "\[Rule]", "0"}], ",", RowBox[{"a", "\[Rule]", "1"}]}], "}"}], ",", RowBox[{"{", RowBox[{RowBox[{"r", "\[Rule]", "0"}], ",", RowBox[{"s", "\[Rule]", "q"}], ",", RowBox[{"w", "\[Rule]", "0"}], ",", RowBox[{"\[Theta]2", "\[Rule]", RowBox[{"\[Theta]1", "-", "h"}]}], ",", RowBox[{"a", "\[Rule]", "1"}]}], "}"}], ",", RowBox[{"{", RowBox[{RowBox[{"p", "\[Rule]", "0"}], ",", RowBox[{"s", "\[Rule]", "q"}], ",", RowBox[{"w", "\[Rule]", "0"}], ",", RowBox[{"\[Theta]2", "\[Rule]", RowBox[{"\[Theta]1", "-", RowBox[{"b", " ", "h"}]}]}], ",", RowBox[{"a", "\[Rule]", "1"}]}], "}"}]}], "}"}]
+-- btl output (latex) --
+\left\{\left\{p\to 0,s\to q,w\to 0,b\to 2\right\},\left\{p\to 0,r\to 0,s\to q,w\to 0\right\},\left\{p\to 0,s\to q,w\to 0,\theta2\to \theta1-b\,h\right\},\left\{s\to q,w\to 0,\theta2\to \theta1-h,a\to 1,b\to 1\right\},\left\{p\to 0,s\to q,w\to 0,a\to 1,b\to 2\right\},\left\{s\to q,w\to 0,\theta2\to \theta1-h,a\to 1,b\to 2\right\},\left\{p\to 0,r\to 0,s\to q,w\to 0,a\to 1\right\},\left\{r\to 0,s\to q,w\to 0,\theta2\to \theta1-h,a\to 1\right\},\left\{p\to 0,s\to q,w\to 0,\theta2\to \theta1-b\,h,a\to 1\right\}\right\}
+-- pageWidthEm: 48  lineBreak: applied  opts: {"pageWidth":48,"pageWidthPx":774,"baseFontSizePx":16,"indentStep":2,"compact":false,"maxDelimDepth":2,"maxIterations":5,"maxRows":100,"allPages":true} --
+========================================================================
+2026-07-19T09:00:24.747Z  [katex-feedback]
+-- renderedPx: 2600.6  pageWidthEm: 48  containerPx: 952  overflow: true  lineBroken: false
+-- note: calibration disabled (pageWidthPx is authoritative)  pageWidthPx: 761  pageWidthEm: 47
+2026-07-19T09:00:24.770Z  [render-width-debug]
+-- headerW: 0  preRenderWidth: 968  containerW: 968  windowInnerWidth: 1028
+-- pageWidthPx: 761  pageWidthEm: 47
+-- divs: (none)  katexWidths: []
+2026-07-19T09:01:09.155Z  [render-width-debug]
+-- headerW: 0  preRenderWidth: 968  containerW: 968  windowInnerWidth: 1028
+-- pageWidthPx: 774  pageWidthEm: 48
+-- divs: (none)  katexWidths: []
+========================================================================
+2026-07-19T09:01:09.201Z
+-- kernel output --
+
+-- btl input (cleaned boxes) --
+RowBox[{"{", RowBox[{RowBox[{"{", RowBox[{RowBox[{"p", "\[Rule]", "0"}], ",", RowBox[{"s", "\[Rule]", "q"}], ",", RowBox[{"w", "\[Rule]", "0"}], ",", RowBox[{"b", "\[Rule]", "2"}]}], "}"}], ",", RowBox[{"{", RowBox[{RowBox[{"p", "\[Rule]", "0"}], ",", RowBox[{"r", "\[Rule]", "0"}], ",", RowBox[{"s", "\[Rule]", "q"}], ",", RowBox[{"w", "\[Rule]", "0"}]}], "}"}], ",", RowBox[{"{", RowBox[{RowBox[{"p", "\[Rule]", "0"}], ",", RowBox[{"s", "\[Rule]", "q"}], ",", RowBox[{"w", "\[Rule]", "0"}], ",", RowBox[{"\[Theta]2", "\[Rule]", RowBox[{"\[Theta]1", "-", RowBox[{"b", " ", "h"}]}]}]}], "}"}], ",", RowBox[{"{", RowBox[{RowBox[{"s", "\[Rule]", "q"}], ",", RowBox[{"w", "\[Rule]", "0"}], ",", RowBox[{"\[Theta]2", "\[Rule]", RowBox[{"\[Theta]1", "-", "h"}]}], ",", RowBox[{"a", "\[Rule]", "1"}], ",", RowBox[{"b", "\[Rule]", "1"}]}], "}"}], ",", RowBox[{"{", RowBox[{RowBox[{"p", "\[Rule]", "0"}], ",", RowBox[{"s", "\[Rule]", "q"}], ",", RowBox[{"w", "\[Rule]", "0"}], ",", RowBox[{"a", "\[Rule]", FractionBox[RowBox[{"\[Theta]1", "-", "\[Theta]2"}], "h"]}], ",", RowBox[{"b", "\[Rule]", "2"}]}], "}"}], ",", RowBox[{"{", RowBox[{RowBox[{"s", "\[Rule]", "q"}], ",", RowBox[{"w", "\[Rule]", "0"}], ",", RowBox[{"\[Theta]2", "\[Rule]", RowBox[{"\[Theta]1", "-", "h"}]}], ",", RowBox[{"a", "\[Rule]", "1"}], ",", RowBox[{"b", "\[Rule]", "2"}]}], "}"}], ",", RowBox[{"{", RowBox[{RowBox[{"p", "\[Rule]", "0"}], ",", RowBox[{"r", "\[Rule]", "0"}], ",", RowBox[{"s", "\[Rule]", "q"}], ",", RowBox[{"w", "\[Rule]", "0"}], ",", RowBox[{"a", "\[Rule]", FractionBox[RowBox[{"\[Theta]1", "-", "\[Theta]2"}], "h"]}]}], "}"}], ",", RowBox[{"{", RowBox[{RowBox[{"r", "\[Rule]", "0"}], ",", RowBox[{"s", "\[Rule]", "q"}], ",", RowBox[{"w", "\[Rule]", "0"}], ",", RowBox[{"\[Theta]2", "\[Rule]", RowBox[{"\[Theta]1", "-", "h"}]}], ",", RowBox[{"a", "\[Rule]", "1"}]}], "}"}], ",", RowBox[{"{", RowBox[{RowBox[{"p", "\[Rule]", "0"}], ",", RowBox[{"s", "\[Rule]", "q"}], ",", RowBox[{"w", "\[Rule]", "0"}], ",", RowBox[{"\[Theta]2", "\[Rule]", RowBox[{"\[Theta]1", "-", RowBox[{"b", " ", "h"}]}]}], ",", RowBox[{"a", "\[Rule]", "b"}]}], "}"}]}], "}"}]
+-- btl output (latex) --
+\left\{\left\{p\to 0,s\to q,w\to 0,b\to 2\right\},\left\{p\to 0,r\to 0,s\to q,w\to 0\right\},\left\{p\to 0,s\to q,w\to 0,\theta2\to \theta1-b\,h\right\},\left\{s\to q,w\to 0,\theta2\to \theta1-h,a\to 1,b\to 1\right\},\left\{p\to 0,s\to q,w\to 0,a\to \frac{\theta1-\theta2}{h},b\to 2\right\},\left\{s\to q,w\to 0,\theta2\to \theta1-h,a\to 1,b\to 2\right\},\left\{p\to 0,r\to 0,s\to q,w\to 0,a\to \frac{\theta1-\theta2}{h}\right\},\left\{r\to 0,s\to q,w\to 0,\theta2\to \theta1-h,a\to 1\right\},\left\{p\to 0,s\to q,w\to 0,\theta2\to \theta1-b\,h,a\to b\right\}\right\}
+-- pageWidthEm: 48  lineBreak: applied  opts: {"pageWidth":48,"pageWidthPx":774,"baseFontSizePx":16,"indentStep":2,"compact":false,"maxDelimDepth":2,"maxIterations":5,"maxRows":100,"allPages":true} --
+2026-07-19T09:01:09.203Z  [render-width-debug]
+-- headerW: 952  preRenderWidth: 968  containerW: 952  windowInnerWidth: 1028
+-- pageWidthPx: 774  pageWidthEm: 48
+-- divs: {pw:48 lb:false rendW:2724.9}  katexWidths: [2725]
+========================================================================
+2026-07-19T09:01:09.205Z  [katex-feedback]
+-- renderedPx: 2724.9  pageWidthEm: 48  containerPx: 952  overflow: true  lineBroken: false
+-- note: calibration disabled (pageWidthPx is authoritative)  pageWidthPx: 761  pageWidthEm: 47
+2026-07-19T09:01:09.220Z  [render-width-debug]
+-- headerW: 0  preRenderWidth: 968  containerW: 968  windowInnerWidth: 1028
+-- pageWidthPx: 761  pageWidthEm: 47
+-- divs: (none)  katexWidths: []
