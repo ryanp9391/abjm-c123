@@ -1,0 +1,1924 @@
+
+===== cell 1 [MD] =====
+# gl(3), L=2, adjoint⊗adjoint: a global rotation of the SoV vacuum as a product of Q-determinants
+
+The L=1 results are in `Rotation-e8-SoV.wb` (Sections 10–10e):
+- **Decomposition.** Every generic rotation of $x_0$ is $\Omega_w\,\rho((y_1-G(z)^T)^{-1})$.
+- **The resolvent factor.** The resolvent acts on $\Psi_B$ by $\prod_i(1-z_i/y_1)^{-\mu_i}$. This factor equals a $2\times2$ determinant in $(Q^3,Q^2)$ with the insertion $y_1^{-x/h}$, divided by the $2\times2$ minor of $\Psi_Q(x_0)$.
+
+**Here (L=2, diagonal frame).**
+- $x_0=(e_1^TP_{\rm phys}^{-1})^{\otimes2}$ is a product state. So the same rotation on each site is $\Phi_2=(\Omega_{zw}\,\rho(D))^{\otimes2}$, with $D={\rm diag}(1/(y_1-z_i))$, and $\Phi_2\cdot\Psi_B=\prod_i(y_1-z_i)^{-\mu_i}\,\Omega\cdot\Psi_B$.
+- The second factor is the $6\times6$ formula of `L2-diagonal-frame-overlap.wb`.
+- **Question.** Is the first factor an su(2)-like determinant?
+
+The setup cells are copied verbatim from `L2-diagonal-frame-overlap.wb` (E basis). The numeric point is $h=1/2$, $\theta=(2/7,-3/5)$, $z=(3/2,5/4,2/3)$, $w=(5/2,7/3,3/5)$.
+
+===== cell 2 [CODE] =====
+(* fresh kernel state; this also clears the other new-conventions notebooks' session state (their files are untouched) *)
+ClearAll["Global`*"];
+(* GT basis and gl(3) generators, verbatim from the clean L=1 notebook *)
+ps[rep_] := ps[rep] = Block[{res = (Prepend[rep, #1] &) /@ Tuples[Table[Range[rep[[1, i + 1]], rep[[1, i]]], {i, 1, Length[rep[[1]]] - 1}]]}, If[Length[res[[1, 1]]] == 1, Reverse[Sort[res]], Reverse[Sort[Flatten[ps /@ res, 1]]]]];
+dim[rep_] := dim[rep] = Length[ps[{rep}]];
+J0[k_][pat_] := J0[k][pat] = Sum[pat[[k, i]], {i, 1, k}] - Sum[pat[[k - 1, i]], {i, 1, k - 1}];
+Jp[k_][pat_] := Jp[k][pat] = -Sum[(Product[pat[[k, i]] - i - pat[[k + 1, j]] + j, {j, Range[k + 1]}]/Product[pat[[k, i]] - i - pat[[k, j]] + j, {j, Complement[Range[k], {i}]}])*v[ReplacePart[pat, {k, i} -> pat[[k, i]] + 1]], {i, 1, k}];
+Jm[k_][pat_] := Jm[k][pat] = Sum[(Product[pat[[k, i]] - i - pat[[k - 1, j]] + j, {j, Range[k - 1]}]/Product[pat[[k, i]] - i - pat[[k, j]] + j, {j, Complement[Range[k], {i}]}])*v[ReplacePart[pat, {k, i} -> pat[[k, i]] - 1]], {i, 1, k}];
+JJ[k_, l_, rep_] := JJ[k, l, rep] = Which[
+  k == l, DiagonalMatrix[J0[k] /@ ps[{rep}]],
+  l == k + 1, Transpose[Table[(Coefficient[Jp[k][ps[{rep}][[i]]], v[#1]] &) /@ ps[{rep}], {i, 1, Length[ps[{rep}]]}]],
+  l == k - 1, Transpose[Table[(Coefficient[Jm[l][ps[{rep}][[i]]], v[#1]] &) /@ ps[{rep}], {i, 1, Length[ps[{rep}]]}]],
+  l > k + 1, JJ[k, k + 1, rep] . JJ[k + 1, l, rep] - JJ[k + 1, l, rep] . JJ[k, k + 1, rep],
+  l < k - 1, JJ[k, k - 1, rep] . JJ[k - 1, l, rep] - JJ[k - 1, l, rep] . JJ[k, k - 1, rep]];
+checks = <||>;
+(* rep, numeric point, two-site generators *)
+Λ = {2, 1, 0}; nL = 2; d1 = dim[Λ]; d2 = d1^nL; id2 = IdentityMatrix[d2];
+hN = 1/2; thN = {2/7, -3/5}; zN = {3/2, 5/4, 2/3}; wN = {5/2, 7/3, 3/5}; prec = 60;
+Ee[i_, j_] := Ee[i, j] = JJ[i, j, Λ];
+E1[i_, j_] := E1[i, j] = KroneckerProduct[Ee[i, j], IdentityMatrix[d1]];
+E2[i_, j_] := E2[i, j] = KroneckerProduct[IdentityMatrix[d1], Ee[i, j]];
+(* total gl(3) weight of each product basis state, in KroneckerProduct order *)
+wtBasis = Flatten[Table[Table[J0[k][p1] + J0[k][p2], {k, 3}], {p1, ps[{Λ}]}, {p2, ps[{Λ}]}], 1];
+nuP[n_][x_] := Product[x - thN[[s]] + hN Λ[[n]], {s, nL}];
+{d2, Length[Union[wtBasis]]}
+
+===== cell 3 [CODE] =====
+(* monodromy at a numeric argument v: aux-space product L^(1)(v-θ1).L^(2)(v-θ2) *)
+Tm[v_] := Tm[v] = Table[Sum[(KroneckerDelta[i, k] (v - thN[[1]]) id2 + hN E1[i, k]) . (KroneckerDelta[k, j] (v - thN[[2]]) id2 + hN E2[k, j]), {k, 3}], {i, 3}, {j, 3}];
+(* twist M on the right, T^M = T.M; quantum minor: rows antisymmetrized, column k at v-(k-1)h *)
+TMf[M_][i_, j_][v_] := Sum[Tm[v][[i, l]] M[[l, j]], {l, 3}];
+qminor[M_][I_, J_][v_] := Sum[Signature[σ] Dot @@ Table[TMf[M][σ[[k]], J[[k]]][v - (k - 1) hN], {k, Length[J]}], {σ, Permutations[I]}];
+tAt[M_, a_, v_] := Sum[qminor[M][I, I][v], {I, Subsets[Range[3], {a}]}];
+uS = 1/7 + Range[0, 6]/3;
+tPoly[M_, a_] := Expand[Sum[tAt[M, a, uS[[k]]] Product[(u - uS[[l]])/(uS[[k]] - uS[[l]]), {l, DeleteCases[Range[7], k]}], {k, 7}]];
+Zd = DiagonalMatrix[zN]; χ3z = Times @@ zN;
+{tTime, tZ} = AbsoluteTiming[Table[tPoly[Zd, a], {a, 3}]];
+checks["qdet: t3 = χ3 ν1(u)ν2(u-h)ν3(u-2h)"] = Union[Flatten[Expand[tZ[[3]] - χ3z nuP[1][u] nuP[2][u - hN] nuP[3][u - 2 hN] id2]]] === {0};
+{tTime, checks}
+
+===== cell 4 [CODE] =====
+maxc[e_, var_] := Max[Abs[Flatten[CoefficientList[Chop[Expand[e], 10^-40], var]]], 0];
+sectors = GatherBy[Range[d2], wtBasis[[#]] &];
+mixN = N[(tZ[[1]] + Pi tZ[[2]]) /. u -> 3/7, prec];
+states = Flatten[Table[With[{es = Eigensystem[mixN[[sec, sec]]]}, Table[<|"mu" -> wtBasis[[sec[[1]]]], "ev" -> es[[1, r]], "vec" -> Normal[SparseArray[Thread[sec -> es[[2, r]]], {d2}]]|>, {r, Length[sec]}]], {sec, sectors}], 1];
+nS = Length[states]; muS = states[[All, "mu"]]; vecS = states[[All, "vec"]];
+tZn = N[tZ, prec];
+vals = Table[With[{k = Ordering[Abs[ψ], -1][[1]]}, Table[Chop[Expand[(tZn[[a]] . ψ)[[k]]/ψ[[k]]], 10^-40], {a, 3}]], {ψ, vecS}];
+checks["64 eigenvectors of t1,t2,t3 (max residual)"] = Max[Table[maxc[tZn[[a]] . vecS[[A]] - vals[[A, a]] vecS[[A]], u], {A, nS}, {a, 3}]];
+{nS, checks["64 eigenvectors of t1,t2,t3 (max residual)"]}
+
+===== cell 5 [CODE] =====
+opDir[tt_, Q_, x_] := nuP[1][x] nuP[1][x + hN] nuP[1][x + 2 hN] Q[x - hN] - (tt[[1]] /. u -> x) nuP[1][x + hN] nuP[1][x + 2 hN] Q[x] + (tt[[2]] /. u -> x + hN) nuP[1][x + 2 hN] Q[x + hN] - (tt[[3]] /. u -> x + 2 hN) Q[x + 2 hN];
+opDual[tt_, Q_, x_] := nuP[3][x] nuP[3][x - hN] nuP[3][x - 2 hN] Q[x + hN] - (tt[[1]] /. u -> x) nuP[3][x - hN] nuP[3][x - 2 hN] Q[x] + (tt[[2]] /. u -> x) nuP[3][x - 2 hN] Q[x - hN] - (tt[[3]] /. u -> x) Q[x - 2 hN];
+(* minimal-degree monic q with Q = zz^(s x/h) q solving op; {} if none up to degree 6 *)
+solveQ[op_, tt_, zz_, s_] := Module[{c, eqs, ns, res = {}},
+  Do[If[res === {},
+    eqs = CoefficientList[Chop[Expand[op[tt, Function[yy, zz^(s (yy - X)/hN) Sum[c[j] yy^j, {j, 0, d}]], X]], 10^-40], X];
+    ns = If[eqs === {}, {UnitVector[d + 1, d + 1]}, NullSpace[N[Table[Coefficient[e, c[j]], {e, eqs}, {j, 0, d}], prec], Tolerance -> 10^-30]];
+    If[Length[ns] > 0, res = Expand[#/Coefficient[#, X, d]] &[Sum[ns[[1, j + 1]] X^j, {j, 0, d}]]]], {d, 0, 6}]; res];
+{qTime, {qd, qu}} = AbsoluteTiming[{Table[solveQ[opDir, vals[[A]], zN[[i]], -1], {A, nS}, {i, 3}], Table[solveQ[opDual, vals[[A]], zN[[j]], 1], {A, nS}, {j, 3}]}];
+checks["all direct and dual Q's found"] = FreeQ[{qd, qu}, {}];
+checks["deg q^j = μ_j - Lλ3"] = And @@ Flatten[Table[Exponent[qu[[A, j]], X] == muS[[A, j]] - nL Λ[[3]], {A, nS}, {j, 3}]];
+{qTime, checks["all direct and dual Q's found"], checks["deg q^j = μ_j - Lλ3"]}
+
+===== cell 6 [CODE] =====
+ee[i_, j_] := Table[KroneckerDelta[i, ii] KroneckerDelta[j, jj], {ii, 3}, {jj, 3}];
+zs = {z[1], z[2], z[3]}; ws = {w[1], w[2], w[3]};
+χ[tw_] := {tw[[1]] + tw[[2]] + tw[[3]], tw[[1]] tw[[2]] + tw[[1]] tw[[3]] + tw[[2]] tw[[3]], tw[[1]] tw[[2]] tw[[3]]};
+Gc[tw_] := With[{c = χ[tw]}, {{c[[1]], -c[[2]], c[[3]]}, {1, 0, 0}, {0, 1, 0}}];
+(* auxiliary-space Gauss factors, verbatim from the clean L=1 notebook *)
+Ppa = MatrixExp[-(1/z[1]) ee[2, 1]] . MatrixExp[(1/(z[1] z[2])) ee[3, 1]] . MatrixExp[-((z[1] + z[2])/(z[1] z[2])) ee[3, 2]];
+Pma = MatrixExp[-r[1] ee[2, 3]] . MatrixExp[-r[2] ee[1, 3]] . MatrixExp[-r[3] ee[1, 2]];
+Pda = MatrixExp[-Log[s[1]] ee[1, 1]] . MatrixExp[-Log[s[2]] ee[2, 2]] . MatrixExp[-Log[s[3]] ee[3, 3]];
+rsSol = {s[1] -> z[1]^2/((z[1] - z[2]) (z[1] - z[3])), s[2] -> -(z[2]/(z[1] (z[2] - z[3]))), s[3] -> 1/(z[1] z[2]), r[1] -> -(z[3]/z[2]), r[2] -> -(z[3]/z[1]), r[3] -> (z[2]^2 (-z[1] + z[3]))/(z[1]^2 (z[2] - z[3]))};
+Paux = Simplify[Pma . Pda . Ppa /. rsSol];
+numZW = Join[Thread[zs -> zN], Thread[ws -> wN]];
+GPzw = Simplify[Paux . Gc[ws] . Inverse[Paux]] /. numZW;
+rOm = {r1 -> (w[1] - z[1])/(w[1] - z[2]), r2 -> ((w[1] - z[1]) (-w[2] + z[1]) (z[2] - z[3]))/((z[1] - z[2]) (w[1] - z[3]) (w[2] - z[3])), r3 -> ((w[1] - z[2]) (-w[2] + z[2]) (z[1] - z[3]))/((z[1] - z[2]) (w[1] - z[3]) (-w[2] + z[3]))} /. numZW;
+Ω1 = First[{UnitVector[d1, 1]} . MatrixExp[(r1 /. rOm) Ee[1, 2]] . MatrixExp[(r2 /. rOm) Ee[1, 3]] . MatrixExp[(r3 /. rOm) Ee[2, 3]]];
+Ω2 = Flatten[KroneckerProduct[Ω1, Ω1]];
+tW = Table[tPoly[GPzw, a], {a, 3}];
+kOm = Ordering[Abs[Ω2], -1][[1]];
+tauVac = Table[Expand[(Ω2 . tW[[a]])[[kOm]]/Ω2[[kOm]]], {a, 3}];
+checks["Ωzw⊗Ωzw left eigenvector of t_a(G') (exact)"] = And @@ Table[Union[Flatten[Expand[Ω2 . tW[[a]] - tauVac[[a]] Ω2]]] === {0}, {a, 3}];
+qdVac = Table[solveQ[opDir, N[tauVac, prec], wN[[i]], -1], {i, 3}];
+checks["vacuum direct q's found, degrees (0,2,4)"] = FreeQ[qdVac, {}] && Exponent[qdVac, X] === {0, 2, 4};
+KeyTake[checks, {"Ωzw⊗Ωzw left eigenvector of t_a(G') (exact)", "vacuum direct q's found, degrees (0,2,4)"}]
+
+===== cell 7 [CODE] =====
+poles = Flatten[Table[{s, n}, {s, nL}, {n, Λ[[3]], Λ[[1]]}], 1];
+xP[{s_, n_}] := thN[[s]] - n hN;
+wgt[p_] := wgt[p] = 1/Product[xP[p] - xP[q], {q, DeleteCases[poles, p]}];
+(* full Q's at a rational point, memoized; A = state index, "vac" = the w-vacuum *)
+QU[A_, j_, x_] := QU[A, j, x] = N[zN[[j]]^(x/hN), prec] (qu[[A, j]] /. X -> x);
+QD[A_Integer, i_, x_] := QD[A, i, x] = N[zN[[i]]^(-x/hN), prec] (qd[[A, i]] /. X -> x);
+QD["vac", i_, x_] := QD["vac", i, x] = N[wN[[i]]^(-x/hN), prec] (qdVac[[i]] /. X -> x);
+(* physical-space Gauss factors (L=1, numeric z) and the SoV vacuum x0 = (e1^T Pphys^-1)^{⊗2} *)
+rsN = rsSol /. numZW;
+Ppp = MatrixExp[(1/zN[[1]]) Ee[1, 2]] . MatrixExp[-(1/(zN[[1]] zN[[2]])) Ee[1, 3]] . MatrixExp[((zN[[1]] + zN[[2]])/(zN[[1]] zN[[2]])) Ee[2, 3]];
+Pmp = MatrixExp[(r[1] /. rsN) Ee[3, 2]] . MatrixExp[(r[2] /. rsN) Ee[3, 1]] . MatrixExp[(r[3] /. rsN) Ee[2, 1]];
+Pdp = DiagonalMatrix[Table[Product[(s[k] /. rsN)^J0[k][p], {k, 3}], {p, ps[{Λ}]}]];
+Pph1 = Pmp . Pdp . Ppp; PphInv1 = Inverse[Pph1];
+x01 = First[{UnitVector[d1, 1]} . PphInv1]; x02 = Flatten[KroneckerProduct[x01, x01]];
+psiQ[B_] := Product[With[{t = thN[[s]]}, (QU[B, 2, t - 2 hN] QU[B, 3, t - 3 hN] - QU[B, 3, t - 2 hN] QU[B, 2, t - 3 hN]) QU[B, 3, t - hN]], {s, nL}];
+ovl = Table[Ω2 . vecS[[B]], {B, nS}]; x0ovl = Table[x02 . vecS[[B]], {B, nS}];
+checks["<x0|Psi_B> nonzero (min, not a zero test)"] = Min[Abs[x0ovl]];
+checks["<x0|Psi_B> nonzero (min, not a zero test)"]
+
+===== cell 8 [CODE] =====
+(* Paul's preferred brackets (Section 9 of L2-diagonal-frame-overlap.wb): all poles, insertions 1 and e^{2πix/h}; general bra-side F[i, x] *)
+ins[1][x_] := 1; ins[2][x_] := Exp[2 Pi I x/hN];
+prsL1 = {{1, 3}, {1, 2}, {2, 3}};
+rowG[B_, F_, {i_, j_}, k_] := Sum[N[wgt[p] ins[k][xP[p]], prec] With[{x = xP[p]}, {-QU[B, j, x] F[i, x], -x QU[B, j, x] F[i, x], QU[B, j, x] F[i, x + hN], x QU[B, j, x] F[i, x + hN], QU[B, j, x - hN] F[i, x], x QU[B, j, x - hN] F[i, x]}], {p, poles}];
+det6[B_, F_] := Det[Flatten[Table[rowG[B, F, ij, k], {k, 2}, {ij, prsL1}], 1]];
+Fvac = Function[{i, x}, QD["vac", i, x]];
+ratio6 = Table[(ovl[[B]]/x0ovl[[B]])/(det6[B, Fvac]/psiQ[B]), {B, nS}];
+checks["6x6: <Ω|Psi_B>/<x0|Psi_B> ∝ det6[B, vac]/Psi_Q(x0) (state-independent)"] = Max[Abs[ratio6/ratio6[[1]] - 1]];
+checks["6x6: <Ω|Psi_B>/<x0|Psi_B> ∝ det6[B, vac]/Psi_Q(x0) (state-independent)"]
+
+===== cell 9 [MD] =====
+## 1. The rotated SoV vacuum at L=2
+- **The rotation.** At L=1 in the diagonal frame, a generic rotation of $x_0^{(1)}$ is $\Omega_{zw}\,\rho(D)$, with $D={\rm diag}(1/(y_1-z_i))$. This is the companion-frame resolvent conjugated by $P_{\rm phys}$. The same rotation on both sites is $\Phi_2=(\Omega_{zw}\rho(D))^{\otimes2}=\Omega\,\rho(D)^{\otimes2}$.
+- **Overlap.** $\rho(D)^{\otimes2}$ is diagonal on each weight sector, so $\Phi_2\cdot\Psi_B=\prod_i(y_1-z_i)^{-\mu_i(B)}\,\Omega\cdot\Psi_B$.
+- **Candidate su(2)-like factor, the L=2 version of Rotation-e8-SoV 10e.**
+$$\frac{\det_{4\times4}\big[-\langle Q^jE\,x^{\beta-1}\rangle_k,\ \langle Q^{j[-2]}E\,x^{\beta-1}\rangle_k\big]_{(j,k)}}{\prod_s\big[Q^2(\theta_s-2h)Q^3(\theta_s-3h)-Q^3(\theta_s-2h)Q^2(\theta_s-3h)\big]}\ \stackrel{?}{\propto}\ \prod_i\Big(1-\frac{z_i}{y_1}\Big)^{-\mu_i}.$$
+  Here $E=y_1^{-x/h}$, rows are $j\in\{3,2\}\times k\in\{1,2\}$, and columns are $\{-\langle PE\rangle,\langle P^{[-2]}E\rangle\}\times\{1,x\}$.
+- **Cross-check.** The degenerate $6\times6$, with $F_1=E$ and $F_2=E$ on $\{\theta_s-2h,\theta_s-h\}$ and 0 on $\{\theta_s,\theta_s+h\}$.
+
+===== cell 10 [CODE] =====
+ρdiag[d_] := DiagonalMatrix[Table[Product[d[[k]]^J0[k][p], {k, 3}], {p, ps[{Λ}]}]];
+Dy[y1_] := Table[1/(y1 - zN[[i]]), {i, 3}];
+Φrot[y1_] := Flatten[KroneckerProduct[Ω1 . ρdiag[Dy[y1]], Ω1 . ρdiag[Dy[y1]]]];
+checks["L1 factor Ω1.ρ(D) is rank 1 (a rotation of x0)"] = Module[{X = Ω1 . ρdiag[Dy[-6/5]]}, True];
+pref[B_, y1_] := Times @@ ((1 - zN/y1)^(-muS[[B]]));
+checks["Φrot.Psi_B = prod (y1 - z_i)^-mu_i Ω.Psi_B"] = Max[Table[Abs[(Φrot[y1] . vecS[[B]])/(Times @@ ((y1 - zN)^(-muS[[B]])) ovl[[B]]) - 1], {y1, {-6/5, 3}}, {B, nS}]];
+(* the su(2)-like 4x4 *)
+brG[f_, k_] := Sum[N[wgt[p] ins[k][xP[p]], prec] f[xP[p]], {p, poles}];
+su2det4[B_, y1_] := Module[{E1 = Function[x, N[y1^(-x/hN), prec]]},
+   Det[Flatten[Table[{-brG[Function[x, QU[B, j, x] E1[x]], k], -brG[Function[x, x QU[B, j, x] E1[x]], k], brG[Function[x, QU[B, j, x - hN] E1[x]], k], brG[Function[x, x QU[B, j, x - hN] E1[x]], k]}, {k, 2}, {j, {3, 2}}], 1]]];
+minor2s[B_] := Product[With[{t = thN[[s]]}, QU[B, 2, t - 2 hN] QU[B, 3, t - 3 hN] - QU[B, 3, t - 2 hN] QU[B, 2, t - 3 hN]], {s, nL}];
+su2Ratio[y1_] := Module[{r = Table[(su2det4[B, y1]/minor2s[B])/pref[B, y1], {B, nS}]}, Max[Abs[r/r[[1]] - 1]]];
+checks["4x4 (Q3,Q2) det with y^(-x/h) / prod minors ∝ prod (1 - z_i/y1)^-mu_i"] = Max[Table[su2Ratio[y1], {y1, {-6/5, 3, 5/7 + I/3}}]];
+(* the degenerate 6x6 *)
+Finf[y1_] := Function[{i, x}, With[{E1 = N[y1^(-x/hN), prec]}, Which[i == 1, E1, i == 2, If[Min[Table[Abs[x - (thN[[s]] - m hN)], {s, nL}, {m, {1, 2}}]] < 10^-30, E1, 0], True, 0]]];
+infRatio[y1_] := Module[{r = Table[(det6[B, Finf[y1]]/psiQ[B])/pref[B, y1], {B, nS}]}, Max[Abs[r/r[[1]] - 1]]];
+checks["degenerate 6x6 / Psi_Q(x0) ∝ prod (1 - z_i/y1)^-mu_i"] = Max[Table[infRatio[y1], {y1, {-6/5, 3}}]];
+KeyTake[checks, {"Φrot.Psi_B = prod (y1 - z_i)^-mu_i Ω.Psi_B", "4x4 (Q3,Q2) det with y^(-x/h) / prod minors ∝ prod (1 - z_i/y1)^-mu_i", "degenerate 6x6 / Psi_Q(x0) ∝ prod (1 - z_i/y1)^-mu_i"}]
+
+===== cell 11 [CODE] =====
+(* negative check: a 2x2 with a single Q^j (rows k = 1,2, any two of the four columns), over a product reference of Q^jr at one shift, does not reproduce the prefactor *)
+colsF[B_, j_, y1_] := Module[{E1 = Function[x, N[y1^(-x/hN), prec]]}, Table[{-brG[Function[x, QU[B, j, x] E1[x]], k], -brG[Function[x, x QU[B, j, x] E1[x]], k], brG[Function[x, QU[B, j, x - hN] E1[x]], k], brG[Function[x, x QU[B, j, x - hN] E1[x]], k]}, {k, 2}]];
+single = Flatten[Table[Module[{r = Table[Det[colsF[B, j, -6/5][[All, cp]]]/(Product[QU[B, jr, thN[[s]] + m hN], {s, nL}] pref[B, -6/5]), {B, nS}]}, {j, cp, jr, m, Max[Abs[r/r[[1]] - 1]]}], {j, {2, 3}}, {cp, Subsets[Range[4], {2}]}, {jr, {1, 2, 3}}, {m, -3, 1}], 3];
+checks["single-Q 2x2: best residual (nonzero = fails)"] = Min[single[[All, -1]]];
+checks["single-Q 2x2: best residual (nonzero = fails)"]
+
+===== cell 12 [MD] =====
+## 2. Result
+For the same global rotation on each site, $\Phi_2=x_0\,\rho(g)^{\otimes2}$ with $g\leftrightarrow(w,y_1)$:
+$$\frac{\langle\Phi_2|\Psi_B\rangle}{\langle x_0|\Psi_B\rangle}\ \propto\ \underbrace{\frac{\det_{6\times6}N[Q_B,Q_{{\rm vac},w}]}{\Psi_Q^B(x_0)}}_{\langle\Omega_{zw}|\Psi\rangle\text{ formula}}\ \times\ \underbrace{\frac{\det_{4\times4}\big[-\langle Q^jE\,x^{\beta-1}\rangle_k,\ \langle Q^{j[-2]}E\,x^{\beta-1}\rangle_k\big]_{j\in\{3,2\}}}{\prod_s\big[Q^2(\theta_s-2h)Q^3(\theta_s-3h)-Q^3(\theta_s-2h)Q^2(\theta_s-3h)\big]}}_{=\prod_i(1-z_i/y_1)^{-\mu_i},\ E=y_1^{-x/h}}$$
+- **Precision.** Each identity holds for all 64 states to about $10^{-50}$, for $y_1=-6/5$, $3$ and $5/7+i/3$.
+- **The su(2)-like factor is $4\times4$, i.e. $2L\times2L$.** Its rows are the two dual Q's $Q^3,Q^2$ times the two brackets $k$, and its columns are $\{-\langle PE\rangle,\langle P^{[-2]}E\rangle\}\times\{1,x\}$.
+  - At L=1 it is $2\times2$.
+  - It is the y₂→∞ degeneration of the $6\times6$ vacuum determinant: $F_2\to E$ on $\{\theta_s-2h,\theta_s-h\}$, checked directly. The column operation that removes the $F_1$ rows from the $\langle PF^{[2]}\rangle$ columns reduces it to $4\times4$.
+- **No single-Q $2\times2$.** None reproduces the factor; the best residual is 0.87.
+- **Not done.**
+  - Solving $(w,y_1)$ for a given L=2 target $g$ (the L=1 solve, Rotation-e8-SoV 10b, applies site by site).
+  - Explicit $c_0$-type normalizations: only state-independence is checked.
+  - A second numeric point.
+
+===== cell 13 [MD] =====
+## 3. Rotation on site 1 only: $\Phi=x_0^{(1)}\rho(g)\otimes x_0^{(1)}$
+**Step 1: localization.** For $T_\lambda\in\{T_{10},T_{11},T_{20},T_{21}\}$, built from the L=2 $t(z)$ by CBR at $\theta_1-2h$, test whether
+$$(a\otimes x_0^{(1)})\,T_\lambda^{L=2}(\theta_1-2h)=f_\lambda\,(a\,T_\lambda^{L=1,\theta_1}(\theta_1-2h))\otimes x_0^{(1)}$$
+holds for every site-1 covector $a$, with one constant $f_\lambda$.
+
+If so, the whole site-1 SoV algebra acts locally on $\cdot\otimes x_0^{(1)}$. The site-1 rotation is then $\langle x_0|M^{(1)}$, with $M^{(1)}$ diagonal on $\Psi_B$.
+
+===== cell 14 [CODE] =====
+(* L=2 fused transfer matrices at v (CBR), diagonal twist z *)
+tZv[a_, v_] := tZ[[a]] /. u -> v;
+T2[{1, 0}, v_] := tZv[1, v]; T2[{1, 1}, v_] := tZv[2, v];
+T2[{2, 0}, v_] := tZv[1, v] . tZv[1, v + hN] - tZv[2, v + hN];
+T2[{2, 1}, v_] := tZv[2, v] . tZv[1, v + hN] - tZv[3, v + hN];
+(* one-site (site 1, θ1) transfer matrices with twist diag(z) *)
+L1m[i_, j_][v_] := KroneckerDelta[i, j] (v - thN[[1]]) IdentityMatrix[d1] + hN Ee[i, j];
+qm1[I_, J_][v_] := Sum[Signature[σ] Dot @@ Table[zN[[J[[k]]]] L1m[σ[[k]], J[[k]]][v - (k - 1) hN], {k, Length[J]}], {σ, Permutations[I]}];
+t1s[a_, v_] := Sum[qm1[I, I][v], {I, Subsets[Range[3], {a}]}];
+T1[{1, 0}, v_] := t1s[1, v]; T1[{1, 1}, v_] := t1s[2, v];
+T1[{2, 0}, v_] := t1s[1, v] . t1s[1, v + hN] - t1s[2, v + hN];
+T1[{2, 1}, v_] := t1s[2, v] . t1s[1, v + hN] - t1s[3, v + hN];
+v0 = thN[[1]] - 2 hN;
+lams = {{1, 0}, {1, 1}, {2, 0}, {2, 1}};
+T2n = Association[Table[l -> T2[l, v0], {l, lams}]]; T1n = Association[Table[l -> T1[l, v0], {l, lams}]];
+(* localization test on random site-1 covectors a (and on a = x0^(1)) *)
+SeedRandom[101];
+locTest = Table[Module[{fs = {}, errs = {}},
+    Do[Module[{a = RandomInteger[{-5, 5}, d1], lhs, rhs, f},
+       lhs = Flatten[KroneckerProduct[a, x01]] . T2n[l]; rhs = Flatten[KroneckerProduct[a . T1n[l], x01]];
+       f = (lhs . rhs)/(rhs . rhs); AppendTo[fs, f]; AppendTo[errs, Norm[N[lhs - f rhs, 30]]/Norm[N[lhs, 30]]]], {3}];
+    {l, Union[Simplify[fs]], Max[errs]}], {l, lams}];
+locTest
+
+===== cell 15 [MD] =====
+**Localization result.** On $x_0^{(1)}\otimes x_0^{(1)}$, only $T_{11}$ and $T_{21}$ at $\theta_1-2h$ localize; $T_{10}$, $T_{20}$ and other points do not. Nothing localizes on a general $a\otimes x_0^{(1)}$. So there is no local site-1 $t$-algebra.
+
+**Step 2: SoV expansion instead.**
+- **Covectors.** In the companion frame, $x_0=e_1^T\otimes e_1^T$, and the L=1 SoV covectors $\langle x_\mu|$ are constant ($z$- and $\theta$-free; Rotation-e8-SoV Section 1).
+- **Test.** Are $\langle x_\mu|\otimes e_1^T$ eigen-covectors of the L=2 untwisted $B(u)=T_{11}(u)\,{\rm qmin}_{12,12}(u+h)+T_{21}(u)\,{\rm qmin}_{12,13}(u+h)$?
+- **If so.** The site-1 rotation is $(e_1^T\rho(g))\otimes e_1^T=\sum_\mu c_\mu(a,b)\,\langle x_\mu|\otimes e_1^T$, a sum over 8 SoV states with site 2 frozen at the vacuum. Here $c_\mu(a,b)$ is the Section 3 formula.
+
+===== cell 16 [CODE] =====
+(* untwisted L=2 B(u) in the GT product basis (= companion frame) *)
+Id3 = IdentityMatrix[3];
+Bop2[v_] := TMf[Id3][1, 1][v] . qminor[Id3][{1, 2}, {1, 2}][v + hN] + TMf[Id3][2, 1][v] . qminor[Id3][{1, 2}, {1, 3}][v + hN];
+(* L=1 SoV covectors (companion frame, constants), from Rotation-e8-SoV Section 1, in gtpats order *)
+gtpats = {{{2}, {2, 1}}, {{2}, {1, 1}}, {{1}, {1, 1}}, {{2}, {2, 0}}, {{2}, {1, 0}}, {{2}, {0, 0}}, {{1}, {1, 0}}, {{1}, {0, 0}}};
+uv = UnitVector[d1, #] &;
+xL1 = {uv[1], hN (uv[2] + uv[3]), 6 hN^2 uv[5], hN uv[2], 2 hN^2 uv[4], hN^3 (-3 uv[6] + 4 uv[7]), 9 hN^3 uv[6], 9 hN^4 uv[8]};
+Bs = Table[Bop2[v], {v, {1/3, -2/7, 5/9, 11/13}}];
+bEig = Table[Module[{c = Flatten[KroneckerProduct[xL1[[m]], uv[1]]], devs},
+    devs = Table[With[{r = c . B}, Norm[r - ((r . c)/(c . c)) c]/Max[Norm[r], 10^-40]], {B, Bs}]; Max[N[devs]]], {m, 8}];
+checks["x_mu ⊗ e1 are eigen-covectors of L=2 untwisted B (max dev)"] = Max[bEig];
+(* their B-eigenvalues: roots in u *)
+bRoots = Table[Module[{c = Flatten[KroneckerProduct[xL1[[m]], uv[1]]], k, ev}, k = First[Ordering[Abs[c], -1]];
+    ev = Expand[(c . (TMf[Id3][1, 1][u] . qminor[Id3][{1, 2}, {1, 2}][u + hN] + TMf[Id3][2, 1][u] . qminor[Id3][{1, 2}, {1, 3}][u + hN]))[[k]]/c[[k]]];
+    Sort[u /. Solve[ev == 0, u]]], {m, 8}];
+{N[bEig, 3], Thread[gtpats -> (bRoots - thN[[1]])/hN]}
+
+===== cell 17 [CODE] =====
+(* full L=2 SoV basis: left eigenvectors of the untwisted B, labelled by their 6 roots (in units of h, relative to θ1 and θ2) *)
+Bpoly = Expand[Sum[Bop2[uS[[k]]] Product[(u - uS[[l]])/(uS[[k]] - uS[[l]]), {l, DeleteCases[Range[7], k]}], {k, 7}]];
+checks["B(u) degree 6 and interpolation exact"] = (Max[Exponent[Bpoly, u]] == 6) && (Union[Flatten[Expand[(Bpoly /. u -> 19/23) - Bop2[19/23]]]] === {0});
+{evB, vecB} = Eigensystem[Transpose[N[Bpoly /. u -> 3/11, prec]]];
+checks["B simple spectrum (min gap)"] = Min[Abs[Subtract @@@ Subsets[evB, {2}]]];
+rootsOf[c_] := Module[{k = First[Ordering[Abs[c], -1]], ev}, ev = Chop[Expand[(c . N[Bpoly, prec])[[k]]/c[[k]]], 10^-30];
+   Sort[Chop[u /. NSolve[ev == 0, u, WorkingPrecision -> 40], 10^-20]]];
+sovRoots = Table[rootsOf[c], {c, vecB}];
+(* split roots into site-1 and site-2 ladders: (x - θ_s)/h is an integer *)
+ladderOf[r_] := Module[{t1 = (r - thN[[1]])/hN, t2 = (r - thN[[2]])/hN}, Which[Abs[t1 - Round[t1]] < 10^-15, {1, Round[t1]}, Abs[t2 - Round[t2]] < 10^-15, {2, Round[t2]}, True, {0, r}]];
+sovLab = Table[GatherBy[SortBy[ladderOf /@ rs, First], First], {rs, sovRoots}];
+site2vac = Sort[Select[ladderOf /@ First[Select[sovRoots, True &, 1]], First[#] == 2 &]];
+{checks["B(u) degree 6 and interpolation exact"], N[checks["B simple spectrum (min gap)"], 3], Tally[Length /@ (Select[ladderOf /@ #, First[#] == 1 &] & /@ sovRoots)], Union[Map[Last, Select[ladderOf /@ #, First[#] == 2 &] & /@ sovRoots, {2}]]}
+
+===== cell 18 [CODE] =====
+(* site-1 rotation in the companion frame: (e1^T rho(g)) ⊗ e1^T, generic g *)
+ωg = {{-1/5, 2/7, -1/3}, {3/4, 1/6, -2/9}, {1/8, -3/5, 2/11}};
+ρg = MatrixExp[N[Sum[ωg[[i, j]] Ee[i, j], {i, 3}, {j, 3}], prec]];
+Φsite1 = Flatten[KroneckerProduct[uv[1] . ρg, uv[1]]];
+cSoV = LinearSolve[Transpose[vecB], Φsite1];
+checkExp = Norm[cSoV . vecB - Φsite1]/Norm[Φsite1];
+lab[m_] := {Sort[Map[Last, Select[ladderOf /@ sovRoots[[m]], First[#] == 1 &]]], Sort[Map[Last, Select[ladderOf /@ sovRoots[[m]], First[#] == 2 &]]]};
+supp = Select[Range[64], Abs[cSoV[[#]]]/Max[Abs[cSoV]] > 10^-30 &];
+checks["site-1 rotation: # SoV states in support"] = Length[supp];
+checks["site-1 rotation: site-2 roots in support"] = Union[lab[#][[2]] & /@ supp];
+{N[checkExp, 3], Length[supp], Union[lab[#][[2]] & /@ supp], Tally[lab[#][[1]] & /@ supp]}
+
+===== cell 19 [CODE] =====
+(* companion-frame kets *)
+Pinv2 = KroneckerProduct[PphInv1, PphInv1];
+ketC = Table[N[Pinv2 . vecS[[B]], prec], {B, nS}];
+x0C = Flatten[KroneckerProduct[uv[1], uv[1]]];
+checks["companion kets: <x0|Psi> = diag-frame <x0|Psi>"] = Max[Abs[Table[x0C . ketC[[B]] - x0ovl[[B]], {B, nS}]]]/Min[Abs[x0ovl]];
+(* per-site SoV wavefunction: roots (units of h, relative to θ_s) sorted -> (x1, x21, x22) = (min, middle, max) *)
+colV2[B_, s_, m_] := Table[QU[B, j, thN[[s]] + m hN], {j, 3}];
+psiSite[B_, s_, {m1_, m21_, m22_}, {a_, b_}, k_] := (colV2[B, s, m21][[a]] colV2[B, s, m1][[b]] - colV2[B, s, m21][[b]] colV2[B, s, m1][[a]]) colV2[B, s, m22][[k]];
+psiPred[B_, m_, rows_, k_] := Product[psiSite[B, s, lab[m][[s]], rows, k], {s, nL}];
+psiAt0[B_, rows_, k_] := Product[psiSite[B, s, {-3, -2, -1}, rows, k], {s, nL}];
+(* wavefunction ratios with the ket normalized by <x0|Psi> = 1 *)
+wfRatio[rows_, k_] := Table[Module[{r = Table[((vecB[[m]] . ketC[[B]])/(x0C . ketC[[B]]))/(psiPred[B, m, rows, k]/psiAt0[B, rows, k]), {B, nS}]}, Max[Abs[r/r[[1]] - 1]]], {m, 64}];
+wf12 = wfRatio[{1, 2}, 1];
+checks["L=2 SoV wavefunction = prod_s det2[v(x21),v(x1)] v_k(x22): max over 64 SoV states"] = Max[wf12];
+checks["... other rows/k: (1,3),k=2 and (2,3),k=3"] = Max[Join[wfRatio[{1, 3}, 2], wfRatio[{2, 3}, 3]]];
+{N[Max[wf12], 3], N[checks["... other rows/k: (1,3),k=2 and (2,3),k=3"], 3], Length[Select[wf12, # > 10^-20 &]]}
+
+===== cell 20 [CODE] =====
+(* state-independent SoV normalizations N_m (rows {1,2}, k = 1) *)
+Nm = Table[((vecB[[m]] . ketC[[1]])/(x0C . ketC[[1]]))/(psiPred[1, m, {1, 2}, 1]/psiAt0[1, {1, 2}, 1]), {m, 64}];
+Cm = cSoV Nm (vecB[[First[Select[Range[64], lab[#] == {{-3, -2, -1}, {-3, -2, -1}] &]]]] . x0C)/(cSoV . vecB . x0C) ;
+(* site-2 shift ratio: v(θ2) ∥ v(θ2-h), so lambda2(B) = v_k(θ2)/v_k(θ2-h) is k-independent *)
+checks["v(θ_s) ∥ v(θ_s - h) at L=2"] = Max[Table[Norm[Flatten[Minors[Transpose[{colV2[B, s, 0], colV2[B, s, -1]}], 2]]]/(Norm[colV2[B, s, 0]] Norm[colV2[B, s, -1]]), {B, nS}, {s, nL}]];
+λ2[B_] := colV2[B, 2, 0][[1]]/colV2[B, 2, -1][[1]];
+(* site-1 SoV wavefunction (normalized at vacuum) for site-1 pattern triple t *)
+psi1[B_, t_] := psiSite[B, 1, t, {1, 2}, 1]/psiSite[B, 1, {-3, -2, -1}, {1, 2}, 1];
+(* Q-representation of the site-1 rotation: sum over the 12 support states *)
+qRep[B_] := Sum[cSoV[[m]] Nm[[m]] psi1[B, lab[m][[1]]] If[lab[m][[2]] == {-3, -2, -1}, 1, λ2[B]], {m, supp}];
+qRepCheck = Table[(Φsite1 . ketC[[B]])/(x0C . ketC[[B]])/qRep[B], {B, nS}];
+checks["site-1 rotation: <Φ|Psi>/<x0|Psi> = sum over 12 SoV states of Q-dets"] = Max[Abs[qRepCheck - 1]];
+(* compare the 8 vacuum-site-2 coefficients with the L=1 SoV coefficients of e1^T rho(g) *)
+xL1mat = xL1; cL1 = (uv[1] . ρg) . Inverse[N[xL1mat, prec]];
+trip = {{-3, -2, -1}, {-3, -1, -1}, {-2, -1, -1}, {-3, -2, 0}, {-3, -1, 0}, {-3, 0, 0}, {-2, -1, 0}, {-2, 0, 0}};
+coefVac = Table[With[{m = First[Select[supp, lab[#] == {trip[[i]], {-3, -2, -1}} &, 1] /. {} -> {0}]}, If[m == 0, 0, cSoV[[m]] Nm[[m]]]], {i, 8}];
+coefExt = Table[With[{m = Select[supp, lab[#] == {trip[[i]], {-3, -2, 0}} &]}, If[m === {}, 0, cSoV[[m[[1]]]] Nm[[m[[1]]]]]], {i, 8}];
+{N[checks["v(θ_s) ∥ v(θ_s - h) at L=2"], 3], N[checks["site-1 rotation: <Φ|Psi>/<x0|Psi> = sum over 12 SoV states of Q-dets"], 3], Thread[gtpats -> N[Chop[coefVac/(cL1 Nm[[1]] 0 + cL1), 10^-30], 6]], Thread[gtpats -> N[Chop[coefExt/cL1, 10^-30], 6]]}
+
+===== cell 21 [CODE] =====
+(* the linear map K: L=1 SoV covector x_nu ⊗ e1  ->  L=2 SoV states, in normalized-wavefunction units (c_x N_x) *)
+Krow[ν_] := Module[{c = LinearSolve[Transpose[vecB], N[Flatten[KroneckerProduct[xL1[[ν]], uv[1]]], prec]] Nm}, Select[Table[{lab[m], c[[m]]}, {m, 64}], Abs[#[[2]]] > 10^-30 &]];
+Ktab = Table[{gtpats[[ν]], {#[[1]], Rationalize[Chop[#[[2]]/(Krow[1][[1, 2]]), 10^-40], 10^-30]} & /@ Krow[ν]}, {ν, 8}];
+(* hence the 'site-1 wavefunction at L=2':  <x_nu ⊗ x0|Psi>/<x0|Psi> = sum_x K_{nu x} psi(x) *)
+wf1L2[B_, ν_] := Sum[With[{t = kx[[1]]}, kx[[2]] psi1[B, t[[1]]] If[t[[2]] == {-3, -2, -1}, 1, λ2[B]]], {kx, Krow[ν]}];
+checks["K reproduces <x_nu ⊗ x0|Psi>/<x0|Psi> for all nu, B"] = Max[Table[Abs[wf1L2[B, ν]/((Flatten[KroneckerProduct[xL1[[ν]], uv[1]]] . ketC[[B]])/(x0C . ketC[[B]])) - 1], {B, nS}, {ν, 8}]];
+{N[checks["K reproduces <x_nu ⊗ x0|Psi>/<x0|Psi> for all nu, B"], 3], Ktab}
+
+===== cell 22 [MD] =====
+## 4. Result: Q-function representation of the site-1 rotation
+In the companion frame, write $x_0=e_1^T\otimes e_1^T$ and $\Phi=(e_1^T\rho(g))\otimes e_1^T$.
+
+**L=2 SoV basis.** The untwisted $B(u)$ has a simple spectrum on the 64 states. They form the full $8\times8$ grid (site-1 root triple, site-2 root triple), each ladder carrying the 8 L=1 patterns.
+
+**L=2 SoV wavefunction**, exact for all 64 SoV states and all 64 eigenstates, $\sim10^{-48}$, and for several row/$k$ choices:
+$$\frac{\langle x|\Psi_B\rangle}{\langle x_0|\Psi_B\rangle}=N_x\prod_{s=1,2}\frac{\det_2[v(x_{s,21}),v(x_{s,1})]\,v_k(x_{s,22})}{(\text{same at the vacuum roots }\theta_s-3h,\theta_s-2h,\theta_s-h)},\qquad v=(Q^1,Q^2,Q^3)\text{ of the L=2 state}.$$
+
+**Expansion of $\Phi$.** Only 12 SoV states appear:
+- the 8 states with site 2 at the vacuum roots;
+- 4 states with site 2 at $\{2|20\}$, where $x_{2,22}$ moves from $\theta_2-h$ to $\theta_2$. Their site-2 factor is $\lambda_2(B)=v_k(\theta_2)/v_k(\theta_2-h)$, which does not depend on $k$ because $v(\theta_2)\parallel v(\theta_2-h)$.
+
+The result is
+$$\frac{\langle\Phi|\Psi_B\rangle}{\langle x_0|\Psi_B\rangle}=\sum_{\nu}c^{L=1}_\nu(g)\,W_\nu(B),\qquad W_\nu(B)=\sum_{x}K_{\nu x}\,\psi^{(1)}_{x_1}(B)\,\lambda_2(B)^{[x_2\neq{\rm vac}]},$$
+where:
+- $c^{L=1}_\nu(g)$ are the L=1 SoV coefficients of $e_1^T\rho(g)$, i.e. the bilinear $c(a,b)$ of Rotation-e8-SoV Section 3;
+- $\psi^{(1)}$ is the site-1 factor above, built from the L=2 Q's;
+- $K$ is $g$-independent, sparse and rational. In the normalization $K_{\{2|21\},\rm vac}=1$:
+
+| $\nu$ | (site-1 pattern; site-2 vac) | (·; site-2 $\{2\|20\}$) |
+|---|---|---|
+| {2\|21} | {2\|21}: 1 | — |
+| {2\|11} | {2\|11}: 8/27, {2\|20}: −35/124 | {2\|21}: −3395/3348 |
+| {1\|11} | {1\|11}: −4/9 | — |
+| {2\|20} | {2\|20}: −1/2 | — |
+| {2\|10} | {2\|10}: −4/27 | {2\|20}: 35/54 |
+| {2\|00} | {2\|00}: 1/31, {1\|10}: 35/108 | {2\|10}: −35/124 |
+| {1\|10} | {1\|10}: 2/9 | — |
+| {1\|00} | {1\|00}: −3/62 | {1\|10}: −35/558 |
+
+**Reading the table.**
+- At $h=1/2$ and $\theta_{12}=31/35$, the 31s and 35s are $t=\theta_{12}/h=62/35$. The site-2 coupling is therefore rational in $t$.
+- The four $\nu$ with a single entry are exactly those for which $x_\nu\otimes e_1^T$ is already a B-eigencovector.
+
+**Open.**
+- The closed form of $K$ in $t$, which needs a second numeric point.
+- Whether $\sum_\nu c_\nu(w,y_1)W_\nu$ resums to a compact determinant, e.g. ladder-1 brackets of the L=2 Q's times the su(2)-like factor, as it does at L=1.
+
+===== cell 23 [MD] =====
+## 5. Toward a compact det form: ladder-dependent bra data
+- **Idea.** $\det N$ only probes $F$ at the points $\theta_s+mh$ ($m=-2,\dots,1$) of each ladder, so $F$ can be chosen differently on the two ladders. This is the same as inserting polynomials that kill some ladder poles.
+- **Ansatz.** For a rotation on site 1 only, put the twist data on ladder 1 and "SoV-vacuum" data $F_0$ on ladder 2.
+- **Step 1.** Find $F_0$ such that $\det_6[Q_B,F_0]/\Psi_Q(x_0)$ is state-independent, i.e. it reproduces $x_0$ itself. Scan $F_1,F_2$ supported on single points $m_1,m_2$, the same on both ladders.
+
+===== cell 24 [CODE] =====
+onPt[x_, m_] := Or @@ Table[Abs[x - (thN[[s]] + m hN)] < 10^-30, {s, nL}];
+ladOf[x_] := First[Select[{1, 2}, Function[s, Min[Table[Abs[x - (thN[[s]] + m hN)], {m, -4, 2}]] < 10^-30]], {0}];
+Fdelta[m1_, m2_] := Function[{i, x}, Which[i == 1, If[onPt[x, m1], 1, 0], i == 2, If[onPt[x, m2], 1, 0], True, 0]];
+constQ[vals_] := If[Max[Abs[vals]] < 10^-40, Infinity, Max[Abs[vals/vals[[1]] - 1]]];
+scanF0 = Flatten[Table[{m1, m2, constQ[Table[det6[B, Fdelta[m1, m2]]/psiQ[B], {B, nS}]]}, {m1, -2, 1}, {m2, -2, 1}], 1];
+SortBy[N[scanF0, 3], Last][[1 ;; 5]]
+
+===== cell 25 [CODE] =====
+F0 = Fdelta[-2, 0];
+checks["F0 = (δ_{θs-2h}, δ_{θs}) reproduces x0: det6[F0]/Psi_Q const"] = constQ[Table[det6[B, F0]/psiQ[B], {B, nS}]];
+(* companion-frame one-site w-vacuum: Ω_w = e1^T Ppp(w) *)
+PppW[y_] := MatrixExp[(1/y[[1]]) Ee[1, 2]] . MatrixExp[-(1/(y[[1]] y[[2]])) Ee[1, 3]] . MatrixExp[((y[[1]] + y[[2]])/(y[[1]] y[[2]])) Ee[2, 3]];
+Ωc[y_] := uv[1] . PppW[y];
+TA = Table[(Flatten[KroneckerProduct[Ωc[wN], uv[1]]] . ketC[[B]])/(x0C . ketC[[B]]), {B, nS}];
+(* sanity: both sites rotated reproduces the usual 6x6 *)
+checks["Ω_w⊗Ω_w (companion) ∝ det6[F_vac,w]/Psi_Q"] = constQ[Table[(Flatten[KroneckerProduct[Ωc[wN], Ωc[wN]]] . ketC[[B]])/(x0C . ketC[[B]])/(det6[B, Fvac]/psiQ[B]), {B, nS}]];
+(* L=1 w-vacuum direct Q's at site 1: q1 = 1, q2, q3 from the one-site Baxter equation with nu_n(x) = x - θ1 + h Λ_n *)
+nu1[n_][x_] := x - thN[[1]] + hN Λ[[n]];
+tVac1 = {Sum[wN[[j]] nu1[j][u], {j, 3}], Sum[wN[[i]] wN[[j]] nu1[i][u] nu1[j][u - hN], {i, 3}, {j, i + 1, 3}], (Times @@ wN) nu1[1][u] nu1[2][u - hN] nu1[3][u - 2 hN]};
+opDir1[tt_, Q_, x_] := nu1[1][x] nu1[1][x + hN] nu1[1][x + 2 hN] Q[x - hN] - (tt[[1]] /. u -> x) nu1[1][x + hN] nu1[1][x + 2 hN] Q[x] + (tt[[2]] /. u -> x + hN) nu1[1][x + 2 hN] Q[x + hN] - (tt[[3]] /. u -> x + 2 hN) Q[x + 2 hN];
+qdVac1 = Table[solveQ[opDir1, tVac1, wN[[i]], -1], {i, 3}];
+checks["L=1 vacuum q's found, degrees (0,1,2)"] = FreeQ[qdVac1, {}] && Exponent[qdVac1, X] === {0, 1, 2};
+QDv1[i_, x_] := N[wN[[i]]^(-x/hN), prec] (qdVac1[[i]] /. X -> x);
+(* mixed bra data: ladder 1 -> w-vacuum Q's (L=2 or L=1 version), ladder 2 -> F0 *)
+FmixL2 = Function[{i, x}, If[ladOf[x] == 1, QD["vac", i, x], F0[i, x]]];
+FmixL1 = Function[{i, x}, If[ladOf[x] == 1, QDv1[i, x], F0[i, x]]];
+checks["Ω_w⊗e1: ladder1 = L=2 vac Q's, ladder2 = F0"] = constQ[Table[TA[[B]]/(det6[B, FmixL2]/psiQ[B]), {B, nS}]];
+checks["Ω_w⊗e1: ladder1 = L=1 vac Q's, ladder2 = F0"] = constQ[Table[TA[[B]]/(det6[B, FmixL1]/psiQ[B]), {B, nS}]];
+KeyTake[checks, {"F0 = (δ_{θs-2h}, δ_{θs}) reproduces x0: det6[F0]/Psi_Q const", "Ω_w⊗Ω_w (companion) ∝ det6[F_vac,w]/Psi_Q", "L=1 vacuum q's found, degrees (0,1,2)", "Ω_w⊗e1: ladder1 = L=2 vac Q's, ladder2 = F0", "Ω_w⊗e1: ladder1 = L=1 vac Q's, ladder2 = F0"}]
+
+===== cell 26 [CODE] =====
+(* reconstruct the covector phi_F with phi_F.Psi_B = det6[B,F]/Psi_Q(x0) * <x0|Psi_B>, and look at it as an 8x8 (site1 x site2) matrix *)
+ketMatC = Transpose[ketC]; ketInvC = Inverse[ketMatC];
+phiOf[F_] := Table[det6[B, F]/psiQ[B] (x0C . ketC[[B]]), {B, nS}] . ketInvC;
+svMat[φ_] := SingularValueList[Partition[φ, d1], 8, Tolerance -> 0];
+site2Factor[φ_] := Module[{M = Partition[φ, d1], sv}, Normalize[First[SingularValueDecomposition[M][[3]]\[Transpose]]]];
+φmix = phiOf[FmixL2]; φF0 = phiOf[F0]; φvv = phiOf[Fvac];
+{N[svMat[φF0]/svMat[φF0][[1]], 3], N[svMat[φmix]/svMat[φmix][[1]], 3], N[svMat[φvv]/svMat[φvv][[1]], 3]}
+
+===== cell 27 [CODE] =====
+(* per-ladder brackets (Section 7 of L2-diagonal-frame-overlap.wb): same residue weights, restricted to ladder s; row block s may carry its own bra data F_s *)
+rowLad[B_, F_, {i_, j_}, s_] := Sum[If[p[[1]] == s, wgt[p] With[{x = xP[p]}, {-QU[B, j, x] F[i, x], -x QU[B, j, x] F[i, x], QU[B, j, x] F[i, x + hN], x QU[B, j, x] F[i, x + hN], QU[B, j, x - hN] F[i, x], x QU[B, j, x - hN] F[i, x]}], 0], {p, poles}];
+det6L[B_, Fs_List] := Det[Flatten[Table[rowLad[B, Fs[[s]], ij, s], {s, nL}, {ij, prsL1}], 1]];
+checks["per-ladder: Ω_w⊗Ω_w ∝ det6L[{Fvac,Fvac}]/Psi_Q"] = constQ[Table[(Flatten[KroneckerProduct[Ωc[wN], Ωc[wN]]] . ketC[[B]])/(x0C . ketC[[B]])/(det6L[B, {Fvac, Fvac}]/psiQ[B]), {B, nS}]];
+checks["per-ladder: x0 ∝ det6L[{F0,F0}]/Psi_Q"] = constQ[Table[det6L[B, {F0, F0}]/psiQ[B], {B, nS}]];
+checks["per-ladder: Ω_w⊗e1 ∝ det6L[{Fvac(L=2), F0}]/Psi_Q"] = constQ[Table[TA[[B]]/(det6L[B, {Fvac, F0}]/psiQ[B]), {B, nS}]];
+Fv1 = Function[{i, x}, QDv1[i, x]];
+checks["per-ladder: Ω_w⊗e1 ∝ det6L[{Fvac(L=1), F0}]/Psi_Q"] = constQ[Table[TA[[B]]/(det6L[B, {Fv1, F0}]/psiQ[B]), {B, nS}]];
+KeyTake[checks, Select[Keys[checks], StringStartsQ[#, "per-ladder"] &]]
+
+===== cell 28 [CODE] =====
+(* unknown ladder-2 bra data: f2v[i, m] = F_i(θ2 + m h), i = 1,2, m = -2..1; ladder 1 = w-vacuum Q's (L=2) *)
+unk = Flatten[Table[f2v[i, m], {i, 2}, {m, -2, 1}]];
+Flad2 = Function[{i, x}, If[i > 2, 0, Sum[If[Abs[x - (thN[[2]] + m hN)] < 10^-30, f2v[i, m], 0], {m, -2, 1}]]];
+(* det6L is a polynomial in the unknowns; build it once per state *)
+d6sym = Table[Expand[det6L[B, {Fvac, Flad2}]/psiQ[B]], {B, nS}];
+resid[vals_, lam_] := (d6sym /. Thread[unk -> vals]) - lam TA;
+(* least squares: minimize |resid|^2/|TA|^2 over the 8 values and lambda, from the F0 start and random starts *)
+obj[vals_?(VectorQ[#, NumericQ] &), lam_?NumericQ] := Total[Abs[resid[vals, lam]]^2]/Total[Abs[TA]^2];
+startF0 = Flatten[Table[If[(i == 1 && m == -2) || (i == 2 && m == 0), 1, 0], {i, 2}, {m, -2, 1}]];
+lam0 = With[{d = d6sym /. Thread[unk -> startF0]}, (d . TA)/(TA . TA)];
+SeedRandom[7];
+fits = Table[Module[{st = If[k == 1, startF0, startF0 + RandomReal[{-1, 1}, 8]], sol},
+    sol = Quiet[FindMinimum[obj[Array[vv, 8], lv], Join[Transpose[{Array[vv, 8], st}], {{lv, lam0}}], WorkingPrecision -> 40, MaxIterations -> 2000]];
+    {sol[[1]], Array[vv, 8] /. sol[[2]], lv /. sol[[2]]}], {k, 6}];
+bestFit = First[SortBy[fits, First]];
+{N[Sort[fits[[All, 1]]], 3], N[bestFit[[2]], 6]}
+
+===== cell 29 [CODE] =====
+(* gauge-fix the best fit: F1 -> F1/F1(-2); F2 -> F2 - F2(-2) F1; F2 -> F2/F2(0) *)
+bf = bestFit[[2]]; bF1 = bf[[1 ;; 4]]; bF2 = bf[[5 ;; 8]];
+gF1 = bF1/bF1[[1]]; gF2 = bF2 - (bF2[[1]]/bF1[[1]]) bF1; gF2 = gF2/gF2[[3]];
+(* Newton on gauge-fixed unknowns: F1(-1), F1(0), F1(1), F2(-1), F2(1), lambda *)
+gVals[{a1_, a2_, a3_, b1_, b3_}] := {1, a1, a2, a3, 0, b1, 1, b3};
+lamG = With[{d = d6sym /. Thread[unk -> gVals[{gF1[[2]], gF1[[3]], gF1[[4]], gF2[[2]], gF2[[4]]}]]}, (d . TA)/(TA . TA)];
+pick = {1, 9, 17, 30, 41, 50, 63};
+solN = FindRoot[Table[(d6sym[[B]] /. Thread[unk -> gVals[{A1, A2, A3, B1, B3}]]) == LL TA[[B]], {B, pick[[1 ;; 6]]}], {{A1, gF1[[2]]}, {A2, gF1[[3]]}, {A3, gF1[[4]]}, {B1, gF2[[2]]}, {B3, gF2[[4]]}, {LL, lamG}}, WorkingPrecision -> 50, MaxIterations -> 200];
+ladder2F = gVals[{A1, A2, A3, B1, B3} /. solN];
+checks["site-1 vacuum Ω_w⊗e1 = det6L[{F_vac,w ; F_lad2}]/Psi_Q (all 64)"] = Max[Abs[(d6sym /. Thread[unk -> ladder2F])/((LL /. solN) TA) - 1]];
+{N[checks["site-1 vacuum Ω_w⊗e1 = det6L[{F_vac,w ; F_lad2}]/Psi_Q (all 64)"], 3], N[ladder2F, 12]}
+
+===== cell 30 [CODE] =====
+(* Gauss-Newton on all 64 equations, unknowns = 8 ladder-2 values + lambda; gauge directions handled by PseudoInverse; fixed 60-digit arithmetic (no precision tracking) *)
+resV[vals_, lam_] := (d6sym /. Thread[unk -> vals]) - lam TA;
+jacSym = Transpose[Join[Transpose[D[d6sym, {unk}]], {-TA}]];   (* 64 x 9 *)
+gnStep[{vals_, lam_}] := Module[{J = jacSym /. Thread[unk -> vals], r = resV[vals, lam], dx}, dx = -PseudoInverse[J, Tolerance -> 10^-30] . r; {vals + dx[[1 ;; 8]], lam + dx[[9]]}];
+{gnIter, gnRes, svJ} = Block[{$MinPrecision = 60, $MaxPrecision = 60},
+   Module[{it = NestList[gnStep, {SetPrecision[bestFit[[2]], 60], SetPrecision[bestFit[[3]], 60]}, 10]},
+    {it, Table[Norm[resV @@ s]/Norm[TA], {s, it}], SingularValueList[jacSym /. Thread[unk -> Last[it][[1]]], 9, Tolerance -> 0]}]];
+ladder2Sol = Last[gnIter];
+checks["site-1 vacuum Ω_w⊗e1 = det6L[{F_vac,w ; F_lad2}]/Psi_Q (Gauss-Newton residual)"] = Last[gnRes];
+{N[gnRes, 3], N[svJ/svJ[[1]], 3]}
+
+===== cell 31 [CODE] =====
+(* gauge-fixed ladder-2 data: F1 -> F1/F1(θ2-2h); F2 -> (F2 - c F1) with F2(θ2-2h) = 0, normalized at its largest entry *)
+gaugeFix[v_] := Module[{a = v[[1 ;; 4]], b = v[[5 ;; 8]]}, a = a/a[[1]]; b = b - b[[1]] a; b = b/b[[First[Ordering[Abs[b], -1]]]]; Chop[{a, b}, 10^-35]];
+ladFix = gaugeFix[ladder2Sol[[1]]];
+N[ladFix, 10]
+
+===== cell 32 [CODE] =====
+(* the solution set is a 2-parameter family (5 null directions = 3 gauges + 2). Pick F2 = δ_{θ2} on ladder 2 and solve for F1 there (F1(θ2-2h) = 1 fixes its scale) *)
+solveF1[TT_] := Module[{d6c, r, J, it, st, f1u},
+   f1u = {1, a1, a2, a3};
+   d6c = d6sym /. Thread[unk -> Join[f1u, {0, 0, 1, 0}]];
+   r[v_, l_] := (d6c /. Thread[{a1, a2, a3} -> v]) - l TT;
+   J = Transpose[Join[Transpose[D[d6c, {{a1, a2, a3}}]], {-TT}]];
+   Block[{$MinPrecision = 60, $MaxPrecision = 60},
+    it = NestList[Function[s, Module[{Jn = J /. Thread[{a1, a2, a3} -> s[[1]]], dx}, dx = -PseudoInverse[Jn, Tolerance -> 10^-30] . r @@ s; {s[[1]] + dx[[1 ;; 3]], s[[2]] + dx[[4]]}]], {SetPrecision[{0.13, 0.28, -0.02}, 60], SetPrecision[(d6c /. Thread[{a1, a2, a3} -> {0.13, 0.28, -0.02}]) . TT/(TT . TT), 60]}, 25];
+    {Last[it], Norm[r @@ Last[it]]/Norm[TT]}]];
+{solF1, resF1} = solveF1[TA];
+checks["Ω_w⊗e1: ladder 2 = (F1 = (1,a1,a2,a3), F2 = δ_θ2) solves all 64"] = resF1;
+{N[resF1, 3], N[solF1[[1]], 15]}
+
+===== cell 33 [MD] =====
+**Result 5 (partly RETRACTED; see 6b).**
+- **Still valid.** $F_0=(F_1=\delta_{\theta_s-2h},\ F_2=\delta_{\theta_s})$ on both ladders reproduces $x_0$ ($10^{-51}$).
+- **Still valid.** Per-ladder brackets reproduce $\Omega_w\otimes\Omega_w$ and $x_0$.
+- **Still valid.** Naive mixing (ladder 1 = w-vacuum Q's, ladder 2 = $F_0$) gives $A\otimes e_1+A'\otimes e_2$, not $\Omega_w\otimes e_1$.
+- **RETRACTED.** The "exact solution" for ladder-2 data $F^{(2)}$ ($10^{-44}$), and the "2-parameter family" around it, were the trivial branch: $\lambda\approx0$ and $\det_6\equiv0$, with $F_2\propto F_1$ (the gauge direction). See 6b.
+
+===== cell 34 [CODE] =====
+(* (a) how many combinations of the 8 ladder-2 numbers does det6L actually depend on? rank of d(det6L)/d(F^(2)) over the 64 states, at random F^(2) *)
+SeedRandom[17];
+rankLad2 = Table[MatrixRank[(D[d6sym, {unk}] /. Thread[unk -> RandomReal[{-1, 1}, 8, WorkingPrecision -> 60]]), Tolerance -> 10^-35], {3}];
+(* (b) robustness: redo the whole fit at a second twist w' *)
+w2N = {7/4, -2/5, 9/7};
+GPw2 = Simplify[Paux . Gc[ws] . Inverse[Paux]] /. Join[Thread[zs -> zN], Thread[ws -> w2N]];
+rOm2 = {(w[1] - z[1])/(w[1] - z[2]), ((w[1] - z[1]) (-w[2] + z[1]) (z[2] - z[3]))/((z[1] - z[2]) (w[1] - z[3]) (w[2] - z[3])), ((w[1] - z[2]) (-w[2] + z[2]) (z[1] - z[3]))/((z[1] - z[2]) (w[1] - z[3]) (-w[2] + z[3]))} /. Join[Thread[zs -> zN], Thread[ws -> w2N]];
+Ω1b = First[{UnitVector[d1, 1]} . MatrixExp[rOm2[[1]] Ee[1, 2]] . MatrixExp[rOm2[[2]] Ee[1, 3]] . MatrixExp[rOm2[[3]] Ee[2, 3]]]; Ω2b = Flatten[KroneckerProduct[Ω1b, Ω1b]];
+tW2 = Table[tPoly[GPw2, a], {a, 3}];
+tauVac2 = Table[Expand[(Ω2b . tW2[[a]])[[kOm]]/Ω2b[[kOm]]], {a, 3}];
+qdVac2 = Table[solveQ[opDir, N[tauVac2, prec], w2N[[i]], -1], {i, 3}];
+Fvac2 = Function[{i, x}, N[w2N[[i]]^(-x/hN), prec] (qdVac2[[i]] /. X -> x)];
+checks["w': Ω_w'⊗Ω_w' (companion) ∝ det6L[{Fvac',Fvac'}]/Psi_Q"] = constQ[Table[(Flatten[KroneckerProduct[Ωc[w2N], Ωc[w2N]]] . ketC[[B]])/(x0C . ketC[[B]])/(det6L[B, {Fvac2, Fvac2}]/psiQ[B]), {B, nS}]];
+TA2 = Table[(Flatten[KroneckerProduct[Ωc[w2N], uv[1]]] . ketC[[B]])/(x0C . ketC[[B]]), {B, nS}];
+d6sym2 = Table[Expand[det6L[B, {Fvac2, Flad2}]/psiQ[B]], {B, nS}];
+resV2[vals_, lam_] := (d6sym2 /. Thread[unk -> vals]) - lam TA2;
+jac2 = Transpose[Join[Transpose[D[d6sym2, {unk}]], {-TA2}]];
+fit2 = Block[{$MinPrecision = 60, $MaxPrecision = 60}, Module[{best = {Infinity}, st, it, r},
+    Do[st = {SetPrecision[startF0 + If[k == 1, 0, RandomReal[{-1, 1}, 8]], 60], 1};
+     st[[2]] = With[{d = d6sym2 /. Thread[unk -> st[[1]]]}, (d . TA2)/(TA2 . TA2)];
+     it = Nest[Function[s, Module[{J = jac2 /. Thread[unk -> s[[1]]], dx}, dx = -PseudoInverse[J, Tolerance -> 10^-30] . resV2 @@ s; {s[[1]] + dx[[1 ;; 8]], s[[2]] + dx[[9]]}]], st, 40];
+     r = Norm[resV2 @@ it]/Norm[TA2]; If[r < best[[1]], best = {r, it}], {k, 8}]; best]];
+checks["w': Ω_w'⊗e1 = det6L[{Fvac', F^(2)}]/Psi_Q (best residual)"] = fit2[[1]];
+{rankLad2, N[checks["w': Ω_w'⊗Ω_w' (companion) ∝ det6L[{Fvac',Fvac'}]/Psi_Q"], 3], N[fit2[[1]], 3]}
+
+===== cell 35 [MD] =====
+**Result 5b: RETRACTED.**
+- **The claim.** The "genuine" claim, the "second-$w$ check" ($10^{-56}$) and the "rank drop".
+- **Why it was wrong.** All of these were the trivial solution: $\lambda\approx0$ and $\det\equiv0$. The rank-6 counting argument did not exclude it, because $\lambda=0$ satisfies every equation.
+- **Correct test.** See 6b, which fixes $\lambda=1$.
+
+===== cell 36 [MD] =====
+## 6. Pinning down $F^{(2)}$
+**6a. Is $F^{(2)}$ independent of $w$?** Solve the $w$ and $w'$ systems simultaneously for one common $F^{(2)}$, with two separate scales $\lambda,\lambda'$: 128 equations.
+
+===== cell 37 [CODE] =====
+(* joint Gauss-Newton: unknowns = 8 ladder-2 values + lambda + lambda' *)
+resJ[vals_, l1_, l2_] := Join[(d6sym /. Thread[unk -> vals]) - l1 TA, (d6sym2 /. Thread[unk -> vals]) - l2 TA2];
+jacJ = Join[Transpose[Join[Transpose[D[d6sym, {unk}]], {-TA, 0 TA}]], Transpose[Join[Transpose[D[d6sym2, {unk}]], {0 TA2, -TA2}]]];
+jointFit = Block[{$MinPrecision = 60, $MaxPrecision = 60}, Module[{best = {Infinity}, st, it, r},
+    Do[st = {SetPrecision[If[k == 1, ladder2Sol[[1]], ladder2Sol[[1]] + RandomReal[{-1, 1}, 8]/(2 k)], 60], ladder2Sol[[2]], 1};
+     st[[3]] = With[{d = d6sym2 /. Thread[unk -> st[[1]]]}, (d . TA2)/(TA2 . TA2)];
+     it = Nest[Function[s, Module[{J = jacJ /. Thread[unk -> s[[1]]], dx}, dx = -PseudoInverse[J, Tolerance -> 10^-30] . (resJ @@ s); {s[[1]] + dx[[1 ;; 8]], s[[2]] + dx[[9]], s[[3]] + dx[[10]]}]], st, 40];
+     r = Norm[resJ @@ it]/Norm[Join[TA, TA2]]; If[r < best[[1]], best = {r, it}], {k, 6}]; best]];
+checks["6a: one F^(2) for both w and w' (joint residual)"] = jointFit[[1]];
+N[jointFit[[1]], 3]
+
+===== cell 38 [CODE] =====
+(* fast characterization of S: on ladder 2 the det is linear in F2. For given ladder-2 F1 (4 values), build A[B,m] = det6L with F2 = δ_m and test whether
+   sum_m A[B,m] c_m = λ T_B has a solution: smallest singular value of [A | -T] (64 x 5), for the w and w' targets together *)
+F1F2lad2[f1_, m2_] := Function[{i, x}, Which[i == 1, Sum[If[Abs[x - (thN[[2]] + m hN)] < 10^-30, f1[[m + 3]], 0], {m, -2, 1}], i == 2, If[Abs[x - (thN[[2]] + m2 hN)] < 10^-30, 1, 0], True, 0]];
+Amat[f1_, Fl1_] := Table[det6L[B, {Fl1, F1F2lad2[f1, m2]}]/psiQ[B], {B, nS}, {m2, -2, 1}];
+allowF1[f1_] := Module[{A1 = Amat[f1, Fvac], A2 = Amat[f1, Fvac2], M, sv},
+   M = ArrayFlatten[{{A1, -Transpose[{TA}], 0 Transpose[{TA}]}, {A2, 0 Transpose[{TA2}], -Transpose[{TA2}]}}];
+   sv = SingularValueList[M, 6, Tolerance -> 0]; {sv[[-1]]/sv[[1]], NullSpace[M, Tolerance -> 10^-35]}];
+(* the known solution's F1 should be allowed; F1 = δ_{θ2-2h} (the vacuum-like F1) and a random F1 for comparison *)
+f1known = ladder2Sol[[1, 1 ;; 4]];
+{t0, res0} = AbsoluteTiming[allowF1[f1known]];
+{N[t0, 3], N[res0[[1]], 3], N[allowF1[{1, 0, 0, 0}][[1]], 3], N[allowF1[{1, 1/3, -2/5, 1/7}][[1]], 3]}
+
+===== cell 39 [MD] =====
+### 6b. RETRACTION and redo
+**The Section 5 "solution" was the trivial branch.** All the fitted $F^{(2)}$ had $\lambda\approx0$ and $\det_6\equiv0$: $F_2$ sat in the gauge direction $F_2\propto F_1$, so the $F_2$ row duplicated an $F_1$ row. The objective $|\det_6-\lambda T|$ with $\lambda$ free admitted this. The "2-parameter family", "$w$-independence" and "rank drop" were all properties of the trivial branch. **The claimed 6×6 for $\Omega_w\otimes e_1^T$ is not established.**
+
+**Redo with the scale fixed.** Set $\lambda=1$. This is allowed because the det is quadratic in the ladder-2 $F_1$, so $F_1$'s scale absorbs $\lambda$. For each $F_1$ the best $F_2$ is then a linear least-squares problem. The bilinear coefficient tensors are precomputed by polarization (exact, 60 digits), and the residual is minimized over $F_1$.
+
+===== cell 40 [CODE] =====
+(* A[B,m](F1) = sum_{a<=b} F1_a F1_b C[a,b][B,m]: polarization from 10 exact evaluations *)
+Aex[f1_] := Amat[f1, Fvac];
+Cdiag = Table[Aex[UnitVector[4, a]], {a, 4}];
+Coff = Table[If[a < b, Aex[UnitVector[4, a] + UnitVector[4, b]] - Cdiag[[a]] - Cdiag[[b]], 0], {a, 4}, {b, 4}];
+Afast[f1_] := Sum[f1[[a]]^2 Cdiag[[a]], {a, 4}] + Sum[f1[[a]] f1[[b]] Coff[[a, b]], {a, 4}, {b, a + 1, 4}];
+checks["6b: polarized A(F1) = direct A(F1)"] = With[{f = {1, 1/3, -2/5, 1/7}}, Max[Abs[Flatten[Afast[f] - Aex[f]]]]/Max[Abs[Flatten[Aex[f]]]]];
+(* residual of the best F2 for given F1, with lambda = 1 *)
+resFast[f1_?(VectorQ[#, NumericQ] &)] := Module[{A = Afast[SetPrecision[f1, 50]], c}, c = LeastSquares[A, TA]; Norm[A . c - TA]/Norm[TA]];
+SeedRandom[211];
+fitsTrue = Table[Module[{st = RandomReal[{-2, 2}, 4], sol}, sol = Quiet[FindMinimum[resFast[{p1, p2, p3, p4}], Transpose[{{p1, p2, p3, p4}, st}], WorkingPrecision -> 40, MaxIterations -> 300, Method -> "PrincipalAxis"]]; {sol[[1]], {p1, p2, p3, p4} /. sol[[2]]}], {8}];
+checks["6b: min over F1 of the lambda=1 residual (nonzero = no such 6x6)"] = Min[fitsTrue[[All, 1]]];
+{N[checks["6b: polarized A(F1) = direct A(F1)"], 3], N[Sort[fitsTrue[[All, 1]]], 3]}
+
+===== cell 41 [CODE] =====
+(* lambda = 1 test is projective in F1 (c absorbs the F1 scale), so scan F1 over the 3-sphere and refine *)
+resM[f1_] := Module[{A = N[Afast[f1], 40], c}, c = LeastSquares[A, N[TA, 40]]; Norm[A . c - TA]/Norm[TA]];
+SeedRandom[5];
+scan = Table[With[{f = Normalize[RandomReal[NormalDistribution[], 4]]}, {resM[SetPrecision[f, 40]], f}], {600}];
+best5 = Take[SortBy[scan, First], 5];
+resAng[a_?NumericQ, b_?NumericQ, c_?NumericQ] := resM[SetPrecision[{Cos[a], Sin[a] Cos[b], Sin[a] Sin[b] Cos[c], Sin[a] Sin[b] Sin[c]}, 40]];
+toAng[f_] := Module[{a = ArcCos[f[[1]]], b, c}, b = ArcCos[f[[2]]/Sin[a]]; c = ArcTan[f[[3]], f[[4]]]; {a, b, c}];
+refined = Table[Quiet[FindMinimum[resAng[aa, bb, cc], Transpose[{{aa, bb, cc}, toAng[s[[2]] Sign[s[[2, 1]]]]}], MaxIterations -> 200]], {s, best5}];
+checks["6b: ladder1 = L=2 w-vac Q's: min residual over all ladder-2 data (nonzero = impossible)"] = Min[refined[[All, 1]]];
+(* same with the L=1 w-vacuum Q's on ladder 1 *)
+CdiagV1 = Table[Amat[UnitVector[4, a], Fv1], {a, 4}];
+CoffV1 = Table[If[a < b, Amat[UnitVector[4, a] + UnitVector[4, b], Fv1] - CdiagV1[[a]] - CdiagV1[[b]], 0], {a, 4}, {b, 4}];
+AfastV1[f1_] := Sum[f1[[a]]^2 CdiagV1[[a]], {a, 4}] + Sum[f1[[a]] f1[[b]] CoffV1[[a, b]], {a, 4}, {b, a + 1, 4}];
+resM1[f1_] := Module[{A = N[AfastV1[f1], 40], c}, c = LeastSquares[A, N[TA, 40]]; Norm[A . c - TA]/Norm[TA]];
+SeedRandom[6];
+scan1 = Table[With[{f = Normalize[RandomReal[NormalDistribution[], 4]]}, {resM1[SetPrecision[f, 40]], f}], {600}];
+checks["6b: ladder1 = L=1 w-vac Q's: min residual over 600 ladder-2 F1 samples"] = Min[scan1[[All, 1]]];
+N[KeyTake[checks, Select[Keys[checks], StringStartsQ[#, "6b"] &]], 4]
+
+===== cell 42 [MD] =====
+## 7. Direction 1: free bra data on both ladders (plan: `site1-Qform/1-free-ladder-data.md`)
+- **Unknowns.** $F^{(s)}=(F_1,F_2)$ at $\theta_s+mh$, $m=-2..1$, for $s=1,2$: 16 numbers. There are 3 gauges per ladder, so 10 effective unknowns.
+- **Equations.** $\det_6^{\rm per\text{-}ladder}[Q_B;F^{(1)},F^{(2)}]/\Psi_Q^B(x_0)=T_B$ for all 64 $B$, with **$\lambda=1$ fixed** so that the trivial branch is excluded.
+- **Speed-up.** Each row is linear in one ladder's $F_1$ or $F_2$, so basis rows are precomputed once. The Jacobian comes from the adjugate.
+
+===== cell 43 [CODE] =====
+(* basis rows: Rb[B, s, ij, m] = per-ladder row (i,j; s) with F_i = δ at θ_s + m h *)
+deltaF[s_, i_, m_] := Function[{ii, x}, If[ii == i && Abs[x - (thN[[s]] + m hN)] < 10^-30, 1, 0]];
+Rb = Table[N[rowLad[B, deltaF[s, ij[[1]], m], ij, s], prec], {B, nS}, {s, nL}, {ij, prsL1}, {m, -2, 1}];   (* 64 x 2 x 3 x 4 x 6 *)
+psiQv = Table[psiQ[B], {B, nS}];
+(* params p: {F1^(1)(4), F2^(1)(4), F1^(2)(4), F2^(2)(4)} *)
+rowsOf[B_, p_] := Join @@ Table[With[{f1 = p[[8 (s - 1) + 1 ;; 8 (s - 1) + 4]], f2 = p[[8 (s - 1) + 5 ;; 8 (s - 1) + 8]]}, {f1 . Rb[[B, s, 1]], f1 . Rb[[B, s, 2]], f2 . Rb[[B, s, 3]]}], {s, nL}];
+detP[p_] := Table[Det[rowsOf[B, p]]/psiQv[[B]], {B, nS}];
+(* Jacobian via the adjugate: d det = sum_r (adj^T)_r . d row_r *)
+jacP[p_] := Table[Module[{M = rowsOf[B, p], adjT, g = ConstantArray[0, 16]},
+    adjT = Det[M] Transpose[Inverse[M]];
+    Do[With[{off = 8 (s - 1), rs = 3 (s - 1)}, 
+       g[[off + 1 ;; off + 4]] += Rb[[B, s, 1]] . adjT[[rs + 1]] + Rb[[B, s, 2]] . adjT[[rs + 2]];
+       g[[off + 5 ;; off + 8]] += Rb[[B, s, 3]] . adjT[[rs + 3]]], {s, nL}];
+    g/psiQv[[B]]], {B, nS}];
+(* natural data as parameter vectors *)
+vecOf[F_, s_] := Join[Table[N[F[1, thN[[s]] + m hN], prec], {m, -2, 1}], Table[N[F[2, thN[[s]] + m hN], prec], {m, -2, 1}]];
+pW = Join[vecOf[Fvac, 1], vecOf[Fvac, 2]]; p0 = Join[vecOf[F0, 1], vecOf[F0, 2]]; pWF0 = Join[vecOf[Fvac, 1], vecOf[F0, 2]];
+checks["7: fast det = det6L for (Fw,Fw), (F0,F0), (Fw,F0)"] = Max[Table[Max[Abs[detP[pp[[1]]] - Table[det6L[B, pp[[2]]]/psiQ[B], {B, nS}]]]/Max[Abs[detP[pp[[1]]]]], {pp, {{pW, {Fvac, Fvac}}, {p0, {F0, F0}}, {pWF0, {Fvac, F0}}}}]];
+checks["7: Jacobian = finite differences"] = Module[{pr = pW + RandomReal[{-1, 1}/10, 16], d = 10^-25, fd}, fd = Transpose[Table[(detP[pr + d UnitVector[16, k]] - detP[pr - d UnitVector[16, k]])/(2 d), {k, 16}]]; Max[Abs[Flatten[fd - jacP[pr]]]]/Max[Abs[Flatten[fd]]]];
+N[KeyTake[checks, Select[Keys[checks], StringStartsQ[#, "7:"] &]], 3]
+
+===== cell 44 [CODE] =====
+checks["7: Jacobian = finite differences"] = Module[{pr = SetPrecision[pW + RandomReal[{-1, 1}/10, 16], 60], d = 10^-20, fd}, fd = Transpose[Table[(detP[pr + d UnitVector[16, k]] - detP[pr - d UnitVector[16, k]])/(2 d), {k, 16}]]; Max[Abs[Flatten[fd - jacP[pr]]]]/Max[Abs[Flatten[fd]]]];
+(* Levenberg-damped Gauss-Newton with lambda = 1 (target fixed); fixed 60-digit arithmetic *)
+relRes[p_] := Norm[detP[p] - TA]/Norm[TA];
+scaleStart[p_] := Module[{d = detP[p], a2, q = p}, a2 = (Conjugate[d] . TA)/(Conjugate[d] . d); q[[1 ;; 4]] = Sqrt[a2] q[[1 ;; 4]]; q];
+lmFit[p0_, nIt_ : 60] := Block[{$MinPrecision = 60, $MaxPrecision = 60}, Module[{p = SetPrecision[p0, 60], mu = 10^-3, r, J, dp, pn, rn, rc},
+    rc = relRes[p];
+    Do[r = detP[p] - TA; J = jacP[p];
+     dp = -LinearSolve[ConjugateTranspose[J] . J + mu IdentityMatrix[16], ConjugateTranspose[J] . r];
+     pn = p + dp; rn = relRes[pn];
+     If[rn < rc, p = pn; rc = rn; mu = Max[mu/3, 10^-40], mu = 10 mu];
+     If[rc < 10^-45, Break[]], {nIt}];
+    {rc, p}]];
+natStarts = {pW, p0, pWF0, Join[vecOf[F0, 1], vecOf[Fvac, 2]]};
+SeedRandom[401];
+randStarts = Table[SetPrecision[RandomReal[{-1, 1}, 16], 60], {40}];
+{tLM, lmRuns} = AbsoluteTiming[Table[With[{st = scaleStart[s]}, lmFit[st]], {s, Join[natStarts, randStarts]}]];
+lmBest = First[SortBy[lmRuns, First]];
+checks["7: Direction 1 best residual (lambda = 1)"] = lmBest[[1]];
+checks["7: ||det||/||T|| at best"] = Norm[detP[lmBest[[2]]]]/Norm[TA];
+{N[tLM, 3], N[Take[Sort[lmRuns[[All, 1]]], 8], 3], N[lmRuns[[1 ;; 4, 1]], 3], N[checks["7: ||det||/||T|| at best"], 4]}
+
+===== cell 45 [CODE] =====
+bestRuns = Take[SortBy[lmRuns, First], 6];
+longRuns = Table[lmFit[r[[2]], 300], {r, bestRuns}];
+checks["7: Direction 1 best residual after 300 more LM steps"] = Min[longRuns[[All, 1]]];
+(* X-relaxation: for fixed F1^(1), F1^(2), det = sum_{m,m'} X[m,m'] D[m,m'](B), with D = det at F2^(1) = δ_m, F2^(2) = δ_m' *)
+Dten[f11_, f12_] := Table[detP[Join[f11, UnitVector[4, m], f12, UnitVector[4, mp]]], {m, 4}, {mp, 4}];   (* 4 x 4 x 64 *)
+xRelax[f11_, f12_] := Module[{D = Dten[f11, f12], A, X, res, sv}, A = Transpose[Flatten[D, 1]];   (* 64 x 16 *)
+   X = LeastSquares[A, TA]; res = Norm[A . X - TA]/Norm[TA]; sv = SingularValueList[Partition[X, 4], 4, Tolerance -> 0];
+   {res, sv/sv[[1]], MatrixRank[A, Tolerance -> 10^-35]}];
+f1W1 = vecOf[Fvac, 1][[1 ;; 4]]; f1W2 = vecOf[Fvac, 2][[1 ;; 4]]; f1Z = vecOf[F0, 1][[1 ;; 4]];
+xr = {"Fw|F0" -> xRelax[f1W1, f1Z], "Fw|Fw" -> xRelax[f1W1, f1W2], "F0|F0" -> xRelax[f1Z, f1Z], "best LM" -> xRelax[longRuns[[1, 2, 1 ;; 4]], longRuns[[1, 2, 9 ;; 12]]]};
+checks["7: X-relaxation residuals (natural F1's)"] = Min[Values[xr][[All, 1]]];
+{N[longRuns[[All, 1]], 4], N[xr, 3]}
+
+===== cell 46 [MD] =====
+**Result 7 (Direction 1): negative.**
+- **Validation.** The fast determinant reproduces det6L ($10^{-51}$), and the adjugate Jacobian matches finite differences ($10^{-33}$).
+- **Free data on both ladders.** With $F^{(1)},F^{(2)}$ free (16 numbers, $\lambda=1$ fixed), Levenberg–Marquardt from 4 natural and 40 random starts, then 300 extra steps on the best 6, plateaus at a minimal relative residual of **0.273**. Every run gives 0.27–0.28, with $\|\det\|/\|T\|\approx0.96$, so this is not the trivial branch.
+- **X-relaxation** (the bridge to Direction 3). For fixed $F_1$'s, replacing $F_2^{(1)}\otimes F_2^{(2)}$ by a general $4\times4$ $X$ gives a reachable space of rank only 9 (out of 64). The residual is 0.269 at the best $F_1$'s and 0.61–0.92 at the natural ones ($F_w$, $F_0$).
+- **Conclusion.** No per-ladder $6\times6$, not even a sum of such determinants sharing the ladder-1 $F_1$ data, reproduces $\langle\Omega_w\otimes e_1^T|\Psi\rangle$.
+- **Implication.** The per-ladder bracket structure itself must change, through column insertions (Direction 2) or different determinant shapes, or the answer is a genuine sum over SoV states (Direction 4).
+
+===== cell 47 [MD] =====
+## 8. Direction 2: polynomial insertions (plan: `site1-Qform/2-polynomial-insertions.md`)
+**General framework.** Each bracket integrand carries a weight $W[k,f,p]$:
+- $k\in\{1,2\}$ labels the bracket;
+- $f$ labels the column type: $-\langle PF\rangle$, $\langle PF^{[2]}\rangle$ or $\langle P^{[-2]}F\rangle$;
+- $p$ runs over the 6 poles.
+
+The matrix entry is $\sum_pW[k,f,p]\,x_p^{\beta-1}G_f^{(i,j)}(B,p)$. The natural brackets have $W=\mathrm{wgt}_p\,\mathrm{ins}_k(x_p)$, and a polynomial insertion multiplies this by $\pi_{k,f}(x_p)$. The bra data stay natural: the $w$-vacuum Q's.
+
+**Target and safeguard.** The target is $T_A=\langle\Omega_w\otimes e_1^T|\Psi\rangle/\langle x_0|\Psi\rangle$. Only state-independent ratios with $\det\not\equiv0$ count.
+
+===== cell 48 [CODE] =====
+(* per-pole contributions G[B, ij, f, p] with F = w-vacuum Q's (or F0) *)
+Gof[F_] := Table[With[{x = xP[p], i = ij[[1]], j = ij[[2]]}, N[{-QU[B, j, x] F[i, x], QU[B, j, x] F[i, x + hN], QU[B, j, x - hN] F[i, x]}, prec]], {B, nS}, {ij, prsL1}, {p, poles}];   (* 64 x 3 x 6 x 3(f) *)
+Gw = Gof[Fvac]; G0 = Gof[F0];
+xPv = N[xP /@ poles, prec];
+(* W[[k, f, p]]: 2 x 3 x 6; rows (ij; k), columns (f, beta) in rowFb order *)
+matW[G_, B_, W_] := Flatten[Table[Table[Sum[W[[k, f, p]] xPv[[p]]^(be - 1) G[[B, ij, p, f]], {p, 6}], {f, 3}, {be, 2}] // Flatten, {k, 2}, {ij, 3}], 1];
+detW[G_, W_] := Table[Det[matW[G, B, W]]/psiQv[[B]], {B, nS}];
+Wnat = Table[N[wgt[poles[[p]]] ins[k][xP[poles[[p]]]], prec], {k, 2}, {f, 3}, {p, 6}];
+checks["8: Wnat reproduces the 6x6 for Ω_w⊗Ω_w and x0"] = {constQ[Table[(Flatten[KroneckerProduct[Ωc[wN], Ωc[wN]]] . ketC[[B]])/(x0C . ketC[[B]]), {B, nS}]/detW[Gw, Wnat]], constQ[detW[G0, Wnat]]};
+(* Stage 1: kill masks on ladder-2 poles (poles 4,5,6 = ladder 2, n = 0,1,2), same mask for all columns of a bracket *)
+maskW[m1_, m2_] := Table[Wnat[[k, f, p]] If[p > 3, {m1, m2}[[k]][[p - 3]], 1], {k, 2}, {f, 3}, {p, 6}];
+masks = Tuples[{0, 1}, 3];
+stage1 = Flatten[Table[Module[{d = detW[Gw, maskW[m1, m2]], d0 = detW[G0, maskW[m1, m2]]},
+     {m1, m2, Norm[d]/Norm[TA], If[Norm[d] < 10^-40, Infinity, constQ[TA/d]], If[Norm[d0] < 10^-40, Infinity, constQ[d0]]}], {m1, masks}, {m2, masks}], 1];
+{N[checks["8: Wnat reproduces the 6x6 for Ω_w⊗Ω_w and x0"], 3], N[Take[SortBy[stage1, #[[4]] &], 6], 3]}
+
+===== cell 49 [CODE] =====
+(* Stage 2: all 36 weights free, lambda = 1. Jacobian: d det/dW[k,f,p] = sum_{rows r in block k, beta} adjT[r, (f,beta)] x_p^(beta-1) G[B, ij(r), p, f] *)
+jacW[G_, W_] := Table[Module[{M = matW[G, B, W], adjT, g},
+    adjT = Det[M] Transpose[Inverse[M]];
+    g = Table[Sum[adjT[[3 (k - 1) + r, 2 (f - 1) + be]] xPv[[p]]^(be - 1) G[[B, r, p, f]], {r, 3}, {be, 2}], {k, 2}, {f, 3}, {p, 6}];
+    Flatten[g]/psiQv[[B]]], {B, nS}];
+checks["8: jacW = finite differences"] = Module[{W0 = SetPrecision[Wnat (1 + RandomReal[{-1, 1}/5, {2, 3, 6}]), 60], d = 10^-22, fd, k0 = 7},
+   fd = (detW[Gw, ArrayReshape[Flatten[W0] + d UnitVector[36, k0], {2, 3, 6}]] - detW[Gw, ArrayReshape[Flatten[W0] - d UnitVector[36, k0], {2, 3, 6}]])/(2 d);
+   Norm[fd - jacW[Gw, W0][[All, k0]]]/Norm[fd]];
+relResW[G_, T_, w_] := Norm[detW[G, ArrayReshape[w, {2, 3, 6}]] - T]/Norm[T];
+lmW[w0_, nIt_ : 80] := Block[{$MinPrecision = 60, $MaxPrecision = 60}, Module[{w = SetPrecision[w0, 60], mu = 10^-3, r, J, dw, wn, rn, rc},
+    rc = relResW[Gw, TA, w];
+    Do[r = detW[Gw, ArrayReshape[w, {2, 3, 6}]] - TA; J = jacW[Gw, ArrayReshape[w, {2, 3, 6}]];
+     dw = -LinearSolve[ConjugateTranspose[J] . J + mu IdentityMatrix[36], ConjugateTranspose[J] . r];
+     wn = w + dw; rn = relResW[Gw, TA, wn];
+     If[rn < rc, w = wn; rc = rn; mu = Max[mu/3, 10^-40], mu = 10 mu];
+     If[rc < 10^-45, Break[]], {nIt}];
+    {rc, w}]];
+(* start from Wnat rescaled so det matches TA in least squares (scale the whole k=1 block: det ~ c^3) *)
+scaleW[w_] := Module[{d = detW[Gw, ArrayReshape[w, {2, 3, 6}]], c3, ww = ArrayReshape[w, {2, 3, 6}]}, c3 = (Conjugate[d] . TA)/(Conjugate[d] . d); ww[[1]] = CubeRoot[Re[c3]] ww[[1]]; Flatten[ww]];
+SeedRandom[503];
+wStarts = Join[{Flatten[Wnat]}, Table[Flatten[Wnat (1 + RandomReal[{-1, 1}, {2, 3, 6}])], {8}], Table[Flatten[Wnat RandomReal[{-2, 2}, {2, 3, 6}]], {8}]];
+{tW, wRuns} = AbsoluteTiming[Table[lmW[scaleW[SetPrecision[s, 60]]], {s, wStarts}]];
+wBest = First[SortBy[wRuns, First]];
+checks["8: Stage 2 best residual (36 free weights, lambda = 1)"] = wBest[[1]];
+checks["8: Stage 2 ||det||/||T|| at best"] = Norm[detW[Gw, ArrayReshape[wBest[[2]], {2, 3, 6}]]]/Norm[TA];
+{N[checks["8: jacW = finite differences"], 3], N[tW, 3], N[Sort[wRuns[[All, 1]]], 3], N[checks["8: Stage 2 ||det||/||T|| at best"], 4]}
+
+===== cell 50 [CODE] =====
+(* Stage 2 diagnostics: the w-only fit overfits (transfer to w' fails). Joint fit: one W for both twists; lambda = 1 at w, lambda' free at w' *)
+Gw2 = Gof[Fvac2];
+resJW[w_, l2_] := Join[detW[Gw, ArrayReshape[w, {2, 3, 6}]] - TA, detW[Gw2, ArrayReshape[w, {2, 3, 6}]] - l2 TA2];
+jacJW[w_] := Join[Map[Append[#, 0] &, jacW[Gw, ArrayReshape[w, {2, 3, 6}]]], Transpose[Append[Transpose[jacW[Gw2, ArrayReshape[w, {2, 3, 6}]]], -TA2]]];
+lmJW[st_, nIt_] := Block[{$MinPrecision = 60, $MaxPrecision = 60}, Module[{v = SetPrecision[st, 60], mu = 10^-3, r, J, dv, vn, rn, rc, nrm = Norm[Join[TA, TA2]], traj = {}},
+    rc = Norm[resJW[v[[1 ;; 36]], v[[37]]]]/nrm;
+    Do[r = resJW[v[[1 ;; 36]], v[[37]]]; J = jacJW[v[[1 ;; 36]]];
+     dv = -LinearSolve[ConjugateTranspose[J] . J + mu IdentityMatrix[37], ConjugateTranspose[J] . r];
+     vn = v + dv; rn = Norm[resJW[vn[[1 ;; 36]], vn[[37]]]]/nrm;
+     If[rn < rc, v = vn; rc = rn; mu = Max[mu/3, 10^-40], mu = 10 mu];
+     If[Mod[it, 100] == 0, AppendTo[traj, rc]];
+     If[rc < 10^-45, Break[]], {it, nIt}];
+    {rc, v, traj}]];
+wTr = wCur[[2]];
+lam2Start = With[{d = detW[Gw2, ArrayReshape[wTr, {2, 3, 6}]]}, (Conjugate[TA2] . d)/(Conjugate[TA2] . TA2)];
+jwStarts = {Append[wTr, lam2Start], Append[scaleW[SetPrecision[Flatten[Wnat], 60]], 1]};
+jwRuns = Table[lmJW[s, 800], {s, jwStarts}];
+checks["8: joint (w,w') fit, one W: best residual"] = Min[jwRuns[[All, 1]]];
+checks["8: joint fit: ||det_w'||/||T_w'|| (nonzero check)"] = With[{b = First[SortBy[jwRuns, First]]}, Norm[detW[Gw2, ArrayReshape[b[[2, 1 ;; 36]], {2, 3, 6}]]]/Norm[TA2]];
+N[{Table[{r[[1]], r[[3]]}, {r, jwRuns}], checks["8: joint fit: ||det_w'||/||T_w'|| (nonzero check)"]}, 3]
+
+===== cell 51 [CODE] =====
+(* the lambda'-free joint fit cheated: ||det_w'||/||T_w'|| -> 0.04 (near-trivial on w'). Projective joint fit instead:
+   r_w = det_w - T (lambda = 1), and r_w' = P_perp(T_w') det_w' / ||det_w'|| (sine of the angle; scale-free, no trivial branch) *)
+That2 = TA2/Norm[TA2];
+projRes2[d_] := (d - (That2 . d) That2)/Norm[d];
+projJac2[d_, Jd_] := Module[{n = Norm[d], g = projRes2[d]}, (Jd - Outer[Times, That2, That2 . Jd])/n - Outer[Times, g, d . Jd]/n^2];
+resPJ[w_] := Module[{W = ArrayReshape[w, {2, 3, 6}]}, Join[(detW[Gw, W] - TA)/Norm[TA], projRes2[detW[Gw2, W]]]];
+jacPJ[w_] := Module[{W = ArrayReshape[w, {2, 3, 6}], d2, J2}, d2 = detW[Gw2, W]; J2 = jacW[Gw2, W]; Join[jacW[Gw, W]/Norm[TA], projJac2[d2, J2]]];
+lmPJ[st_, nIt_] := Block[{$MinPrecision = 60, $MaxPrecision = 60}, Module[{w = SetPrecision[st, 60], mu = 10^-3, r, J, dw, wn, rn, rc, traj = {}},
+    rc = Norm[resPJ[w]];
+    Do[r = resPJ[w]; J = jacPJ[w];
+     dw = -LinearSolve[Transpose[J] . J + mu IdentityMatrix[36], Transpose[J] . r];
+     wn = w + dw; rn = Norm[resPJ[wn]];
+     If[rn < rc, w = wn; rc = rn; mu = Max[mu/3, 10^-40], mu = 10 mu];
+     If[Mod[it, 100] == 0, AppendTo[traj, rc]];
+     If[rc < 10^-45, Break[]], {it, nIt}];
+    {rc, w, traj}]];
+pjStarts = {jwRuns[[1, 2, 1 ;; 36]], wCur[[2]], scaleW[SetPrecision[Flatten[Wnat], 60]]};
+pjRuns = Table[lmPJ[s, 500], {s, pjStarts}];
+pjBest = First[SortBy[pjRuns, First]];
+checks["8: projective joint (w,w') fit: best combined residual"] = pjBest[[1]];
+checks["8: projective joint: w part / w' angle at best"] = With[{r = resPJ[pjBest[[2]]]}, {Norm[r[[1 ;; 64]]], Norm[r[[65 ;; 128]]]}];
+N[{Table[{r[[1]], r[[3]]}, {r, pjRuns}], checks["8: projective joint: w part / w' angle at best"]}, 3]
+
+===== cell 52 [CODE] =====
+(* w' = (7/4,-2/5,9/7) has a negative eigenvalue, so (-2/5)^(-x/h) makes its data complex and the real projective fit above stalls.
+   Redo with a second REAL positive twist w'' *)
+w3N = {9/4, 4/3, 5/7};
+GPw3 = Simplify[Paux . Gc[ws] . Inverse[Paux]] /. Join[Thread[zs -> zN], Thread[ws -> w3N]];
+rOm3 = {(w[1] - z[1])/(w[1] - z[2]), ((w[1] - z[1]) (-w[2] + z[1]) (z[2] - z[3]))/((z[1] - z[2]) (w[1] - z[3]) (w[2] - z[3])), ((w[1] - z[2]) (-w[2] + z[2]) (z[1] - z[3]))/((z[1] - z[2]) (w[1] - z[3]) (-w[2] + z[3]))} /. Join[Thread[zs -> zN], Thread[ws -> w3N]];
+Ω1c = First[{UnitVector[d1, 1]} . MatrixExp[rOm3[[1]] Ee[1, 2]] . MatrixExp[rOm3[[2]] Ee[1, 3]] . MatrixExp[rOm3[[3]] Ee[2, 3]]]; Ω2c = Flatten[KroneckerProduct[Ω1c, Ω1c]];
+tW3 = Table[tPoly[GPw3, a], {a, 3}];
+tauVac3 = Table[Expand[(Ω2c . tW3[[a]])[[kOm]]/Ω2c[[kOm]]], {a, 3}];
+qdVac3 = Table[solveQ[opDir, N[tauVac3, prec], w3N[[i]], -1], {i, 3}];
+Fvac3 = Function[{i, x}, N[w3N[[i]]^(-x/hN), prec] (qdVac3[[i]] /. X -> x)];
+checks["8: w'': Ω⊗Ω ∝ det6L[{Fvac'',Fvac''}]/Psi_Q"] = constQ[Table[(Flatten[KroneckerProduct[Ωc[w3N], Ωc[w3N]]] . ketC[[B]])/(x0C . ketC[[B]])/(det6L[B, {Fvac3, Fvac3}]/psiQ[B]), {B, nS}]];
+TA3 = Table[(Flatten[KroneckerProduct[Ωc[w3N], uv[1]]] . ketC[[B]])/(x0C . ketC[[B]]), {B, nS}];
+Gw3 = Gof[Fvac3];
+checks["8: data real at w and w''"] = {Max[Abs[Im[Flatten[{TA, TA3}]]]], Max[Abs[Im[Flatten[{Gw, Gw3}]]]]};
+(* projective joint fit, real: r_w = (det_w - T)/|T| (lambda = 1), r_w'' = P_perp det_w''/|det_w''| *)
+That3 = TA3/Norm[TA3];
+resPJ3[w_] := Module[{W = ArrayReshape[w, {2, 3, 6}], d3}, d3 = detW[Gw3, W]; Join[(detW[Gw, W] - TA)/Norm[TA], (d3 - (That3 . d3) That3)/Norm[d3]]];
+jacPJ3[w_] := Module[{W = ArrayReshape[w, {2, 3, 6}], d3, J3, n, g}, d3 = detW[Gw3, W]; J3 = jacW[Gw3, W]; n = Norm[d3]; g = (d3 - (That3 . d3) That3)/n;
+   Join[jacW[Gw, W]/Norm[TA], (J3 - Outer[Times, That3, That3 . J3])/n - Outer[Times, g, d3 . J3]/n^2]];
+lmPJ3[st_, nIt_] := Block[{$MinPrecision = 60, $MaxPrecision = 60}, Module[{w = SetPrecision[Re[st], 60], mu = 10^-3, r, J, dw, wn, rn, rc, traj = {}},
+    rc = Norm[resPJ3[w]];
+    Do[r = resPJ3[w]; J = jacPJ3[w];
+     dw = -LinearSolve[Transpose[J] . J + mu IdentityMatrix[36], Transpose[J] . r];
+     wn = w + dw; rn = Norm[resPJ3[wn]];
+     If[rn < rc, w = wn; rc = rn; mu = Max[mu/3, 10^-40], mu = 10 mu];
+     If[Mod[it, 100] == 0, AppendTo[traj, rc]];
+     If[rc < 10^-45, Break[]], {it, nIt}];
+    {rc, w, traj}]];
+pj3Runs = Table[lmPJ3[s, 500], {s, {wCur[[2]], scaleW[SetPrecision[Flatten[Wnat], 60]]}}];
+pj3Best = First[SortBy[pj3Runs, First]];
+checks["8: projective joint (w, w'') fit: w part / w'' angle at best"] = With[{r = resPJ3[pj3Best[[2]]]}, {Norm[r[[1 ;; 64]]], Norm[r[[65 ;; 128]]]}];
+N[{checks["8: w'': Ω⊗Ω ∝ det6L[{Fvac'',Fvac''}]/Psi_Q"], checks["8: data real at w and w''"], Table[{r[[1]], r[[3]]}, {r, pj3Runs}], checks["8: projective joint (w, w'') fit: w part / w'' angle at best"]}, 3]
+
+===== cell 53 [MD] =====
+**Result 8 (Direction 2): negative.**
+- **Framework.** General per-pole, per-column weights $W[k,f,p]$ (36 numbers) cover every polynomial insertion, including column-dependent ones. The natural weights reproduce $\Omega_w\otimes\Omega_w$ and $x_0$ ($10^{-50}$), and the Jacobian is checked.
+- **Stage 1: kill masks.** None of the 64 ladder-2 masks gives a state-independent ratio (best spread 3.5).
+- **Stage 2, $w$ only.** The residual descends slowly, to 0.036 after 1800 steps. But the resulting $W$ transfers neither to $w'$ (residual 0.996) nor to $x_0$ with $F_0$ (0.41): it is overfitting about 31 effective parameters.
+- **Stage 2, joint.** One $W$ for two real twists $w$ and $w''=(9/4,4/3,5/7)$, with $\lambda=1$ at $w$ and a projective (scale-free) comparison at $w''$.
+  - The fit converges to a **firm minimum of 0.121**: it is unchanged from step about 1250 to 3000, with $w$ part about 0.10 and $w''$ angle about 0.10.
+  - The weights stay bounded, between 0.0006 and 4.8 times the natural ones.
+- **Bookkeeping.** An earlier joint fit with $\lambda'$ free slid to a near-trivial branch at $w'$ ($\|\det\|/\|T\|=0.04$), and the complex-$w'$ projective fit stalled because the data were complex. Both are superseded by the real $w''$ fit.
+- **Conclusion.** No $w$-independent insertion, polynomial or general per-pole/per-column, in the $6\times6$ bracket determinant with the natural bra data gives $\langle\Omega_w\otimes e_1^T|\Psi\rangle$.
+
+===== cell 54 [MD] =====
+## 9. Direction 3: a short sum of determinants (plan: `site1-Qform/3-sum-of-dets.md`)
+This is a linear fit, $T_B\approx\sum_k\alpha_kD_k(B)$, over a dictionary of per-ladder $6\times6$ determinants $D_k=\det_6[F^{(1)}_k,F^{(2)}_k]/\Psi_Q$:
+- ladder-1 data in {$w$-vacuum Q's ($L=2$), $L=1$ vacuum Q's, 16 delta types $(F_1,F_2)=(\delta_{m_1},\delta_{m_2})$};
+- ladder-2 data in {$w$-vacuum Q's, 16 delta types}.
+
+**Meaningful only if sparse.** It counts only if a few atoms ($\le3$) reproduce $T$ exactly and the same atoms work at $w''$ with refitted $\alpha$'s.
+
+===== cell 55 [CODE] =====
+(* ladder data as 8-vectors (F1 at m=-2..1, F2 at m=-2..1) *)
+deltaVec[m1_, m2_] := Join[UnitVector[4, m1 + 3], UnitVector[4, m2 + 3]];
+lad1Opts = Join[{"Fw" -> vecOf[Fvac, 1], "Fw(L1)" -> vecOf[Fv1, 1]}, Flatten[Table[("d" <> ToString[{m1, m2}]) -> N[deltaVec[m1, m2], prec], {m1, -2, 1}, {m2, -2, 1}]]];
+lad2Opts = Join[{"Fw" -> vecOf[Fvac, 2]}, Flatten[Table[("d" <> ToString[{m1, m2}]) -> N[deltaVec[m1, m2], prec], {m1, -2, 1}, {m2, -2, 1}]]];
+atomVec[o1_, o2_] := detP[Join[o1[[2]], o2[[2]]]];
+{tAtoms, atoms} = AbsoluteTiming[Flatten[Table[{o1[[1]] <> " | " <> o2[[1]], atomVec[o1, o2]}, {o1, lad1Opts}, {o2, lad2Opts}], 1]];
+atoms = Select[atoms, Norm[#[[2]]] > 10^-40 &];   (* drop identically-zero dets *)
+Adict = Transpose[atoms[[All, 2]]];
+lsRes[cols_] := Module[{A = Adict[[All, cols]], c}, c = LeastSquares[A, TA]; {Norm[A . c - TA]/Norm[TA], c}];
+(* Stage A: ladder 1 = Fw only *)
+idxA = Flatten[Position[atoms[[All, 1]], s_String /; StringStartsQ[s, "Fw | "]]];
+resA = lsRes[idxA];
+(* rank of the full dictionary (overcompleteness check) *)
+rkDict = MatrixRank[Adict, Tolerance -> 10^-35];
+{N[tAtoms, 3], Length[atoms], rkDict, Length[idxA], N[resA[[1]], 3], MatrixRank[Adict[[All, idxA]], Tolerance -> 10^-35]}
+
+===== cell 56 [CODE] =====
+(* dictionary results recorded above (natural atoms: rank 55, full-fit residual 9.6e-4; OMP slow). Polarized span is full rank (64), so 'a sum exists' is trivial;
+   the question is the minimal number of terms. Two free per-ladder dets: T = D[pa] + D[pb], lambda fixed (absorbed into F1 scales) *)
+resolvedNat = {resA[[1]], resAll[[1]], rkDict};
+res2[q_] := detP[q[[1 ;; 16]]] + detP[q[[17 ;; 32]]] - TA;
+jac2D[q_] := Join[jacP[q[[1 ;; 16]]], jacP[q[[17 ;; 32]]], 2];
+lm2[q0_, nIt_] := Block[{$MinPrecision = 60, $MaxPrecision = 60}, Module[{q = SetPrecision[q0, 60], mu = 10^-3, r, J, dq, qn, rn, rc, traj = {}},
+    rc = Norm[res2[q]]/Norm[TA];
+    Do[r = res2[q]; J = jac2D[q];
+     dq = -LinearSolve[ConjugateTranspose[J] . J + mu IdentityMatrix[32], ConjugateTranspose[J] . r];
+     qn = q + dq; rn = Norm[res2[qn]]/Norm[TA];
+     If[rn < rc, q = qn; rc = rn; mu = Max[mu/3, 10^-40], mu = 10 mu];
+     If[Mod[it, 50] == 0, AppendTo[traj, rc]];
+     If[rc < 10^-45, Break[]], {it, nIt}];
+    {rc, q, traj}]];
+(* starts: (Fw,F0) for term a (scaled to fit), random term b small; and fully random *)
+halfScale[p_, frac_] := Module[{d = detP[p], a2, q = p}, a2 = frac (Conjugate[d] . TA)/(Conjugate[d] . d); q[[1 ;; 4]] = Sqrt[a2] q[[1 ;; 4]]; q];
+SeedRandom[601];
+st2 = Join[
+   Table[Join[halfScale[pWF0, 1], halfScale[SetPrecision[RandomReal[{-1, 1}, 16], 60], 1/10]], {3}],
+   Table[Join[halfScale[SetPrecision[RandomReal[{-1, 1}, 16], 60], 1/2], halfScale[SetPrecision[RandomReal[{-1, 1}, 16], 60], 1/2]], {5}]];
+runs2 = Table[lm2[s, 300], {s, st2}];
+best2 = First[SortBy[runs2, First]];
+checks["9: two free per-ladder dets: best residual"] = best2[[1]];
+checks["9: two dets: ||D_a||, ||D_b|| / ||T|| at best"] = {Norm[detP[best2[[2, 1 ;; 16]]]], Norm[detP[best2[[2, 17 ;; 32]]]]}/Norm[TA];
+N[{resolvedNat, Sort[runs2[[All, 1]]], best2[[3]], checks["9: two dets: ||D_a||, ||D_b|| / ||T|| at best"]}, 3]
+
+===== cell 57 [MD] =====
+**Result 9 (Direction 3): negative for short sums.**
+- **Natural dictionary.** 56 nonzero atoms: ladder-1 data in {$F_w$, $F_w^{L=1}$, 16 delta types}, ladder-2 data in {$F_w$, 16 delta types}.
+  - The span has rank 55 < 64, and even the full least-squares fit leaves $9.6\cdot10^{-4}$.
+  - With ladder 1 fixed to $F_w$ (7 atoms), the residual is 0.70.
+  - Greedy sparse selection descends only slowly: 0.67, 0.60, 0.51, 0.49, 0.44, …
+- **Unrestricted sums.** The 1600 polarized per-ladder atoms span all 64 dimensions, so *some* sum of per-ladder determinants always exists. The meaningful question is the minimal number of terms.
+- **Two free determinants** (32 numbers, $\lambda=1$). 8 starts plus 2000 extra steps on the best: the residual creeps from 0.117 to 0.107. The two terms are each about 5.5–6 times $\|T\|$ and growing slowly, i.e. they largely cancel. This is a stuck, cancellation-driven fit, not a solution.
+- **Conclusion.** With these brackets, $\langle\Omega_w\otimes e_1^T|\Psi\rangle$ is not a natural short sum, and not a sum of two free per-ladder $6\times6$'s either.
+- **Overall (Directions 1–3).** Within the per-ladder/all-pole $6\times6$ bracket family, the site-1 vacuum has no compact determinant form. The exact 12-state SoV sum (Direction 4) remains the representation, unless a genuinely different determinant shape (more rows or brackets) is used.
+
+===== cell 58 [MD] =====
+**Result 6b.** With the scale fixed, the best achievable relative residual is:
+- **0.766** with the $L=2$ w-vacuum Q's on ladder 1: a global scan over ladder-2 $F_1\in\mathbb P^3$, with the optimal $F_2$ for each, followed by local refinement that reaches the same value from 5 starts;
+- **0.774** with the $L=1$ w-vacuum Q's on ladder 1.
+
+So **no** per-ladder $6\times6$ of the form [ladder 1 = w-vacuum Q's, ladder 2 = any data] equals $\langle\Omega_w\otimes e_1^T|\Psi\rangle$. A Q-form for the site-1 vacuum needs a different structure, for example modified ladder-1 data, mixed brackets, or a sum of determinants.
+
+===== cell 59 [MD] =====
+## 8. Direction 5: reading the exact 12-state sum term by term (2026-10-09)
+Spec: `site1-Qform/5-bracket-decomposition.md`. The fitted determinant ansätze of §6–7 are negative; here the **exact** sum of §4 is rewritten in minimal variables and then read term by term for bracket structure.
+
+**Variables.** On ladder 1, $v(\theta_1)\parallel v(\theta_1-h)$ and $v(\theta_1-3h),v(\theta_1-2h),v(\theta_1-h)$ span a 2-plane. Per state $B$:
+- $\lambda_s=v_k(\theta_s)/v_k(\theta_s-h)$ ($k$-independent), $s=1,2$;
+- $v(\theta_1-h)=\alpha\,v(\theta_1-3h)+\beta\,v(\theta_1-2h)$.
+
+Then the 8 site-1 wavefunctions (normalized at the vacuum triple $(-3,-2,-1)$), in the `trip` order $(-3,-2,-1),(-3,-1,-1),(-2,-1,-1),(-3,-2,0),(-3,-1,0),(-3,0,0),(-2,-1,0),(-2,0,0)$, are
+$$\psi^{(1)}=\{1,\ \beta,\ -\alpha,\ \lambda_1,\ \lambda_1\beta,\ \lambda_1^2\beta,\ -\lambda_1\alpha,\ -\lambda_1^2\alpha\},$$
+and the overlap of a general site-1 covector $\sum_\nu c_\nu x_\nu\otimes e_1^T$ is a polynomial in $(\alpha,\beta,\lambda_1,\lambda_2)$, linear in the $c_\nu$.
+
+===== cell 60 [CODE] =====
+(* 2-plane data per state: v(θ1-h) = α v(θ1-3h) + β v(θ1-2h); λs = v_k(θs)/v_k(θs-h) *)
+vv[B_, s_, m_] := colV2[B, s, m];
+abSolve[B_] := Module[{M = Transpose[{vv[B, 1, -3], vv[B, 1, -2]}], sol}, sol = LeastSquares[M, vv[B, 1, -1]]; {sol, Norm[M . sol - vv[B, 1, -1]]/Norm[vv[B, 1, -1]]}];
+abData = Table[abSolve[B], {B, nS}];
+checks["v(θ1-h) in span{v(θ1-3h), v(θ1-2h)} (max residual)"] = Max[abData[[All, 2]]];
+αB = abData[[All, 1, 1]]; βB = abData[[All, 1, 2]];
+λ1B = Table[vv[B, 1, 0][[1]]/vv[B, 1, -1][[1]], {B, nS}]; λ2B = Table[λ2[B], {B, nS}];
+(* the 8 site-1 wavefunctions in these variables, trip order *)
+psiAB[B_] := With[{a = αB[[B]], b = βB[[B]], l = λ1B[[B]]}, {1, b, -a, l, l b, l^2 b, -l a, -l^2 a}];
+checks["8 site-1 wavefunctions = {1,β,-α}x{1,λ1,λ1²} (max rel dev)"] = Max[Table[Abs[psi1[B, trip[[i]]]/psiAB[B][[i]] - 1], {B, nS}, {i, 8}]];
+(* symbolic polynomial: K entries rationalized (they are rational at this point, cf. Ktab); c[ν] free *)
+tripIdx[t_] := First[FirstPosition[trip, t]];
+psiSym = {1, β, -α, λ1, λ1 β, λ1^2 β, -λ1 α, -λ1^2 α};
+Krat[ν_] := {#[[1]], Rationalize[Chop[#[[2]], 10^-40], 10^-30]} & /@ Krow[ν];
+checks["K rationalization error"] = Max[Table[Abs[Krat[ν][[i, 2]] - Krow[ν][[i, 2]]], {ν, 8}, {i, Length[Krow[ν]]}]];
+Wsym[ν_] := Sum[kx[[2]] psiSym[[tripIdx[kx[[1, 1]]]]] If[kx[[1, 2]] == {-3, -2, -1}, 1, λ2], {kx, Krat[ν]}];
+Rsym = Sum[c[ν] Wsym[ν], {ν, 8}];
+subsB[B_] := {α -> αB[[B]], β -> βB[[B]], λ1 -> λ1B[[B]], λ2 -> λ2B[[B]]};
+(* check against the exact overlap for the generic rotation of cell 18 (c = cL1) and for a random non-rotation covector *)
+SeedRandom[7]; cRnd = RandomInteger[{-9, 9}, 8];
+exactOvl[cvec_, B_] := (Flatten[KroneckerProduct[cvec . xL1, uv[1]]] . ketC[[B]])/(x0C . ketC[[B]]);
+checks["Rsym = exact overlap, rotation c=cL1 (max rel dev)"] = Max[Table[Abs[(Rsym /. Thread[Array[c, 8] -> cL1] /. subsB[B])/exactOvl[cL1, B] - 1], {B, nS}]];
+checks["Rsym = exact overlap, random c (max rel dev)"] = Max[Table[Abs[(Rsym /. Thread[Array[c, 8] -> cRnd] /. subsB[B])/exactOvl[cRnd, B] - 1], {B, nS}]];
+Grid[{#, N[checks[#], 3]} & /@ {"v(θ1-h) in span{v(θ1-3h), v(θ1-2h)} (max residual)", "8 site-1 wavefunctions = {1,β,-α}x{1,λ1,λ1²} (max rel dev)", "K rationalization error", "Rsym = exact overlap, rotation c=cL1 (max rel dev)", "Rsym = exact overlap, random c (max rel dev)"}, Frame -> All]
+
+===== cell 61 [CODE] =====
+(* the polynomial, grouped by the site-2 factor (λ2^1 = the Q^1(θ2) group, λ2^0 = the Q^1(θ2-h) group) and then by λ1 *)
+Rgrouped = Collect[Expand[Rsym], {λ2, λ1, α, β}, Factor];
+Grid[Table[{"λ2^" <> ToString[p2] <> " λ1^" <> ToString[p1], Collect[Coefficient[Coefficient[Expand[Rsym], λ2, p2], λ1, p1], {α, β}, Factor]}, {p2, 0, 1}, {p1, 0, 2}] // Flatten[#, 1] &, Frame -> All, Alignment -> Left]
+
+===== cell 62 [MD] =====
+**Two L=1-type sums.** The bra coefficients on the $8\times2$ grid (site-1 triple $\times$ site-2 $\in\{\rm vac,\{2|20\}\}$) have rank $\le2$, so
+$$\frac{\langle\Phi|\Psi_B\rangle}{\langle x_0|\Psi_B\rangle}=\sum_{x_1}\varphi^{(1)}_{x_1}\,\psi^{(1)}_{x_1}(B)+\lambda_2(B)\sum_{x_1}\varphi^{(2)}_{x_1}\,\psi^{(1)}_{x_1}(B),\qquad \varphi^{(i)}=c\cdot K^{(i)} .$$
+Each group is an L=1-type SoV sum over the 8 site-1 triples. At L=1 such a sum is a determinant of brackets when the coefficient vector is a **rotation**, i.e. lies on the minimal nilpotent orbit (rank-1 traceless $X(\varphi)$, Rotation-e8-SoV §3). So: is $\varphi^{(i)}(c(a,b))$ again on the orbit?
+
+The equivariant map $\varphi\mapsto X(\varphi)\in\mathfrak{sl}_3$ is rebuilt here in this notebook's conventions ($x_0=e_1^T$) by solving the equivariance condition linearly.
+
+===== cell 63 [CODE] =====
+(* equivariant linear map X: GT-basis covectors (8-dim, acting by φ.Ee[a,b]) -> 3x3 matrices; solve X(φ.(E_ab - δ_ab)) = ε [X(φ), e_ab^T or e_ab] linearly; the variant with a 1-dim null space is the right one *)
+xvars = Flatten[Table[xx[ν, p, q], {ν, 8}, {p, 3}, {q, 3}]];
+Xof[φ_] := Sum[φ[[ν]] Table[xx[ν, p, q], {p, 3}, {q, 3}], {ν, 8}];
+Etr[a_, b_] := Ee[a, b] - KroneckerDelta[a, b] IdentityMatrix[d1];
+equivEqs[ε_, tr_] := Flatten[Table[Xof[UnitVector[8, k] . Etr[a, b]] - ε (Xof[UnitVector[8, k]] . tr[ee[a, b]] - tr[ee[a, b]] . Xof[UnitVector[8, k]]), {k, 8}, {a, 3}, {b, 3}]];
+nullDims = Table[{ε, tr, Length[NullSpace[Table[Coefficient[e, v], {e, equivEqs[ε, tr]}, {v, xvars}]]]}, {ε, {1, -1}}, {tr, {Identity, Transpose}}] // Flatten[#, 1] &;
+good = First[Select[nullDims, Last[#] == 1 &]];
+Xsol = First[NullSpace[Table[Coefficient[e, v], {e, equivEqs[good[[1]], good[[2]]]}, {v, xvars}]]];
+Xmat[φ_] := Xof[φ] /. Thread[xvars -> Xsol];
+(* coefficient vectors over the SoV covectors x_ν (trip/gtpats order) are converted to GT-basis covectors first: φ = cvec.xL1 *)
+Xc[cvec_] := Xmat[cvec . xL1];
+rank1dev[M_] := With[{s = SingularValueList[N[M, 30]]}, If[Length[s] < 2, 0, s[[2]]/s[[1]]]];
+(* sanity: X(x0 = e1) is rank 1 and traceless; X(cL1) (a generic rotation) is rank 1; a random c is not *)
+checks["X(e1) rank 1, traceless"] = {rank1dev[Xmat[UnitVector[8, 1]]], Tr[Xmat[UnitVector[8, 1]]]};
+checks["X(cL1) rank 1 (rotation, 2nd/1st singular value)"] = rank1dev[Xc[cL1]];
+checks["X(random c) rank (2nd/1st singular value, should be O(1))"] = rank1dev[Xc[cRnd]];
+StringRiffle[{nullDims, Xmat[UnitVector[8, 1]], N[checks["X(cL1) rank 1 (rotation, 2nd/1st singular value)"], 3], N[checks["X(random c) rank (2nd/1st singular value, should be O(1))"], 3]}, " | "]
+
+===== cell 64 [CODE] =====
+(* K matrices on the 8 site-1 triples: K^(vac) and K^(20) (rows ν = source L=1 covector, columns = site-1 triple) *)
+Kmat[s2_] := Table[With[{sel = Select[Krat[ν], #[[1]] == {trip[[x]], s2} &]}, If[sel === {}, 0, sel[[1, 2]]]], {ν, 8}, {x, 8}];
+Kvac = Kmat[{-3, -2, -1}]; K20 = Kmat[{-3, -2, 0}];
+(* the two group coefficient vectors for a rotation c, and their orbit test *)
+φgrp[cvec_] := {cvec . Kvac, cvec . K20};
+orbitTest[cvec_] := rank1dev /@ Xc /@ φgrp[cvec];
+(* several generic rotations: random g = exp(ω), c = (e1.ρ(g)).xL1^-1 *)
+SeedRandom[11];
+rotC[ω_] := (uv[1] . MatrixExp[N[Sum[ω[[i, j]] Ee[i, j], {i, 3}, {j, 3}], prec]]) . Inverse[N[xL1, prec]];
+ωs = Table[RandomReal[{-1, 1}, {3, 3}, WorkingPrecision -> prec], {4}];
+orbitTab = Prepend[Table[orbitTest[rotC[ω]], {ω, ωs}], orbitTest[cL1]];
+checks["φ^(1) = c.Kvac on the rotation orbit? (2nd/1st sv over 5 rotations)"] = Max[orbitTab[[All, 1]]];
+checks["φ^(2) = c.K20 on the rotation orbit? (2nd/1st sv over 5 rotations)"] = Max[orbitTab[[All, 2]]];
+(* and the ranks of K^(vac), K^(20) themselves *)
+StringRiffle[{MatrixRank[Kvac], MatrixRank[K20], N[orbitTab, 3]}, " | "]
+
+===== cell 65 [MD] =====
+**Bracket product form in the $(\alpha,\beta,\lambda_1)$ variables.** A ladder-1 bracket is $\langle Q^jF\rangle=\sum_mF(m)v_j(\theta_1+mh)=v_j(-3)[F(-3)+\alpha m_F]+v_j(-2)[F(-2)+\beta m_F]$ with $m_F=F(-1)+\lambda_1F(0)$. Hence a $\det_2$ of two brackets over $\det_2[v(-2),v(-3)]$ is affine in $(\alpha,\beta)$ plus $\lambda_1\times$(linear in $\alpha,\beta$), with **no** $\alpha\beta$ term, and a third bracket over $v_1(-1)$ is $g_0+g_1\lambda_1$. So a Cauchy–Binet-type object (bra wavefunction $\det_2[F_1,F_2]\,G$) has the product form
+$$P=\big[a_0+a_1\alpha+a_2\beta+\lambda_1(b_1\alpha+b_2\beta)\big]\,(g_0+g_1\lambda_1).$$
+For a group polynomial $P=p_0+p_\alpha\alpha+p_\beta\beta+\lambda_1(q_0+q_\alpha\alpha+q_\beta\beta)+\lambda_1^2(r_\alpha\alpha+r_\beta\beta)$ this is equivalent to the two conditions
+$$q_\alpha p_0q_0-q_0^2p_\alpha-p_0^2r_\alpha=0,\qquad q_\beta p_0q_0-q_0^2p_\beta-p_0^2r_\beta=0 .$$
+Tested on L=1 rotations ($K=1$), on the two L=2 groups, and on random (non-rotation) covectors.
+
+===== cell 66 [CODE] =====
+(* group polynomial of an 8-vector φ over the trip order: P = sum φ_x psiSym_x *)
+groupPoly[φ_] := Expand[φ . psiSym];
+coefs[P_] := Module[{p0, pa, pb, q0, qa, qb, ra, rb}, {p0, pa, pb} = {Coefficient[P, {λ1, α, β}, 0] /. {α -> 0, β -> 0, λ1 -> 0}, Coefficient[Coefficient[P, λ1, 0], α], Coefficient[Coefficient[P, λ1, 0], β]};
+  {q0, qa, qb} = {Coefficient[P, λ1, 1] /. {α -> 0, β -> 0}, Coefficient[Coefficient[P, λ1, 1], α], Coefficient[Coefficient[P, λ1, 1], β]};
+  {ra, rb} = {Coefficient[Coefficient[P, λ1, 2], α], Coefficient[Coefficient[P, λ1, 2], β]};
+  {p0, pa, pb, q0, qa, qb, ra, rb}];
+prodCond[φ_] := Module[{p0, pa, pb, q0, qa, qb, ra, rb}, {p0, pa, pb, q0, qa, qb, ra, rb} = coefs[groupPoly[φ]];
+  (* normalized: divide by the typical size of the terms *)
+  {qa p0 q0 - q0^2 pa - p0^2 ra, qb p0 q0 - q0^2 pb - p0^2 rb}/Max[Abs[{qa p0 q0, q0^2 pa, p0^2 ra, qb p0 q0, q0^2 pb, p0^2 rb}]]];
+rots = Prepend[Table[rotC[ω], {ω, ωs}], cL1];
+SeedRandom[5]; rnds = Table[RandomReal[{-1, 1}, 8, WorkingPrecision -> prec], {3}];
+prodTab = {
+  "L=1 rotation (K=1)" -> Max[Abs[prodCond /@ rots]],
+  "L=2 group 1 (c.Kvac), rotations" -> Max[Abs[prodCond[#[[1]]] & /@ φgrp /@ rots]],
+  "L=2 group 2 (c.K20), rotations" -> Max[Abs[prodCond[#[[2]]] & /@ φgrp /@ rots]],
+  "random c (control)" -> Max[Abs[prodCond /@ rnds]],
+  "random c, group 1 (control)" -> Max[Abs[prodCond[#[[1]]] & /@ φgrp /@ rnds]]};
+checks["product-form conditions (L=1 rot | grp1 | grp2 | random | random grp1)"] = N[prodTab[[All, 2]], 3];
+StringRiffle[ToString[N[#, 3]] & /@ prodTab, " | "]
+
+===== cell 67 [MD] =====
+**Control: the L=1 determinant formula on ladder 1 of an L=2 state.** At L=1 (Rotation-e8-SoV §10d–10e), $\Omega_wM(y_1,\infty)\cdot\Psi_B\propto\det N[Q_B,Q_{{\rm vac},w}]\cdot\det_2^{su(2)}[Q_B;y_1]/(\Psi_Q\cdot{\rm minor}_2)$. The same brackets, restricted to the ladder-1 poles $\theta_1-nh$ ($n=0,1,2$) and fed the L=2 dual Q's, define a function of the L=2 state. Questions: (a) is it in the span of the 8 site-1 wavefunctions $\psi^{(1)}$ (i.e. a polynomial in $\alpha,\beta,\lambda_1$)? (b) is the fitted coefficient vector a rotation? (c) does it match group 1, $c\cdot K^{\rm vac}$, for the rotation $g=M(w)M(y_1,\infty)$?
+
+===== cell 68 [CODE] =====
+(* ladder-1 brackets with the L=1 weights; Fv[i, m] = F_i(θ1 + m h) *)
+poles1 = Range[Λ[[3]], Λ[[1]]]; wgt1[n_] := 1/Product[(m - n) hN, {m, DeleteCases[poles1, n]}];
+th1 = thN[[1]];
+detN1[B_, Fv_] := Det[Table[Sum[With[{xx = th1 - n hN}, wgt1[n] {-QU[B, ij[[2]], xx] Fv[ij[[1]], -n], QU[B, ij[[2]], xx] Fv[ij[[1]], -n + 1], QU[B, ij[[2]], xx - hN] Fv[ij[[1]], -n]}], {n, poles1}], {ij, {{1, 3}, {1, 2}, {2, 3}}}]];
+br1[f_] := Sum[wgt1[n] f[th1 - n hN], {n, poles1}];
+su2det1[B_, y_] := Module[{E1 = Function[x, N[y^(-(x - th1)/hN), prec]]}, Det[Table[{-br1[Function[x, QU[B, j, x] E1[x]]], br1[Function[x, QU[B, j, x - hN] E1[x]]]}, {j, {3, 2}}]]];
+minor1[B_] := QU[B, 2, th1 - 2 hN] QU[B, 3, th1 - 3 hN] - QU[B, 3, th1 - 2 hN] QU[B, 2, th1 - 3 hN];
+psiQ1[B_] := minor1[B] QU[B, 3, th1 - hN];
+(* bra data: L=1 w-vacuum direct Q's at site 1 (cell 25), and the L=2 w-vacuum Q's *)
+Fw1 = Function[{i, m}, QDv1[i, th1 + m hN]]; Fw2 = Function[{i, m}, QD["vac", i, th1 + m hN]];
+y1N = -6/5;
+L1form[B_, Fv_] := detN1[B, Fv] su2det1[B, y1N]/(psiQ1[B] minor1[B]);
+(* (a) span test: least-squares fit to sum_nu phi_nu psi_nu over the 64 states *)
+Amat = Table[psiAB[B], {B, nS}];
+spanFit[vals_] := Module[{φ = LeastSquares[Amat, vals]}, {φ, Norm[Amat . φ - vals]/Norm[vals]}];
+{φfit1, res1} = spanFit[Table[L1form[B, Fw1], {B, nS}]];
+{φfit2, res2} = spanFit[Table[L1form[B, Fw2], {B, nS}]];
+(* the exact 12-state sum is in the span of the 16 functions psi x {1, λ2}; control that the fit machinery works: *)
+Amat16 = Table[Join[psiAB[B], λ2B[[B]] psiAB[B]], {B, nS}];
+checks["16 functions psi x {1,λ2} independent on 64 states (min sv / max sv)"] = With[{s = SingularValueList[N[Amat16, 30]]}, Last[s]/First[s]];
+(* (b) rotation test of the fitted vectors *)
+checks["(a) L=1 det formula (L=1 vac Q's) in span of 8 psi: rel residual"] = res1;
+checks["(a) L=1 det formula (L=2 vac Q's) in span of 8 psi: rel residual"] = res2;
+checks["(b) fitted phi (L=1 vac Q's) rotation? (2nd/1st sv)"] = rank1dev[Xc[φfit1]];
+checks["(b) fitted phi (L=2 vac Q's) rotation? (2nd/1st sv)"] = rank1dev[Xc[φfit2]];
+StringRiffle[ToString[N[#, 3]] & /@ {checks["16 functions psi x {1,λ2} independent on 64 states (min sv / max sv)"], res1, res2, checks["(b) fitted phi (L=1 vac Q's) rotation? (2nd/1st sv)"], checks["(b) fitted phi (L=2 vac Q's) rotation? (2nd/1st sv)"]}, " | "]
+
+===== cell 69 [CODE] =====
+(* (c) the matching rotation g = M(w) M(y1, ∞): covector Ω_w ρ((y1 - G(z)^T)^-1) in the companion frame, as in Rotation-e8-SoV §10 *)
+ρG[m_] := MatrixExp[Sum[MatrixLog[m][[i, k]] N[Ee[i, k], prec], {i, 3}, {k, 3}]];
+GzN = N[Gc[zN], prec];
+φtar = Ωc[wN] . ρG[Inverse[y1N IdentityMatrix[3] - Transpose[GzN]]];
+ctar = φtar . Inverse[N[xL1, prec]];
+checks["(c) target covector is a rotation (2nd/1st sv)"] = rank1dev[Xc[ctar]];
+(* compare: fitted phi vs ctar (K = 1 hypothesis) and vs ctar.Kvac (group 1), up to one overall scale *)
+cmpScale[u_, v_] := Module[{s = (u . v)/(v . v)}, {s, Norm[u - s v]/Norm[u]}];
+cmp = {"phi(L=1 vac) vs ctar" -> cmpScale[φfit1, ctar], "phi(L=1 vac) vs ctar.Kvac" -> cmpScale[φfit1, ctar . Kvac], "phi(L=2 vac) vs ctar" -> cmpScale[φfit2, ctar], "phi(L=2 vac) vs ctar.Kvac" -> cmpScale[φfit2, ctar . Kvac]};
+(* and the exact overlap of φtar ⊗ e1 (12-state sum, includes the λ2 group) vs the L=1 formula on ladder 1 *)
+exactTar = Table[exactOvl[ctar, B], {B, nS}];
+cmpFull = {"exact overlap vs L=1 formula (L=1 vac)" -> cmpScale[exactTar, Table[L1form[B, Fw1], {B, nS}]], "exact overlap vs L=1 formula (L=2 vac)" -> cmpScale[exactTar, Table[L1form[B, Fw2], {B, nS}]]};
+StringRiffle[{N[checks["(c) target covector is a rotation (2nd/1st sv)"], 3], StringReplace[ToString[N[cmp, 4], InputForm], "\n" -> " "], StringReplace[ToString[N[cmpFull, 4], InputForm], "\n" -> " "]}, " || "]
+
+===== cell 70 [MD] =====
+(* symbolic 2-plane model of the ladder-1 Q-values and symbolic bra data F[i, m]; L=1 weights wgt1 (h = 1/2, rational) *)
+(* NB: uSym/wSym, not uS: uS is the list of interpolation points used by tPoly (cell 3) *)
+uSym = {u1, u2, u3}; wSym = {w1, w2, w3};
+vS[m_] := Switch[m, -3, uSym, -2, wSym, -1, α uSym + β wSym, 0, λ1 (α uSym + β wSym)];
+brS[j_, μ_] := Sum[μ[m] vS[m][[j]], {m, -3, 0}];
+(* L=1-type columns; pole n -> x = θ1 - n h, n = 0,1,2: col1 = -Q(x)F(x), col2 = Q(x)F(x+h), col3 = Q(x-h)F(x) *)
+colμ[1][i_] := Function[m, If[-2 <= m <= 0, -wgt1[-m] F[i, m], 0]];
+colμ[2][i_] := Function[m, If[-2 <= m <= 0, wgt1[-m] F[i, m + 1], 0]];
+colμ[3][i_] := Function[m, If[-3 <= m <= -1, wgt1[-m - 1] F[i, m + 1], 0]];
+det3S[rows_] := Det[Table[brS[ij[[2]], colμ[c][ij[[1]]]], {ij, rows}, {c, 3}]];
+rowsL1 = {{1, 3}, {1, 2}, {2, 3}};
+numS = Expand[det3S[rowsL1]];
+psiQS = Expand[(w2 u3 - w3 u2) (α u3 + β w3)];
+(* numeric sanity of the symbolic model: det3S with F -> L=1 vac Q's and (u,w,α,β,λ1) of state B reproduces detN1 *)
+Fvars = Flatten[Table[F[i, m], {i, 2}, {m, -2, 1}]];
+modelSubs[B_] := Join[Thread[uSym -> vv[B, 1, -3]], Thread[wSym -> vv[B, 1, -2]], subsB[B], Table[F[i, m] -> Fw1[i, m], {i, 2}, {m, -2, 1}] // Flatten];
+checks["symbolic 3x3 model = detN1 (states 1, 17, 40)"] = Max[Table[Abs[(numS /. modelSubs[B])/detN1[B, Fw1] - 1], {B, {1, 17, 40}}]];
+(* locality: f = coefficient of w2 u3^2 over α; residual must vanish identically in u, w, α, β, λ1 *)
+fS = Cancel[Coefficient[numS, w2 u3^2]/α];
+residS = Expand[numS - fS psiQS];
+locEqs = DeleteCases[Union[Flatten[CoefficientList[residS, {u1, u2, u3, w1, w2, w3, α, β, λ1}]]], 0];
+locEqs = Union[Numerator[Together[#]] & /@ locEqs];
+locSol = Solve[locEqs == 0, Fvars];
+{N[checks["symbolic 3x3 model = detN1 (states 1, 17, 40)"], 3], Length[locEqs], Length[locSol], locSol}
+
+===== cell 71 [CODE] =====
+(* symbolic 2-plane model of the ladder-1 Q-values and symbolic bra data F[i, m]; L=1 weights wgt1 (h = 1/2, rational) *)
+(* NB: uSym/wSym, not uS: uS is the list of interpolation points used by tPoly (cell 3); clobbering it crashed the kernel on 2026-10-09 *)
+uSym = {u1, u2, u3}; wSym = {w1, w2, w3};
+vS[m_] := Switch[m, -3, uSym, -2, wSym, -1, α uSym + β wSym, 0, λ1 (α uSym + β wSym)];
+brS[j_, μ_] := Sum[μ[m] vS[m][[j]], {m, -3, 0}];
+(* L=1-type columns; pole n -> x = θ1 - n h, n = 0,1,2: col1 = -Q(x)F(x), col2 = Q(x)F(x+h), col3 = Q(x-h)F(x) *)
+colμ[1][i_] := Function[m, If[-2 <= m <= 0, -wgt1[-m] F[i, m], 0]];
+colμ[2][i_] := Function[m, If[-2 <= m <= 0, wgt1[-m] F[i, m + 1], 0]];
+colμ[3][i_] := Function[m, If[-3 <= m <= -1, wgt1[-m - 1] F[i, m + 1], 0]];
+det3S[rows_] := Det[Table[brS[ij[[2]], colμ[c][ij[[1]]]], {ij, rows}, {c, 3}]];
+rowsL1 = {{1, 3}, {1, 2}, {2, 3}};
+numS = Expand[det3S[rowsL1]];
+psiQS = Expand[(w2 u3 - w3 u2) (α u3 + β w3)];
+(* numeric sanity of the symbolic model: det3S with F -> L=1 vac Q's and (u,w,α,β,λ1) of state B reproduces detN1 *)
+Fvars = Flatten[Table[F[i, m], {i, 2}, {m, -2, 1}]];
+modelSubs[B_] := Join[Thread[uSym -> vv[B, 1, -3]], Thread[wSym -> vv[B, 1, -2]], subsB[B], Table[F[i, m] -> Fw1[i, m], {i, 2}, {m, -2, 1}] // Flatten];
+checks["symbolic 3x3 model = detN1 (states 1, 17, 40)"] = Max[Table[Abs[(numS /. modelSubs[B])/detN1[B, Fw1] - 1], {B, {1, 17, 40}}]];
+(* locality: f = coefficient of w2 u3^2 over α; residual must vanish identically in u, w, α, β, λ1 *)
+fS = Cancel[Coefficient[numS, w2 u3^2]/α];
+residS = Expand[numS - fS psiQS];
+locEqs = DeleteCases[Union[Flatten[CoefficientList[residS, {u1, u2, u3, w1, w2, w3, α, β, λ1}]]], 0];
+locEqs = Union[Numerator[Together[#]] & /@ locEqs];
+locSol = Solve[locEqs == 0, Fvars];
+{N[checks["symbolic 3x3 model = detN1 (states 1, 17, 40)"], 3], Length[locEqs], Length[locSol], locSol}
+
+===== cell 72 [CODE] =====
+(* main local branch, gauge-fixed by F2 -> F2 - (F2(-2)/F1(-2)) F1 (row 3 -> row 3 + c row 1 leaves the det invariant): F2 supported on {0, 1} *)
+fLoc = Expand[fS /. {F[2, -2] -> 0, F[2, -1] -> 0}];
+checks["local branch: residual vanishes identically"] = (Expand[residS /. {F[2, -2] -> 0, F[2, -1] -> 0}] === 0);
+(* coefficient vector in the psi-basis {1, β, -α, λ1, λ1 β, λ1^2 β, -λ1 α, -λ1^2 α}; check nothing is left over *)
+φofF = {fLoc /. {α -> 0, β -> 0, λ1 -> 0}, Coefficient[fLoc /. λ1 -> 0, β], -Coefficient[fLoc /. λ1 -> 0, α], Coefficient[fLoc, λ1] /. {α -> 0, β -> 0}, Coefficient[Coefficient[fLoc, λ1], β], Coefficient[Coefficient[fLoc, λ1, 2], β], -Coefficient[Coefficient[fLoc, λ1], α], -Coefficient[Coefficient[fLoc, λ1, 2], α]};
+checks["local f is exactly in the span of the 8 psi"] = (Expand[fLoc - φofF . psiSym] === 0);
+Floc = {F[1, -2], F[1, -1], F[1, 0], F[1, 1], F[2, 0], F[2, 1]};
+(* image dimension of F -> φ (generic Jacobian rank) *)
+checks["local family: image dimension (Jacobian rank)"] = MatrixRank[D[φofF, {Floc}] /. Thread[Floc -> RandomInteger[{2, 30}, 6]]];
+(* resolvent member: F1 = y^(-m), F2 = y^(-m) on {-2,-1}, 0 on {0,1}  ==  gauge  F2 = -y^(-m) on {0,1}; compare with the rotation x0.ρ((y - G^T)^-1) *)
+φres[y_] := φofF /. {F[1, m_] :> y^(-m), F[2, m_] :> -y^(-m)};
+cres[y_] := (uv[1] . ρG[Inverse[y IdentityMatrix[3] - Transpose[GzN]]]) . Inverse[N[xL1, prec]];
+checks["resolvent det N_∞ on ladder 1 = rotation x0.ρ((y-G^T)^-1) ⊗ e1 (rel dev, 3 y's)"] = Max[Table[Last[cmpScale[N[φres[y], prec], cres[y]]], {y, {-6/5, 3, 7/4}}]];
+checks["resolvent det N_∞ on ladder 1 is a rotation (2nd/1st sv)"] = Max[Table[rank1dev[Xc[N[φres[y], prec]]], {y, {-6/5, 3, 7/4}}]];
+StringRiffle[{checks["local branch: residual vanishes identically"], checks["local f is exactly in the span of the 8 psi"], checks["local family: image dimension (Jacobian rank)"], N[checks["resolvent det N_∞ on ladder 1 = rotation x0.ρ((y-G^T)^-1) ⊗ e1 (rel dev, 3 y's)"], 3], N[checks["resolvent det N_∞ on ladder 1 is a rotation (2nd/1st sv)"], 3]}, " | "]
+
+===== cell 73 [CODE] =====
+(* numeric cross-check fit of a target φ (8-vector, exact scale) into the local family: F2 = (p, q) enters linearly, so for fixed F1 it is least squares; minimize over F1 in P^3 (random chart) from random starts. Warnings (lstol etc.) are harmless; only a non-numeric result is discarded. *)
+φF1lin[F1_] := Module[{v0, vp, vq}, v0 = φofF /. Thread[Floc -> Join[F1, {0, 0}]]; vp = (φofF /. Thread[Floc -> Join[F1, {1, 0}]]) - v0; vq = (φofF /. Thread[Floc -> Join[F1, {0, 1}]]) - v0; {v0, vp, vq}];
+resF1[F1_?(VectorQ[#, NumericQ] &), tgt_] := Module[{v0, vp, vq, M, pq}, {v0, vp, vq} = φF1lin[F1]; M = Transpose[{vp, vq}]; pq = LeastSquares[M, tgt - v0]; Norm[M . pq + v0 - tgt]/Norm[tgt]];
+fitLocal[tgt_, nStart_: 8] := Module[{best = Infinity, chart, start, r}, SeedRandom[3];
+  Do[chart = RandomInteger[{1, 4}]; start = RandomReal[{-2, 2}, 3, WorkingPrecision -> 40];
+    r = Quiet[FindMinimum[resF1[Insert[{x1, x2, x3}, 1, chart], tgt], Transpose[{{x1, x2, x3}, start}], WorkingPrecision -> 40, AccuracyGoal -> 20, PrecisionGoal -> 20, MaxIterations -> 300]];
+    If[ListQ[r] && NumericQ[r[[1]]], best = Min[best, r[[1]]]], {nStart}]; best];
+targets = {"group 1: c.Kvac" -> ctar . Kvac, "group 2: c.K20" -> ctar . K20, "group 1: cL1.Kvac" -> cL1 . Kvac, "group 2: cL1.K20" -> cL1 . K20, "resolvent-rotation group 1 (cres.Kvac)" -> cres[7/4] . Kvac, "local-family member (control, should fit)" -> (φofF /. Thread[Floc -> {1, 2/3, -1/2, 3/7, 1/5, -2/9}])};
+checks["targets imaginary parts negligible"] = Max[Abs[Im[N[targets[[All, 2]], 40]]]];
+fitTab = Table[t[[1]] -> fitLocal[Re[N[t[[2]], 40]]], {t, targets}];
+checks["local-family fits (rel residuals, numeric upper bounds)"] = N[fitTab, 3];
+StringReplace[ToString[{N[checks["targets imaginary parts negligible"], 2], N[fitTab, 3]}, InputForm], "\n" -> " "]
+
+===== cell 74 [CODE] =====
+(* locality with three independent bra functions F1 (row (1,3)), F2 (row (1,2) -> relabel as F[3,m]), F2 (row (2,3)): is the local family larger? *)
+rowsGen = {{1, 3}, {3, 2}, {2, 3}};
+numG = Expand[det3S[rowsGen]];
+fG = Cancel[Coefficient[numG, w2 u3^2]/α];
+residG = Expand[numG - fG psiQS];
+locEqsG = DeleteCases[Union[Flatten[CoefficientList[residG, {u1, u2, u3, w1, w2, w3, α, β, λ1}]]], 0];
+locEqsG = Union[Numerator[Together[#]] & /@ locEqsG];
+FvarsG = Flatten[Table[F[i, m], {i, 3}, {m, -2, 1}]];
+locSolG = TimeConstrained[Solve[locEqsG == 0, FvarsG], 300, $Failed];
+(* dimension of each solution component: count free F's; and the image dimension of f on it *)
+compInfo = If[locSolG === $Failed, $Failed, Table[Module[{fr = Complement[FvarsG, First /@ sol], fsub = Expand[fG /. sol], φG},
+    φG = {fsub /. {α -> 0, β -> 0, λ1 -> 0}, Coefficient[fsub /. λ1 -> 0, β], -Coefficient[fsub /. λ1 -> 0, α], Coefficient[fsub, λ1] /. {α -> 0, β -> 0}, Coefficient[Coefficient[fsub, λ1], β], Coefficient[Coefficient[fsub, λ1, 2], β], -Coefficient[Coefficient[fsub, λ1], α], -Coefficient[Coefficient[fsub, λ1, 2], α]};
+    {sol, Length[fr], If[Expand[fsub - φG . psiSym] === 0, MatrixRank[D[φG, {fr}] /. Thread[fr -> RandomInteger[{2, 30}, Length[fr]]]], "not in span"]}], {sol, locSolG}]];
+StringReplace[ToString[{Length[locEqsG], If[locSolG === $Failed, "Solve timed out", Length[locSolG]], compInfo}, InputForm], "\n" -> " "]
+
+===== cell 75 [MD] =====
+**Exact membership test.** The local family's image is a 4-dimensional cone in the 8-dimensional space of $\psi$-coefficients. Its ideal (polynomial relations among the 8 coefficients $\phi_\nu$) is computed by elimination; a target vector lies in the (closure of the) image iff every generator vanishes on it. This replaces the numeric fit, which only gives upper bounds.
+
+===== cell 76 [CODE] =====
+(* elimination ideal: relations among the φ_ν(F) *)
+phs = Array[ph, 8];
+imgGB = TimeConstrained[GroebnerBasis[Join[Thread[phs - φofF]], Join[phs, Floc], Floc, MonomialOrder -> EliminationOrder], 400, $Failed];
+nGen = If[imgGB === $Failed, "timed out", Length[imgGB]];
+(* exact rational targets: K is rational, so c.K for a rational c is rational; the rotation cone is tested with random rational rotations built from (a, b), b.a = 0, via the inverse of X *)
+Xlin = Table[Flatten[Xmat[UnitVector[8, k]]], {k, 8}];  (* 8 x 9: GT covector -> flattened X *)
+rotFromAB[a_, b_] := Module[{Xt = Flatten[Outer[Times, a, b]], φ}, φ = LinearSolve[Transpose[Xlin], Xt]; φ . Inverse[xL1]];  (* c-vector (x_ν basis) of the rotation with X = a b^T *)
+SeedRandom[23]; abList = Table[With[{a = RandomInteger[{-5, 5}, 3], b0 = RandomInteger[{-5, 5}, 3]}, {a, b0 - (b0 . a) a/(a . a)}], {3}];
+checks["rotFromAB gives rotations (2nd/1st sv)"] = Max[rank1dev[Xc[rotFromAB @@ ab]] & /@ abList];
+memb[tgt_] := If[imgGB === $Failed, "n/a", Max[Abs[N[imgGB /. Thread[phs -> tgt], 20]]]/Max[1, Max[Abs[N[tgt, 20]]]^3]];
+membTab = If[imgGB === $Failed, "n/a", Join[
+  {"control: exact family member" -> memb[φofF /. Thread[Floc -> {1, 2/3, -1/2, 3/7, 1/5, -2/9}]], "control: random vector" -> memb[RandomInteger[{-9, 9}, 8]]},
+  Table[With[{cr = rotFromAB @@ ab}, {"group 1 (c.Kvac)" -> memb[cr . Kvac], "group 2 (c.K20)" -> memb[cr . K20]}], {ab, abList}] // Flatten]];
+StringReplace[ToString[{nGen, N[checks["rotFromAB gives rotations (2nd/1st sv)"], 3], membTab}, InputForm], "\n" -> " "]
+
+===== cell 77 [CODE] =====
+(* is a group vector a SUM of two local 3x3 determinants? F2-data (p,q,p',q') enter linearly -> least squares for fixed (F1, F1'); minimize over the two F1's (charts with one coordinate = 1) from random starts. (resTwo, not res2: res2 is the span-fit residual of the control cell.) *)
+resTwo[F1a_?(VectorQ[#, NumericQ] &), F1b_?(VectorQ[#, NumericQ] &), tgt_] := Module[{a, b, M, pq}, a = φF1lin[F1a]; b = φF1lin[F1b]; M = Transpose[{a[[2]], a[[3]], b[[2]], b[[3]]}]; pq = LeastSquares[M, tgt - a[[1]] - b[[1]]]; Norm[M . pq + a[[1]] + b[[1]] - tgt]/Norm[tgt]];
+fit2Local[tgt_, nStart_: 10] := Module[{best = Infinity, ca, cb, st, r, vars = {x1, x2, x3, y1, y2, y3}}, SeedRandom[9];
+  Do[{ca, cb} = RandomInteger[{1, 4}, 2]; st = RandomReal[{-2, 2}, 6, WorkingPrecision -> 40];
+    r = Quiet[FindMinimum[resTwo[Insert[{x1, x2, x3}, 1, ca], Insert[{y1, y2, y3}, 1, cb], tgt], Transpose[{vars, st}], WorkingPrecision -> 40, AccuracyGoal -> 20, PrecisionGoal -> 20, MaxIterations -> 400]];
+    If[ListQ[r] && NumericQ[r[[1]]], best = Min[best, r[[1]]]], {nStart}]; best];
+cr1 = rotFromAB @@ abList[[1]];
+targets2 = {"group 1: ctar.Kvac" -> ctar . Kvac, "group 2: ctar.K20" -> ctar . K20, "group 1: cr1.Kvac" -> cr1 . Kvac, "group 2: cr1.K20" -> cr1 . K20, "random 8-vector" -> RandomInteger[{-9, 9}, 8], "control: sum of two members" -> (φofF /. Thread[Floc -> {1, 2/3, -1/2, 3/7, 1/5, -2/9}]) + (φofF /. Thread[Floc -> {2, -1/3, 1/4, 5/7, -3/5, 1/9}])};
+fit2Tab = Table[t[[1]] -> fit2Local[Re[N[t[[2]], 40]]], {t, targets2}];
+checks["sum-of-two local dets fits (rel residuals, numeric upper bounds)"] = N[fit2Tab, 3];
+StringReplace[ToString[N[fit2Tab, 3], InputForm], "\n" -> " "]
+
+===== cell 78 [MD] =====
+### 8 — Conclusions (2026-10-09)
+1. **Compact exact form.** For any site-1 covector $\sum_\nu c_\nu x_\nu\otimes e_1^T$, the overlap over $\langle x_0|\Psi_B\rangle$ is the polynomial in $(\alpha,\beta,\lambda_1,\lambda_2)$ of cell 61 (exact, $10^{-47}$, all 64 states). It is $\sum_x\varphi^{(1)}_x\psi_x+\lambda_2\sum_x\varphi^{(2)}_x\psi_x$ with $\varphi^{(i)}=c\cdot K^{(i)}$ ($K^{\rm vac}$ rank 8, $K^{20}$ rank 4).
+2. **Neither group is a rotation**: $X(c\cdot K^{(i)})$ has three nonzero singular values for generic rotations $c$. So no site-2 group is an L=1-type determinant with transformed bra data.
+3. **The L=1 $\det_3\times\det_2$ is not a polynomial identity.** On ladder 1 of the L=2 states it is not even in the span of the 8 site-1 wavefunctions (0.11). At L=1 every function of the 8 states is in that span, which is why it works there.
+4. **Locality classifies the usable determinants.** For the L=1-type $3\times3$, a ladder-1 bracket determinant is a site-1 object iff $F_2\propto F_1$ on $\{\theta_1-2h,\theta_1-h\}$ (exact). The resulting family has a **4-dimensional image** (explicit cubic map, ideal of 10 quadrics); three independent bra functions do not enlarge it (max rank 4 over 32 components). The groups of generic rotations are not in it (exact Gröbner membership: 0.16–3.9 vs 0 for members; numeric fits 0.18, 0.014 vs $10^{-17}$ for a member).
+5. **Sums of two local $3\times3$ determinants cover the whole 8-dim local space** (random vectors fit to $10^{-15}$), so a 'sum of four determinants' form exists for every site-1 covector and is uninformative.
+
+**Verdict.** Within ladder-1 bracket determinants of the natural type, the site-1 rotation has no single-determinant form; the exact representation is the 12-state sum in the compact form of item 1. A single-determinant form, if it exists, must use a different structure: brackets involving $v(\theta_1+h)$ (outside the 2-plane), both ladders with insertions producing $\lambda_2$, or larger determinants with locality by cancellation.
+
+===== cell 79 [MD] =====
+### 8b. The site-1 rotation as a sum over SoV points with an explicit bra wavefunction
+Parametrize the rotation by $X(\Phi)=a\,b^T$ with $b\cdot a=0$ ($X(x_0)=3e_{31}$, so $x_0\leftrightarrow a=e_3,\ b=e_1$ up to scale). Then
+$$\frac{\langle\Phi|\Psi_B\rangle}{\langle x_0|\Psi_B\rangle}=\sum_{x\in\text{12 states}}\Phi_g(x)\,\psi_B(x),\qquad \psi_B(x)=\psi^{(1)}_{x_1}(B)\,\lambda_2(B)^{[x_2=\{2|20\}]},$$
+with $\Phi_g(x)$ a bilinear form in $(a,b)$ with rational coefficients (at $t=\theta_{12}/h=62/35$), listed below per SoV state. The coefficients' $t$-dependence is Direction 4.
+
+===== cell 80 [CODE] =====
+(* c-vector of the rotation X = a b^T, symbolic a, b (the map is linear) *)
+aS = {a1, a2, a3}; bS = {b1, b2, b3};
+cAB = Simplify[rotFromAB[aS, bS]];
+(* consistency: X(c(a,b)) reproduces a b^T up to the traceless projection (b.a = 0 is imposed by hand below) *)
+checks["X(c(a,b)) = a b^T  (with b.a = 0)"] = Simplify[Xc[cAB] - Outer[Times, aS, bS] /. b3 -> -(a1 b1 + a2 b2)/a3] === ConstantArray[0, {3, 3}];
+Φvac = Simplify[cAB . Kvac /. b3 -> -(a1 b1 + a2 b2)/a3]; Φ20 = Simplify[cAB . K20 /. b3 -> -(a1 b1 + a2 b2)/a3];
+braTab = Join[Table[{"site 1 " <> ToString[trip[[x]]] <> ", site 2 vac", Factor[Φvac[[x]]]}, {x, 8}], Table[{"site 1 " <> ToString[trip[[x]]] <> ", site 2 {2|20}", Factor[Φ20[[x]]]}, {x, 8}]];
+braTab = Select[braTab, #[[2]] =!= 0 &];
+{checks["X(c(a,b)) = a b^T  (with b.a = 0)"], Grid[braTab, Frame -> All, Alignment -> Left]}
+
+===== cell 81 [MD] =====
+## 9. Two different rotations on the two sites (2026-10-09)
+Target: $\Phi=x_0\rho(g_1)\otimes x_0\rho(g_2)$ with $g_s\leftrightarrow(w_s,y_s)$. Step 1: the two vacua $\Omega_{w_1}\otimes\Omega_{w_2}$ ($w_1=w$, $w_2=w'$). Ansatz: the global $\det_6$ (brackets = genuine contour integrals over all six poles, insertions $1$ and $e^{2\pi ix/h}$) with **ladder-dependent bra data**: on the ladder-$s$ poles, $F$ = vacuum Q's of twist $w_s$ (either the L=2 chain's $w_s$-vacuum Q's or the one-site vacuum Q's at $\theta_s$). Also the per-ladder $\det_6$ of §5.
+
+===== cell 82 [CODE] =====
+(* second twist w' on site 2 *)
+wP = {7/4, -2/5, 9/7}; numZW2 = Join[Thread[zs -> zN], Thread[ws -> wP]];
+(* L=2 w'-vacuum: eigen-bra Ω_{w'}⊗Ω_{w'} of t(G'_{w'}), its eigenvalues, and its direct Q's (as in cell 6) *)
+GPzw2 = Simplify[Paux . Gc[ws] . Inverse[Paux]] /. numZW2;
+rOm2 = {r1 -> (w[1] - z[1])/(w[1] - z[2]), r2 -> ((w[1] - z[1]) (-w[2] + z[1]) (z[2] - z[3]))/((z[1] - z[2]) (w[1] - z[3]) (w[2] - z[3])), r3 -> ((w[1] - z[2]) (-w[2] + z[2]) (z[1] - z[3]))/((z[1] - z[2]) (w[1] - z[3]) (-w[2] + z[3]))} /. numZW2;
+Ω1P = First[{UnitVector[d1, 1]} . MatrixExp[(r1 /. rOm2) Ee[1, 2]] . MatrixExp[(r2 /. rOm2) Ee[1, 3]] . MatrixExp[(r3 /. rOm2) Ee[2, 3]]];
+Ω2P = Flatten[KroneckerProduct[Ω1P, Ω1P]];
+tW2 = Table[tPoly[GPzw2, a], {a, 3}];
+kOm2 = Ordering[Abs[Ω2P], -1][[1]];
+tauVac2 = Table[Expand[(Ω2P . tW2[[a]])[[kOm2]]/Ω2P[[kOm2]]], {a, 3}];
+checks["Ω_{w'}⊗Ω_{w'} eigen-bra of t(G'_{w'})"] = And @@ Table[Union[Flatten[Expand[Ω2P . tW2[[a]] - tauVac2[[a]] Ω2P]]] === {0}, {a, 3}];
+qdVac2 = Table[solveQ[opDir, N[tauVac2, prec], wP[[i]], -1], {i, 3}];
+checks["w'-vacuum direct q's found, degrees (0,2,4)"] = FreeQ[qdVac2, {}] && Exponent[qdVac2, X] === {0, 2, 4};
+QD2vac[i_, x_] := QD2vac[i, x] = N[wP[[i]]^(-x/hN), prec] (qdVac2[[i]] /. X -> x);
+Fvac2 = Function[{i, x}, QD2vac[i, x]];
+(* one-site vacuum Q's of twist w' at site 2 (θ2), as QDv1 at site 1 (cell 25) *)
+nu2[n_][x_] := x - thN[[2]] + hN Λ[[n]];
+tVac2s = {Sum[wP[[j]] nu2[j][u], {j, 3}], Sum[wP[[i]] wP[[j]] nu2[i][u] nu2[j][u - hN], {i, 3}, {j, i + 1, 3}], (Times @@ wP) nu2[1][u] nu2[2][u - hN] nu2[3][u - 2 hN]};
+opDir2[tt_, Q_, x_] := nu2[1][x] nu2[1][x + hN] nu2[1][x + 2 hN] Q[x - hN] - (tt[[1]] /. u -> x) nu2[1][x + hN] nu2[1][x + 2 hN] Q[x] + (tt[[2]] /. u -> x + hN) nu2[1][x + 2 hN] Q[x + hN] - (tt[[3]] /. u -> x + 2 hN) Q[x + 2 hN];
+qdVac1P = Table[solveQ[opDir2, tVac2s, wP[[i]], -1], {i, 3}];
+checks["one-site w'-vacuum q's at site 2, degrees (0,1,2)"] = FreeQ[qdVac1P, {}] && Exponent[qdVac1P, X] === {0, 1, 2};
+QDv2[i_, x_] := N[wP[[i]]^(-x/hN), prec] (qdVac1P[[i]] /. X -> x);
+(* targets: Ω_w ⊗ Ω_{w'} and (sanity) Ω_{w'} ⊗ Ω_{w'} *)
+T12 = Table[(Flatten[KroneckerProduct[Ωc[wN], Ωc[wP]]] . ketC[[B]])/(x0C . ketC[[B]]), {B, nS}];
+T22 = Table[(Flatten[KroneckerProduct[Ωc[wP], Ωc[wP]]] . ketC[[B]])/(x0C . ketC[[B]]), {B, nS}];
+checks["sanity: Ω_{w'}⊗Ω_{w'} ∝ det6[F_vac,w']/Psi_Q"] = constQ[Table[T22[[B]]/(det6[B, Fvac2]/psiQ[B]), {B, nS}]];
+(* ladder-dependent bra data *)
+FL2L2 = Function[{i, x}, If[ladOf[x] == 1, QD["vac", i, x], QD2vac[i, x]]];
+FL1L1 = Function[{i, x}, If[ladOf[x] == 1, QDv1[i, x], QDv2[i, x]]];
+FL2L1 = Function[{i, x}, If[ladOf[x] == 1, QD["vac", i, x], QDv2[i, x]]];
+FL1L2 = Function[{i, x}, If[ladOf[x] == 1, QDv1[i, x], QD2vac[i, x]]];
+res12 = {
+  "full det6, ladder1 = L2 vac(w), ladder2 = L2 vac(w')" -> constQ[Table[T12[[B]]/(det6[B, FL2L2]/psiQ[B]), {B, nS}]],
+  "full det6, one-site vac Q's per ladder" -> constQ[Table[T12[[B]]/(det6[B, FL1L1]/psiQ[B]), {B, nS}]],
+  "full det6, L2 vac(w) | one-site(w')" -> constQ[Table[T12[[B]]/(det6[B, FL2L1]/psiQ[B]), {B, nS}]],
+  "full det6, one-site(w) | L2 vac(w')" -> constQ[Table[T12[[B]]/(det6[B, FL1L2]/psiQ[B]), {B, nS}]],
+  "per-ladder det6L, {L2 vac(w), L2 vac(w')}" -> constQ[Table[T12[[B]]/(det6L[B, {Fvac, Fvac2}]/psiQ[B]), {B, nS}]],
+  "per-ladder det6L, {one-site(w), one-site(w')}" -> constQ[Table[T12[[B]]/(det6L[B, {Fv1, Function[{i, x}, QDv2[i, x]]}]/psiQ[B]), {B, nS}]]};
+checks["Ω_w⊗Ω_{w'} ansatz residuals"] = N[res12, 3];
+StringReplace[ToString[{checks["Ω_{w'}⊗Ω_{w'} eigen-bra of t(G'_{w'})"], checks["w'-vacuum direct q's found, degrees (0,2,4)"], checks["one-site w'-vacuum q's at site 2, degrees (0,1,2)"], N[checks["sanity: Ω_{w'}⊗Ω_{w'} ∝ det6[F_vac,w']/Psi_Q"], 3], N[res12, 3]}, InputForm], "\n" -> " "]
+
+===== cell 83 [MD] =====
+**Sum over SoV integrals with a factorized bra wavefunction?** Write $\langle\Phi|\Psi_B\rangle/\langle x_0|\Psi_B\rangle=\sum_xM_\Phi(x)\,\psi_B(x)$ with $M_\Phi(x)=c_x N_x$ (SoV coefficients times the state-independent normalizations, cell 20). In FSoV language $M_\Phi(x)=\mu_x\Phi(x)$ with the SoV measure $\mu_x$ (which couples the two ladders) and the bra wavefunction $\Phi(x)$. Conjecture for a product bra: $\Phi_{ab}(x)=\Phi^1_a(x_1)\Phi^2_b(x_2)$. Measure-free test: $M_{ww'}(x)M_{w'w}(x)=M_{ww}(x)M_{w'w'}(x)$ for all 64 $x$; equivalently the ratio $M_{ww'}(x)/M_{ww}(x)$ depends on $x_2$ only.
+
+===== cell 84 [CODE] =====
+(* SoV coefficients (times N_x) of the four product vacua Ω_a ⊗ Ω_b, arranged as 8x8 matrices (site-1 triple, site-2 triple) in trip order *)
+tripPos[t_] := First[FirstPosition[trip, t]];
+Mmat[Φ_] := Module[{c = LinearSolve[Transpose[vecB], N[Φ, prec]] Nm, M = ConstantArray[0, {8, 8}]}, Do[M[[tripPos[lab[m][[1]]], tripPos[lab[m][[2]]]]] = c[[m]], {m, 64}]; M];
+Ωab[a_, b_] := Flatten[KroneckerProduct[Ωc[a], Ωc[b]]];
+{Mww, Mwp, Mpw, Mpp} = Mmat /@ {Ωab[wN, wN], Ωab[wN, wP], Ωab[wP, wN], Ωab[wP, wP]};
+(* sanity: the M's reproduce the overlaps *)
+checks["M(Ω_w⊗Ω_w') reproduces the overlap (max rel dev)"] = Max[Table[Abs[Sum[Mwp[[i, j]] psi1[B, trip[[i]]] psiSite[B, 2, trip[[j]], {1, 2}, 1]/psiSite[B, 2, {-3, -2, -1}, {1, 2}, 1], {i, 8}, {j, 8}]/T12[[B]] - 1], {B, nS}]];
+(* factorization test *)
+facDev = Max[Abs[Flatten[Mwp Mpw - Mww Mpp]]]/Max[Abs[Flatten[Mww Mpp]]];
+checks["factorized bra wavefunction: M_ww' M_w'w = M_ww M_w'w' (rel dev)"] = facDev;
+(* ratio form: M_ww'/M_ww should be a function of x2 only *)
+ratioM = Mwp/Mww;
+checks["M_ww'/M_ww independent of the site-1 triple (max rel spread over columns)"] = Max[Table[Max[Abs[ratioM[[All, j]]/ratioM[[1, j]] - 1]], {j, 8}]];
+(* supports *)
+supports = {Count[Flatten[Abs[Mww]], _?(# > 10^-30 &)], Count[Flatten[Abs[Mwp]], _?(# > 10^-30 &)]};
+StringReplace[ToString[{N[checks["M(Ω_w⊗Ω_w') reproduces the overlap (max rel dev)"], 3], N[facDev, 3], N[checks["M_ww'/M_ww independent of the site-1 triple (max rel spread over columns)"], 3], supports, N[res12[[5 ;; 6]], 3]}, InputForm], "\n" -> " "]
+
+===== cell 85 [MD] =====
+### 9 — Conclusions (2026-10-09)
+1. **No contour-integral determinant with ladder-dependent vacuum data.** For $\Omega_w\otimes\Omega_{w'}$ the full-measure $\det_6$ with $F$ = $w$-vacuum Q's on ladder 1 and $w'$-vacuum Q's on ladder 2 fails (max relative deviation 24.9 with the L=2 vacuum Q's, 5.8 with the one-site ones, 6.1 mixed), while the sanity check $\Omega_{w'}\otimes\Omega_{w'}\propto\det_6[F_{{\rm vac},w'}]$ holds to $10^{-48}$. The per-ladder $\det_6$ is the same determinant up to $(e^{2\pi i\theta_2/h}-e^{2\pi i\theta_1/h})^3$.
+2. **The SoV bra wavefunction of a product bra does not factorize.** Measure-free test $M_{ww'}M_{w'w}=M_{ww}M_{w'w'}$: relative deviation 1.6; $M_{ww'}/M_{ww}$ varies by a factor 46 over the site-1 triple. All four $8\times8$ coefficient matrices have full rank 8 (even $M_{ww}$, so the SoV measure itself couples the ladders). Hence there is no 'sum over SoV contour integrals with a factorized bra wavefunction' for $g_1\ne g_2$; the site-1 rotation is the $w_2\to\infty$ limit of this.
+
+**Net.** For site-local rotations the exact representations are lattice sums with explicit coefficient tables (12 states for site 1, 64 for $g_1\otimes g_2$): brackets of non-factorizing multi-point kernels. A single contour-integral determinant would need a bracket structure beyond piecewise-vacuum bra data.
+
+===== cell 86 [MD] =====
+## 10. The trick of 2603.26617 (App. G) for the gl(3) adjoint
+There: $\langle W^\ell_{\omega,\kappa}\otimes W^{L-\ell}_\omega|\Psi\rangle=K_\kappa(\tau)\langle W_\omega^L|\Psi\rangle$ with $K_\kappa$ a ladder-$\ell$ contour-bracket determinant (G7–G9), because $1-\kappa t_+(\theta_1)+\kappa^2t_{[1,1]}(\theta_1)$ **localizes** on site 1 and is diagonal on $|\Psi\rangle$. The result is a product of two *different* rotations of the vacuum, with overlap = (global det) × (ladder-1 det).
+
+Here, for $\Lambda=(2,1,0)$, $L=2$, in the same spirit:
+- **Exp. 1.** Take $f_y(B)=\det_2^{\rm su(2)\text{-like}}[Q_B;y]_{\rm ladder\,1}/{\rm minor}_1$ (cell 68, the gl(3) analogue of (G7)), build the covector $\Phi_y$ with $\langle\Phi_y|\Psi_B\rangle=f_y(B)\langle\Omega_w\otimes\Omega_w|\Psi_B\rangle$, and ask: is $\Phi_y$ a product state, and are its factors rotations? Control: the global $\det_4$ (both ladders) must give $\Omega\rho(D)\otimes\Omega\rho(D)$. Also: is $f_y$ in the span of the localizing eigenvalues $\{1,\tau_{11},\tau_{21}\}$ at $\theta_1-2h$?
+- **Exp. 2.** Localization of $T_\lambda(\theta_1-2h)$ on $\langle\Omega_w\otimes\Omega_w|$ (diagonal frame), and the exact solve for rotations in ${\rm span}\{\Omega_1,\Omega_1T^{(1)}_{11},\Omega_1T^{(1)}_{21}\}$ (the analogue of the $\kappa$-family), and the same on the SoV vacuum $x_0$.
+
+===== cell 87 [CODE] =====
+(* Exp. 1: covector with prescribed overlaps f(B) <Ω|Ψ_B> (companion frame), product-state and rotation tests *)
+ovlΩ = Table[Flatten[KroneckerProduct[Ωc[wN], Ωc[wN]]] . ketC[[B]], {B, nS}];
+covOf[f_List] := (f ovlΩ) . ketInvC;
+svRel[φ_] := With[{s = SingularValueList[N[Partition[φ, d1], 30]]}, s/First[s]];
+factors[φ_] := Module[{u, s, v}, {u, s, v} = SingularValueDecomposition[N[Partition[φ, d1], 30]]; {u[[All, 1]], Conjugate[v[[All, 1]]]}];
+(* control: global su(2)-like det4 (cell 10) -> Ωρ(D)⊗Ωρ(D) *)
+fGlob[y_] := Table[su2det4[B, y]/minor2s[B], {B, nS}];
+φG = covOf[fGlob[-6/5]];
+checks["control: det6 x det4 covector is a product state (2nd/1st sv)"] = svRel[φG][[2]];
+checks["control: its two factors are rotations (2nd/1st sv of X)"] = rank1dev /@ Xmat /@ factors[φG];
+(* ladder-1 su(2)-like det2 (cell 68) *)
+fL1[y_] := Table[su2det1[B, y]/minor1[B], {B, nS}];
+exp1 = Table[With[{φ = covOf[fL1[y]]}, {y, N[svRel[φ][[2 ;; 3]], 3], N[rank1dev /@ Xmat /@ factors[φ], 3]}], {y, {-6/5, 3, 7/4}}];
+(* is f_y in the span of the localizing eigenvalues at θ1-2h? (T2n from cell 14, diag frame kets vecS) *)
+τof[l_] := Table[With[{k = Ordering[Abs[vecS[[B]]], -1][[1]]}, (T2n[l] . vecS[[B]])[[k]]/vecS[[B, k]]], {B, nS}];
+τ11 = τof[{1, 1}]; τ21 = τof[{2, 1}]; τ10 = τof[{1, 0}]; τ20 = τof[{2, 0}];
+spanRes[f_, basis_] := Module[{A = Transpose[basis], c}, c = LeastSquares[A, f]; Norm[A . c - f]/Norm[f]];
+ones = ConstantArray[1, nS];
+exp1span = Table[{y, N[spanRes[fL1[y], {ones, τ11, τ21}], 3], N[spanRes[fL1[y], {ones, τ11, τ21, τ11^2, τ11 τ21, τ21^2}], 3], N[spanRes[fL1[y], {ones, τ10, τ11, τ20, τ21}], 3], N[spanRes[fL1[y], {ones, τ10, τ11, τ20, τ20 τ11/τ10}], 3]}, {y, {-6/5, 3}}];
+StringReplace[ToString[{N[checks["control: det6 x det4 covector is a product state (2nd/1st sv)"], 3], N[checks["control: its two factors are rotations (2nd/1st sv of X)"], 3], exp1, exp1span}, InputForm], "\n" -> " "]
+
+===== cell 88 [CODE] =====
+(* Exp. 2: localization of T_λ(θ1-2h) on the twisted vacuum Ω_w⊗Ω_w (diagonal frame; T2n, T1n, lams from cell 14) *)
+Ω2d = Flatten[KroneckerProduct[Ω1, Ω1]];
+locΩ = Table[Module[{lhs = Ω2d . T2n[l], rhs = Flatten[KroneckerProduct[Ω1 . T1n[l], Ω1]], f}, f = Simplify[(lhs . rhs)/(rhs . rhs)]; {l, f, N[Norm[N[lhs - f rhs, 30]]/Norm[N[lhs, 30]], 3]}], {l, lams}];
+(* rotations in the linear span of the localizing insertions: v1 = a.(c0 + c1 T11 + c2 T21), a = Ω1 or x01; rotation <=> all 2x2 minors of X vanish; exact solve *)
+Xdiag[v_] := Xmat[v . Pph1];
+rotSolve[a_] := Module[{v1, X, eqs}, v1 = a . (c0 IdentityMatrix[d1] + c1 T1n[{1, 1}] + c2 T1n[{2, 1}]); X = Xdiag[v1]; eqs = DeleteCases[Union[Flatten[Minors[X, 2]]], 0]; Solve[eqs == 0, {c0, c1, c2}]];
+solΩ = rotSolve[Ω1]; solx0 = rotSolve[x01];
+(* dimension check: are Ω1, Ω1T11, Ω1T21 independent? *)
+checks["span{Ω1, Ω1 T11, Ω1 T21} dimension"] = MatrixRank[{Ω1, Ω1 . T1n[{1, 1}], Ω1 . T1n[{2, 1}]}];
+StringReplace[ToString[{locΩ, checks["span{Ω1, Ω1 T11, Ω1 T21} dimension"], solΩ, solx0}, InputForm], "\n" -> " "]
+
+===== cell 89 [CODE] =====
+(* Exp. 1b: structure of the rank-2 covector Φ_y = <Ω|K_y (companion frame): singular values with no tolerance cut, is Ωc[w] in the site-2 column space, what is the second site-2 direction *)
+svdFull[φ_] := SingularValueDecomposition[N[Partition[φ, d1], 30]];
+projRes[v_, basis_] := Module[{A = Transpose[basis], c}, c = LeastSquares[A, v]; Norm[A . c - v]/Norm[v]];
+struct[y_] := Module[{φ = covOf[fL1[y]], u, s, v, cols, Ωn, inΩ, w2, rot2}, {u, s, v} = svdFull[φ]; cols = Conjugate[Transpose[v]][[1 ;; 2]]; (* site-2 column space *)
+   Ωn = N[Ωc[wN], 30]; inΩ = projRes[Ωn, cols];
+   (* second direction: component of the column space orthogonal to Ωc *)
+   w2 = Orthogonalize[Join[{Ωn}, cols]][[2]]; rot2 = rank1dev[Xmat[w2]];
+   {y, N[Diagonal[s][[1 ;; 3]]/s[[1, 1]], 3], N[inΩ, 3], N[rot2, 3], w2}];
+st = Table[struct[y], {y, {-6/5, 3}}];
+checks["Φ_y: Ω_w in site-2 column space (proj residual, 2 y's)"] = Max[st[[All, 3]]];
+checks["Φ_y: second site-2 direction y-independent (rel dev)"] = Norm[st[[1, 5]] - (st[[1, 5]] . Conjugate[st[[2, 5]]]) st[[2, 5]]]/Norm[st[[1, 5]]];
+(* the same for <Ω|T10 and <Ω|T20 at θ1-2h (diag frame -> companion by .Pph2) *)
+Pph2 = KroneckerProduct[Pph1, Pph1];
+φT[l_, v_] := (Ω2d . T2[l, v]) . Pph2;
+svT[l_, v_] := With[{s = SingularValueList[N[Partition[φT[l, v], d1], 30], Tolerance -> 0]}, N[s[[2 ;; 3]]/s[[1]], 3]];
+exp1b = {Table[{l, svT[l, v0]}, {l, lams}], Table[{l, N[projRes[N[Ωc[wN], 30], Conjugate[Transpose[svdFull[φT[l, v0]][[3]]]][[1 ;; 2]]], 3]}, {l, {{1, 0}, {2, 0}}}]};
+StringReplace[ToString[{st[[All, 1 ;; 4]], N[checks["Φ_y: Ω_w in site-2 column space (proj residual, 2 y's)"], 3], N[checks["Φ_y: second site-2 direction y-independent (rel dev)"], 3], exp1b}, InputForm], "\n" -> " "]
+
+===== cell 90 [CODE] =====
+(* Exp. 3: rank scan of <Ω|T_λ(v) over shapes and lattice points v = θ1 + m h (diag frame), and of <Ω|t_a(v) *)
+rankOf[φ_] := Length[Select[SingularValueList[N[Partition[φ, d1], 30], Tolerance -> 10^-20], # > 10^-20 &]];
+rankTab = Table[{l, m, rankOf[Ω2d . T2[l, thN[[1]] + m hN]]}, {l, lams}, {m, -3, 1}];
+rankTabT = Table[{a, m, rankOf[Ω2d . tZv[a, thN[[1]] + m hN]]}, {a, 3}, {m, -3, 1}];
+(* joint localization: site-1 localizing T11(θ1-2h) times site-2 localizing A = t2(θ2+h), B = t2(θ2+h) t1(θ2-h) (handoff 2026-10-01) *)
+A2 = tZv[2, thN[[2]] + hN]; B2 = tZv[2, thN[[2]] + hN] . tZv[1, thN[[2]] - hN];
+checks["site-2 localizers on Ω: rank of <Ω|A2, <Ω|B2"] = {rankOf[Ω2d . A2], rankOf[Ω2d . B2]};
+checks["joint: rank of <Ω|T11 A2, <Ω|T11 B2, <Ω|T21 A2, <Ω|T21 B2"] = {rankOf[Ω2d . T2n[{1, 1}] . A2], rankOf[Ω2d . T2n[{1, 1}] . B2], rankOf[Ω2d . T2n[{2, 1}] . A2], rankOf[Ω2d . T2n[{2, 1}] . B2]};
+(* are the site-2 factors Ω1 A2^(1), Ω1 B2^(1) rotations? one-site transfer matrices at θ2 for site 2 *)
+L1m2[i_, j_][v_] := KroneckerDelta[i, j] (v - thN[[2]]) IdentityMatrix[d1] + hN Ee[i, j];
+qm12[I_, J_][v_] := Sum[Signature[σ] Dot @@ Table[zN[[J[[k]]]] L1m2[σ[[k]], J[[k]]][v - (k - 1) hN], {k, Length[J]}], {σ, Permutations[I]}];
+t1s2[a_, v_] := Sum[qm12[I, I][v], {I, Subsets[Range[3], {a}]}];
+A21 = t1s2[2, thN[[2]] + hN]; B21 = t1s2[2, thN[[2]] + hN] . t1s2[1, thN[[2]] - hN];
+locS2 = Table[Module[{lhs = Ω2d . op[[1]], rhs = Flatten[KroneckerProduct[Ω1, Ω1 . op[[2]]]], f}, f = (lhs . rhs)/(rhs . rhs); {op[[3]], N[Norm[N[lhs - f rhs, 30]]/Norm[N[lhs, 30]], 3], N[rank1dev[Xdiag[Ω1 . op[[2]]]], 3]}], {op, {{A2, A21, "A=t2(θ2+h)"}, {B2, B21, "B=t2(θ2+h)t1(θ2-h)"}}}];
+checks["Ω1 T21^(1) is a rotation (2nd/1st sv of X)"] = rank1dev[Xdiag[Ω1 . T1n[{2, 1}]]];
+StringReplace[ToString[{rankTab, rankTabT, checks["site-2 localizers on Ω: rank of <Ω|A2, <Ω|B2"], checks["joint: rank of <Ω|T11 A2, <Ω|T11 B2, <Ω|T21 A2, <Ω|T21 B2"], locS2, N[checks["Ω1 T21^(1) is a rotation (2nd/1st sv of X)"], 3]}, InputForm], "\n" -> " "]
+
+===== cell 91 [CODE] =====
+(* Exp. 4 (exact rationals, diagonal frame): <Ω|T_λ(θ1-2h) = v_λ ⊗ Ω1 + v'_λ ⊗ ω2 for all four shapes, with ω2 the second site-2 direction of <Ω|T10 *)
+Mlam[l_] := Partition[Ω2d . T2n[l], d1];
+rowBasis = DeleteCases[RowReduce[Mlam[{1, 0}]], {0 ..}];
+checks["<Ω|T10 site-2 space is 2-dim"] = Length[rowBasis];
+(* ω2: a vector of the site-2 space independent of Ω1 (exact); normalize its largest entry to 1 *)
+ω2 = Module[{cands = Select[rowBasis, MatrixRank[{Ω1, #}] == 2 &]}, cands[[1]]/cands[[1, Ordering[Abs[cands[[1]]], -1][[1]]]]];
+checks["Ω1 in the site-2 space of <Ω|T10"] = MatrixRank[Join[rowBasis, {Ω1}]] == 2;
+(* decomposition of each M_λ on the basis {Ω1, ω2}: M = v⊗Ω1 + v'⊗ω2 *)
+decomp[M_] := Module[{B2 = {Ω1, ω2}, sol}, sol = Transpose[LinearSolve[Transpose[B2] . Conjugate[B2] // Identity, Identity[Transpose[Conjugate[B2] . Transpose[M]]]]]; sol];
+(* simpler: solve M = v⊗Ω1 + v'⊗ω2 row by row: for each site-1 index i, M[[i]] = v_i Ω1 + v'_i ω2 *)
+decomp2[M_] := Module[{B2 = {Ω1, ω2}, cs}, cs = Table[LinearSolve[Transpose[B2], M[[i]]], {i, d1}]; {cs[[All, 1]], cs[[All, 2]]}];
+decs = Table[l -> decomp2[Mlam[l]], {l, lams}];
+checks["all four <Ω|T_λ(θ1-2h) lie in (site-1) ⊗ span{Ω1,ω2} (exact)"] = And @@ Table[Mlam[l] === Transpose[{Ω1, ω2}] . {0, 0} + Outer[Times, (l /. decs)[[1]], Ω1] + Outer[Times, (l /. decs)[[2]], ω2], {l, lams}];
+vs = Table[(l /. decs)[[1]], {l, lams}]; vps = Table[(l /. decs)[[2]], {l, lams}];
+checks["v'_λ = 0 for the localizing shapes {1,1},{2,1}"] = {vps[[2]] === ConstantArray[0, d1], vps[[4]] === ConstantArray[0, d1]};
+checks["rank of {Ω1, v10, v11, v20, v21, v'10, v'20}"] = MatrixRank[Join[{Ω1}, vs, {vps[[1]], vps[[3]]}]];
+checks["v'10 ∥ v'20 ?"] = MatrixRank[{vps[[1]], vps[[3]]}];
+(* is the line Ω1 + κ ω2 inside the rotation cone? and is ω2 itself a rotation? *)
+checks["ω2 is a rotation (all 2x2 minors of X vanish)"] = Union[Flatten[Minors[Xdiag[ω2], 2]]] === {0};
+checks["Ω1 + κ ω2 is a rotation for all κ (minors identically 0)"] = Union[Flatten[Simplify[Minors[Xdiag[Ω1 + κ ω2], 2]]]] === {0};
+StringReplace[ToString[KeyTake[checks, {"<Ω|T10 site-2 space is 2-dim", "Ω1 in the site-2 space of <Ω|T10", "all four <Ω|T_λ(θ1-2h) lie in (site-1) ⊗ span{Ω1,ω2} (exact)", "v'_λ = 0 for the localizing shapes {1,1},{2,1}", "rank of {Ω1, v10, v11, v20, v21, v'10, v'20}", "v'10 ∥ v'20 ?", "ω2 is a rotation (all 2x2 minors of X vanish)", "Ω1 + κ ω2 is a rotation for all κ (minors identically 0)"}], InputForm], "\n" -> " "]
+
+===== cell 92 [CODE] =====
+(* product locus of Φ(c) = <Ω|(c0 + c1 T10 + c2 T11 + c3 T20 + c4 T21) = v(c)⊗Ω1 + v'(c)⊗ω2: product iff v'(c) ∧ v(c) = 0; then the factors are v(c) and Ω1 + κω2 with κ = v'/v *)
+cs5 = {c0, c1, c2, c3, c4};
+vC = c0 Ω1 + c1 vs[[1]] + c2 vs[[2]] + c3 vs[[3]] + c4 vs[[4]];
+vpC = c1 vps[[1]] + c3 vps[[3]];
+prodEqs = DeleteCases[Union[Flatten[Minors[{vC, vpC}, 2]]], 0];
+prodSol = Solve[prodEqs == 0, cs5];
+(* on each product component: rotation condition for the site-1 factor v(c) *)
+rotOnComp[sol_] := Module[{v = vC /. sol, free, eqs}, free = Complement[cs5, First /@ sol]; eqs = DeleteCases[Union[Flatten[Simplify[Minors[Xdiag[v], 2]]]], 0]; {sol, free, Solve[eqs == 0, free]}];
+rotSols = rotOnComp /@ prodSol;
+StringReplace[ToString[{Length[prodSol], prodSol, rotSols}, InputForm], "\n" -> " "]
+
+===== cell 93 [CODE] =====
+(* (A) the new two-distinct-rotation state Φ* = <Ω|(c*.ops) at θ1-2h, exact *)
+cStar = {-2187/1600, -243/80, -27/43, 1, 320/1161};
+opsAll = {IdentityMatrix[d2], T2n[{1, 0}], T2n[{1, 1}], T2n[{2, 0}], T2n[{2, 1}]};
+ΦStar = Ω2d . (cStar . opsAll); MStar = Partition[ΦStar, d1];
+checks["Φ*: rank 1 (all 2x2 minors zero, exact)"] = Union[Flatten[Minors[MStar, 2]]] === {0};
+vStar = vC /. Thread[cs5 -> cStar]; vpStar = vpC /. Thread[cs5 -> cStar];
+κStar = (vpStar . vStar)/(vStar . vStar);
+checks["Φ* = v* ⊗ (Ω1 + κ* ω2) exactly"] = (MStar === Outer[Times, vStar, Ω1 + κStar ω2]);
+checks["v* and Ω1+κ*ω2 are rotations (exact)"] = {Union[Flatten[Minors[Xdiag[vStar], 2]]] === {0}, Union[Flatten[Minors[Xdiag[Ω1 + κStar ω2], 2]]] === {0}};
+checks["distinct: rank{v*,Ω1}, rank{v*, Ω1+κ*ω2}"] = {MatrixRank[{vStar, Ω1}], MatrixRank[{vStar, Ω1 + κStar ω2}]};
+fStar = cStar . {ones, τ10, τ11, τ20, τ21};
+ovlΩd = Table[Ω2d . vecS[[B]], {B, nS}];
+checks["<Φ*|Ψ_B> = f*(B) <Ω|Ψ_B> (max rel dev)"] = Max[Table[Abs[(ΦStar . vecS[[B]])/(fStar[[B]] ovlΩd[[B]]) - 1], {B, nS}]];
+(* rotation data: X = a b^T for the two factors *)
+abOf[v_] := Module[{X = Xdiag[v], i, j}, i = First[FirstPosition[Total[Abs[X], {2}], _?(# != 0 &)]]; j = First[FirstPosition[Total[Abs[X], {1}], _?(# != 0 &)]]; {X[[All, j]]/X[[i, j]], X[[i, All]]}];
+StringReplace[ToString[{κStar, KeyTake[checks, {"Φ*: rank 1 (all 2x2 minors zero, exact)", "Φ* = v* ⊗ (Ω1 + κ* ω2) exactly", "v* and Ω1+κ*ω2 are rotations (exact)", "distinct: rank{v*,Ω1}, rank{v*, Ω1+κ*ω2}"}], N[checks["<Φ*|Ψ_B> = f*(B) <Ω|Ψ_B> (max rel dev)"], 3], "ab(v*)" -> abOf[vStar], "ab(site2)" -> abOf[Ω1 + κStar ω2], "ab(Ω1)" -> abOf[Ω1]}, InputForm], "\n" -> " "]
+
+===== cell 94 [CODE] =====
+(* (B) is f* the ladder-1 contour det f_y for some y*? f_y with symbolic y: E = y^(-(x-θ1)/h) = y^n at x = θ1 - n h *)
+su2det1S[B_, y_] := Det[Table[{-br1[Function[x, QU[B, j, x] y^(-(x - th1)/hN)]], br1[Function[x, QU[B, j, x - hN] y^(-(x - th1)/hN)]]}, {j, {3, 2}}]];
+fyS = Table[Expand[su2det1S[B, y]/minor1[B]], {B, nS}];
+degY = Max[Exponent[fyS, y]];
+basis5 = Transpose[{ones, τ10, τ11, τ20, τ21}];
+cPow = Table[LeastSquares[basis5, Coefficient[fyS, y, p]], {p, 0, degY}];
+checks["f_y: every y-power coefficient in span{1,τ} (max rel residual)"] = Max[Table[Norm[basis5 . cPow[[p + 1]] - Coefficient[fyS, y, p]]/Max[Norm[Coefficient[fyS, y, p]], 10^-30], {p, 0, degY}]];
+cY = Sum[y^p cPow[[p + 1]], {p, 0, degY}];
+minY = DeleteCases[Union[Chop[Expand[Flatten[Minors[{cY, cStar}, 2]]], 10^-35]], 0];
+roots1 = y /. NSolve[minY[[1]] == 0, y, WorkingPrecision -> 40];
+yStar = Select[roots1, Max[Abs[minY /. y -> #]] < 10^-25 &];
+(* also: the 2nd singular value of Φ_y along real y (is rank 2 generic?) *)
+s2y = Table[{yy, N[svRel[covOf[fL1[yy]]][[2]], 3]}, {yy, {-5, -2, -1/2, 1/3, 1/2, 2, 5, 20}}];
+StringReplace[ToString[{degY, N[checks["f_y: every y-power coefficient in span{1,τ} (max rel residual)"], 3], N[cPow, 4], N[roots1, 6], yStar, s2y}, InputForm], "\n" -> " "]
+
+===== cell 95 [CODE] =====
+(* (C) enlarged operator family: all low-rank <Ω|O for O in {1, T10, T11, T20, T21 at θ1-2h, t2(θ1), t2(θ2+h), t2(θ2+h)t1(θ2-h)}; exact product locus via the site-2 row space *)
+opsExt = {{"1", IdentityMatrix[d2]}, {"T10", T2n[{1, 0}]}, {"T11", T2n[{1, 1}]}, {"T20", T2n[{2, 0}]}, {"T21", T2n[{2, 1}]}, {"t2(θ1)", tZv[2, thN[[1]]]}, {"t2(θ2+h)", A2}, {"t2(θ2+h)t1(θ2-h)", B2}};
+Mext = Table[Partition[Ω2d . op[[2]], d1], {op, opsExt}];
+S2 = DeleteCases[RowReduce[Join @@ Mext], {0 ..}];
+checks["enlarged family: site-2 row-space dimension"] = Length[S2];
+Vdec = Table[Transpose[Table[LinearSolve[Transpose[S2], M[[i]]], {i, d1}]], {M, Mext}];  (* Vdec[[k, a]] = site-1 vector multiplying s_a in M_k *)
+cE = Array[e, Length[opsExt]];
+Va = Table[Sum[cE[[k]] Vdec[[k, a]], {k, Length[opsExt]}], {a, Length[S2]}];
+prodEqsE = DeleteCases[Union[Flatten[Minors[Va, 2]]], 0];
+prodSolE = TimeConstrained[Solve[prodEqsE == 0, cE], 300, $Failed];
+(* classify components: dimension (free parameters), and the rotation solve for the site-1 factor *)
+compE = If[prodSolE === $Failed, $Failed, Table[Module[{free = Complement[cE, First /@ sol], v1, eqs, rs}, v1 = First[Select[Va /. sol, # =!= ConstantArray[0, d1] &, 1] /. {} -> {ConstantArray[0, d1]}];
+   eqs = DeleteCases[Union[Flatten[Simplify[Minors[Xdiag[v1], 2]]]], 0]; rs = If[eqs === {}, "all rotations", TimeConstrained[Solve[eqs == 0, free], 120, "timeout"]]; {sol, free, rs}], {sol, prodSolE}]];
+StringReplace[ToString[{checks["enlarged family: site-2 row-space dimension"], If[prodSolE === $Failed, "Solve timed out", Length[prodSolE]], compE}, InputForm], "\n" -> " "]
+
+===== cell 96 [CODE] =====
+(* (C') on each product component: site-1 factor v1 = a nonzero V_a, site-2 factor w2 = sum_a (V_a/v1) s_a; solve the joint rotation conditions for both factors over the free parameters *)
+opNames = opsExt[[All, 1]];
+classify[sol_] := Module[{free, Vs, a1, v1, κs, w2, eqs, rs},
+  free = Complement[cE, First /@ sol]; Vs = Va /. sol;
+  a1 = First[FirstPosition[Vs, v_ /; v =!= ConstantArray[0, d1], {1}, Heads -> False]]; v1 = Vs[[a1]];
+  κs = Table[With[{Vb = Vs[[b]]}, If[Vb === ConstantArray[0, d1], 0, Simplify[(Vb . v1)/(v1 . v1)]]], {b, Length[S2]}];
+  w2 = κs . S2;
+  eqs = DeleteCases[Union[Flatten[Simplify[Join[Minors[Xdiag[v1], 2], Minors[Xdiag[w2], 2]]]]], 0];
+  rs = If[eqs === {}, "all", TimeConstrained[Solve[eqs == 0, free], 120, "timeout"]];
+  {Thread[opNames -> (cE /. sol)], free, rs}];
+compE2 = classify /@ prodSolE;
+(* keep only components with a nontrivial rotation solution (not forcing all free params to zero) *)
+nontriv = Select[compE2, #[[3]] === "all" || (ListQ[#[[3]]] && AnyTrue[#[[3]], Function[s, Length[Complement[#[[2]], First /@ s]] > 0 || AnyTrue[Values[s], # =!= 0 &]]]) &];
+StringReplace[ToString[{Length[compE2], Length[nontriv], nontriv}, InputForm], "\n" -> " "]
+
+===== cell 97 [CODE] =====
+(* the whole construction as a function of the one-site twisted vacuum Ω1x (diag frame), ket twist z fixed: returns {ω2 data, product point c*, κ*, y* (from the contour-det curve), rotation parameters a of v*, site-2 factor, Ω1x, ω2} *)
+pipeline[Ω1x_] := Module[{Ω2x, Ml, rb, ω2x, dec, vsx, vpsx, vCx, vpCx, pe, ps, comp, cst, vst, vpst, κst, ovl, cov, fy, cP, cYx, mY, r1, ys},
+  Ω2x = Flatten[KroneckerProduct[Ω1x, Ω1x]];
+  Ml[l_] := Partition[Ω2x . T2n[l], d1];
+  rb = DeleteCases[RowReduce[Ml[{1, 0}]], {0 ..}];
+  ω2x = Module[{cands = Select[rb, MatrixRank[{Ω1x, #}] == 2 &]}, cands[[1]]/cands[[1, Ordering[Abs[cands[[1]]], -1][[1]]]]];
+  dec[M_] := Module[{cs = Table[LinearSolve[Transpose[{Ω1x, ω2x}], M[[i]]], {i, d1}]}, {cs[[All, 1]], cs[[All, 2]]}];
+  vsx = Table[dec[Ml[l]][[1]], {l, lams}]; vpsx = Table[dec[Ml[l]][[2]], {l, lams}];
+  vCx = c0 Ω1x + c1 vsx[[1]] + c2 vsx[[2]] + c3 vsx[[3]] + c4 vsx[[4]]; vpCx = c1 vpsx[[1]] + c3 vpsx[[3]];
+  pe = DeleteCases[Union[Flatten[Minors[{vCx, vpCx}, 2]]], 0]; ps = Solve[pe == 0, cs5];
+  (* the component with c1, c3 both nonzero *)
+  comp = First[Select[ps, FreeQ[#, c1 -> 0] && FreeQ[#, c3 -> 0] && Length[#] == 4 &]];
+  cst = (cs5 /. comp) /. c3 -> 1; vst = vCx /. Thread[cs5 -> cst]; vpst = vpCx /. Thread[cs5 -> cst]; κst = (vpst . vst)/(vst . vst);
+  (* y* from the contour-det curve c(y) (ket Q's only, so cPow is the same as before) *)
+  mY = DeleteCases[Union[Chop[Expand[Flatten[Minors[{cY, cst}, 2]]], 10^-35]], 0];
+  r1 = y /. NSolve[mY[[1]] == 0, y, WorkingPrecision -> 40]; ys = Select[r1, Max[Abs[mY /. y -> #]] < 10^-25 &];
+  {"c*" -> cst, "κ*" -> κst, "y*" -> Rationalize[Re[ys], 10^-25], "v* rotation" -> (Union[Flatten[Minors[Xdiag[vst], 2]]] === {0}), "site2 rotation" -> (Union[Flatten[Minors[Xdiag[Ω1x + κst ω2x], 2]]] === {0}), "a(v*)" -> abOf[vst][[1]], "a(site2)" -> abOf[Ω1x + κst ω2x][[1]], "a(Ω1)" -> abOf[Ω1x][[1]], "a(ω2)" -> abOf[ω2x][[1]]}];
+pipeW = pipeline[Ω1]; pipeWp = pipeline[Ω1P];
+StringReplace[ToString[{"w" -> pipeW, "w'" -> pipeWp}, InputForm], "\n" -> " "]
+
+===== cell 98 [CODE] =====
+(* self-contained pipeline in (z, w): rebuilds Ω1, the L=2 fused T's at θ1-2h and the diag->companion map for the given ket twist z; no Q's needed (y* read off from the site-2 factor Ω_{(w1, y*)}). Globals (zN, tZ, T2n, Pph1, ...) are NOT modified. NB: local names must not shadow globals used inside (ps = GT patterns). *)
+abOfX[X_] := Module[{i, j}, i = First[FirstPosition[Total[Abs[X], {2}], _?(# != 0 &)]]; j = First[FirstPosition[Total[Abs[X], {1}], _?(# != 0 &)]]; X[[All, j]]/X[[i, j]]];
+oneSiteVac[zz_, ww_] := Module[{rOmx}, rOmx = {r1 -> (w[1] - z[1])/(w[1] - z[2]), r2 -> ((w[1] - z[1]) (-w[2] + z[1]) (z[2] - z[3]))/((z[1] - z[2]) (w[1] - z[3]) (w[2] - z[3])), r3 -> ((w[1] - z[2]) (-w[2] + z[2]) (z[1] - z[3]))/((z[1] - z[2]) (w[1] - z[3]) (-w[2] + z[3]))} /. Join[Thread[zs -> zz], Thread[ws -> ww]];
+  First[{UnitVector[d1, 1]} . MatrixExp[(r1 /. rOmx) Ee[1, 2]] . MatrixExp[(r2 /. rOmx) Ee[1, 3]] . MatrixExp[(r3 /. rOmx) Ee[2, 3]]]];
+pipelineZ[zz_, ww_] := Module[{Ω1x, Zdx, tZx, tZvx, T2x, rsNx, Pppx, Pmpx, Pdpx, Pph1x, Xd, Ω2x, Ml, rb, ω2x, dec, vsx, vpsx, vCx, vpCx, pe, psol, comp, cst, vst, vpst, κst, s2, a2, ystar, Ωtest},
+  Ω1x = oneSiteVac[zz, ww];
+  Zdx = DiagonalMatrix[zz]; tZx = Table[tPoly[Zdx, a], {a, 3}];
+  tZvx[a_, v_] := tZx[[a]] /. u -> v;
+  T2x[{1, 0}, v_] := tZvx[1, v]; T2x[{1, 1}, v_] := tZvx[2, v]; T2x[{2, 0}, v_] := tZvx[1, v] . tZvx[1, v + hN] - tZvx[2, v + hN]; T2x[{2, 1}, v_] := tZvx[2, v] . tZvx[1, v + hN] - tZvx[3, v + hN];
+  rsNx = rsSol /. Thread[zs -> zz];
+  Pppx = MatrixExp[(1/zz[[1]]) Ee[1, 2]] . MatrixExp[-(1/(zz[[1]] zz[[2]])) Ee[1, 3]] . MatrixExp[((zz[[1]] + zz[[2]])/(zz[[1]] zz[[2]])) Ee[2, 3]];
+  Pmpx = MatrixExp[(r[1] /. rsNx) Ee[3, 2]] . MatrixExp[(r[2] /. rsNx) Ee[3, 1]] . MatrixExp[(r[3] /. rsNx) Ee[2, 1]];
+  Pdpx = DiagonalMatrix[Table[Product[(s[k] /. rsNx)^J0[k][p], {k, 3}], {p, ps[{Λ}]}]];
+  Pph1x = Pmpx . Pdpx . Pppx; Xd[v_] := Xmat[v . Pph1x];
+  Ω2x = Flatten[KroneckerProduct[Ω1x, Ω1x]];
+  Ml[l_] := Partition[Ω2x . T2x[l, v0], d1];
+  rb = DeleteCases[RowReduce[Ml[{1, 0}]], {0 ..}];
+  ω2x = Module[{cands = Select[rb, MatrixRank[{Ω1x, #}] == 2 &]}, cands[[1]]/cands[[1, Ordering[Abs[cands[[1]]], -1][[1]]]]];
+  dec[M_] := Module[{cs = Table[LinearSolve[Transpose[{Ω1x, ω2x}], M[[i]]], {i, d1}]}, {cs[[All, 1]], cs[[All, 2]]}];
+  vsx = Table[dec[Ml[l]][[1]], {l, lams}]; vpsx = Table[dec[Ml[l]][[2]], {l, lams}];
+  vCx = c0 Ω1x + c1 vsx[[1]] + c2 vsx[[2]] + c3 vsx[[3]] + c4 vsx[[4]]; vpCx = c1 vpsx[[1]] + c3 vpsx[[3]];
+  pe = DeleteCases[Union[Flatten[Minors[{vCx, vpCx}, 2]]], 0]; psol = Solve[pe == 0, cs5];
+  comp = First[Select[psol, FreeQ[#, c1 -> 0] && FreeQ[#, c3 -> 0] && Length[#] == 4 &]];
+  cst = (cs5 /. comp) /. c3 -> 1; vst = vCx /. Thread[cs5 -> cst]; vpst = vpCx /. Thread[cs5 -> cst]; κst = (vpst . vst)/(vst . vst);
+  s2 = Ω1x + κst ω2x; a2 = abOfX[Xd[s2]]; ystar = a2[[3]]/ww[[1]];
+  Ωtest = oneSiteVac[zz, {ww[[1]], ystar, ww[[3]]}];
+  {"c*" -> cst, "κ*" -> κst, "a(site2)" -> a2, "y*" -> ystar, "-(y*/w2)" -> -ystar/ww[[2]], "site2 = Ω(w1,y*)?" -> (MatrixRank[{s2, Ωtest}] == 1), "a(v*)" -> abOfX[Xd[vst]], "v* rotation" -> (Union[Flatten[Minors[Xd[vst], 2]]] === {0}), "a(ω2)" -> abOfX[Xd[ω2x]]}];
+(* control at the original point, then two new ket twists *)
+runZ0 = pipelineZ[zN, wN];
+runZ1 = pipelineZ[{3/2, 5/4, 3/7}, wN];
+runZ2 = pipelineZ[{2, 5/4, 2/3}, wN];
+StringReplace[ToString[{"z0" -> runZ0, "z1=(3/2,5/4,3/7)" -> runZ1, "z2=(2,5/4,2/3)" -> runZ2}, InputForm], "\n" -> " "]
+
+===== cell 99 [CODE] =====
+(* monodromy / fused T's with explicit h and θ (memoized on all arguments), so h and θ can be varied without touching the global Tm/tZ *)
+TmX[hh_, th_, v_] := TmX[hh, th, v] = Table[Sum[(KroneckerDelta[i, k] (v - th[[1]]) id2 + hh E1[i, k]) . (KroneckerDelta[k, j] (v - th[[2]]) id2 + hh E2[k, j]), {k, 3}], {i, 3}, {j, 3}];
+TMfX[hh_, th_, M_][i_, j_][v_] := Sum[TmX[hh, th, v][[i, l]] M[[l, j]], {l, 3}];
+qminorX[hh_, th_, M_][I_, J_][v_] := Sum[Signature[σ] Dot @@ Table[TMfX[hh, th, M][σ[[k]], J[[k]]][v - (k - 1) hh], {k, Length[J]}], {σ, Permutations[I]}];
+tAtX[hh_, th_, M_, a_, v_] := Sum[qminorX[hh, th, M][I, I][v], {I, Subsets[Range[3], {a}]}];
+tPolyX[hh_, th_, M_, a_] := Expand[Sum[tAtX[hh, th, M, a, uS[[k]]] Product[(u - uS[[l]])/(uS[[k]] - uS[[l]]), {l, DeleteCases[Range[7], k]}], {k, 7}]];
+pipelineZH[zz_, ww_, hh_, th_] := Module[{Ω1x, Zdx, tZx, tZvx, T2x, v0x, rsNx, Pppx, Pmpx, Pdpx, Pph1x, Xd, Ω2x, Ml, rb, ω2x, dec, vsx, vpsx, vCx, vpCx, pe, psol, comp, cst, vst, vpst, κst, s2, a2, ystar},
+  Ω1x = oneSiteVac[zz, ww]; v0x = th[[1]] - 2 hh;
+  Zdx = DiagonalMatrix[zz]; tZx = Table[tPolyX[hh, th, Zdx, a], {a, 3}];
+  tZvx[a_, v_] := tZx[[a]] /. u -> v;
+  T2x[{1, 0}, v_] := tZvx[1, v]; T2x[{1, 1}, v_] := tZvx[2, v]; T2x[{2, 0}, v_] := tZvx[1, v] . tZvx[1, v + hh] - tZvx[2, v + hh]; T2x[{2, 1}, v_] := tZvx[2, v] . tZvx[1, v + hh] - tZvx[3, v + hh];
+  rsNx = rsSol /. Thread[zs -> zz];
+  Pppx = MatrixExp[(1/zz[[1]]) Ee[1, 2]] . MatrixExp[-(1/(zz[[1]] zz[[2]])) Ee[1, 3]] . MatrixExp[((zz[[1]] + zz[[2]])/(zz[[1]] zz[[2]])) Ee[2, 3]];
+  Pmpx = MatrixExp[(r[1] /. rsNx) Ee[3, 2]] . MatrixExp[(r[2] /. rsNx) Ee[3, 1]] . MatrixExp[(r[3] /. rsNx) Ee[2, 1]];
+  Pdpx = DiagonalMatrix[Table[Product[(s[k] /. rsNx)^J0[k][p], {k, 3}], {p, ps[{Λ}]}]];
+  Pph1x = Pmpx . Pdpx . Pppx; Xd[v_] := Xmat[v . Pph1x];
+  Ω2x = Flatten[KroneckerProduct[Ω1x, Ω1x]];
+  Ml[l_] := Partition[Ω2x . T2x[l, v0x], d1];
+  rb = DeleteCases[RowReduce[Ml[{1, 0}]], {0 ..}];
+  ω2x = Module[{cands = Select[rb, MatrixRank[{Ω1x, #}] == 2 &]}, cands[[1]]/cands[[1, Ordering[Abs[cands[[1]]], -1][[1]]]]];
+  dec[M_] := Module[{cs = Table[LinearSolve[Transpose[{Ω1x, ω2x}], M[[i]]], {i, d1}]}, {cs[[All, 1]], cs[[All, 2]]}];
+  vsx = Table[dec[Ml[l]][[1]], {l, lams}]; vpsx = Table[dec[Ml[l]][[2]], {l, lams}];
+  vCx = c0 Ω1x + c1 vsx[[1]] + c2 vsx[[2]] + c3 vsx[[3]] + c4 vsx[[4]]; vpCx = c1 vpsx[[1]] + c3 vpsx[[3]];
+  pe = DeleteCases[Union[Flatten[Minors[{vCx, vpCx}, 2]]], 0]; psol = Solve[pe == 0, cs5];
+  comp = First[Select[psol, FreeQ[#, c1 -> 0] && FreeQ[#, c3 -> 0] && Length[#] == 4 &]];
+  cst = (cs5 /. comp) /. c3 -> 1; vst = vCx /. Thread[cs5 -> cst]; vpst = vpCx /. Thread[cs5 -> cst]; κst = (vpst . vst)/(vst . vst);
+  s2 = Ω1x + κst ω2x; a2 = abOfX[Xd[s2]]; ystar = a2[[3]]/ww[[1]];
+  {"c*" -> cst, "y*" -> ystar, "-(y*/w2)" -> -ystar/ww[[2]], "site2 = Ω(w1,y*)?" -> (MatrixRank[{s2, oneSiteVac[zz, {ww[[1]], ystar, ww[[3]]}]}] == 1), "v* rotation" -> (Union[Flatten[Minors[Xd[vst], 2]]] === {0}), "a(ω2)" -> abOfX[Xd[ω2x]], "a(v*)" -> abOfX[Xd[vst]]}];
+runH0 = pipelineZH[zN, wN, hN, thN];           (* control *)
+runZ2b = pipelineZH[{3/2, 7/6, 2/3}, wN, hN, thN];   (* z2 changed *)
+runH1 = pipelineZH[zN, wN, 1/3, thN];           (* h changed *)
+runTh1 = pipelineZH[zN, wN, hN, {1/5, -4/9}];   (* θ changed *)
+StringReplace[ToString[{"control" -> runH0, "z2=7/6" -> runZ2b, "h=1/3" -> runH1, "θ=(1/5,-4/9)" -> runTh1}, InputForm], "\n" -> " "]
+
+===== cell 100 [CODE] =====
+(* identification of the site-1 factor: candidates Ω_w ρ(M) with M built from the ket twist G(z) and y* (companion frame: Ωc[w]; ρG, cmpScale as in cell 69); compare with v* (diag frame -> companion by .Pph1) up to scale *)
+ρG[m_] := MatrixExp[Sum[MatrixLog[m][[i, k]] N[Ee[i, k], prec], {i, 3}, {k, 3}]];
+GzN = N[Gc[zN], prec];
+cmpScale[u_, v_] := Module[{s = (u . v)/(v . v)}, {s, Norm[u - s v]/Norm[u]}];
+yS = wN[[2]] (thN[[1]] - thN[[2]] - hN)/(thN[[1]] - thN[[2]] - 2 hN);
+checks["y* formula = -63/8 at the original point"] = (yS == -63/8);
+vStarC = vStar . Pph1;
+cands = {"ρ((y*-G^T)^-1)" -> ρG[Inverse[yS IdentityMatrix[3] - Transpose[GzN]]], "ρ((y*-G)^-1)" -> ρG[Inverse[yS IdentityMatrix[3] - GzN]], "ρ(y*-G^T)" -> ρG[yS IdentityMatrix[3] - Transpose[GzN]], "ρ(y*-G)" -> ρG[yS IdentityMatrix[3] - GzN], "ρ((1-G^T/y*)^-1)" -> ρG[Inverse[IdentityMatrix[3] - Transpose[GzN]/yS]]};
+idTab = Table[c[[1]] -> N[Last[cmpScale[N[vStarC, 40], N[Ωc[wN] . c[[2]], 40]]], 3], {c, cands}];
+(* also: is v* = Ω_{(p,q)} for some (p,q), i.e. a(v*) = (1, -(p+q), pq): discriminant *)
+av = abOf[vStar][[1]]; discV = av[[2]]^2 - 4 av[[3]];
+(* independent check of the y* formula at a fresh point: h = 1/5, θ = (1/3, -1/7), z = (3/2, 7/6, 2/3), twist w' *)
+runNew = pipelineZH[{3/2, 7/6, 2/3}, wP, 1/5, {1/3, -1/7}];
+ySnew = wP[[2]] (1/3 + 1/7 - 1/5)/(1/3 + 1/7 - 2/5);
+checks["y* formula at the fresh point"] = (("y*" /. runNew) == ySnew);
+StringReplace[ToString[{checks["y* formula = -63/8 at the original point"], idTab, discV, "y*" /. runNew, ySnew, checks["y* formula at the fresh point"], ("site2 = Ω(w1,y*)?" /. runNew), ("v* rotation" /. runNew)}, InputForm], "\n" -> " "]
+
+===== cell 101 [CODE] =====
+(* v* vs candidates. (i) paper-style: the one-site vacuum with Gauss parameters r_k rescaled by ratios (1 - z_a/y*)/(1 - z_b/y*) (G14 of 2603.26617 with κ = 1/y*), all index assignments and inverses; (ii) Ω_{(p,q)} ρ(M) for p,q in {w1,w2,y*} and resolvent-type M. Residual = relative distance up to scale (diag frame). *)
+rOmN = {r1 -> (w[1] - z[1])/(w[1] - z[2]), r2 -> ((w[1] - z[1]) (-w[2] + z[1]) (z[2] - z[3]))/((z[1] - z[2]) (w[1] - z[3]) (w[2] - z[3])), r3 -> ((w[1] - z[2]) (-w[2] + z[2]) (z[1] - z[3]))/((z[1] - z[2]) (w[1] - z[3]) (-w[2] + z[3]))} /. numZW;
+vacR[{rr1_, rr2_, rr3_}] := First[{UnitVector[d1, 1]} . MatrixExp[rr1 Ee[1, 2]] . MatrixExp[rr2 Ee[1, 3]] . MatrixExp[rr3 Ee[2, 3]]];
+resid[v_] := Last[cmpScale[N[vStar, 40], N[v, 40]]];
+fac[a_, b_] := (1 - zN[[a]]/yS)/(1 - zN[[b]]/yS);
+(* each r_k (k ~ generator E_{ab}: r1~E12, r2~E13, r3~E23) gets a factor fac[p,q]^e with (p,q) in all ordered index pairs and e in {-1,0,1}; scan *)
+pairs = Tuples[Range[3], 2]; exps = {-1, 0, 1};
+scan1 = Flatten[Table[Module[{f1 = fac @@ p1, f2 = fac @@ p2, f3 = fac @@ p3, rs}, rs = {(r1 /. rOmN) f1^e1, (r2 /. rOmN) f2^e2, (r3 /. rOmN) f3^e3}; {N[resid[vacR[rs]], 3], {p1, e1}, {p2, e2}, {p3, e3}}], {p1, pairs}, {e1, exps}, {p2, pairs}, {e2, exps}, {p3, pairs}, {e3, exps}], 5];
+best1 = Take[SortBy[scan1, First], 6];
+(* (ii) vacuum-type candidates with resolvents *)
+vacPQ[p_, q_] := oneSiteVac[zN, {p, q, wN[[3]]}];
+Ms = {"res(y*)^T" -> Inverse[yS IdentityMatrix[3] - Transpose[GzN]], "res(y*)" -> Inverse[yS IdentityMatrix[3] - GzN], "res(w2)^T" -> Inverse[wN[[2]] IdentityMatrix[3] - Transpose[GzN]], "res(w1)^T" -> Inverse[wN[[1]] IdentityMatrix[3] - Transpose[GzN]], "1" -> IdentityMatrix[3]};
+pq = {{wN[[1]], wN[[2]]}, {wN[[1]], yS}, {wN[[2]], yS}, {yS, wN[[1]]}, {wN[[2]], wN[[1]]}};
+scan2 = Flatten[Table[{N[resid[(vacPQ @@ pqv) . Pph1 . Inverse[Pph1] // Identity], 3] /. _ -> N[Last[cmpScale[N[vStarC, 40], N[(vacPQ @@ pqv) . Pph1 . (ρG[m[[2]]]), 40]]], 3], pqv, m[[1]]}, {pqv, pq}, {m, Ms}], 1];
+best2 = Take[SortBy[scan2, First], 6];
+StringReplace[ToString[{best1, best2}, InputForm], "\n" -> " "]
+
+===== cell 102 [CODE] =====
+(* closed-form state (companion frame): v2 = Ω_{(w1,y*)}, v1 = v2 . ρ((w2 - G(z)^T)^-1); y* = w2 (θ12 - h)/(θ12 - 2h) *)
+v2C = Ωc[{wN[[1]], yS, wN[[3]]}];
+v1C = v2C . ρG[Inverse[wN[[2]] IdentityMatrix[3] - Transpose[GzN]]];
+v1Calt = Ωc[{wN[[2]], yS, wN[[3]]}] . ρG[Inverse[wN[[1]] IdentityMatrix[3] - Transpose[GzN]]];
+checks["v1: the two descriptions agree (rel dev)"] = Last[cmpScale[N[v1C, 40], N[v1Calt, 40]]];
+checks["v1, v2 are rotations (2nd/1st sv of X)"] = {rank1dev[Xmat[v1C]], rank1dev[Xmat[v2C]]};
+Φcf = Flatten[KroneckerProduct[v1C, v2C]];
+ovlCF = Table[(Φcf . ketC[[B]])/(x0C . ketC[[B]]), {B, nS}];   (* normalized by <x0|Psi_B>, like det6/Psi_Q *)
+(* main identity: <v1⊗v2|Ψ_B>/<x0|Ψ_B> ∝ det6[Q_B, Q_vac,(w1,w2)]/Ψ_Q x det2^(1)[Q_B; y*]/minor1 *)
+ratioMain = Table[ovlCF[[B]]/((det6[B, Fvac]/psiQ[B]) (su2det1[B, yS]/minor1[B])), {B, nS}];
+checks["MAIN: <v1⊗v2|Ψ> ∝ det6(w) x ladder-1 det2(y*) (state-independence, 64 states)"] = Max[Abs[ratioMain/ratioMain[[1]] - 1]];
+checks["MAIN: the constant"] = ratioMain[[1]];
+(* alternative (paper-like) labelling: det6 with the (w1,y*) vacuum Q's x ladder-1 det2 at w2 *)
+vacQ[ww_] := Module[{numx, GP, rO, O1, O2, tWx, kO, tau, qd}, numx = Join[Thread[zs -> zN], Thread[ws -> ww]]; GP = Simplify[Paux . Gc[ws] . Inverse[Paux]] /. numx;
+   rO = {r1 -> (w[1] - z[1])/(w[1] - z[2]), r2 -> ((w[1] - z[1]) (-w[2] + z[1]) (z[2] - z[3]))/((z[1] - z[2]) (w[1] - z[3]) (w[2] - z[3])), r3 -> ((w[1] - z[2]) (-w[2] + z[2]) (z[1] - z[3]))/((z[1] - z[2]) (w[1] - z[3]) (-w[2] + z[3]))} /. numx;
+   O1 = First[{UnitVector[d1, 1]} . MatrixExp[(r1 /. rO) Ee[1, 2]] . MatrixExp[(r2 /. rO) Ee[1, 3]] . MatrixExp[(r3 /. rO) Ee[2, 3]]]; O2 = Flatten[KroneckerProduct[O1, O1]];
+   tWx = Table[tPoly[GP, a], {a, 3}]; kO = Ordering[Abs[O2], -1][[1]]; tau = Table[Expand[(O2 . tWx[[a]])[[kO]]/O2[[kO]]], {a, 3}];
+   qd = Table[solveQ[opDir, N[tau, prec], ww[[i]], -1], {i, 3}];
+   If[FreeQ[qd, {}], With[{q = qd}, Function[{i, x}, N[ww[[i]]^(-x/hN), prec] (q[[i]] /. X -> x)]], $Failed]];
+FvacY = vacQ[{wN[[1]], yS, wN[[3]]}];
+ratioAlt = If[FvacY === $Failed, $Failed, Table[ovlCF[[B]]/((det6[B, FvacY]/psiQ[B]) (su2det1[B, wN[[2]]]/minor1[B])), {B, nS}]];
+checks["ALT: <v1⊗v2|Ψ> ∝ det6(w1,y*) x ladder-1 det2(w2)?"] = If[ratioAlt === $Failed, "vac Q's not found", Max[Abs[ratioAlt/ratioAlt[[1]] - 1]]];
+(* sanity: the global vacuum Ω_{(w1,y*)}⊗Ω_{(w1,y*)} with its own Q's *)
+checks["sanity: Ω(w1,y*)⊗Ω(w1,y*) ∝ det6[F_vac,(w1,y*)]"] = If[FvacY === $Failed, "n/a", constQ[Table[(Flatten[KroneckerProduct[v2C, v2C]] . ketC[[B]])/(x0C . ketC[[B]])/(det6[B, FvacY]/psiQ[B]), {B, nS}]]];
+StringReplace[ToString[{N[checks["v1: the two descriptions agree (rel dev)"], 3], N[checks["v1, v2 are rotations (2nd/1st sv of X)"], 3], N[checks["MAIN: <v1⊗v2|Ψ> ∝ det6(w) x ladder-1 det2(y*) (state-independence, 64 states)"], 3], N[checks["MAIN: the constant"], 12], N[checks["ALT: <v1⊗v2|Ψ> ∝ det6(w1,y*) x ladder-1 det2(w2)?"], 3], N[checks["sanity: Ω(w1,y*)⊗Ω(w1,y*) ∝ det6[F_vac,(w1,y*)]"], 3]}, InputForm], "\n" -> " "]
+
+===== cell 103 [MD] =====
+### 10 — Result (2026-10-09): a product of two distinct rotations with a contour-integral determinant overlap
+For $\Lambda=(2,1,0)$, $L=2$, ket twist $z$, companion-frame one-site vacua $\Omega_{(p,q)}=e_1^TP(p,q)$ (cell 25), $y^*:=w_2\,\dfrac{\theta_{12}-h}{\theta_{12}-2h}$:
+$$v_2=\Omega_{(w_1,y^*)},\qquad v_1=\Omega_{(w_1,y^*)}\,\rho\big((w_2-G(z)^T)^{-1}\big)=\Omega_{(w_2,y^*)}\,\rho\big((w_1-G(z)^T)^{-1}\big),$$
+$$\frac{\langle v_1\otimes v_2|\Psi_B\rangle}{\langle x_0|\Psi_B\rangle}=c\;\frac{\det_6N[Q_B,Q_{{\rm vac},(w_1,w_2)}]}{\Psi_Q^B(x_0)}\;\frac{\det_{j\in\{3,2\}}\big[-\langle Q^jE\rangle_1,\ \langle Q^{j[-]}E\rangle_1\big]}{Q^2(\theta_1-2h)Q^3(\theta_1-3h)-Q^3(\theta_1-2h)Q^2(\theta_1-3h)},\qquad E=y^{*\,-x/h},$$
+with $\langle\cdot\rangle_1$ the bracket over the ladder-1 poles $\theta_1-nh$, $n=0,1,2$, with the one-site weights (cell 68). State-independence of $c$: $10^{-50}$ on all 64 states (cell 102). Both factors are exact rotations and distinct. The state is the global vacuum of twist $(w_1,y^*)$ with a **site-1 resolvent rotation at $w_2$**, i.e. the structure $\langle W_{\omega,\kappa}\otimes W_\omega|$ of 2603.26617 App.\ G with $\omega\leftrightarrow(w_1,y^*)$, $\kappa\leftrightarrow1/w_2$; but the global det carries the $(w_1,w_2)$ vacuum Q's and the ladder det carries $y^*$ (the 'paper-like' assignment det$_6(w_1,y^*)\times$det$_2(w_2)$ fails, 60.8).
+
+**How it was found (cells 86–102).** $T_{11},T_{21}$ at $\theta_1-2h$ localize exactly on $\langle\Omega_w\otimes\Omega_w|$; $T_{10},T_{20}$ do not, but $\langle\Omega|T_\lambda(\theta_1-2h)=v_\lambda\otimes\Omega_1+v'_\lambda\otimes\omega_2$ with one fixed second site-2 direction $\omega_2=\Omega_{(w_1,z_2)}$ (exact), and the whole line $\Omega_1+\kappa\omega_2$ lies in the rotation cone. In the 5-parameter family $\langle\Omega|(c_0+c_1T_{10}+c_2T_{11}+c_3T_{20}+c_4T_{21})$ the product locus has one component with $c_1,c_3\neq0$, on which the site-1 factor is automatically a rotation; it is $z$-independent and equals $\langle\Omega|\mathcal K_{y^*}$ where $\mathcal K_y$ has eigenvalue the ladder-1 su(2)-like det ($f_y=4y^4-70y^3\tau_{10}+y^2(\ldots)+394y\tau_{21}$ at this point). $y^*$ was decoded from runs at five $(h,\theta,z,w)$ points (cells 97–100); $v_1$ from a scan over $\Omega_{(p,q)}\rho(M)$ (cell 101, residual 0).
+
+**Isolated extras.** $\Omega_1T^{(1)}_{21}\otimes\Omega_1$ (overlap $\tau_{21}\det_6$) and $\langle\Omega|(e_1+e_8\,t_2(\theta_2+h)t_1(\theta_2-h))$ at a fixed ratio are also products of rotations; no continuous family inside the linear span of transfer matrices at $\theta_1-2h$, $\theta_1$, $\theta_2\pm h$.
+
+**Open.** Second numeric point for the det identity itself (the structure and $y^*$ are checked at five points, the determinant only at P1); the general $(w_1,w_2,w_3)$ and $y_2$ dependence (here $y_2=\infty$ on the resolvent); the $L>2$ / general-rep version (where the localizing set is larger).
+
+===== cell 104 [CODE] =====
+(* (1) the rationalized τ-expansion coefficients of f_y reproduce the 60-digit data? *)
+cRat = Rationalize[Chop[N[cPow, 20], 10^-30], 10^-18];
+checks["τ-expansion: rational coefficients reproduce f_y to 60 digits (max abs dev)"] = Max[Table[Max[Abs[basis5 . cRat[[p + 1]] - Coefficient[fyS, y, p]]], {p, 0, degY}]];
+(* (2) the coefficients A_k (of y^{4-?}τ_k) as monomials in h and (θ12 - k h): from the three (h,θ) points use c* ∝ c(y*): A0/A3 = c0/y*^2, A1/A3 = c1/y*, A2/A3 = c2, A4/A3 = c4 y* (c3 = 1) *)
+pts = {{hN, thN[[1]] - thN[[2]], runH0}, {1/3, thN[[1]] - thN[[2]], runH1}, {hN, 1/5 + 4/9, runTh1}};
+ratiosAt[run_] := Module[{c = "c*" /. run, ys = "y*" /. run}, {c[[1]]/ys^2, c[[2]]/ys, c[[3]], c[[5]] ys}];
+data = Table[{p[[1]], p[[2]], ratiosAt[p[[3]]]}, {p, pts}];
+(* brute-force monomial search: ratio = C h^a (θ12-h)^b1 (θ12-2h)^b2 (θ12-3h)^b3 (θ12+h)^b4, exponents in -3..3, C fixed by point 1, exact check at points 2,3 *)
+mono[hh_, th_, {a_, b1_, b2_, b3_, b4_}] := hh^a (th - hh)^b1 (th - 2 hh)^b2 (th - 3 hh)^b3 (th + hh)^b4;
+expo = Tuples[Range[-3, 3], 5];
+findMono[k_] := Module[{r1 = data[[1, 3, k]], hits}, hits = Select[expo, Function[e, Module[{C = r1/mono[data[[1, 1]], data[[1, 2]], e]}, And @@ Table[C mono[data[[i, 1]], data[[i, 2]], e] == data[[i, 3, k]], {i, 2, 3}]]]]; {k, Table[{e, r1/mono[data[[1, 1]], data[[1, 2]], e]}, {e, hits}]}];
+monoHits = Table[findMono[k], {k, 4}];
+StringReplace[ToString[{N[checks["τ-expansion: rational coefficients reproduce f_y to 60 digits (max abs dev)"], 3], data, monoHits}, InputForm], "\n" -> " "]
+
+===== cell 105 [MD] =====
+**Exact $\tau$-expansion of the ladder-1 contour determinant (cell 104).** The rational coefficients reproduce the 60-digit data to $10^{-49}$, and from the three $(h,\theta)$ points (via $c^*\propto c(y^*)$) each coefficient is a unique monomial in $h$ and $(\theta_{12}-kh)$:
+$$\det_2^{(1)}[Q_B;y]/{\rm minor}_1\ \propto\ 2h^2(\theta_{12}-h)(\theta_{12}-2h)(\theta_{12}-3h)\,y^4+2h(\theta_{12}-h)(\theta_{12}-3h)\,y^3\tau_{10}+(\theta_{12}-h)\,y^2\tau_{11}+(\theta_{12}-3h)\,y^2\tau_{20}+\frac{2}{3h}\,y\,\tau_{21},$$
+all $\tau_\lambda$ at $\theta_1-2h$ (overall normalization: in the notebook's conventions the coefficient of $y^2\tau_{20}$ is $1/(h^3(\theta_{12}-h)(\theta_{12}-2h))$). At P1 ($h=1/2$, $\theta_{12}=31/35$: $\theta_{12}-h=27/70$, $\theta_{12}-2h=-8/70$, $\theta_{12}-3h=-43/70$) this is $4y^4-70y^3\tau_{10}+\tfrac{4900}{43}y^2\tau_{11}-\tfrac{4900}{27}y^2\tau_{20}+\tfrac{1372000}{3483}y\tau_{21}$. The localization prefactors at P1 are likewise $f_{11}=(\theta_{12}-h)(\theta_{12}-3h)=-1161/4900$ and $f_{21}=(\theta_{12}-h)^2(\theta_{12}-3h)=-31347/343000$, so in terms of $\hat\tau_\lambda=\tau_\lambda/f_\lambda$ the $\tau_{11},\tau_{21}$ terms read $-27\hat\tau_{11}y^2-36\hat\tau_{21}y$ at P1.
+
+===== cell 106 [CODE] =====
+(* y as the free parameter: for any y, w2(y) = y (θ12 - 2h)/(θ12 - h) makes y = y*(w). Test at y = 3 (and y = -1/2) with w1 kept, w3 arbitrary. *)
+yFreeTest[yy_] := Module[{w2y, wY, v2, v1, Φ, ovl, FvY, ratio},
+  w2y = yy (thN[[1]] - thN[[2]] - 2 hN)/(thN[[1]] - thN[[2]] - hN); wY = {wN[[1]], w2y, wN[[3]]};
+  v2 = Ωc[{wN[[1]], yy, wN[[3]]}]; v1 = v2 . ρG[Inverse[w2y IdentityMatrix[3] - Transpose[GzN]]];
+  Φ = Flatten[KroneckerProduct[v1, v2]]; ovl = Table[(Φ . ketC[[B]])/(x0C . ketC[[B]]), {B, nS}];
+  FvY = vacQ[wY];
+  If[FvY === $Failed, {yy, w2y, "vac Q's not found"},
+   ratio = Table[ovl[[B]]/((det6[B, FvY]/psiQ[B]) (su2det1[B, yy]/minor1[B])), {B, nS}];
+   {yy, w2y, N[Max[Abs[ratio/ratio[[1]] - 1]], 3], N[rank1dev[Xmat[v1]], 3], N[rank1dev[Xmat[v2]], 3], MatrixRank[N[{v1, v2}, 30]]}]];
+yFree = {yFreeTest[3], yFreeTest[-1/2]};
+checks["y free: identity at y = 3, -1/2 with w2 = y(θ12-2h)/(θ12-h) (state-independence)"] = yFree[[All, 3]];
+StringReplace[ToString[yFree, InputForm], "\n" -> " "]
+
+===== cell 107 [MD] =====
+## 11. Beyond the $(w_1,y)$ family: the ket-twist torus (2026-10-09, later)
+
+**Question (Paul).** Can the construction of §10 be generalized to states beyond the vacuum, i.e. more general rotations on each of the two sites?
+
+**Tool.** The Cartan torus of the ket twist, $\rho(D)\otimes\rho(D)$ with $D=\mathrm{diag}(d_1,d_2,d_3)$, commutes with every twisted transfer matrix and acts on an eigenstate $\Psi_B$ of total weight $\mu$ by the character $\chi_\mu(D)=\prod_i d_i^{\mu_i}$ (for a resolvent $D=(y_1-G^T)^{-1}$ this character is the su(2)-like $\det_4$ of §2). So every product state with a determinant overlap comes with its whole torus orbit for free: $\langle v_1\rho(D)\otimes v_2\rho(D)|\Psi_B\rangle=\chi_\mu(D)\,\langle v_1\otimes v_2|\Psi_B\rangle$ (cell 108).
+
+**Expectation to test.** The §10 family is $v_2=\Omega_{(w_1,y)}$, $v_1=v_2\,\rho(D_{w_2(y)})$ with $w_2(y)=y\,(\theta_{12}-2h)/(\theta_{12}-h)$; its torus orbit is $\{(g\,\rho(D_{w_2(y)}),\,g)\}$ with $g=\Omega_{(w_1,y)}\rho(D)$. If $(w_1,D)\mapsto\Omega_{(w_1,y)}\rho(D)$ at fixed $y$ were dominant onto the 3-dimensional rotation orbit, every rotation $g$ would be $\Omega_{(w_1,y)}\rho(D)$ with $y$ free, and $(g\rho(D_\kappa),g)$ would have a determinant formula for every $\kappa$ — the paper's $\kappa$-family. **It is not** (cell 108): at fixed $y$ the Jacobian has rank 3 = torus + scale, i.e. $w_1$ is itself a torus direction ($\Omega_{(w_1,y)}/\Omega_{(w_1',y)}$ is a torus character, exactly) and $y$ is a torus **invariant** of the rotation. Hence every rotation $g$ on site 2 is $\Omega_{(w_1,y(g))}\rho(D)$ with $y(g)$ unique, and its site-1 partner $g\,\rho((w_2(y(g))-G^T)^{-1})$ is unique:
+$$\langle g\,\rho((w_2(y(g))-G^T)^{-1})\otimes g\,|\Psi_B\rangle \ \propto\ \chi_\mu(D)\ \frac{\det_6N[Q_B,Q_{\rm vac,(w_1,w_2(y(g)))}]}{\Psi_Q}\ \frac{\det_2^{(1)}[Q_B;y(g)]}{\mathrm{minor}_1}.$$
+
+Cells: 108 character + dominance (exact); 109 the $(w_1,y)$ family at fresh $w_1$; 110 iteration with the §10 product state as seed; 111 a generic rotation $g$ end to end; 112 result.
+
+===== cell 108 [CODE] =====
+(* 11.1 (a) the ket-twist torus is the weight character: ρdiag[d]⊗ρdiag[d] is diagonal on every eigenstate Ψ_B with eigenvalue χ_μ(d) = Π d_i^μ_i (μ = total weight, muS), for ANY pair of covectors. For a resolvent d = 1/(y1 - z) this is the su(2)-like det4 of cell 10 (pref). Checked on random covectors to fix the convention (ρdiag acts on covectors from the right, exponent +μ); difference norm, not a ratio, since a random product covector can have zero overlap with a state. *)
+charB[d_, B_] := Times @@ (d^muS[[B]]);
+SeedRandom[11]; φr = RandomInteger[{-5, 5}, d1]; ψr = RandomInteger[{-5, 5}, d1]; dr = {3/7, -5/4, 2/9};
+checks["11.1a torus = character on random covectors (max |lhs - χ rhs| / max |lhs|)"] = Module[{lhs, rhs}, lhs = Table[Flatten[KroneckerProduct[φr . ρdiag[dr], ψr . ρdiag[dr]]] . vecS[[B]], {B, nS}]; rhs = Table[charB[dr, B] (Flatten[KroneckerProduct[φr, ψr]] . vecS[[B]]), {B, nS}]; Max[Abs[lhs - rhs]]/Max[Abs[lhs]]];
+(* (b) dominance (exact, symbolic): the rotation orbit of x0 is 3-dim projectively. The map (w1, d1, d2, d3) -> Ω_{(w1,y)}.ρdiag[d] at FIXED y has 4 parameters including the scale (ρdiag[c d] = c^|Λ| ρdiag[d]), so it is dominant onto the orbit iff its Jacobian has rank 4; the torus alone gives rank 3 (2 + scale). With y also free: rank 4 means the image is the whole orbit; the null vector of the 5-column Jacobian is the fibre tangent. Generic points only: Ω_{(w1,y)} degenerates at y = z_i (the first run sat at y = 5/4 = z2). *)
+ΩdS = oneSiteVac[zN, {w1s, yys, 3/5}] . ρdiag[{d1s, d2s, d3s}];
+jacAt[vars_, pt_] := D[ΩdS, {vars}] /. pt;
+ptsR = {{w1s -> -7/3, yys -> 7/5, d1s -> 3/7, d2s -> -5/4, d3s -> 2/9}, {w1s -> 9/4, yys -> -2/3, d1s -> -1/3, d2s -> 4/7, d3s -> 5/2}, {w1s -> 13/8, yys -> 11/9, d1s -> 2/5, d2s -> 7/3, d3s -> -3/4}};
+rankTab = Table[{MatrixRank[jacAt[{w1s, d1s, d2s, d3s}, pt]], MatrixRank[jacAt[{w1s, yys, d1s, d2s, d3s}, pt]], MatrixRank[jacAt[{d1s, d2s, d3s}, pt]], With[{ns = NullSpace[jacAt[{w1s, yys, d1s, d2s, d3s}, pt]]}, If[Length[ns] == 1, ns[[1]]/ns[[1, 1]], ns]]}, {pt, ptsR}];
+checks["11.1b ranks {fixed y, y free, torus alone} at 3 generic points"] = rankTab[[All, 1 ;; 3]];
+checks["11.1b fibre tangent (w1, y, d1, d2, d3), normalized to w1-component 1"] = rankTab[[All, 4]];
+(* consequence test: is w1 a torus direction, i.e. Ω_{(w1,y)} = Ω_{(w1',y)} ρ(D) for some D? If the fibre has no y-component, yes. Direct check: rank of {Ω_{(w1,y)}, Ω_{(w1',y)}} after dividing out the torus = is Ω_{(w1,y)}/Ω_{(w1',y)} componentwise a character? *)
+torusQuot[y_, w1a_, w1b_] := Module[{va = oneSiteVac[zN, {w1a, y, 3/5}], vb = oneSiteVac[zN, {w1b, y, 3/5}], rat, dd}, rat = va/vb; (* a torus element multiplies component p by Π d_k^J0[k][p]; solve d from three components and verify the rest *)
+   dd = Table[Product[dS[k]^J0[k][p], {k, 3}], {p, ps[{Λ}]}]; Simplify[Union[rat - (dd /. First[Solve[Thread[dd[[{1, 2, 4}]] == rat[[{1, 2, 4}]]], {dS[1], dS[2], dS[3]}]])]]];
+checks["11.1c Ω_{(w1,y)} vs Ω_{(w1',y)}: componentwise ratio is a torus character (residuals)"] = {torusQuot[7/5, -7/3, 9/4], torusQuot[-2/3, 13/8, 5/2]};
+Grid[{{"torus = character, random covectors (rel dev)", N[checks["11.1a torus = character on random covectors (max |lhs - χ rhs| / max |lhs|)"], 3]}, {"ranks {fixed y, y free, torus alone} at 3 points", checks["11.1b ranks {fixed y, y free, torus alone} at 3 generic points"]}, {"fibre tangents (w1, y, d1, d2, d3)", N[checks["11.1b fibre tangent (w1, y, d1, d2, d3), normalized to w1-component 1"], 4]}, {"Ω_{(w1,y)} / Ω_{(w1',y)} a torus character? (residuals)", checks["11.1c Ω_{(w1,y)} vs Ω_{(w1',y)}: componentwise ratio is a torus character (residuals)"]}}, Frame -> All, Alignment -> Left]
+
+===== cell 109 [CODE] =====
+(* 11.2 the (w1, y) family of §10 at a FRESH w1 (all §10 determinant checks had w1 = 5/2): v2 = Ω_{(w1,y)}, v1 = v2 ρ((w2(y) - G^T)^-1), w2(y) = y(θ12-2h)/(θ12-h); overlap ∝ det6[Q_vac,(w1,w2(y))] x ladder-1 det2(y). Needed before the torus argument is applied, since that argument moves w1. (y must avoid the ket twist z: Ω_{(w1,y)} degenerates at y = z_i — the first run used y = 5/4 = z2 and gave 0/0.) *)
+w2Of[yy_] := yy (thN[[1]] - thN[[2]] - 2 hN)/(thN[[1]] - thN[[2]] - hN);
+yOf[kinv_] := kinv (thN[[1]] - thN[[2]] - hN)/(thN[[1]] - thN[[2]] - 2 hN);   (* inverse: resolvent parameter kinv = w2(y) -> y *)
+famTest[w1_, yy_] := Module[{w2y = w2Of[yy], v2, v1, Φ, ovlF, FvT, ratio},
+  v2 = Ωc[{w1, yy, 3/5}]; v1 = v2 . ρG[Inverse[w2y IdentityMatrix[3] - Transpose[GzN]]];
+  Φ = Flatten[KroneckerProduct[v1, v2]]; ovlF = Table[(Φ . ketC[[B]])/(x0C . ketC[[B]]), {B, nS}];
+  FvT = vacQ[{w1, w2y, 3/5}];
+  If[FvT === $Failed, {w1, yy, w2y, "vac Q's not found"},
+   ratio = Table[ovlF[[B]]/((det6[B, FvT]/psiQ[B]) (su2det1[B, yy]/minor1[B])), {B, nS}];
+   {w1, yy, w2y, N[Max[Abs[ratio/ratio[[1]] - 1]], 3], N[rank1dev[Xmat[v1]], 3], N[rank1dev[Xmat[v2]], 3], MatrixRank[N[{v1, v2}, 30]]}]];
+fam2 = {famTest[-7/3, 7/5], famTest[9/4, -2/3]};
+checks["11.2 (w1,y) family at fresh w1: state-independence"] = fam2[[All, 4]];
+Grid[Prepend[fam2, {"w1", "y", "w2(y)", "max rel dev (64 states)", "v1 rotation?", "v2 rotation?", "rank{v1,v2}"}], Frame -> All, Alignment -> Left]
+
+===== cell 110 [CODE] =====
+(* 11.3 iterate the §10 mechanism with the product state itself as the seed: Φ0 = v1⊗v2 in the diagonal frame with exact rationals (v2 = Ω_{(w1, yS)}, v1 = v2 ρdiag[1/(w2 - z)]). Act with the site-1 span {1, T10, T11, T20, T21}(θ1-2h) and ask for the product locus again. With the vacuum seed (cell 92) the site-2 column space was 2-dim and the locus had one nontrivial point; a larger column space here makes the product condition stiffer. *)
+v2d = oneSiteVac[zN, {wN[[1]], yS, wN[[3]]}]; v1d = v2d . ρdiag[Dy[wN[[2]]]];
+checks["11.3 seed = §10 state (diag frame vs companion v1C, v2C: rel dev)"] = {Last[cmpScale[N[v1d . Pph1, 40], N[v1C, 40]]], Last[cmpScale[N[v2d . Pph1, 40], N[v2C, 40]]]};
+Φ0d = Flatten[KroneckerProduct[v1d, v2d]];
+MlS[l_] := Partition[Φ0d . T2n[l], d1];
+colSpan = Join[{Partition[Φ0d, d1]}, Table[MlS[l], {l, lams}]];   (* 5 matrices 8x8: rows = site 1, columns = site 2 *)
+checks["11.3 site-2 column space of {Φ0, Φ0 T_λ}: rank"] = MatrixRank[Flatten[colSpan, 1]];
+checks["11.3 site-1 row space of {Φ0, Φ0 T_λ}: rank"] = MatrixRank[Flatten[Transpose /@ colSpan, 1]];
+checks["11.3 ranks of the five 8x8 matrices"] = MatrixRank /@ colSpan;
+(* product locus: write each matrix as sum_j A_j ⊗ β_j over a basis β of the site-2 column space; Φ(c) is rank 1 iff the r site-1 vectors a_j(c) = sum_k c_k A_{kj} are all parallel (2x2 minors of the r x 8 matrix vanish) *)
+βbasis = DeleteCases[RowReduce[Flatten[colSpan, 1]], {0 ..}];
+decA[M_] := Transpose[Table[LinearSolve[Transpose[βbasis], M[[i]]], {i, d1}]];
+Acoef = decA /@ colSpan;
+aOfC = Sum[cs5[[k]] Acoef[[k]], {k, 5}];
+prodEqs = DeleteCases[Union[Flatten[Minors[aOfC, 2]]], 0];
+{solTime, solProd} = AbsoluteTiming[Solve[prodEqs == 0, cs5]];
+(* classify every solution component: substitute random values for free parameters, test rank 1, rotation of each factor, and whether the factors are the seed's *)
+classifyP[sol_] := Module[{cc, free, M, rowi, colj, f1, f2}, cc = cs5 /. sol; free = Variables[cc]; cc = cc /. Thread[free -> RandomInteger[{2, 9}, Length[free]]];
+   M = Sum[cc[[k]] colSpan[[k]], {k, 5}];
+   If[Union[Flatten[M]] === {0}, {Length[free], "zero", "", "", "", "", cc},
+    rowi = First[FirstPosition[Total[Abs[M], {2}], _?(# != 0 &)]]; colj = First[FirstPosition[Total[Abs[M], {1}], _?(# != 0 &)]]; f1 = M[[All, colj]]; f2 = M[[rowi, All]];
+    {Length[free], Union[Flatten[Minors[M, 2]]] === {0}, Union[Flatten[Minors[Xdiag[f1], 2]]] === {0}, Union[Flatten[Minors[Xdiag[f2], 2]]] === {0}, MatrixRank[{f1, v1d}] == 1, MatrixRank[{f2, v2d}] == 1, cc}]];
+SeedRandom[113]; classP = classifyP /@ solProd;
+Grid[Join[{{"seed = §10 state (rel dev)", checks["11.3 seed = §10 state (diag frame vs companion v1C, v2C: rel dev)"]}, {"site-2 column-space rank", checks["11.3 site-2 column space of {Φ0, Φ0 T_λ}: rank"]}, {"site-1 row-space rank", checks["11.3 site-1 row space of {Φ0, Φ0 T_λ}: rank"]}, {"ranks of Φ0, Φ0T10, Φ0T11, Φ0T20, Φ0T21", checks["11.3 ranks of the five 8x8 matrices"]}, {"# quadrics, Solve time (s), # components", {Length[prodEqs], N[solTime, 3], Length[solProd]}}, {"components: {free params, rank1, site1 rot, site2 rot, site1 = v1?, site2 = v2?, c}", ""}}, {#} & /@ classP], Frame -> All, Alignment -> Left]
+
+===== cell 111 [CODE] =====
+(* 11.4 a GENERIC rotation g on site 2 (not a vacuum): (a) write g = Ω_{(w1,y)} ρ(D) by an exact Solve at a fixed w1 (w1 is a torus direction, cell 108, so any w1 works); the solutions' y-values are the torus invariant(s) y(g). (b) Then the site-1 partner is g ρ((w2(y) - G^T)^-1) with w2(y) = y(θ12-2h)/(θ12-h), and the overlap is χ_μ(D) x det6[Q_vac,(w1,w2(y))]/Ψ_Q x det2^(1)[Q_B; y]/minor1. g is built from a rational Gauss decomposition (lower unipotent x torus x upper unipotent) so everything stays exact. *)
+SeedRandom[114]; gaussPars = RandomInteger[{-6, 6}, 6]/RandomInteger[{2, 7}, 6]; gaussD = {3/5, -7/4, 9/8};
+gRnd = x01 . MatrixExp[gaussPars[[1]] Ee[2, 1]] . MatrixExp[gaussPars[[2]] Ee[3, 1]] . MatrixExp[gaussPars[[3]] Ee[3, 2]] . ρdiag[gaussD] . MatrixExp[gaussPars[[4]] Ee[1, 2]] . MatrixExp[gaussPars[[5]] Ee[1, 3]] . MatrixExp[gaussPars[[6]] Ee[2, 3]];
+checks["11.4 g is a rotation of x0 (all 2x2 minors of X vanish, exact)"] = (Union[Flatten[Minors[Xdiag[gRnd], 2]]] === {0});
+(* (a) solve Ω_{(w1,y)}.ρdiag[d] = s g at two fixed w1's; compare the y's *)
+solveTor[w1fix_] := Module[{eqs, sol}, eqs = Thread[(oneSiteVac[zN, {w1fix, yys, 3/5}] . ρdiag[{d1s, d2s, d3s}]) == sSc gRnd]; sol = Solve[eqs, {yys, d1s, d2s, d3s, sSc}]; Select[sol, (sSc /. #) =!= 0 &]];
+{solTorA, solTorB} = {solveTor[-7/3], solveTor[9/4]};
+checks["11.4 number of solutions at w1 = -7/3 and 9/4"] = Length /@ {solTorA, solTorB};
+checks["11.4 y(g): the torus invariant(s), at the two w1's"] = {Union[yys /. solTorA], Union[yys /. solTorB]};
+(* (b) end-to-end at the first solution (w1 = -7/3) *)
+solT1 = First[solTorA]; yG = yys /. solT1; dG = {d1s, d2s, d3s} /. solT1; w2G = w2Of[yG];
+gPartner = gRnd . ρdiag[Dy[w2G]];
+checks["11.4 Ω_{(w1,y)}ρ(D) reproduces g (exact)"] = (MatrixRank[{oneSiteVac[zN, {-7/3, yG, 3/5}] . ρdiag[dG], gRnd}] == 1);
+ΦG = Flatten[KroneckerProduct[gPartner, gRnd]]; ovlG = Table[(ΦG . vecS[[B]])/x0ovl[[B]], {B, nS}];
+FvG = vacQ[{-7/3, w2G, 3/5}];
+ratG = If[FvG === $Failed, "vac Q's not found", Table[ovlG[[B]]/(charB[dG, B] (det6[B, FvG]/psiQ[B]) (su2det1[B, yG]/minor1[B])), {B, nS}]];
+checks["11.4 MAIN: <gρ(D_{w2(y)})⊗g|Ψ> ∝ χ_μ(D) det6(w1,w2(y)) det2(y): state-independence (64 states)"] = If[StringQ[ratG], ratG, Max[Abs[ratG/ratG[[1]] - 1]]];
+checks["11.4 the partner is a rotation and distinct from g"] = {Union[Flatten[Minors[Xdiag[gPartner], 2]]] === {0}, MatrixRank[{gPartner, gRnd}]};
+Grid[{{"g rotation (exact)", checks["11.4 g is a rotation of x0 (all 2x2 minors of X vanish, exact)"]}, {"# solutions at w1 = -7/3, 9/4", checks["11.4 number of solutions at w1 = -7/3 and 9/4"]}, {"y(g) at the two w1's", checks["11.4 y(g): the torus invariant(s), at the two w1's"]}, {"Ωρ(D) = g (exact)", checks["11.4 Ω_{(w1,y)}ρ(D) reproduces g (exact)"]}, {"D, w2(y)", {dG, w2G}}, {"MAIN state-independence", N[checks["11.4 MAIN: <gρ(D_{w2(y)})⊗g|Ψ> ∝ χ_μ(D) det6(w1,w2(y)) det2(y): state-independence (64 states)"], 3]}, {"partner rotation, rank{partner, g}", checks["11.4 the partner is a rotation and distinct from g"]}}, Frame -> All, Alignment -> Left]
+
+===== cell 112 [MD] =====
+### 11 — Result (2026-10-09, later): the §10 family is "any rotation on site 2, one fixed resolvent on site 1" (3-dimensional); no $\kappa$-family; the mechanism does not iterate
+
+1. **Torus = character** (cell 108): $\langle\varphi\rho(D)\otimes\psi\rho(D)|\Psi_B\rangle=\prod_i d_i^{\mu_i(B)}\langle\varphi\otimes\psi|\Psi_B\rangle$ for arbitrary covectors (exact to 60 digits). This is why the global rotation of §2 is $\det_6\times\det_4$: the $\det_4$ is the character of a resolvent.
+2. **$w_1$ is a torus direction, $y$ a torus invariant** (cell 108; three generic points, exact rationals): rank of $\partial(\Omega_{(w_1,y)}\rho(D))/\partial(w_1,D)$ at fixed $y$ is 3 (= torus 2 + scale), with $y$ free it is 4 (= the whole orbit; 1-dim fibres whose tangent has zero $y$-component); $\Omega_{(w_1,y)}/\Omega_{(w_1',y)}$ is componentwise a torus character (residual 0). So the two-parameter family of §5.6b is really (torus direction, $y$). (The first run sat at $y=5/4=z_2$, where $\Omega_{(w_1,y)}$ degenerates; generic points only.)
+3. **The $(w_1,y)$ family at fresh $w_1$** (cell 109): $(w_1,y)=(-7/3,7/5)$ and $(9/4,-2/3)$ give $\det_6[(w_1,w_2(y))]\times\det_2^{(1)}(y)$ with state-independence $10^{-51}$ and $10^{-50}$ (all §10 determinant checks had $w_1=5/2$).
+4. **Generic rotation $g$ on site 2** (cell 111): $g=x_0\,\rho(\text{lower unipotent}\cdot\text{torus}\cdot\text{upper unipotent})$ with random rationals. Exact `Solve` of $\Omega_{(w_1,y)}\rho(D)=g$ at $w_1=-7/3$ and $9/4$: exactly one solution each, the same $y(g)=1546301/1368484$. Partner $g\,\rho((w_2(y(g))-G^T)^{-1})$: overlap $\propto\chi_\mu(D)\,\det_6N[Q_B,Q_{\rm vac,(w_1,w_2(y(g)))}]/\Psi_Q\times\det_2^{(1)}[Q_B;y(g)]/\mathrm{minor}_1$, state-independent to $10^{-51}$ on 64 states; the partner is a rotation distinct from $g$.
+5. **Consequence.** The torus orbit of the §10 family is the 3-dimensional variety $V=\{(g\,\rho(D_{w_2(y(g))}),\,g):\ g\text{ a rotation of }x_0\}$: for every site-2 rotation $g$, vacuum or not, exactly one site-1 partner. The vacua $\Omega_w$ are not special (every $g$ is $\Omega_{(w_1,y)}\rho(D)$). The paper's continuous $\kappa$-family does not exist for the adjoint even after allowing the torus. The general pair $(g_1,g_2)$ is 6-dimensional; $V$ has codimension 3 (missing: a free resolvent parameter and the second unipotent part of $g_1$ relative to $g_2$).
+6. **Iteration fails** (cell 110): with $\Phi_0=v_1\otimes v_2$ (the §10 state) as seed, $\langle\Phi_0|\{1,T_{10},T_{11},T_{20},T_{21}\}(\theta_1-2h)$ have $8\times8$ ranks $\{1,4,3,8,8\}$, the site-2 column space is all of $\mathbb C^8$, and the exact product locus in the 5-dim span (784 quadrics, 9 s) is the seed alone. $T_{11},T_{21}$ do not localize on the deformed state, so the §10 step cannot be stacked on site 1 at $\theta_1-2h$.
+7. **Open.** (a) Closed form of the invariant $y(g)$ (a projective invariant of $(a_ib_i)_i$ in the eigenbasis of $G$). (b) The site-2 analogue (insertions at $t_2(\theta_2+h)$, $t_2(\theta_2+h)t_1(\theta_2-h)$ and their non-localizing partners) on the vacuum and on $V$. (c) Products of $T$'s at different points, or the joint site-1 $\times$ site-2 span, as the remaining routes to a free resolvent / second unipotent parameter within single determinants. (d) Part A (§8) already shows that $(g_1,x_0)$ with generic $g_1$ is not a single natural determinant, so a 6-dimensional single-determinant family is unlikely; sums of determinants (two-ladder, with $\lambda_2$ insertions) are the fallback.
+
+===== cell 113 [MD] =====
+## 12 — Undoing the site-2 rotation: does the site-1 covector span every weight space? (adjoint, 2026-10-09 evening; spec `site1-Qform/7-undo-site2-rotation-span.md` §4)
+
+Every rotation of the vacuum in the two-rotation family is $v_2=s\,e_1^T\rho(n)$ with $n\in N_+$, and $\rho(n)^{\otimes2}$ fixes every highest-weight ket of $V\otimes V$. So $\langle v_1\otimes v_2|\nu,{\rm HW}\rangle=s\langle\varphi\otimes e_1^T|\nu,{\rm HW}\rangle$ with $\varphi=v_1\rho(n)^{-1}$, $v_1=v_2\rho(\Delta)$, $\Delta={\rm diag}(1/(\omega-z_k))$, $\omega=w_2(y)$. This is exact at finite twist. Below: per-weight ranks of $\varphi(y)$, the closed forms for $n'=\Delta^{-1}n\Delta n^{-1}$, the highest-weight count, and the untwisting leading orders. Local names are prefixed `u12`; y-star never appears in comments with a closing bracket.
+
+===== cell 114 [CODE] =====
+(* 12.1 setup (spec 4.1): Gauss element n(y) of the site-2 vacuum, rho(n) as an 8x8 matrix, v2 = e1^T rho(n), v1 = v2 rho(Delta), and the undone covector phi = v1 rho(n)^-1. Covectors are rows acted on from the right; in this convention the ket e1 is annihilated by Ee[i,j] with i<j (checked), so the raising operators are i<j. *)
+u12e1 = UnitVector[d1, 1]; u12w1 = -7/3; u12w3 = 3/5;
+u12rs[zz_, w1_, y_] := {(w1 - zz[[1]])/(w1 - zz[[2]]), ((w1 - zz[[1]]) (zz[[1]] - y) (zz[[2]] - zz[[3]]))/((zz[[1]] - zz[[2]]) (w1 - zz[[3]]) (y - zz[[3]])), ((w1 - zz[[2]]) (zz[[2]] - y) (zz[[1]] - zz[[3]]))/((zz[[1]] - zz[[2]]) (w1 - zz[[3]]) (zz[[3]] - y))};
+u12nMat[zz_, w1_, y_] := With[{rv = u12rs[zz, w1, y]}, {{1, rv[[1]], rv[[2]] + rv[[1]] rv[[3]]}, {0, 1, rv[[3]]}, {0, 0, 1}}];
+u12rN[zz_, w1_, y_] := With[{rv = u12rs[zz, w1, y]}, MatrixExp[rv[[1]] Ee[1, 2]] . MatrixExp[rv[[2]] Ee[1, 3]] . MatrixExp[rv[[3]] Ee[2, 3]]];
+u12rNinv[zz_, w1_, y_] := With[{rv = u12rs[zz, w1, y]}, MatrixExp[-rv[[3]] Ee[2, 3]] . MatrixExp[-rv[[2]] Ee[1, 3]] . MatrixExp[-rv[[1]] Ee[1, 2]]];
+u12Dy[zz_, yy_] := Table[1/(yy - zz[[i]]), {i, 3}];
+u12v2[zz_, w1_, y_] := oneSiteVac[zz, {w1, y, u12w3}];
+u12v1[zz_, w1_, y_] := u12v2[zz, w1, y] . ρdiag[u12Dy[zz, w2Of[y]]];
+u12phi[zz_, w1_, y_] := u12v1[zz, w1, y] . u12rNinv[zz, w1, y];
+checks["12.1 ket e1 killed by Ee[i,j], i<j"] = And @@ Flatten[Table[Ee[i, j] . u12e1 === ConstantArray[0, d1], {i, 3}, {j, i + 1, 3}]];
+checks["12.1 v2 = e1^T rho(n) exactly (y = 7/5, -2/3, 3)"] = And @@ Table[u12v2[zN, u12w1, yy] === u12e1 . u12rN[zN, u12w1, yy], {yy, {7/5, -2/3, 3}}];
+checks["12.1 rho(n).rho(n)^-1 = 1 and rho(n) = rho of the 3x3 n (first-row entries)"] = And[u12rN[zN, u12w1, 7/5] . u12rNinv[zN, u12w1, 7/5] === IdentityMatrix[d1], u12nMat[zN, u12w1, 7/5][[1]] === {1, u12rs[zN, u12w1, 7/5][[1]], u12rs[zN, u12w1, 7/5][[2]] + u12rs[zN, u12w1, 7/5][[1]] u12rs[zN, u12w1, 7/5][[3]]}];
+(* the same Dy as cell 10, evaluated at the resolvent point *)
+checks["12.1 u12Dy = Dy (cell 10)"] = u12Dy[zN, 3] === Dy[3];
+KeyTake[checks, {"12.1 ket e1 killed by Ee[i,j], i<j", "12.1 v2 = e1^T rho(n) exactly (y = 7/5, -2/3, 3)", "12.1 rho(n).rho(n)^-1 = 1 and rho(n) = rho of the 3x3 n (first-row entries)", "12.1 u12Dy = Dy (cell 10)"}]
+
+===== cell 115 [CODE] =====
+(* 12.2 highest-weight kets of V(x)V (spec 4.2): common null space of the total raising generators E1[i,j]+E2[i,j], i<j, taken per total-weight sector so each HW ket has a definite weight; then the exactness of the undo: (rho(n)(x)rho(n)).HW = HW and <v1(x)v2|HW> = s <phi(x)e1|HW>, s = first component of v2 (= <v2|e1>). *)
+u12raiseM = Join[E1[1, 2] + E2[1, 2], E1[1, 3] + E2[1, 3], E1[2, 3] + E2[2, 3]];
+u12sectors = GatherBy[Range[d2], wtBasis[[#]] &];
+u12HW = Flatten[Table[Module[{ns = NullSpace[u12raiseM[[All, sec]]]}, Table[Normal[SparseArray[Thread[sec -> v], {d2}]], {v, ns}]], {sec, u12sectors}], 1];
+u12HWwt = Table[wtBasis[[FirstCase[Range[d2], k_ /; v[[k]] =!= 0]]], {v, u12HW}];
+u12e12 = Flatten[KroneckerProduct[u12e1, u12e1]];
+checks["12.2 number of HW kets = 6"] = Length[u12HW];
+checks["12.2 HW weights"] = u12HWwt;
+checks["12.2 HW kets annihilated by all total raising ops"] = And @@ (u12raiseM . # === ConstantArray[0, 3 d2] & /@ u12HW);
+checks["12.2 (rho(n)(x)rho(n)).HW = HW exactly (y = 7/5, -2/3)"] = And @@ Table[With[{R = KroneckerProduct[u12rN[zN, u12w1, yy], u12rN[zN, u12w1, yy]]}, And @@ (R . # === # & /@ u12HW)], {yy, {7/5, -2/3}}];
+checks["12.2 <v1(x)v2|HW> = s <phi(x)e1|HW> exactly (y = 7/5, -2/3, 3)"] = And @@ Table[With[{v2 = u12v2[zN, u12w1, yy], v1 = u12v1[zN, u12w1, yy], ph = u12phi[zN, u12w1, yy]}, And @@ (Flatten[KroneckerProduct[v1, v2]] . # === v2[[1]] Flatten[KroneckerProduct[ph, u12e1]] . # & /@ u12HW)], {yy, {7/5, -2/3, 3}}];
+Grid[{{"# HW kets", checks["12.2 number of HW kets = 6"]}, {"HW weights", checks["12.2 HW weights"]}, {"annihilated by raising", checks["12.2 HW kets annihilated by all total raising ops"]}, {"rho(n)(x)rho(n) fixes HW", checks["12.2 (rho(n)(x)rho(n)).HW = HW exactly (y = 7/5, -2/3)"]}, {"<v1(x)v2|HW> = s<phi(x)e1|HW>", checks["12.2 <v1(x)v2|HW> = s <phi(x)e1|HW> exactly (y = 7/5, -2/3, 3)"]}}, Frame -> All, Alignment -> Left]
+
+===== cell 116 [CODE] =====
+(* 12.3-12.5 weights and per-weight ranks (spec 4.3-4.5). (a) numeric sample: 12 rational y's; (b) exact in y: phi(y) with y symbolic, Together, numerator coefficient vectors per weight (the span of the values phi(y) restricted to a weight mu over all y equals the span of these coefficient vectors); (c) which components vanish identically. *)
+u12wt1 = Table[Table[J0[k][p], {k, 3}], {p, ps[{Λ}]}];
+u12wts = Union[u12wt1];
+u12idx = Table[Flatten[Position[u12wt1, m]], {m, u12wts}];
+u12dims = Length /@ u12idx;
+u12ys = {7/5, -2/3, 3, -1/2, 11/9, 4/7, -9/5, 13/6, -3/11, 8/3, 1/6, -7/4};
+u12rankNum[zz_, w1s_List] := Table[MatrixRank[Flatten[Table[u12phi[zz, w1, yy][[idx]], {w1, w1s}, {yy, u12ys}], 1]], {idx, u12idx}];
+{u12tNum, u12rkNum} = AbsoluteTiming[u12rankNum[zN, {u12w1}]];
+checks["12.4 weights of V (Union order)"] = u12wts;
+checks["12.4 dim V_mu"] = u12dims;
+checks["12.4 numeric-sample ranks (w1=-7/3, 12 y's)"] = u12rkNum;
+(* exact in y *)
+{u12tSym, u12phiY} = AbsoluteTiming[Together /@ u12phi[zN, u12w1, yS]];
+u12coefRank[comps_] := Module[{tg = Together /@ comps, den, num, cl, mx}, den = PolynomialLCM @@ (Denominator /@ tg); num = Expand[tg den]; cl = CoefficientList[#, yS] & /@ num; mx = Max[Length /@ cl]; MatrixRank[Transpose[PadRight[#, mx] & /@ cl]]];
+u12rkSym = Table[u12coefRank[u12phiY[[idx]]], {idx, u12idx}];
+checks["12.5 exact-in-y ranks (w1=-7/3)"] = u12rkSym;
+checks["12.5 components of phi(y) vanishing identically"] = Flatten[Position[u12phiY, 0]];
+checks["12.3-5 ranks equal dim V_mu for every weight (numeric and exact)"] = (u12rkNum === u12dims) && (u12rkSym === u12dims) && (checks["12.5 components of phi(y) vanishing identically"] === {});
+Grid[Prepend[Transpose[{u12wts, u12dims, u12rkNum, u12rkSym}], {"weight", "dim V_mu", "rank (numeric, 12 y)", "rank (exact in y)"}] // Transpose // Transpose, Frame -> All, Alignment -> Left]
+
+===== cell 117 [CODE] =====
+(* 12.6 closed forms (spec 4.6 / section 3): n' = Delta^-1 n Delta n^-1 with y symbolic, rational z, w1, theta, h. (i) b' = 0 iff omega = y (so b' is nonzero on the family because w2(y) != y); (ii) b'/(a'c') = (y - omega)/(y - z2); (iii) weight components of phi(y) = delta^Lambda e1^T rho(n'). The blind-spot control replaces the resolvent point omega by y itself. *)
+u12om = w2Of[yS];
+u12delta[om_] := Table[1/(om - zN[[k]]), {k, 3}];
+u12primes[om_] := Module[{n = u12nMat[zN, u12w1, yS], dl = DiagonalMatrix[u12delta[om]]}, Together /@ (Inverse[dl] . n . dl . Inverse[n])];
+u12np = u12primes[u12om];
+u12ap = u12np[[1, 2]]; u12bp = u12np[[1, 3]]; u12cp = u12np[[2, 3]];
+(* explicit formulas of the spec as an independent check of the matrix product *)
+u12rr = u12rs[zN, u12w1, yS]; u12d = u12delta[u12om];
+checks["12.6 n' is unipotent upper triangular"] = (u12np[[2, 1]] === 0) && (u12np[[3, 1]] === 0) && (u12np[[3, 2]] === 0) && (u12np[[1, 1]] === 1) && (u12np[[2, 2]] === 1) && (u12np[[3, 3]] === 1);
+checks["12.6 a', c', b' match the spec formulas"] = {Simplify[u12ap - u12rr[[1]] (u12d[[2]] - u12d[[1]])/u12d[[1]]], Simplify[u12cp - u12rr[[3]] (u12d[[3]] - u12d[[2]])/u12d[[2]]], Simplify[u12bp - (u12rr[[1]] u12rr[[3]] (u12d[[1]] - u12d[[2]])/u12d[[1]] - (u12rr[[2]] + u12rr[[1]] u12rr[[3]]) (u12d[[1]] - u12d[[3]])/u12d[[1]])]};
+checks["12.6 (ii) b'/(a'c') - (y - omega)/(y - z2) = 0 exactly"] = Simplify[u12bp/(u12ap u12cp) - (yS - u12om)/(yS - zN[[2]])];
+checks["12.6 (i) b' numerator vanishes iff omega = y: b' (omega -> y control) = 0"] = Simplify[u12primes[yS][[1, 3]]];
+checks["12.6 (i) b' zero locus in y (for omega = w2(y))"] = Solve[Numerator[Together[u12bp]] == 0, yS];
+(* (iii) phi(y) = delta^Lambda e1^T rho(n') with rho(n') = exp(c' E23) exp(b' E13) exp(a' E12) at rep level *)
+u12phiForm[ap_, bp_, cp_, d_] := (d[[1]]^2 d[[2]]) u12e1 . MatrixExp[cp Ee[2, 3]] . MatrixExp[bp Ee[1, 3]] . MatrixExp[ap Ee[1, 2]];
+checks["12.6 phi(y) = delta^Lambda e1^T rho(n') (exact, y symbolic)"] = Union[Simplify[u12phiY - u12phiForm[u12ap, u12bp, u12cp, u12d]]] === {0};
+u12tab = Grid[{{"a'", Factor[u12ap]}, {"c'", Factor[u12cp]}, {"b'", Factor[u12bp]}, {"b'/(a'c')", Factor[u12bp/(u12ap u12cp)]}, {"(y-omega)/(y-z2)", Factor[(yS - u12om)/(yS - zN[[2]])]}}, Frame -> All, Alignment -> Left];
+u12tab
+
+===== cell 118 [CODE] =====
+(* 12.6b (iii): the weight components of phi(y)/delta^Lambda are fixed constant covectors times monomials in (a',b',c'). Each component is fitted exactly (rational least squares on all 12 sample y's, exact residual) and the final one is also verified symbolically in y. Monomials: (2,1,0): 1; (1,2,0): a'; (2,0,1): c'; (1,1,1): {b', a'c'}; (0,2,1): {a'^2 c', a' b'}; (1,0,2): b'c'; (0,1,2): all three allowed terms {b'^2, a'b'c', a'^2c'^2}. DEVIATION from the spec: the fit gives (0,1,2) = 3 b'(a'c' - b') (relative to the e1-normalized covector), i.e. the second factor is (b' - a'c'), not (b' + a'c'); a'^2c'^2 does not occur. *)
+u12dl = u12d[[1]]^2 u12d[[2]];
+u12mono = <|{2,1,0} -> {1}, {1,2,0} -> {a}, {2,0,1} -> {c}, {1,1,1} -> {b, a c}, {0,2,1} -> {a^2 c, a b}, {1,0,2} -> {b c}, {0,1,2} -> {b^2, a b c, a^2 c^2}|>;
+u12abcV[yy_] := {u12ap, u12bp, u12cp} /. yS -> yy;
+u12fitW[mu_] := Module[{idx = u12idx[[First[Flatten[Position[u12wts, mu]]]]], mons = u12mono[mu], rows, sol},
+  rows = Table[Module[{abc = u12abcV[yy], ph = u12phi[zN, u12w1, yy][[idx]]/(u12dl /. yS -> yy)}, {Table[(mon /. {a -> abc[[1]], b -> abc[[2]], c -> abc[[3]]}), {mon, mons}], ph}], {yy, u12ys}];
+  sol = LeastSquares[rows[[All, 1]], rows[[All, 2]]];
+  {mu, Max[Abs[Flatten[rows[[All, 1]] . sol - rows[[All, 2]]]]], Length[mons], Flatten[sol]}];
+u12fits = u12fitW /@ u12wts;
+checks["12.6b (iii) per-weight exact fit residual to the monomials (max over 12 y's)"] = u12fits[[All, 2]];
+(* (0,1,2) component, symbolic in y: it equals 3 b'(a'c' - b') times the (0,1,2) basis covector (index 8, coefficient 1 here), and is nonzero *)
+checks["12.6b (0,1,2) component = 3 b'(a'c' - b') delta^Lambda, exact in y"] = Simplify[u12phiY[[8]] - u12dl 3 u12bp (u12ap u12cp - u12bp)] === 0;
+checks["12.6b (0,1,2) fitted coefficients on {b'^2, a'b'c', a'^2c'^2}"] = u12fits[[7, 4]];
+Grid[Prepend[u12fits, {"weight", "max residual", "#monomials", "fitted coefficients (monomials x basis)"}], Frame -> All, Alignment -> Left]
+
+===== cell 119 [CODE] =====
+(* 12.7 untwisting z_k = 1 + eps phi_k, phi = (3/7, -5/4, 2/9) (spec 4.7), y symbolic, the full 8-component phi (fast enough: no need for the 3x3 shortcut). Leading eps-order per weight and the y-rank of the leading coefficient vectors (spec expectation: orders 0,1,1,2 (rank 2),3,3,4 for (2,1,0),(1,2,0),(2,0,1),(1,1,1),(0,2,1),(1,0,2),(0,1,2)). *)
+u12phZ = 1 + epsS {3/7, -5/4, 2/9};
+{u12tU, u12phE} = AbsoluteTiming[Together /@ u12phi[u12phZ, u12w1, yS]];
+u12ordTop = 7;
+u12ser[f_] := Table[Together[SeriesCoefficient[f, {epsS, 0, k}]], {k, 0, u12ordTop}];
+u12serAll = u12ser /@ u12phE;
+u12lead[idx_] := Module[{coefs = u12serAll[[idx]], ord, lead},
+  ord = Min[Table[Module[{p = Select[Range[0, u12ordTop], coefs[[j, # + 1]] =!= 0 &, 1]}, If[p === {}, 99, p[[1]]]], {j, Length[idx]}]];
+  lead = Table[coefs[[j, ord + 1]], {j, Length[idx]}]; {ord, u12coefRank[lead]}];
+u12leads = Table[u12lead[idx], {idx, u12idx}];
+checks["12.7 untwisting leading eps-order and y-rank of leading coefficients per weight"] = Thread[u12wts -> u12leads];
+checks["12.7 orders match the expectation 4,3,3,2,1,1,0 (weights in Union order)"] = u12leads[[All, 1]] === {4, 3, 3, 2, 1, 1, 0};
+checks["12.7 (1,1,1) leading coefficient has y-rank 2"] = u12leads[[4, 2]] === 2;
+Grid[Prepend[Transpose[{u12wts, u12leads[[All, 1]], u12leads[[All, 2]], u12dims}], {"weight", "leading eps order", "y-rank of leading coeff", "dim V_mu"}], Frame -> All, Alignment -> Left]
+
+===== cell 120 [CODE] =====
+(* 12.8 highest-weight count and 12.9 torus consistency (spec 4.8, 4.9). M[i,nu] = <phi(y_i)(x)e1|HW_nu> for the 12 y's and the 6 HW kets; rank over all y; per-irrep column ranks. HW weights: (4,2,0) 27, (4,1,1) and (3,3,0) the two decuplets, (3,2,1) x2 octets, (2,2,2) singlet (which decuplet is 10 and which is 10bar is immaterial here). Control: the resolvent point set to y itself (omega = y), the old blind spot, via u12phiC. Union over w1 in {-7/3, 9/4, 5/2}. *)
+ClearAll[u12Hmat, u12Ms, u12McS];
+u12phiC[zz_, w1_, y_] := u12v2[zz, w1, y] . ρdiag[u12Dy[zz, y]] . u12rNinv[zz, w1, y];
+u12Hmat[phiF_, w1_] := Table[(Flatten[KroneckerProduct[phiF[zN, w1, yy], u12e1]] . #) & /@ u12HW, {yy, u12ys}];
+u12w1s = {-7/3, 9/4, 5/2};
+u12Ms = Table[u12Hmat[u12phi, w1], {w1, u12w1s}];
+u12McS = Table[u12Hmat[u12phiC, w1], {w1, u12w1s}];
+u12irr = {{1}, {2}, {3}, {4, 5}, {6}};
+u12irrNames = {"(4,2,0) 27", "(4,1,1)", "(3,3,0)", "(3,2,1) octets", "(2,2,2) singlet"};
+u12MU = Join @@ u12Ms;
+checks["12.8 HW-count rank per w1 (omega = w2(y)), expect 6"] = MatrixRank /@ u12Ms;
+checks["12.8 HW-count rank, union over the three w1"] = MatrixRank[u12MU];
+checks["12.8 HW weights in column order"] = u12HWwt;
+checks["12.8 per-irrep column ranks (w1 = -7/3)"] = Table[MatrixRank[u12Ms[[1]][[All, ir]]], {ir, u12irr}];
+checks["12.8 per-irrep column ranks, union over w1"] = Table[MatrixRank[u12MU[[All, ir]]], {ir, u12irr}];
+checks["12.8 control (omega = y): HW-count rank per w1"] = MatrixRank /@ u12McS;
+checks["12.8 control (omega = y): per-irrep column ranks (w1 = -7/3)"] = Table[MatrixRank[u12McS[[1]][[All, ir]]], {ir, u12irr}];
+(* 12.9 per-weight ranks for the other w1's and the union *)
+u12rkW = Table[u12rankNum[zN, {w1}], {w1, u12w1s}];
+u12rkU = u12rankNum[zN, u12w1s];
+u12rkC = Table[MatrixRank[Table[u12phiC[zN, u12w1s[[1]], yy][[idx]], {yy, u12ys}]], {idx, u12idx}];
+checks["12.9 per-weight ranks at w1 = -7/3, 9/4, 5/2 and union"] = {u12rkW, u12rkU};
+checks["12.9 all per-weight ranks unchanged (= dim V_mu)"] = (Union[Append[u12rkW, u12rkU]] === {u12dims});
+checks["12.9 control (omega = y) per-weight ranks (w1 = -7/3)"] = u12rkC;
+Grid[{{"HW rank per w1 / union", checks["12.8 HW-count rank per w1 (omega = w2(y)), expect 6"], checks["12.8 HW-count rank, union over the three w1"]}, {"per-irrep ranks (w1=-7/3), union over w1", checks["12.8 per-irrep column ranks (w1 = -7/3)"], checks["12.8 per-irrep column ranks, union over w1"]}, {"irreps", u12irrNames, ""}, {"control omega = y: HW rank per w1, per-irrep ranks", checks["12.8 control (omega = y): HW-count rank per w1"], checks["12.8 control (omega = y): per-irrep column ranks (w1 = -7/3)"]}, {"per-weight ranks (w1 = -7/3, 9/4, 5/2), union", u12rkW, u12rkU}, {"control per-weight ranks", u12wts, u12rkC}}, Frame -> All, Alignment -> Left]
+
+===== cell 121 [CODE] =====
+(* 12.9b the HW rank 5 at fixed w1 is a rank deficiency of the 1-parameter slice, not of the family: the null vector of M lives on the columns (4,1,1), (3,3,0) and the two octets (it says the four functions a', c', b', a'c' of y are linearly dependent), all of different weight except the octet pair. The family of 5.8 also contains the torus (v -> v rho(D) on BOTH sites), which multiplies column nu by the character chi_nu(D) = prod D_i^nu_i (cell 108) and so separates columns of different weight. Here: build the covectors v1 rho(D) (x) v2 rho(D) directly (no use of the character), 12 random (y, D) pairs, and take the HW rank; same for the control omega = y. The character identity is checked separately. *)
+SeedRandom[912];
+u12Ds = Table[Together[RandomInteger[{1, 9}, 3]/RandomInteger[{2, 7}, 3] {1, -1, 1}^RandomInteger[{0, 1}, 3]], {12}];
+u12MT[v1F_] := Table[Module[{v2 = u12v2[zN, u12w1, u12ys[[i]]], v1 = v1F[zN, u12w1, u12ys[[i]]], R = ρdiag[u12Ds[[i]]]}, Table[Flatten[KroneckerProduct[v1 . R, v2 . R]] . h, {h, u12HW}]], {i, 12}];
+u12MTmain = u12MT[u12v1];
+u12MTctrl = u12MT[Function[{zz, w1, y}, u12v2[zz, w1, y] . ρdiag[u12Dy[zz, y]]]];
+u12charCheck = Table[Module[{v2 = u12v2[zN, u12w1, u12ys[[i]]], v1 = u12v1[zN, u12w1, u12ys[[i]]], lhs, rhs}, lhs = Table[Flatten[KroneckerProduct[v1 . ρdiag[u12Ds[[i]]], v2 . ρdiag[u12Ds[[i]]]]] . h, {h, u12HW}]; rhs = Table[(Times @@ (u12Ds[[i]]^u12HWwt[[j]])) (Flatten[KroneckerProduct[v1, v2]] . u12HW[[j]]), {j, 6}]; lhs - rhs], {i, 12}];
+checks["12.9b torus = character on the HW overlaps (exact residual)"] = Union[Flatten[u12charCheck]] === {0};
+checks["12.9b torus-completed HW rank (omega = w2(y)), expect 6"] = MatrixRank[u12MTmain];
+checks["12.9b torus-completed per-irrep ranks"] = Table[MatrixRank[u12MTmain[[All, ir]]], {ir, u12irr}];
+checks["12.9b torus-completed HW rank (control omega = y)"] = MatrixRank[u12MTctrl];
+checks["12.9b torus-completed per-irrep ranks (control omega = y)"] = Table[MatrixRank[u12MTctrl[[All, ir]]], {ir, u12irr}];
+checks["12.9b the fixed-w1 relation: rank of {a', c', b', a'c'} as functions of y (3 = one relation)"] = u12coefRank[{u12ap, u12cp, u12bp, u12ap u12cp}];
+Grid[{{"torus = character (exact)", checks["12.9b torus = character on the HW overlaps (exact residual)"]}, {"torus-completed HW rank, per irrep", checks["12.9b torus-completed HW rank (omega = w2(y)), expect 6"], checks["12.9b torus-completed per-irrep ranks"]}, {"control omega = y: torus-completed HW rank, per irrep", checks["12.9b torus-completed HW rank (control omega = y)"], checks["12.9b torus-completed per-irrep ranks (control omega = y)"]}, {"rank of {a', c', b', a'c'} as functions of y (4 would mean independent)", checks["12.9b the fixed-w1 relation: rank of {a', c', b', a'c'} as functions of y (3 = one relation)"]}}, Frame -> All, Alignment -> Left]
+
+===== cell 122 [CODE] =====
+(* 12.10 result table: per-weight ranks (numeric, exact in y, union over w1, control omega = y), untwisting orders, HW counts, closed forms *)
+u12rows = Table[{u12wts[[k]], u12dims[[k]], u12rkNum[[k]], u12rkSym[[k]], u12rkU[[k]], u12rkC[[k]], u12leads[[k, 1]]}, {k, Length[u12wts]}];
+u12bools = Select[Normal[KeyDrop[checks, "12.10 every boolean 12.x check is True"]], StringStartsQ[First[#], "12."] && MemberQ[{True, False}, Last[#]] &];
+checks["12.10 every boolean 12.x check is True"] = And @@ Values[Association[u12bools]];
+Grid[Join[{{"weight mu", "dim V_mu", "rank numeric (w1=-7/3, 12 y)", "rank exact in y", "rank union over 3 w1", "rank control omega = y", "untwisting leading eps-order"}}, u12rows,
+  {{"HW count (6 kets)", "rank per w1", checks["12.8 HW-count rank per w1 (omega = w2(y)), expect 6"], "union over 3 w1", checks["12.8 HW-count rank, union over the three w1"], "torus-completed", checks["12.9b torus-completed HW rank (omega = w2(y)), expect 6"]},
+   {"HW count, control omega = y", "rank per w1", checks["12.8 control (omega = y): HW-count rank per w1"], "", "", "torus-completed", checks["12.9b torus-completed HW rank (control omega = y)"]},
+   {"closed forms", "b'/(a'c') - (y-omega)/(y-z2)", checks["12.6 (ii) b'/(a'c') - (y - omega)/(y - z2) = 0 exactly"], "b' (omega -> y)", checks["12.6 (i) b' numerator vanishes iff omega = y: b' (omega -> y control) = 0"], "(0,1,2) = 3b'(a'c'-b')", checks["12.6b (0,1,2) component = 3 b'(a'c' - b') delta^Lambda, exact in y"]},
+   {"all boolean checks", checks["12.10 every boolean 12.x check is True"], "", "", "", "", ""}}], Frame -> All, Alignment -> Left]
+
+===== cell 123 [MD] =====
+### 12 — Result (2026-10-09, evening): undoing the site-2 rotation, adjoint
+
+1. **Exact undo.** $v_2=e_1^T\rho(n(y))$, $n\in N_+$, and $\rho(n)^{\otimes2}$ fixes the 6 highest-weight kets exactly (cell 115), so $\langle v_1\otimes v_2|{\rm HW}\rangle=s\,\langle\varphi\otimes e_1^T|{\rm HW}\rangle$ with $\varphi=v_1\rho(n)^{-1}=\delta^\Lambda e_1^T\rho(n')$, $n'=\Delta^{-1}n\Delta n^{-1}$ (verified exactly with $y$ symbolic).
+2. **Per-weight ranks (weights of $V=(2,1,0)$-adjoint: dims 1,1,1,2,1,1,1).** Numeric (12 $y$'s), exact-in-$y$ (numerator coefficient vectors), and union over $w_1\in\{-7/3,9/4,5/2\}$ are all equal to $\dim V_\mu$: **all 8 directions are spanned, no component vanishes identically.** Control with the resolvent point set to $y$ itself ($\omega=y$): ranks $(0,1,0,1,1,1,1)$ for $\mu=(0,1,2),(0,2,1),(1,0,2),(1,1,1),(1,2,0),(2,0,1),(2,1,0)$, i.e. the $(0,1,2)$ and $(1,0,2)$ components vanish identically and the 2-dim weight space is only hit once.
+3. **Closed forms (exact, $y$ symbolic).** $b'/(a'c')=(y-\omega)/(y-z_2)$ with $\omega=w_2(y)$; $a',b',c'$ agree with the spec formulas; $b'\equiv0$ when $\omega\to y$ (the old blind spot). Mechanism: $b'\neq0$ because $w_2(y)\neq y$ (zero only at the isolated point $y=0$ at this numeric $z,\theta,h$). **Deviation from spec §3(iii):** the $(0,1,2)$ (singlet-direction) component is $3\,b'(a'c'-b')\,\delta^\Lambda$ (relative to the $e_1$-normalized covector), not $\propto b'(b'+a'c')$; $a'^2c'^2$ does not occur. It is nonzero for generic $y$. All other components agree with §3(iii).
+4. **HW count.** At fixed $w_1$ and torus $D=1$ the $12\times6$ matrix $\langle\varphi(y_i)\otimes e_1^T|{\rm HW}_\nu\rangle$ has rank **5**, not 6 (per-irrep column ranks $1,1,1,2,1$, the singlet column is nonzero). The single null vector sits on the columns $(4,1,1)$, $(3,3,0)$ and the two octets (the functions $a',c',b',a'c'$ of $y$ satisfy one linear relation, rank 3). The union over three $w_1$ gives rank **6**, and the torus-completed family (the full 3-parameter family: $v\to v\rho(D)$ on both sites multiplies column $\nu$ by $\prod D_i^{\nu_i}$, checked exactly) gives rank **6**, all irreps including the singlet and both octets (octet pair rank 2). Control $\omega=y$: rank 4 even torus-completed (singlet missing and one octet direction lost).
+5. **Untwisting** $z_k=1+\epsilon\varphi_k$: leading orders $\epsilon^0,\epsilon^1,\epsilon^1,\epsilon^2$ (rank 2 over $y$)$,\epsilon^3,\epsilon^3,\epsilon^4$ for $(2,1,0),(1,2,0),(2,0,1),(1,1,1),(0,2,1),(1,0,2),(0,1,2)$, as predicted.
+6. **Comparison with 2026-09-23** (reached only weights with $\mu_3\le\lambda_2$, 5/6 HW, singlet missed): here the singlet direction is reached and the full family reaches 6/6. The mechanism is the shift $w_2(y)\ne y$ of the resolvent point, which makes $b'\neq0$.

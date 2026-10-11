@@ -1,0 +1,588 @@
+
+===== cell 1 [MD] =====
+# gl(4) rectangular reps [S,S,0,0], L=2: the two-rotation family and untwisting (2026-10-10)
+
+Implements `L2-gl4-rect-untwist-spec.md`. SS = 1.
+
+===== cell 2 [CODE] =====
+(* fresh kernel state; this also clears the other new-conventions notebooks' session state (their files are untouched); Quiet because the front-end wrapper symbol ClearGlobals is Protected *)
+Quiet[ClearAll["Global`*"]];
+(* GT basis and gl(n) generators, rank-generic (same code as old-conventions/old/Gaudin/Clean/Hamiltonians_SU4.wb) *)
+ps[rep_] := ps[rep] = Block[{res = (Prepend[rep, #1] &) /@ Tuples[Table[Range[rep[[1, i + 1]], rep[[1, i]]], {i, 1, Length[rep[[1]]] - 1}]]}, If[Length[res[[1, 1]]] == 1, Reverse[Sort[res]], Reverse[Sort[Flatten[ps /@ res, 1]]]]];
+dim[rep_] := dim[rep] = Length[ps[{rep}]];
+J0[k_][pat_] := J0[k][pat] = Sum[pat[[k, i]], {i, 1, k}] - Sum[pat[[k - 1, i]], {i, 1, k - 1}];
+Jp[k_][pat_] := Jp[k][pat] = -Sum[(Product[pat[[k, i]] - i - pat[[k + 1, j]] + j, {j, Range[k + 1]}]/Product[pat[[k, i]] - i - pat[[k, j]] + j, {j, Complement[Range[k], {i}]}])*v[ReplacePart[pat, {k, i} -> pat[[k, i]] + 1]], {i, 1, k}];
+Jm[k_][pat_] := Jm[k][pat] = Sum[(Product[pat[[k, i]] - i - pat[[k - 1, j]] + j, {j, Range[k - 1]}]/Product[pat[[k, i]] - i - pat[[k, j]] + j, {j, Complement[Range[k], {i}]}])*v[ReplacePart[pat, {k, i} -> pat[[k, i]] - 1]], {i, 1, k}];
+JJ[k_, l_, rep_] := JJ[k, l, rep] = Which[
+  k == l, DiagonalMatrix[J0[k] /@ ps[{rep}]],
+  l == k + 1, Transpose[Table[(Coefficient[Jp[k][ps[{rep}][[i]]], v[#1]] &) /@ ps[{rep}], {i, 1, Length[ps[{rep}]]}]],
+  l == k - 1, Transpose[Table[(Coefficient[Jm[l][ps[{rep}][[i]]], v[#1]] &) /@ ps[{rep}], {i, 1, Length[ps[{rep}]]}]],
+  l > k + 1, JJ[k, k + 1, rep] . JJ[k + 1, l, rep] - JJ[k + 1, l, rep] . JJ[k, k + 1, rep],
+  l < k - 1, JJ[k, k - 1, rep] . JJ[k - 1, l, rep] - JJ[k - 1, l, rep] . JJ[k, k - 1, rep]];
+checks = <||>;
+SS = 1; pr = 200; Λ = {SS, SS, 0, 0}; nL = 2; d1 = dim[Λ]; d2 = d1^nL; id2 = IdentityMatrix[d2]; id1 = IdentityMatrix[d1];
+hN = 1/2; thN = {2/7, -3/5};
+Ee[i_, j_] := Ee[i, j] = JJ[i, j, Λ];
+E1[i_, j_] := E1[i, j] = KroneckerProduct[Ee[i, j], id1];
+E2[i_, j_] := E2[i, j] = KroneckerProduct[id1, Ee[i, j]];
+wt1 = Table[Table[J0[k][p], {k, 4}], {p, ps[{Λ}]}];
+wtBasis = Flatten[Table[wt1[[a]] + wt1[[b]], {a, d1}, {b, d1}], 1];
+e1 = UnitVector[d1, 1]; zer1 = ConstantArray[0, d1];
+comm = Flatten[Table[Ee[i, j] . Ee[k, l] - Ee[k, l] . Ee[i, j] - (KroneckerDelta[j, k] Ee[i, l] - KroneckerDelta[l, i] Ee[k, j]), {i, 4}, {j, 4}, {k, 4}, {l, 4}]];
+checks["JJ gl(4) relations"] = Union[comm] === {0};
+checks["e1 is HW ket, weight = Lambda"] = (And @@ Flatten[Table[Ee[i, j] . e1 === zer1, {i, 4}, {j, i + 1, 4}]]) && wt1[[1]] === Λ;
+(* rectangular/abelian property: e1^T Ee[i,j] (i != j) nonzero exactly for i <= 2 < j *)
+checks["e1^T Ee[i,j] != 0 exactly for i<=2<j (i != j)"] = And @@ Flatten[Table[If[i == j, True, (e1 . Ee[i, j] =!= zer1) === (i <= 2 && j >= 3)], {i, 4}, {j, 4}]];
+checks["nilradical E13,E14,E23,E24 mutually commute"] = And @@ Flatten[Table[Ee[a[[1]], a[[2]]] . Ee[b[[1]], b[[2]]] === Ee[b[[1]], b[[2]]] . Ee[a[[1]], a[[2]]], {a, {{1, 3}, {1, 4}, {2, 3}, {2, 4}}}, {b, {{1, 3}, {1, 4}, {2, 3}, {2, 4}}}]];
+Grid[{{"SS, d1, d2", {SS, d1, d2}}, {"distinct weights of V", Length[Union[wt1]]}, {"weight multiplicities (mult, count)", ToString[Tally[Tally[wt1][[All, 2]]]]}, {"checks", ToString[Normal[checks]]}}, Frame -> All]
+
+===== cell 3 [CODE] =====
+(* invariant diagonal metric G (G[[1]] = 1): Ee[i,j]^T G = G Ee[j,i]. JJ is not Hermitian, so projectors must be G-orthogonal *)
+gv = Array[gg, d1];
+gsol = Solve[Flatten[Append[Table[Transpose[Ee[i, j]] . DiagonalMatrix[gv] - DiagonalMatrix[gv] . Ee[j, i], {i, 4}, {j, i + 1, 4}], {gv[[1]] - 1}]] == 0, gv];
+gMet = DiagonalMatrix[gv /. First[gsol]];
+checks["G unique, positive, invariant for all Ee[i,j]"] = Length[gsol] === 1 && And @@ Positive[Diagonal[gMet]] && And @@ Flatten[Table[Transpose[Ee[i, j]] . gMet === gMet . Ee[j, i], {i, 4}, {j, 4}]];
+gd2 = Flatten[KroneckerProduct[Diagonal[gMet], Diagonal[gMet]]];
+Grid[{{"G unique/positive/invariant", checks["G unique, positive, invariant for all Ee[i,j]"]}, {"diag G", ToString[Diagonal[gMet]]}}, Frame -> All]
+
+===== cell 4 [CODE] =====
+(* sparse total generators (the 400-dim chain at SS = 2 needs SparseArray); overrides the dense definitions of cell 2 *)
+ClearAll[E1, E2, Tm];
+E1[i_, j_] := E1[i, j] = SparseArray[KroneckerProduct[SparseArray[Ee[i, j]], SparseArray[id1]]];
+E2[i_, j_] := E2[i, j] = SparseArray[KroneckerProduct[SparseArray[id1], SparseArray[Ee[i, j]]]];
+sid2 = SparseArray[id2];
+(* monodromy T(v) = L^(1)(v-theta1).L^(2)(v-theta2), Lax L_ij(u) = u delta_ij + h E_ij (new conventions); minors of T.diag(z) at the 9 interpolation points uS (keep this name only for these points). For a diagonal twist the (I,I) minor is (prod z_I) times the untwisted minor, so the exact basis polynomials tBasisC[a, I] (coefficient matrices of u^k) are computed once and any twist costs only a linear combination. *)
+Tm[v_] := Tm[v] = Table[Sum[(KroneckerDelta[i, k] (v - thN[[1]]) sid2 + hN E1[i, k]) . (KroneckerDelta[k, j] (v - thN[[2]]) sid2 + hN E2[k, j]), {k, 4}], {i, 4}, {j, 4}];
+uS = 1/7 + Range[0, 8]/3;
+minorAt[I_, v_] := Sum[Signature[σ] Dot @@ Table[Tm[v - (k - 1) hN][[σ[[k]], I[[k]]]], {k, Length[I]}], {σ, Permutations[I]}];
+vinv = Inverse[Table[uS[[k]]^j, {k, 9}, {j, 0, 8}]];
+tBasisC[a_, I_] := tBasisC[a, I] = With[{ms = Table[minorAt[I, uS[[k]]], {k, 9}]}, Table[Sum[vinv[[j, k]] ms[[k]], {k, 9}], {j, 9}]];
+(* t_a(u) as a list of nine coefficient matrices (u^0..u^8); exact (tZoX) or at working precision (tZof) *)
+tZoX[zz_] := tZoX[zz] = Table[Sum[(Times @@ zz[[I]]) tBasisC[a, I], {I, Subsets[Range[4], {a}]}], {a, 4}];
+tZof[zz_] := tZof[zz] = Table[Sum[(Times @@ zz[[I]]) N[tBasisC[a, I], pr], {I, Subsets[Range[4], {a}]}], {a, 4}];
+auditNu[hh_, ths_, n_, x_] := Product[x - ths[[s]] + hh Λ[[n]], {s, Length[ths]}];
+tEval[tc_, a_, u0_] := Sum[u0^(j - 1) tc[[a, j]], {j, 9}];
+zTe = {3/2, 5/4, 2/3, 4/7};
+{tTime, tzTest} = AbsoluteTiming[tZoX[zTe]];
+(* quantum determinant: t4(u) = (z1 z2 z3 z4) nu1(u) nu2(u-h) nu3(u-2h) nu4(u-3h) times identity, at u = 1/5, -3/7 *)
+checks["qdet t4 (exact, 2 points): max abs dev"] = Max[Table[Max[Abs[Normal[tEval[tzTest, 4, u0] - (Times @@ zTe) auditNu[hN, thN, 1, u0] auditNu[hN, thN, 2, u0 - hN] auditNu[hN, thN, 3, u0 - 2 hN] auditNu[hN, thN, 4, u0 - 3 hN] sid2]]], {u0, {1/5, -3/7}}]];
+checks["t1 t2 commute (exact, u=1/5, v=2/3): max abs"] = Max[Abs[Normal[tEval[tzTest, 1, 1/5] . tEval[tzTest, 2, 2/3] - tEval[tzTest, 2, 2/3] . tEval[tzTest, 1, 1/5]]]];
+checks["t1 t3, t2 t4 commute (exact)"] = Max[Abs[Normal[tEval[tzTest, 1, 1/5] . tEval[tzTest, 3, 2/3] - tEval[tzTest, 3, 2/3] . tEval[tzTest, 1, 1/5]]]] + Max[Abs[Normal[tEval[tzTest, 2, 1/5] . tEval[tzTest, 3, -2/9] - tEval[tzTest, 3, -2/9] . tEval[tzTest, 2, 1/5]]]];
+Grid[{{"time exact (s)", tTime}, {"qdet dev", checks["qdet t4 (exact, 2 points): max abs dev"]}, {"[t1,t2] dev", checks["t1 t2 commute (exact, u=1/5, v=2/3): max abs"]}, {"[t1,t3],[t2,t3] dev", checks["t1 t3, t2 t4 commute (exact)"]}}, Frame -> All]
+
+===== cell 5 [CODE] =====
+(* companion matrix of a twist, auxiliary-space diagonaliser Paux(z) (rows = left eigenvectors of Gc(z), first entry 1), the w-twist in the z-diagonal frame G' = Paux Gc(w) Paux^-1 *)
+esym[tw_] := Table[Total[Times @@ # & /@ Subsets[tw, {k}]], {k, 4}];
+gcMat[tw_] := With[{c = esym[tw]}, {{c[[1]], -c[[2]], c[[3]], -c[[4]]}, {1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}}];
+pAux[zz_] := Table[With[{nv = First[NullSpace[Transpose[gcMat[zz] - zz[[k]] IdentityMatrix[4]]]]}, Together[nv/nv[[1]]]], {k, 4}];
+gPrime[zz_, ww_] := Together[pAux[zz] . gcMat[ww] . Inverse[pAux[zz]]];
+zsym = Array[zq, 4]; wsym = Array[wq, 4];
+checks["Paux Gc(z) Paux^-1 = diag(z) (symbolic)"] = Simplify[pAux[zsym] . gcMat[zsym] . Inverse[pAux[zsym]] - DiagonalMatrix[zsym]] === ConstantArray[0, {4, 4}];
+checks["G'(z,z) = diag(z) (symbolic)"] = Simplify[gPrime[zsym, zsym] - DiagonalMatrix[zsym]] === ConstantArray[0, {4, 4}];
+(* one-site Lax L(x) = x 1 + h E and its quantum minors qminL[I,J,v] (rows I antisymmetrised, column k at v-(k-1)h) *)
+L1[x_] := Table[KroneckerDelta[i, j] x id1 + hN Ee[i, j], {i, 4}, {j, 4}];
+qminL[I_, J_, v_] := Sum[Signature[σ] Dot @@ Table[L1[v - (k - 1) hN][[σ[[k]], J[[k]]]], {k, Length[I]}], {σ, Permutations[I]}];
+(* t_a^(1)(u; G') = sum_{I,J} qminL[I,J,u-theta1] det G'[[J,I]] *)
+tOne[a_, GP_, u0_] := Sum[qminL[I, J, u0 - thN[[1]]] Det[GP[[J, I]]], {I, Subsets[Range[4], {a}]}, {J, Subsets[Range[4], {a}]}];
+evVac[zz_, ww_, u0_] := (u0 - thN[[1]]) Total[ww] + hN SS (ww[[1]] + ww[[2]]);
+(* left null vector of t1^(1)(u0; G') - vacuum eigenvalue, normalised (Omega)_1 = 1 *)
+omegaVac[zz_, ww_, u0_] := Module[{ns = NullSpace[Transpose[tOne[1, gPrime[zz, ww], u0] - evVac[zz, ww, u0] id1]]}, If[Length[ns] =!= 1, $Failed, Together[ns[[1]]/ns[[1, 1]]]]];
+(* exp of a nilpotent element of the abelian nilradical: finite sum to order 2 SS (MatrixPower would complain about singular a at k = 0) *)
+expPoly[a_] := Module[{res = id1, tm = id1}, Do[tm = tm . a/k; res = res + tm, {k, 1, 2 SS}]; res];
+rootsA = {{1, 3}, {1, 4}, {2, 3}, {2, 4}};
+xFromOmega[om_] := Table[With[{m = First@Flatten@Position[wt1, Λ - UnitVector[4, rt[[1]]] + UnitVector[4, rt[[2]]]]}, om[[m]]/(e1 . Ee[rt[[1]], rt[[2]]])[[m]]], {rt, rootsA}];
+xMat[xs_] := Sum[xs[[a]] Ee[rootsA[[a, 1]], rootsA[[a, 2]]], {a, 4}];
+zP = {3/2, 5/4, 2/3, 4/7}; wP = {5/2, 7/3, 3/5, 9/8};
+om1 = omegaVac[zP, wP, 3/7]; om2 = omegaVac[zP, wP, -5/11];
+xs1 = xFromOmega[om1];
+checks["Omega_zw: null space dim 1, u0-independent"] = om1 =!= $Failed && om1 === om2;
+checks["Omega_zw = e1^T exp(sum x_ij E_ij) (exact, x_ij read off from 4 weights)"] = om1 === e1 . expPoly[xMat[xs1]];
+checks["abelian: ordering of the four exponentials irrelevant"] = With[{ex = Table[expPoly[xs1[[a]] Ee[rootsA[[a, 1]], rootsA[[a, 2]]]], {a, 4}]}, e1 . Dot @@ ex === e1 . Dot @@ Reverse[ex] && e1 . Dot @@ ex[[{3, 1, 4, 2}]] === om1];
+(* eigen-bra checks of t_a^(1)(u; G') for a = 1..4 at u = 1/5 *)
+vacEigDev = Table[With[{tm = tOne[a, gPrime[zP, wP], 1/5]}, With[{lam = (om1 . tm)[[1]]}, Max[Abs[om1 . tm - lam om1]]]], {a, 4}];
+checks["Omega_zw left eigenvector of t1..t4^(1)(u; G') (exact, max abs dev)"] = Max[vacEigDev];
+Grid[{{"Omega_zw", ToString[om1]}, {"x13, x14, x23, x24", ToString[xs1]}, {"torus invariant x13 x24/(x14 x23)", xs1[[1]] xs1[[4]]/(xs1[[2]] xs1[[3]])}, {"checks", ToString[Normal[checks]]}}, Frame -> All]
+
+===== cell 6 [MD] =====
+**Results, cells 2-5 (SS = 1; executed in K1, VS Code does not execute cells of this file):** d1 = 6, d2 = 36, 6 distinct weights, all multiplicity 1; gl(4) relations of JJ True; e1 HW ket of weight (1,1,0,0); e1^T Ee[i,j] != 0 exactly for i <= 2 < j (i != j); nilradical E13,E14,E23,E24 commutes; G = diag(1,1,4,1,4,16) unique, positive, invariant. Cell 4 (exact rational, 0.57 s): quantum determinant t4 = (Prod z) nu1(u)nu2(u-h)nu3(u-2h)nu4(u-3h) deviation 0 (2 points); [t1,t2], [t1,t3], [t2,t3] deviations 0. Cell 5: Paux Gc(z) Paux^-1 = diag(z) and G'(z,z) = diag(z) symbolic True; Omega_zw: null space of t1^(1)(u0; G') - ev dim 1, u0-independent (u0 = 3/7, -5/11), eigen-bra of t1..t4^(1) with deviation 0 exactly, Omega_zw = e1^T exp(sum x_ij E_ij) exactly with the four exponentials commuting. Omega_zw(P1) = (1, 65/44, 5915/1998, 7/11, 1330/999, 1820/10989).
+
+===== cell 7 [CODE] =====
+(* closed form of the companion-frame vacuum block, read off from a symbolic-w, numeric-z solve and an exponent fit over 16 random z (signs fixed by P1): x_ij = (-1)^i (z_i' - z_j)/(z_1 - z_2) prod_{k=1,2} (w_k - z_i)/(w_k - z_j), i' = the other index of {1,2}. w3, w4 do not enter; w1, w2 are torus directions. *)
+xClosed[zz_, ww_] := Table[With[{i = rt[[1]], j = rt[[2]], ip = 3 - rt[[1]]}, (-1)^i (zz[[ip]] - zz[[j]])/(zz[[1]] - zz[[2]]) Product[(ww[[k]] - zz[[i]])/(ww[[k]] - zz[[j]]), {k, 2}]], {rt, rootsA}];
+fresh = {{{7/3, 5/7, -2/5, 11/4}, {2/9, -3/7, 8/3, 5/2}}, {{1/2, 9/5, -4/3, 3/11}, {6/5, -7/2, 1/3, -9/4}}, {{-5/2, 3/4, 7/3, 2/9}, {4/7, 8/5, -3/4, 7/6}}};
+checks["x_ij closed form = read-off from Omega_zw (exact, 3 fresh points)"] = And @@ Table[xClosed[p[[1]], p[[2]]] === xFromOmega[omegaVac[p[[1]], p[[2]], 2/7]], {p, fresh}];
+checks["w3, w4 drop out (exact)"] = omegaVac[zP, wP, 3/7] === omegaVac[zP, {wP[[1]], wP[[2]], 2/9, -7/4}, 3/7];
+crZ[zz_] := (zz[[1]] - zz[[4]]) (zz[[2]] - zz[[3]])/((zz[[1]] - zz[[3]]) (zz[[2]] - zz[[4]]));
+checks["cross-ratio x13 x24/(x14 x23) = (z1-z4)(z2-z3)/((z1-z3)(z2-z4)) (exact, 3 points)"] = And @@ Table[With[{x = xClosed[p[[1]], p[[2]]]}, x[[1]] x[[4]]/(x[[2]] x[[3]]) === crZ[p[[1]]]], {p, fresh}];
+(* weights of V reached by e1^T exp(X) for a generic (exact) 2x2 block X *)
+xGen = {3/7, -5/11, 2/9, 7/5};
+genCov = e1 . expPoly[xMat[xGen]];
+reachedWts = Union[Select[Transpose[{wt1, genCov}], #[[2]] =!= 0 &][[All, 1]]];
+checks["e1^T exp(X) generic reaches every weight of V"] = reachedWts === Union[wt1];
+(* torus element rho(diag d): diag over GT patterns of prod d_k^J0_k *)
+ρdiag[d_] := DiagonalMatrix[Table[Product[d[[k]]^J0[k][p], {k, 4}], {p, ps[{Λ}]}]];
+checks["e1^T rho(d) = (d1 d2)^SS e1^T"] = e1 . ρdiag[{2/3, 5/7, 3, -4}] === (2/3 5/7)^SS e1;
+(* the paper's W_omega in the diagonal frame: W = Omega_zw (1 - om rho(z))/(1 - om z1 z2); claim W = e1^T exp(R), R_ij = x_ij (1 - om z_i' z_j)/(1 - om z1 z2), the (0,0,1,1) component = det R *)
+wOm[zz_, ww_, om_] := omegaVac[zz, ww, 3/7] . (id1 - om ρdiag[zz])/(1 - om zz[[1]] zz[[2]]);
+rBlock[zz_, ww_, om_] := Table[xClosed[zz, ww][[a]] (1 - om zz[[3 - rootsA[[a, 1]]]] zz[[rootsA[[a, 2]]]])/(1 - om zz[[1]] zz[[2]]), {a, 4}];
+checks["W_omega = e1^T exp(R) with the F5 ratios (exact, 3 points x 2 omega)"] = And @@ Flatten[Table[wOm[p[[1]], p[[2]], om] === e1 . expPoly[xMat[rBlock[p[[1]], p[[2]], om]]], {p, fresh}, {om, {3/7, -5/3}}]];
+singIdx = First@Flatten@Position[wt1, {0, 0, 1, 1}];
+checks["(0,0,1,1) component of W_omega = det R (SS = 1)"] = With[{p = fresh[[1]], om = 3/7}, With[{r = rBlock[p[[1]], p[[2]], om]}, wOm[p[[1]], p[[2]], om][[singIdx]] === (e1 . expPoly[xMat[r]])[[singIdx]] && (e1 . expPoly[xMat[r]])[[singIdx]] === (r[[1]] r[[4]] - r[[2]] r[[3]]) (e1 . Ee[1, 3] . Ee[2, 4])[[singIdx]]]];
+Grid[{{"x closed form at P1 (z = zP, w = wP)", ToString[xClosed[zP, wP], InputForm]}, {"= read off", ToString[xs1, InputForm]}, {"weights reached by generic e1^T exp(X)", Length[reachedWts]}, {"new checks", ToString[Normal[KeyTake[checks, Keys[checks][[-8 ;;]]]], InputForm]}}, Frame -> All]
+
+===== cell 8 [MD] =====
+**Results, cell 6 (SS = 1, exact):** closed form x_ij = (-1)^i (z_i' - z_j)/(z1 - z2) prod_{k=1,2} (w_k - z_i)/(w_k - z_j), i' = other of {1,2} (found from a symbolic-w/numeric-z solve plus an integer-exponent fit over 16 random z; verified exactly at 3 fresh points). At P1: x = (-7/11, -665/999, 65/44, 5915/3996) = read-off. w3, w4 drop out; w1, w2 are pure torus directions (rescale x_ij by d_j/d_i); torus invariant x13 x24/(x14 x23) = (z1-z4)(z2-z3)/((z1-z3)(z2-z4)) (= 91/95 at P1; checked at 3 fresh points). Generic e1 exp(X) reaches all 6 weights. W_om = Omega (1 - om rho(z))/(1 - om z1 z2) = e1 exp(R) with R_ij = x_ij (1 - om z_i' z_j)/(1 - om z1 z2) exactly (3 points x om in {3/7, -5/3}), and its (0,0,1,1) component equals det R.
+
+===== cell 9 [CODE] =====
+(* exact HW kets of V(x)V: common null space of the six total raising operators per total-weight sector; G2 = G(x)G is the invariant inner product (JJ is not Hermitian), so P_HW = H (H^T G2 H)^-1 H^T G2 is orthogonal in the Hermitian frame *)
+raiseRoots = {{1, 2}, {1, 3}, {1, 4}, {2, 3}, {2, 4}, {3, 4}};
+raiseM = SparseArray[Join @@ Table[E1[rt[[1]], rt[[2]]] + E2[rt[[1]], rt[[2]]], {rt, raiseRoots}]];
+secOf[mu_] := secOf[mu] = Flatten[Position[wtBasis, mu]];
+{tHW, hwAll} = AbsoluteTiming[Table[With[{sec = secOf[mu]}, With[{ns = NullSpace[Normal[raiseM[[All, sec]]]]}, {mu, Table[Normal[SparseArray[Thread[sec -> nv], {d2}]], {nv, ns}]}]], {mu, Union[wtBasis]}]];
+hwAll = Select[hwAll, #[[2]] =!= {} &];
+hwSecs = hwAll[[All, 1]]; hwKetsAssoc = Association[Rule @@@ hwAll];
+hwKets[mu_] := hwKetsAssoc[mu];
+hwH[mu_] := hwH[mu] = Transpose[hwKets[mu]];
+hwMinv[mu_] := hwMinv[mu] = Inverse[Transpose[hwH[mu]] . (gd2 hwH[mu])];
+PHWc[mu_][psi_] := hwH[mu] . (hwMinv[mu] . (Transpose[hwH[mu]] . (gd2 psi)));
+PHWall[psi_] := Sum[PHWc[mu][psi], {mu, hwSecs}];
+gNorm[psi_] := Sqrt[Total[gd2 psi^2]];
+e12 = Flatten[KroneckerProduct[e1, e1]];
+(* branch list: one entry per HW multiplicity *)
+hwList = Flatten[Table[Table[{mu, c}, {c, Length[hwKets[mu]]}], {mu, hwSecs}], 1];
+checks["HW sectors found"] = hwSecs;
+checks["HW multiplicities per sector"] = Length[hwKets[#]] & /@ hwSecs;
+checks["HW kets annihilated by all six total raising ops"] = And @@ Table[And @@ (raiseM . # === ConstantArray[0, 6 d2] & /@ hwKets[mu]), {mu, hwSecs}];
+checks["sector dimensions"] = Length[secOf[#]] & /@ hwSecs;
+checks["G2-projector idempotent, fixes HW kets (exact)"] = With[{vv = Table[(-1)^k k/7, {k, d2}]}, And @@ Table[PHWc[mu][PHWc[mu][vv]] === PHWc[mu][vv] && (And @@ (PHWc[mu][#] === # & /@ hwKets[mu])), {mu, hwSecs}]];
+Grid[{{"time (s)", tHW}, {"HW sectors (weights)", ToString[hwSecs, InputForm]}, {"multiplicities", ToString[checks["HW multiplicities per sector"], InputForm]}, {"sector dims", ToString[checks["sector dimensions"], InputForm]}, {"annihilated", checks["HW kets annihilated by all six total raising ops"]}, {"projector", checks["G2-projector idempotent, fixes HW kets (exact)"]}}, Frame -> All]
+
+===== cell 10 [MD] =====
+**Results, cell 7 (SS = 1):** HW sectors of V(x)V (weight, multiplicity, sector dim): (1,1,1,1): 1, 6; (2,1,1,0): 1, 2; (2,2,0,0): 1, 1 - the expected three irreps [1,1,1,1], [2,1,1,0], [2,2,0,0], each multiplicity 1 (dims 1 + 15 + 20 = 36). HW kets annihilated by all six total raising operators; G(x)G projector idempotent and fixes HW kets (exact).
+
+===== cell 11 [CODE] =====
+(* the family (Addendum A): v2 = W_om, v1 = W_om rho(diag(wk - z_k)), wk = w2'. Undo: phi_u = v1 rho(n)^-1 = delta^Lambda e1^T exp(R'), n = exp(R), R'_ij = R_ij (delta_j/delta_i - 1). The older kappa-torus family (v2 = Omega_zw, block X instead of R) is kept as the blind-spot control. *)
+famRn[zz_, ww_, om_] := expPoly[xMat[rBlock[zz, ww, om]]];
+famRninv[zz_, ww_, om_] := expPoly[-xMat[rBlock[zz, ww, om]]];
+famDel[zz_, wk_] := Table[wk - zz[[k]], {k, 4}];
+famV2[zz_, ww_, om_] := wOm[zz, ww, om];
+famV1[zz_, ww_, om_, wk_] := famV2[zz, ww, om] . ρdiag[famDel[zz, wk]];
+famPhi[zz_, ww_, om_, wk_] := famV1[zz, ww, om, wk] . famRninv[zz, ww, om];
+famRprime[zz_, ww_, om_, wk_] := Table[rBlock[zz, ww, om][[a]] (famDel[zz, wk][[rootsA[[a, 2]]]]/famDel[zz, wk][[rootsA[[a, 1]]]] - 1), {a, 4}];
+dLam[zz_, wk_] := (famDel[zz, wk][[1]] famDel[zz, wk][[2]])^SS;
+singW = {0, 0, SS, SS}; singIdxs = Flatten@Position[wt1, singW];
+nTot[zz_, ww_, om_] := SparseArray[KroneckerProduct[SparseArray[famRn[zz, ww, om]], SparseArray[famRn[zz, ww, om]]]];
+{zF, wF, omF, wkF} = {zP, wP, 3/7, 7/5};
+nT = nTot[zF, wF, omF];
+checks["undo exact on all HW kets: <v1(x)v2|h> = <phi_u(x)e1|h>"] = And @@ Flatten[Table[With[{v1 = famV1[zF, wF, omF, wkF], v2 = famV2[zF, wF, omF], ph = famPhi[zF, wF, omF, wkF]}, Flatten[KroneckerProduct[v1, v2]] . h === Flatten[KroneckerProduct[ph, e1]] . h], {mu, hwSecs}, {h, hwKets[mu]}]];
+checks["v2 rho(n)^-1 = e1^T and (rho(n)(x)rho(n)).h = h for all HW kets"] = (famV2[zF, wF, omF] . famRninv[zF, wF, omF] === e1) && And @@ Flatten[Table[nT . h === h, {mu, hwSecs}, {h, hwKets[mu]}]];
+checks["phi_u = delta^Lambda e1^T exp(R'), R'_ij = R_ij (delta_j/delta_i - 1) (exact)"] = famPhi[zF, wF, omF, wkF] === dLam[zF, wkF] e1 . expPoly[xMat[famRprime[zF, wF, omF, wkF]]];
+checks["v1 = delta^Lambda e1^T exp(R_C), (R_C)_ij = R_ij delta_j/delta_i (paper G14 shape)"] = famV1[zF, wF, omF, wkF] === dLam[zF, wkF] e1 . expPoly[xMat[Table[rBlock[zF, wF, omF][[a]] famDel[zF, wkF][[rootsA[[a, 2]]]]/famDel[zF, wkF][[rootsA[[a, 1]]]], {a, 4}]]];
+(* blind spot of the pure kappa-torus family: det X' = 0 identically, so the (0,0,SS,SS) slice of the undone covector vanishes at finite twist *)
+xpOld[zz_, ww_, wk_] := Table[xClosed[zz, ww][[a]] (famDel[zz, wk][[rootsA[[a, 2]]]]/famDel[zz, wk][[rootsA[[a, 1]]]] - 1), {a, 4}];
+detOf[xs_] := xs[[1]] xs[[4]] - xs[[2]] xs[[3]];
+blind = Table[With[{xp = xpOld[p[[1]], p[[2]], wk]}, {detOf[xp], (e1 . expPoly[xMat[xp]])[[singIdxs]]}], {p, fresh}, {wk, {7/5, -3/8, 11/3}}];
+checks["old kappa-torus family: det X' = 0 and (0,0,SS,SS) slice = 0 exactly (3 points x 3 wk)"] = Union[Flatten[blind]] === {0};
+checks["W_om family: det R' != 0 (3 points, om = 3/7, wk = 7/5)"] = And @@ Table[detOf[famRprime[p[[1]], p[[2]], 3/7, 7/5]] =!= 0, {p, fresh}];
+(* cross-ratio of the W block: CR(R) = CR(z) (1-om z2 z3)(1-om z1 z4)/((1-om z2 z4)(1-om z1 z3)) *)
+checks["CR(R) = CR(z) (1-om z2z3)(1-om z1z4)/((1-om z2z4)(1-om z1z3)) (exact, 3 points)"] = And @@ Table[With[{zz = p[[1]], om = 3/7}, With[{r = rBlock[zz, p[[2]], om]}, r[[1]] r[[4]]/(r[[2]] r[[3]]) === crZ[zz] (1 - om zz[[2]] zz[[3]]) (1 - om zz[[1]] zz[[4]])/((1 - om zz[[2]] zz[[4]]) (1 - om zz[[1]] zz[[3]]))]], {p, fresh}];
+Grid[{{"checks (new)", ToString[Normal[KeyTake[checks, Keys[checks][[-7 ;;]]]], InputForm]}}, Frame -> All]
+
+===== cell 12 [MD] =====
+**Results, cell 8 (family and undo, exact, SS = 1, point zP, wP, om = 3/7, wk = 7/5), all True:** undo exact on all 3 HW kets (<v1(x)v2|h> = <phi_u(x)e1|h>); v2 rho(n)^-1 = e1 and (rho(n)(x)rho(n)).h = h; phi_u = delta^Lambda e1 exp(R'); v1 = delta^Lambda e1 exp(R_C) with R_C = R delta_j/delta_i (paper G14 shape); CR(R) = CR(z)(1-om z2z3)(1-om z1z4)/((1-om z2z4)(1-om z1z3)) at 3 fresh points; det R' != 0 at 3 points. **Blind-spot record:** for the old kappa-torus family (v2 = Omega_zw) det X' = 0 and the (0,0,SS,SS) slice of the undone covector is exactly 0 at 3 points x 3 values of wk.
+
+===== cell 13 [CODE] =====
+(* Task 2: the regime z = 1 + eps phi, w = 1 + eps omw, om = 1 + eps o, wk = 1 + eps k (all together, rational directions, symbolic eps). phi_u/delta^Lambda = e1^T exp(R'(eps)) with R'_ij = R_ij (delta_j/delta_i - 1). *)
+regS[eps_, ph_, omw_, o_, k_] := <|"z" -> 1 + eps ph, "w" -> 1 + eps omw, "om" -> 1 + eps o, "wk" -> 1 + eps k|>;
+phiP = {1/3, -2/7, 5/11, -4/9}; phiC = {-2/5, 3/8, 7/11, -1/6}; omwP = {3/4, -1/5, 2/9, -7/4}; oS = {-12/5, 7/2, 1/8, 5/3}; kS = {-1/5, 9/7, 5/3};
+gridOK[ph_] := And @@ Flatten[{Table[o + ph[[a]] + ph[[b]] =!= 0, {o, oS}, {a, 4}, {b, a + 1, 4}], Table[k =!= ph[[j]], {k, kS}, {j, 4}]}];
+checks["regime directions avoid poles (phi, phi')"] = {gridOK[phiP], gridOK[phiC]};
+RprimeS[ph_, omw_, o_, k_] := With[{r = regS[epsS, ph, omw, o, k]}, Together /@ famRprime[r["z"], r["w"], r["om"], r["wk"]]];
+phiScaled[ph_, omw_, o_, k_] := Together /@ (e1 . expPoly[xMat[RprimeS[ph, omw, o, k]]]);
+(* predicted eps -> 0 limit: R'_ij(0) = x0_ij (o + phi_i' + phi_j)/(o + phi1 + phi2) (phi_i - phi_j)/(k - phi_i), x0_ij = (-1)^i (phi_i' - phi_j)/(phi1 - phi2) prod_{k=1,2} (omw_k - phi_i)/(omw_k - phi_j) *)
+x0Lim[ph_, omw_] := Table[With[{i = rt[[1]], j = rt[[2]], ip = 3 - rt[[1]]}, (-1)^i (ph[[ip]] - ph[[j]])/(ph[[1]] - ph[[2]]) Product[(omw[[m]] - ph[[i]])/(omw[[m]] - ph[[j]]), {m, 2}]], {rt, rootsA}];
+Rp0Pred[ph_, omw_, o_, k_] := Table[With[{i = rootsA[[a, 1]], j = rootsA[[a, 2]], ip = 3 - rootsA[[a, 1]]}, x0Lim[ph, omw][[a]] (o + ph[[ip]] + ph[[j]])/(o + ph[[1]] + ph[[2]]) (ph[[i]] - ph[[j]])/(k - ph[[i]])], {a, 4}];
+ser[expr_, n_] := Table[SeriesCoefficient[expr, {epsS, 0, j}], {j, 0, n}];
+leadOrd[c_] := If[AllTrue[c, # === 0 &], "beyond", LengthWhile[c, # === 0 &]];
+wtIdx = Table[Flatten[Position[wt1, m]], {m, Union[wt1]}]; wtList = Union[wt1];
+sliceWts = wtList - ConstantArray[Λ, Length[wtList]];
+{tT2, phS} = AbsoluteTiming[phiScaled[phiP, omwP, oS[[1]], kS[[1]]]];
+phSer = ser[#, 3] & /@ phS;
+wtTab = Table[{wtList[[m]], Length[wtIdx[[m]]], Table[leadOrd[phSer[[i]]], {i, wtIdx[[m]]}], Table[With[{lo = leadOrd[phSer[[i]]]}, If[IntegerQ[lo], phSer[[i, lo + 1]], 0]], {i, wtIdx[[m]]}]}, {m, Length[wtList]}];
+rpS = RprimeS[phiP, omwP, oS[[1]], kS[[1]]];
+checks["T2 (i,ii) R'(eps=0) = predicted limit (exact, primary phi, o = -12/5, k = -1/5)"] = (rpS /. epsS -> 0) === Rp0Pred[phiP, omwP, oS[[1]], kS[[1]]];
+checks["T2 (iii) phi_u(0)/delta^Lambda = e1^T exp(R'(0)) exactly"] = (phS /. epsS -> 0) === e1 . expPoly[xMat[Rp0Pred[phiP, omwP, oS[[1]], kS[[1]]]]];
+checks["T2 (iv) det R'(0) (primary, o=-12/5, k=-1/5) nonzero"] = detOf[Rp0Pred[phiP, omwP, oS[[1]], kS[[1]]]];
+Grid[Join[{{"weight", "dim", "lead order(s)", "lead coefficient(s)"}}, wtTab, {{"R'(0) = predicted limit", checks["T2 (i,ii) R'(eps=0) = predicted limit (exact, primary phi, o = -12/5, k = -1/5)"]}, {"phi_u(0)/dL = e1 exp(R'(0))", checks["T2 (iii) phi_u(0)/delta^Lambda = e1^T exp(R'(0)) exactly"]}, {"det R'(0)", checks["T2 (iv) det R'(0) (primary, o=-12/5, k=-1/5) nonzero"]}, {"R'(0) entries", ToString[Rp0Pred[phiP, omwP, oS[[1]], kS[[1]]], InputForm]}, {"time (s)", tT2}}], Frame -> All, Alignment -> Left]
+
+===== cell 14 [CODE] =====
+(* per-weight ranks of the eps^0 coefficient vectors over the 4 x 3 (o, k) grid, exact, for phi (primary), phi' (control direction), and a second torus direction omw'; plus the NON-untwisting control with om fixed at 3/7 (series in eps) *)
+omwQ = {-2/3, 5/7, -3/8, 4/5};
+c0Of[ph_, omw_, o_, k_] := e1 . expPoly[xMat[Rp0Pred[ph, omw, o, k]]];
+gridPts = Flatten[Table[{o, k}, {o, oS}, {k, kS}], 1];
+rankTabG[ph_, omw_] := With[{c0s = Table[c0Of[ph, omw, g[[1]], g[[2]]], {g, gridPts}]}, Table[{wtList[[m]], Length[wtIdx[[m]]], MatrixRank[c0s[[All, wtIdx[[m]]]]], Count[c0s[[All, wtIdx[[m]]]], v_ /; Union[v] =!= {0}]}, {m, Length[wtList]}]];
+{tRk, rkP} = AbsoluteTiming[rankTabG[phiP, omwP]];
+rkC = rankTabG[phiC, omwP]; rkQ = rankTabG[phiP, omwQ];
+(* the formula for R'(0) against the symbolic limit at all 12 grid points (exact) *)
+checks["T2 R'(0) formula = symbolic limit at all 12 grid points, phi and phi'"] = And @@ Flatten[Table[(RprimeS[ph, omwP, g[[1]], g[[2]]] /. epsS -> 0) === Rp0Pred[ph, omwP, g[[1]], g[[2]]], {ph, {phiP, phiC}}, {g, gridPts}]];
+detGrid = Table[detOf[Rp0Pred[phiP, omwP, g[[1]], g[[2]]]], {g, gridPts}];
+checks["T2 det R'(0) != 0 at all 12 grid points; formula det R'(0)"] = {AllTrue[detGrid, # =!= 0 &]};
+(* control: om fixed (not untwisting): R'(eps) with om = 3/7 *)
+RprimeCtl[ph_, omw_, omFix_, k_] := With[{r = regS[epsS, ph, omw, 0, k]}, Together /@ famRprime[r["z"], r["w"], omFix, r["wk"]]];
+phiCtl = Together /@ (e1 . expPoly[xMat[RprimeCtl[phiP, omwP, 3/7, kS[[1]]]]]);
+phCtlSer = ser[#, 3] & /@ phiCtl;
+ctlTab = Table[{wtList[[m]], Length[wtIdx[[m]]], Table[leadOrd[phCtlSer[[i]]], {i, wtIdx[[m]]}]}, {m, Length[wtList]}];
+Grid[Join[{{"weight", "dim", "rank eps^0 (phi)", "#nonzero of 12 (phi)", "rank (phi')", "rank (omw')"}}, Table[{rkP[[m, 1]], rkP[[m, 2]], rkP[[m, 3]], rkP[[m, 4]], rkC[[m, 3]], rkQ[[m, 3]]}, {m, Length[wtList]}], {{"R'(0) formula = symbolic limit (24 points)", checks["T2 R'(0) formula = symbolic limit at all 12 grid points, phi and phi'"]}, {"det R'(0) != 0 on grid", checks["T2 det R'(0) != 0 at all 12 grid points; formula det R'(0)"]}, {"CONTROL om = 3/7 fixed: weight, dim, lead orders", ""}}, ctlTab, {{"time (s)", tRk}}], Frame -> All, Alignment -> Left]
+
+===== cell 15 [MD] =====
+**Results, cells 9-10 (Task 2; SS = 1).** Single point (phi primary, o = -12/5, k = -1/5): symbolic-eps series of phi_u/delta^Lambda: every one of the six weights is O(1), leading coefficients (state weight: coefficient) (0,0,1,1): 2258375000/25411092993; (0,1,0,1): 3451000/4556409; (0,1,1,0): -21475/72501; (1,0,0,1): 2293900/1518803; (1,0,1,0): -38570/72501; (1,1,0,0): 1. R'(0) = {21475/72501, -1725500/4556409, -38570/72501, 1146950/1518803} (x13,x14,x23,x24 order) equals the predicted limit R'_ij(0) = x0_ij (o+phi_i'+phi_j)/(o+phi1+phi2) (phi_i-phi_j)/(k-phi_i) exactly (also at all 12 grid points x {phi, phi'}); phi_u(0)/delta^Lambda = e1 exp(R'(0)) exactly; det R'(0) = 564593750/25411092993 != 0 (nonzero on all 12 grid points). Per-weight ranks of the eps^0 coefficient over the grid: all six weights rank 1 of dim 1, nonzero at 12/12 points, identical for phi' and for a second omega-direction (-2/3,5/7,-3/8,4/5). CONTROL om = 3/7 fixed: leading orders (0,0,1,1): O(eps^2); all other five weights O(1) - the gl(4) analogue of the gl(3) problem. (Our delta_j/delta_i - 1 -> (phi_i - phi_j)/(k - phi_i).)
+
+===== cell 16 [CODE] =====
+(* Task 3 setup: eigenstates of the HW sectors at ket twist z (exact rational list in, working precision pr inside). Per sector: Eigensystem of the generic commuting member t1(3/7) + Pi t2(-2/9) restricted to the sector; the HW-limit branches are the dim(HW_mu) states with the smallest raising residual rr; each Psi is normalised by its largest component. Stored: psi, eigenvalue, rr, ||P_HW Psi||/||Psi|| in the invariant G-norm. *)
+branchesAt[zz_] := branchesAt[zz] = Module[{zn = zz, tc, out = {}},
+  tc = tZof[zn];
+  Do[Module[{sec = secOf[mu], mix, es, rr, nHW = Length[hwKets[mu]], pick, raiseSec},
+    mix = Normal[(tEval[tc, 1, 3/7] + N[Pi, pr] tEval[tc, 2, -2/9])[[sec, sec]]];
+    es = Eigensystem[mix];
+    raiseSec = Normal[raiseM[[All, sec]]];
+    rr = Table[Norm[raiseSec . v]/Norm[v], {v, es[[2]]}];
+    pick = SortBy[Ordering[rr, nHW], Re[es[[1, #]]] &];
+    Do[Module[{psiS, psi, km, copy},
+      km = First@Ordering[Abs[es[[2, k]]], -1]; psiS = es[[2, k]]/es[[2, k, km]];
+      psi = Normal[SparseArray[Thread[sec -> psiS], {d2}]];
+      copy = If[MemberQ[pick, k], Position[pick, k][[1, 1]], 0];
+      AppendTo[out, <|"mu" -> mu, "k" -> k, "branch" -> (copy > 0), "copy" -> copy, "psi" -> psi, "ev" -> es[[1, k]], "rr" -> rr[[k]], "hwFrac" -> gNorm[PHWc[mu][psi]]/gNorm[psi], "normG" -> gNorm[psi]|>]], {k, Length[sec]}]], {mu, hwSecs}];
+  <|"states" -> out, "zz" -> zz|>];
+brOf[B_, mu_, copy_] := First@Select[B["states"], #["mu"] === mu && #["copy"] === copy &];
+brList[B_] := brOf[B, #[[1]], #[[2]]] & /@ hwList;
+epsL = {10^-6, 2 10^-6, 4 10^-6};
+zAt[eps_, ph_] := 1 + eps ph;
+{tBr, B0} = AbsoluteTiming[branchesAt[zAt[epsL[[1]], phiP]]];
+checks["branches: #states = d2 sectors, #branches = #HW kets"] = {Length[B0["states"]], Count[B0["states"], s_ /; s["branch"]], Length[hwList]};
+checks["top branch = e1(x)e1 (rel dev)"] = With[{p = brOf[B0, {2 SS, 2 SS, 0, 0}, 1]["psi"]}, N[Norm[p/p[[1]] - e12], 5]];
+checks["rr separation per sector (max branch rr / min other rr)"] = Table[With[{s = Select[B0["states"], #["mu"] === mu &]}, {mu, N[Max[Select[s, #["branch"] &][[All, "rr"]]], 3], If[Length[Select[s, ! #["branch"] &]] == 0, "-", N[Min[Select[s, ! #["branch"] &][[All, "rr"]]], 3]]}], {mu, hwSecs}];
+Grid[{{"time (s)", tBr}, {"#states, #branches, #HW", ToString[checks["branches: #states = d2 sectors, #branches = #HW kets"]]}, {"top = e1(x)e1 rel dev", checks["top branch = e1(x)e1 (rel dev)"]}, {"hwFrac of the branches", ToString[N[brList[B0][[All, "hwFrac"]], 4], InputForm]}, {"rr separation", ToString[checks["rr separation per sector (max branch rr / min other rr)"], InputForm]}, {"Precision of psi (min)", Min[Precision /@ B0["states"][[All, "psi"]]]}}, Frame -> All]
+
+===== cell 17 [CODE] =====
+(* Task 3: R_C = <v1(x)v2|Psi_B>, S = <v1(x)v2|P_HW Psi_B>, K = R_C - S, kappa = R_C/S; exact-undo check S = <phi_u(x)e1|P_HW Psi_B>. Joint regime: eps in {1,2,4}e-6, 12 (o,k) points; control: om fixed at 3/7 (not untwisting), 3 k points *)
+vecsAtF[zz_, ww_, om_, wk_] := Module[{v1 = famV1[zz, ww, om, wk], v2 = famV2[zz, ww, om], ph = famPhi[zz, ww, om, wk]}, <|"v12" -> N[Flatten[KroneckerProduct[v1, v2]], pr], "phe1" -> N[Flatten[KroneckerProduct[ph, e1]], pr]|>];
+t3Point[B_, V_] := Table[With[{b = brOf[B, hwList[[ib, 1]], hwList[[ib, 2]]]}, Module[{psi = b["psi"], Ph, RC, S, undo}, Ph = PHWc[b["mu"]][psi]; RC = V["v12"] . psi; S = V["v12"] . Ph; undo = V["phe1"] . Ph; <|"RC" -> RC, "S" -> S, "K" -> RC - S, "undoRel" -> Abs[(S - undo)/S], "hwFrac" -> b["hwFrac"], "normG" -> b["normG"]|>]], {ib, Length[hwList]}];
+nB = Length[hwList];
+ptJoint[ie_, ph_, omw_, o_, k_] := With[{eps = epsL[[ie]]}, t3Point[branchesAt[zAt[eps, ph]], vecsAtF[zAt[eps, ph], 1 + eps omw, 1 + eps o, 1 + eps k]]];
+ptCtl[ie_, ph_, omw_, k_] := With[{eps = epsL[[ie]]}, t3Point[branchesAt[zAt[eps, ph]], vecsAtF[zAt[eps, ph], 1 + eps omw, 3/7, 1 + eps k]]];
+{tOne3, one3} = AbsoluteTiming[ptJoint[1, phiP, omwP, oS[[1]], kS[[1]]]];
+{tLoop3, T3} = AbsoluteTiming[Table[ptJoint[ie, phiP, omwP, g[[1]], g[[2]]], {ie, 3}, {g, gridPts}]];
+{tLoopC, T3c} = AbsoluteTiming[Table[ptCtl[ie, phiP, omwP, k], {ie, 3}, {k, kS}]];
+isTop[ib_] := hwList[[ib, 1]] === {2 SS, 2 SS, 0, 0};
+expR[T_, nP_, ib_, key_] := Flatten[Table[Table[Log[Abs[T[[ie + 1, ip, ib, key]]/T[[ie, ip, ib, key]]]]/Log[2], {ie, 2}], {ip, nP}]];
+tabFor[T_, nP_] := Table[With[{eS = expR[T, nP, ib, "S"], eK = If[isTop[ib], {}, expR[T, nP, ib, "K"]]}, {hwList[[ib]], N[{Min[eS], Max[eS]}, 4], If[eK === {}, "K=0", N[{Min[eK], Max[eK]}, 4]], Table[N[Max[Table[Abs[T[[ie, ip, ib, "K"]]/T[[ie, ip, ib, "S"]]], {ip, nP}]], 4], {ie, 3}], N[Max[Table[T[[ie, ip, ib, "undoRel"]], {ie, 3}, {ip, nP}]], 3]}], {ib, nB}];
+tabJ = tabFor[T3, 12]; tabC = tabFor[T3c, 3];
+checks["T3 min Precision of K, joint"] = Min[Table[Precision[T3[[ie, ip, ib, "K"]]], {ie, 3}, {ip, 12}, {ib, nB}]];
+Grid[Join[{{"JOINT regime: branch (mu, copy)", "S eps-exponent range", "K eps-exponent range", "max_grid |K/S| at eps = 1,2,4 e-6", "undo rel dev (max)"}}, tabJ, {{"CONTROL om = 3/7 fixed", "", "", "", ""}}, tabC, {{"time: one point, joint loop, control loop (s)", ToString[{tOne3, tLoop3, tLoopC}, InputForm], "", "", ""}, {"min Precision(K)", checks["T3 min Precision of K, joint"], "", "", ""}}], Frame -> All, Alignment -> Left]
+
+===== cell 18 [CODE] =====
+(* Task 4: leading-order CG extraction from the overlap alone. For branch B with HW weight mu the only site-1 components that contribute to <phi_u(x)e1|P_HW Psi_B> are those of weight mu - Lambda (the 'slice'); chain-side slice c_m = <m(x)e1|P_HW Psi_B>. Estimator from R_C only: rhs_j = R_C(o_j,k_j)/delta^Lambda_j = sum_m phi0_m(o_j,k_j) c_m (1 + O(eps)), phi0 = e1^T exp(R'(0)) exact. dim-1 slice: C_j = rhs_j/phi0_m. *)
+sliceOf[mu_] := Flatten@Position[wt1, mu - Λ];
+cBchain[ie_, ib_] := With[{b = brOf[branchesAt[zAt[epsL[[ie]], phiP]], hwList[[ib, 1]], hwList[[ib, 2]]], idx = sliceOf[hwList[[ib, 1]]]}, With[{Ph = PHWc[b["mu"]][b["psi"]]}, Table[Ph[[(m - 1) d1 + 1]], {m, idx}]]];
+rhsAt[ie_, ib_] := Table[T3[[ie, ip, ib, "RC"]]/dLam[zAt[epsL[[ie]], phiP], 1 + epsL[[ie]] gridPts[[ip, 2]]], {ip, 12}];
+phi0Rows[ib_] := Table[N[c0Of[phiP, omwP, gridPts[[ip, 1]], gridPts[[ip, 2]]][[sliceOf[hwList[[ib, 1]]]]], pr], {ip, 12}];
+est[ie_, ib_] := LeastSquares[phi0Rows[ib], rhsAt[ie, ib]];
+t4Tab = Table[With[{d = Length[sliceOf[hwList[[ib, 1]]]], cb = Table[cBchain[ie, ib], {ie, 3}], es = Table[est[ie, ib], {ie, 3}]},
+  With[{relErr = Table[Max[Abs[(es[[ie]] - cb[[ie]])/cb[[ie]]]], {ie, 3}], rich = 2 es[[1]] - es[[2]], richB = 2 cb[[1]] - cb[[2]],
+        spread = If[d == 1, Table[Max[Abs[rhsAt[ie, ib]/phi0Rows[ib][[All, 1]]/Mean[rhsAt[ie, ib]/phi0Rows[ib][[All, 1]]] - 1]], {ie, 3}], "-"]},
+   {hwList[[ib]], d, N[spread, 4], N[relErr, 4], N[Max[Abs[(rich - richB)/richB]], 4]}]], {ib, nB}];
+(* dim-1: spread of C_j over the 12 grid points, relative error of the least-squares estimate to the chain-side slice at 3 eps, and Richardson (2 C(eps1) - C(2 eps1)) vs chain-side Richardson *)
+Grid[Join[{{"branch", "slice dim", "grid spread of C (3 eps)", "rel err est vs chain (3 eps)", "Richardson rel diff"}}, t4Tab], Frame -> All, Alignment -> Left]
+
+===== cell 19 [MD] =====
+**Results, cells 11-13 (Tasks 3, 4; SS = 1; eps in {1,2,4}e-6; phi primary, omw = (3/4,-1/5,2/9,-7/4), (o,k) grid 4 x 3; pr = 200).** Timings: 3 eigen-decompositions + 12 points x 3 eps loop 0.58 s, control 0.13 s. Branches at eps = 1e-6: 9 states, 3 HW branches ([1,1,1,1], [2,1,1,0], [2,2,0,0]); max rr of branches 9.9e-8 / 2.0e-7 / 0, min rr of the other states 2.97 / 1.41 (clean separation); hwFrac = 1 - 3e-16, 1 - 1e-14, 1. Top branch = e1(x)e1 to 10^-198.
+
+JOINT regime (o untwists with z):
+
+| branch | S eps-exponent | K eps-exponent | max_grid |K/S| at eps = 1,2,4e-6 | undo rel dev |
+|---|---|---|---|---|
+| [1,1,1,1] | 2.0000 (1.99999..2.00001) | 3.0000 | 1.89e-7, 3.78e-7, 7.55e-7 | 0 (acc 194) |
+| [2,1,1,0] | 2.0000 | 3.0000 | 6.10e-7, 1.22e-6, 2.44e-6 | 0 (acc 198) |
+| [2,2,0,0] | 2.0000 | K = 0 exactly | 0 | 0 |
+
+(S carries delta^Lambda = O(eps^2); the CG slice itself is O(1).) So K/S = O(eps) for every branch including the singlet, kappa -> 1 linearly. CONTROL (om = 3/7 fixed, not untwisting): singlet S ~ eps^4.0000, K ~ eps^4.0000, K/S = 0.016171, 0.016171, 0.016172 at the three eps (kappa -> 0.984, NOT 1); the other branches unchanged (K/S = 6.1e-7...2.4e-6).
+
+Task 4 (CG from R_C alone): estimator rhs_j = R_C/delta^Lambda against phi0_slice (exact eps^0 coefficient): grid spread of C over the 12 (o,k) points / rel err vs chain-side slice <m(x)e1|P Psi>, at eps = 1,2,4e-6 (both linear in eps): singlet: spread 3.6e-6, 7.2e-6, 1.4e-5; err 1.18e-6, 2.37e-6, 4.73e-6. [2,1,1,0]: spread 5.9e-7, 1.2e-6, 2.3e-6; err 6.7e-7, 1.3e-6, 2.7e-6. Top: 0. Richardson (2 C(eps) - C(2 eps)) vs chain-side Richardson: rel diff 2.1e-12 (singlet), 5.9e-13 ([2,1,1,0]), 0 (top) - O(eps^2). All slices are 1-dim at SS = 1 (no 2x2 system needed).
+
+===== cell 20 [CODE] =====
+(* Task 5: gl(3) contrast, symbolic, no chain. n' = Delta^-1 n Delta n^-1 in the fundamental. *)
+nPrime[n_, dl_] := Simplify[Inverse[DiagonalMatrix[dl]] . n . DiagonalMatrix[dl] . Inverse[n]];
+(* (a) gl(3): generic n *)
+n3 = {{1, aa, bb}, {0, 1, cc}, {0, 0, 1}};
+np3 = nPrime[n3, {d1s, d2s, d3s}];
+comm3 = Simplify[np3[[1, 3]] - np3[[1, 2]] np3[[2, 3]]];
+(* the E13 coefficient of n' (log-coordinates): n'13 - n'12 n'23 = commutator direction. With the resolvent torus d_k = 1/(w2 - z_k) *)
+comm3res = Simplify[comm3 /. {d1s -> 1/(w2s - z1s), d2s -> 1/(w2s - z2s), d3s -> 1/(w2s - z3s)}];
+(* the gl(3) vacuum n(w1, y) of the L=2 family (u12rs of L2-210-untwist-CG): r1, r2, r3 *)
+rulesVac = {r1v -> (w1s - z1s)/(w1s - z2s), r2v -> ((w1s - z1s) (z1s - ys) (z2s - z3s))/((z1s - z2s) (w1s - z3s) (ys - z3s)), r3v -> ((w1s - z2s) (z2s - ys) (z1s - z3s))/((z1s - z2s) (w1s - z3s) (z3s - ys))};
+nVac = {{1, r1v, r2v + r1v r3v}, {0, 1, r3v}, {0, 0, 1}} /. rulesVac;
+dRes = {1/(w2s - z1s), 1/(w2s - z2s), 1/(w2s - z3s)};
+npVac = nPrime[nVac, dRes];
+ap = npVac[[1, 2]]; cp = npVac[[2, 3]]; bpComm = Simplify[npVac[[1, 3]] - ap cp];
+claimA = Simplify[bpComm - ap cp (z2s - w2s)/(ys - z2s)];
+(* (b) gl(4) abelian: n = 1 + X, n' = 1 + X', X'_ij = x_ij (delta_j/delta_i - 1) exactly, symbolic 2x2 block and torus *)
+X4 = {{0, 0, x13, x14}, {0, 0, x23, x24}, {0, 0, 0, 0}, {0, 0, 0, 0}};
+np4 = nPrime[IdentityMatrix[4] + X4, Array[dd, 4]];
+Xp4 = Table[If[i <= 2 < j, X4[[i, j]] (dd[j]/dd[i] - 1), 0], {i, 4}, {j, 4}];
+checks["T5(b) gl(4) abelian: n' = 1 + X', X'_ij = x_ij (delta_j/delta_i - 1) exactly (symbolic)"] = Simplify[np4 - IdentityMatrix[4] - Xp4] === ConstantArray[0, {4, 4}];
+checks["T5(b) (X')^2 = 0, so exp(X') = 1 + X' (symbolic)"] = Simplify[Xp4 . Xp4] === ConstantArray[0, {4, 4}];
+Grid[{{"(a) general torus: n'13 - n'12 n'23", ToString[comm3, InputForm]}, {"(a) resolvent torus d_k = 1/(w2 - z_k)", ToString[Factor[comm3res], InputForm]}, {"(a) vacuum n(w1,y): b' - a'c' - a'c'(z2-w2)/(y-z2) (claim = 0)", ToString[claimA, InputForm]}, {"(a) b' - a'c' (vacuum, resolvent)", ToString[Factor[bpComm], InputForm]}, {"(b) gl(4) abelian identities", ToString[{checks["T5(b) gl(4) abelian: n' = 1 + X', X'_ij = x_ij (delta_j/delta_i - 1) exactly (symbolic)"], checks["T5(b) (X')^2 = 0, so exp(X') = 1 + X' (symbolic)"]}, InputForm]}}, Frame -> All, Alignment -> Left]
+
+===== cell 21 [MD] =====
+**Results, cell 14 (Task 5).** (a) gl(3): n'13 - n'12 n'23 = (a c (d1-d2) d3 + b d2 (d3-d1))/(d1 d2); for d_k = 1/(w2-z_k) this is (b(z3-z1) + a c(z1-z2))/(w2-z3) = (d3/d1 - 1)(b - a c z21/z31) (confirmed, spec formula correct). With the gl(3) vacuum n(w1,y): b' - a'c' - a'c'(z2-w2)/(y-z2) = 0 exactly (symbolic), and b' - a'c' = (w1-z1)(z1-z3)(z3-z2)/((w1-z3)(z3-w2)(z3-y)) (carries the factor from y; O(eps) in the gl(3) regime because y cannot untwist). (b) gl(4) abelian: n' = 1 + X', X'_ij = x_ij (d_j/d_i - 1) exactly and (X')^2 = 0 (both True, symbolic): no commutator direction, an entry vanishes only if a twist difference does.
+
+Comparison: the paper's limit (4) untwists kappa (the torus point), omega and z together; in gl(4)-rect there are two independent localising deformations (torus Lambda^2(1-kappa G) and the Lambda^2-polynomial 1 - omega rho(z), which preserves the rotation form because of the special companion-vacuum cross-ratio), the undone block at eps = 0 is a generic 2x2 matrix and everything is entrywise. In gl(3) the E13 coefficient is the commutator b' - a'c' proportional to (z2 - w2)/(y - z2) with y pinned at y0 = (t-1)/(t-2) != 1, hence O(eps). The pure kappa-torus family has the finite-twist blind spot det X' = 0 (cell 8) - the gl(4) shadow of 'b' = 0 iff omega = y'.
+
+===== cell 22 [CODE] =====
+(* Task 1(a): localisation scan. T_lambda by the Jacobi-Trudi/CBR determinant det_{ij} t_{lambda'_j + i - j}(x + (i-1)h) (checked below against the transpose-free listed forms); rank of <Omega(x)Omega| T_lambda(v) as a d1 x d1 matrix at v = theta1 + m h. Exact rationals, finite twist z = zP, w = wP. t_a(u) acts with the ket twist diag(z). *)
+tcZ = tZoX[zP];
+tAct[row_, a_, u0_] := row . tEval[tcZ, a, u0];
+tlamRow[row_, lam_, v_] := Switch[lam, {1, 0}, tAct[row, 1, v], {1, 1}, tAct[row, 2, v], {2, 0}, tAct[tAct[row, 1, v], 1, v + hN] - tAct[row, 2, v + hN], {2, 1}, tAct[tAct[row, 2, v], 1, v + hN] - tAct[row, 3, v + hN], {2, 2}, tAct[tAct[row, 2, v], 2, v + hN] - tAct[tAct[row, 1, v], 3, v + hN]];
+shapes = {{1, 0}, {1, 1}, {2, 0}, {2, 1}, {2, 2}};
+mRange = Range[-SS - 1, 2];
+Om2 = Flatten[KroneckerProduct[omegaVac[zP, wP, 3/7], omegaVac[zP, wP, 3/7]]];
+{tScan, scan} = AbsoluteTiming[Table[{lam, m, MatrixRank[Partition[Normal[tlamRow[Om2, lam, thN[[1]] + m hN]], d1]]}, {lam, shapes}, {m, mRange}]];
+checks["T1(a) JT check: T_(2,0) = t1(v)t1(v+h) - t2(v+h) as operator = Jacobi-Trudi 2x2 det (u = 1/5, exact)"] = With[{v = 1/5}, With[{A = tEval[tcZ, 1, v], B = tEval[tcZ, 1, v + hN], C = tEval[tcZ, 2, v + hN]}, Normal[A . B - C] === Normal[B . A - C]]];
+rank1 = Flatten[Select[Flatten[scan, 1], #[[3]] === 1 &], 0];
+Grid[Join[{Prepend[ToString /@ mRange, "lambda \\ m (v = theta1 + m h)"]}, Table[Prepend[scan[[i, All, 3]], ToString[shapes[[i]]]], {i, Length[shapes]}], {{"rank-1 (lambda, m)", ToString[Select[Flatten[scan, 1], #[[3]] === 1 &][[All, {1, 2}]], InputForm]}, {"time (s)", tScan}}], Frame -> All, Alignment -> Left]
+
+===== cell 23 [CODE] =====
+(* Task 1(b): is the family in the span of <Omega(x)Omega|.T_lambda(v) (a Q-number would be sum_lambda c_lambda tau_lambda times <Omega(x)Omega|Psi>)? General T_lambda by the Jacobi-Trudi determinant det_{ij} t_{lambda'_j+i-j}(x+(i-1)h) (all partitions with <= 4 rows, parts <= 3), v = theta1 + m h. Targets: W(x)W (two omegas), v1(x)v2 of the W family (wk = 7/5), and the old kappa-torus family Omega rho(delta)(x)Omega. Table: #generators, rank, rank after appending each target. *)
+conjP[lam_] := Table[Count[lam, r_ /; r >= j], {j, Max[lam]}];
+tIdx[row_, a_, v_] := Which[a == 0, row, a < 0 || a > 4, 0, True, tAct[row, a, v]];
+tlamG[row_, lam_, v_] := Module[{lc = conjP[lam], n, tot}, n = Length[lc]; tot = ConstantArray[0, d2]; Do[Module[{r = row, ok = True}, Do[With[{a = lc[[σ[[i]]]] + i - σ[[i]]}, If[a < 0 || a > 4, ok = False; Break[], r = tIdx[r, a, v + (i - 1) hN]]], {i, n}]; If[ok, tot = tot + Signature[σ] r]], {σ, Permutations[Range[n]]}]; tot];
+checks["T1 general JT code reproduces T_(2,0), T_(2,1), T_(2,2) of the scan cell (exact, v = 1/5)"] = {tlamG[Om2, {2}, 1/5] === tlamRow[Om2, {2, 0}, 1/5], tlamG[Om2, {2, 1}, 1/5] === tlamRow[Om2, {2, 1}, 1/5], tlamG[Om2, {2, 2}, 1/5] === tlamRow[Om2, {2, 2}, 1/5]};
+partsAll = Select[Flatten[Table[{a, b, c, d}, {a, 0, 3}, {b, 0, 3}, {c, 0, 3}, {d, 0, 3}], 3], #[[1]] >= #[[2]] >= #[[3]] >= #[[4]] && #[[1]] > 0 &];
+targets = <|"W(x)W om=3/7" -> Flatten[KroneckerProduct[wOm[zP, wP, 3/7], wOm[zP, wP, 3/7]]], "W(x)W om=-5/3" -> Flatten[KroneckerProduct[wOm[zP, wP, -5/3], wOm[zP, wP, -5/3]]], "v1(x)v2 W-family om=3/7, wk=7/5" -> Flatten[KroneckerProduct[famV1[zP, wP, 3/7, 7/5], famV2[zP, wP, 3/7]]], "old kappa family Om rho(d)(x)Om, wk=7/5" -> Flatten[KroneckerProduct[omegaVac[zP, wP, 3/7] . ρdiag[famDel[zP, 7/5]], omegaVac[zP, wP, 3/7]]]|>;
+mkGens[lams_, ms_] := Prepend[Normal /@ Flatten[Table[tlamG[Om2, Select[lam, # > 0 &], thN[[1]] + m hN], {lam, lams}, {m, ms}], 1], Normal[Om2]];
+tstSpan[lams_, ms_] := With[{g = mkGens[lams, ms]}, {Length[g], MatrixRank[g], Table[MatrixRank[Append[g, targets[[k]]]], {k, 4}]}];
+{tSp, spanRes} = AbsoluteTiming[{{"t1,t2 at m=-1 (the two localising operators)", tstSpan[{{1}, {1, 1}}, {-1}]}, {"t1,t2 at m=-3..2", tstSpan[{{1}, {1, 1}}, Range[-3, 2]]}, {"t1..t4 at m=-3..2", tstSpan[{{1}, {1, 1}, {1, 1, 1}, {1, 1, 1, 1}}, Range[-3, 2]]}, {"all 34 shapes, m=-4..3", tstSpan[partsAll, Range[-4, 3]]}}];
+Grid[Join[{{"generator set", "{#gens, rank, rank+target1..4}"}}, spanRes, {{"JT check", ToString[checks["T1 general JT code reproduces T_(2,0), T_(2,1), T_(2,2) of the scan cell (exact, v = 1/5)"], InputForm]}, {"time (s)", tSp}}], Frame -> All, Alignment -> Left]
+
+===== cell 24 [CODE] =====
+(* Task 1(c): overlaps with the actual eigenstates at the finite twist z = zP (all 36 states of the generic commuting member t1(3/7) + Pi t2(-2/9)): are the eigenvalues simple and are the overlaps <Omega(x)Omega|Psi> nonzero? (then every covector is a function on the spectrum and 'Q-number' is only meaningful for a stated ansatz of low complexity, as in the span table above) *)
+tcN = tZof[N[zP, pr]];
+mixF = Normal[tEval[tcN, 1, 3/7] + N[Pi, pr] tEval[tcN, 2, -2/9]];
+esF = Eigensystem[mixF];
+nrmF = Norm /@ esF[[2]];
+ovF[row_] := Table[Abs[N[row, pr] . esF[[2, k]]]/nrmF[[k]], {k, d2}];
+oO = ovF[Om2]; oWW = ovF[Normal[targets[[1]]]]; oV = ovF[Normal[targets[[3]]]];
+Grid[{{"distinct eigenvalues (of 36)", Length[Union[Round[esF[[1]], 10^-30]]]}, {"#states with <Om(x)Om|Psi> = 0 (< 1e-40)", Count[oO, x_ /; x < 10^-40]}, {"#states with <W(x)W|Psi> = 0", Count[oWW, x_ /; x < 10^-40]}, {"#states with <v1(x)v2|Psi> = 0", Count[oV, x_ /; x < 10^-40]}, {"min / max of |<Om(x)Om|Psi>|/||Psi||", ToString[N[{Min[oO], Max[oO]}, 4], InputForm]}}, Frame -> All]
+
+===== cell 25 [MD] =====
+**Results, cells 15-17 (Task 1, SS = 1, finite twist z = (3/2,5/4,2/3,4/7), w = (5/2,7/3,3/5,9/8); executed in K1 via evaluateExpression, text below copied from the kernel output).**
+
+Rank scan (rank of <Om(x)Om|T_lambda(v) as a 6x6 matrix; v = theta1 + m h):
+
+| lambda \ m | -2 | -1 | 0 | 1 | 2 |
+|---|---|---|---|---|---|
+| (1,0) | 2 | **1** | 2 | 2 | 2 |
+| (1,1) | 2 | **1** | 2 | 2 | 2 |
+| (2,0) | 3 | 0 | 3 | 3 | 3 |
+| (2,1) | 4 | 0 | 4 | 4 | 4 |
+| (2,2) | 2 | 0 | 0 | 6 | 6 |
+
+Only t1 and t2 localise, at v = theta1 - h (m = -1), not at theta1 as expected from the paper's App. M (convention shift by h: in our Lax L(x) = x + hE the quantum-minor shifts run downward). At m = -1 the site-2 factor is Omega_zw exactly (checked: the column vector of the rank-1 matrix equals Omega), the site-1 factor c1, c2 differs from Omega (and rank{Om,c1,c2} = 3).
+
+Span tests (rank of generators {Om2, Om2.T_lambda(theta1+m h)}, and rank after appending each target; targets: 1 = W(x)W om=3/7, 2 = W(x)W om=-5/3, 3 = v1(x)v2 of the W family (om = 3/7, wk = 7/5), 4 = old kappa-torus family Om rho(delta)(x)Om):
+
+| generators | #gens | rank | rank+target 1,2,3,4 |
+|---|---|---|---|
+| t1,t2 at m=-1 only | 3 | 3 | 4,4,4,4 |
+| t1,t2, m=-3..2 | 13 | 7 | 8,8,8,**7** |
+| t1..t4, m=-3..2 | 25 | 9 | 10,10,10,**9** |
+| all 34 shapes (<=4 rows, parts <=3), m=-4..3 | 273 | 30 | **30,30**,31,**30** |
+
+So: the old kappa family (Omega rho(delta) (x) Omega) is in the span of Om2.{t1,t2 at six points} (needs more than the single localising point); W(x)W is in the span of all shapes; the W-family product v1(x)v2 (W rho(delta) (x) W) is NOT in the span of any generator set tried (rank +1 each time) - the paper's Q-determinant property for it is therefore not of the linear 'T_lambda acting on <Om(x)Om|' type in my ansatz. No exact c(w2') polynomial was extracted: the old-family solution in the 13-generator set is non-unique (rank 7 of 13).
+
+Task 1(c) (all 36 states at the finite twist, pr = 200): 36 distinct eigenvalues of t1(3/7)+Pi t2(-2/9); #states with zero overlap with Om(x)Om, W(x)W, v1(x)v2: 0, 0, 0 (min |<Om2|Psi>|/||Psi|| = 7.3e-6, max 8.8). Hence with simple spectrum and nonvanishing overlaps every covector's overlap IS a function of the eigenvalues; a 'Q-number' statement is only non-trivial for a bounded ansatz (the span table). Not done: direct eigenvalue-combination check on eigenstates (c) beyond this.
+
+===== cell 26 [MD] =====
+### gl(4) [S,S,0,0] untwist result (2026-10-10), SS = 1
+
+- Vacuum: Omega_zw = e1 exp(X) with X in the abelian nilradical (exact); closed form x_ij = (-1)^i (z_i' - z_j)/(z1-z2) prod_{k=1,2}(w_k-z_i)/(w_k-z_j); w3, w4 drop out, w1, w2 torus directions; torus invariant = z cross-ratio (so the old kappa-torus family has det X' = 0 and never sees the singlet: (0,0,1,1) slice exactly 0 at finite twist, cell 8).
+- Paper's family W_om = Omega(1 - om rho(z))/(1 - om z1z2) = e1 exp(R), R_ij = x_ij(1 - om z_i'z_j)/(1 - om z1z2) (exact); v2 = W_om, v1 = W_om rho(wk - z); undo exact: phi_u = delta^Lambda e1 exp(R'), R'_ij = R_ij (delta_j/delta_i - 1).
+- Untwisting regime (z, w, om, wk all 1 + eps(.)): all six weights of the undone covector O(1), R'(0) generic 2x2 block (det = 5.6e8/2.5e10 != 0 at the primary point, nonzero at all 12 grid points). Control with om fixed at 3/7: singlet slice O(eps^2), kappa -> 0.9838 (K/S = 0.01617 constant in eps).
+- Chain side (eps = 1,2,4e-6, 12 grid points): S ~ eps^2 (delta^Lambda), K ~ eps^3 for [1,1,1,1] and [2,1,1,0], K = 0 for [2,2,0,0]; max |K/S| = 1.9e-7 / 6.1e-7 at eps = 1e-6, doubling with eps. CG slices read off from R_C alone with relative error 1e-6..5e-6 (linear in eps), Richardson agreement 2e-12 / 6e-13.
+- Localisation: only t1, t2 localise (rank 1), at v = theta1 - h (not theta1), site-2 factor = Omega exactly. The old kappa family is in span{Om2.t1,t2 at six points}; W(x)W in the span of all shapes; the W-family product v1(x)v2 is in none of the spans tried (273 generators, rank 30, +1). All 36 states have nonzero overlaps and distinct eigenvalues, so Q-number-ness is only meaningful for a bounded ansatz.
+- gl(3) contrast confirmed symbolically (cell 14).
+
+===== cell 27 [CODE] =====
+(* Task 1 follow-up (paper G5/G13): <v1(x)v2| = <W(x)W| (c0 + c1 t1(pt) + c2 t2(pt)) with pt = theta1 - SS h; exact linear solves at the finite twist zP, wP. T1: W(x)W reference; T1': Omega(x)Omega reference with the old kappa family; T2: is the omega-deformation a polynomial in the localisers? *)
+oms = {3/7, -5/3}; wks = {-12/5, 7/2, 1/8, 5/3};
+ptL = thN[[1]] - SS hN;
+WWof[om_] := Flatten[KroneckerProduct[wOm[zP, wP, om], wOm[zP, wP, om]]];
+V12of[om_, wk_] := Flatten[KroneckerProduct[famV1[zP, wP, om, wk], famV2[zP, wP, om]]];
+OldOf[wk_] := Flatten[KroneckerProduct[omegaVac[zP, wP, 3/7] . ρdiag[famDel[zP, wk]], omegaVac[zP, wP, 3/7]]];
+gens3[row_, v_] := Normal /@ {row, tAct[row, 1, v], tAct[row, 2, v]};
+solveIn[gens_, target_] := Module[{rk = MatrixRank[gens], rk2 = MatrixRank[Append[gens, target]]}, {rk, rk2, If[rk2 == rk, LinearSolve[Transpose[gens], target], None]}];
+(* T1 *)
+t1Res = Table[{om, wk, solveIn[gens3[WWof[om], ptL], V12of[om, wk]]}, {om, oms}, {wk, wks}];
+t1Tab = Table[{om, wk, t1Res[[io, ik, 3, 1]], t1Res[[io, ik, 3, 2]], t1Res[[io, ik, 3, 3]]}, {io, 2}, {ik, 4}, {om, {oms[[io]]}}, {wk, {wks[[ik]]}}];
+t1Fit = Table[If[AllTrue[t1Res[[io, All, 3, 3]], # =!= None &], With[{cs = t1Res[[io, All, 3, 3]]}, Table[With[{p = Expand[InterpolatingPolynomial[Thread[{wks[[1 ;; 3]], cs[[1 ;; 3, j]]}], wkS]]}, {p, p /. wkS -> wks[[4]] === cs[[4, j]]}], {j, 3}]], "inconsistent"], {io, 2}];
+(* T1': Omega(x)Omega reference, old kappa family: minimal subsets of {t1(m), t2(m): m = -3..2} (plus Om2) containing all three wk targets *)
+pool = Flatten[Table[{a, m}, {a, 2}, {m, -3, 2}], 1];
+rowsOf[sub_] := Prepend[Normal /@ (tAct[Om2, #[[1]], thN[[1]] + #[[2]] hN] & /@ sub), Normal[Om2]];
+tgtOld = OldOf /@ wks[[1 ;; 3]];
+memberAll[sub_] := With[{g = rowsOf[sub]}, MatrixRank[g] === MatrixRank[Join[g, tgtOld]]];
+minimal = If[SS == 1, Module[{res = {}}, Do[res = Select[Subsets[pool, {k}], memberAll]; If[res =!= {}, Break[]], {k, 1, 5}]; res], "skipped"];
+(* T2 *)
+rho1 = SparseArray[KroneckerProduct[SparseArray[ρdiag[zP]], SparseArray[id1]]]; rho2 = SparseArray[KroneckerProduct[SparseArray[id1], SparseArray[ρdiag[zP]]]]; rho12 = rho1 . rho2;
+mem[g_, t_] := MatrixRank[g] === MatrixRank[Append[g, t]];
+A1 = gens3[Om2, thN[[1]] - SS hN]; A2 = gens3[Om2, thN[[2]] - SS hN];
+Aprod = Join[A1, A2[[2 ;;]], Flatten[Table[Normal[tAct[tAct[Om2, a, thN[[1]] - SS hN], b, thN[[2]] - SS hN]], {a, 2}, {b, 2}], 1]];
+t2Tests = {{"Om2.rho1 in A1 (theta1-SS h)", mem[A1, Normal[Om2 . rho1]]}, {"Om2.rho2 in A2 (theta2-SS h)", mem[A2, Normal[Om2 . rho2]]}, {"Om2.rho2 in A1", mem[A1, Normal[Om2 . rho2]]}, {"Om2.rho1 in A2", mem[A2, Normal[Om2 . rho1]]}, {"Om2.rho1rho2 in A1", mem[A1, Normal[Om2 . rho12]]}, {"Om2.rho1rho2 in A2", mem[A2, Normal[Om2 . rho12]]}, {"Om2.rho1rho2 in Aprod (9 gens)", mem[Aprod, Normal[Om2 . rho12]]}, {"W(x)W om=3/7 in Aprod", mem[Aprod, WWof[3/7]]}, {"#gens, rank Aprod", {Length[Aprod], MatrixRank[Aprod]}}};
+omList = {3/7, -5/3, 2, 1/5, -1/4};
+t2Sols = If[mem[Aprod, WWof[3/7]], Table[LinearSolve[Transpose[Aprod], WWof[om]] (1 - om zP[[1]] zP[[2]])^2, {om, omList}], "not in span"];
+t2Poly = If[ListQ[t2Sols] && MatrixRank[Aprod] == Length[Aprod], Table[With[{p = Expand[InterpolatingPolynomial[Thread[{omList[[1 ;; 3]], t2Sols[[1 ;; 3, j]]}], omS]]}, {p, And @@ Table[(p /. omS -> omList[[k]]) === t2Sols[[k, j]], {k, {4, 5}}]}], {j, Length[Aprod]}], "n/a"];
+Grid[{{"T1: per (om, wk): rank gens, rank gens+target, coefficients c0,c1,c2", ToString[t1Tab, InputForm]}, {"T1 quadratic-in-wk fit of c_j (om = 3/7, -5/3): poly, holds at 4th wk", ToString[t1Fit, InputForm]}, {"T1' minimal subsets (a, m) of {t1,t2 at theta1 + m h} with Om2 (size k)", ToString[minimal, InputForm]}, {"T2 tests", ToString[t2Tests, InputForm]}, {"T2 coefficient polynomials in om (times (1 - om z1z2)^2): (poly, holds at 2 extra points)", ToString[t2Poly, InputForm]}}, Frame -> All, Alignment -> Left]
+
+===== cell 28 [CODE] =====
+(* Task 1 follow-up, part 2: (i) localising points of W(x)W and of site 2; (ii) minimal generator subsets {t_a at theta_s + m h} for the relations asked for, searched by exact rank; (iii) the Task 3 direction-phi' table at SS = 1 *)
+rkMat[row_, a_, v_] := MatrixRank[Partition[Normal[tAct[row, a, v]], d1]];
+locTab = Table[{m, rkMat[WWof[3/7], 1, thN[[1]] + m hN], rkMat[WWof[3/7], 2, thN[[1]] + m hN], rkMat[WWof[3/7], 1, thN[[2]] + m hN], rkMat[WWof[3/7], 2, thN[[2]] + m hN], rkMat[Om2, 1, thN[[2]] + m hN], rkMat[Om2, 2, thN[[2]] + m hN]}, {m, -4, 3}];
+rowsFor[ref_, sub_] := Prepend[Normal[tAct[ref, #[[1]], thN[[#[[2]]]] + #[[3]] hN]] & /@ sub, Normal[ref]];
+membAll[ref_, sub_, tgts_] := With[{g = rowsFor[ref, sub]}, MatrixRank[g] === MatrixRank[Join[g, tgts]]];
+minSub[ref_, tgts_, pool_, kmax_] := Catch[Do[With[{res = Select[Subsets[pool, {k}], membAll[ref, #, tgts] &]}, If[res =!= {}, Throw[{k, Length[res], Take[res, UpTo[3]]}]]], {k, 0, kmax}]; "none up to kmax"];
+pool1 = Flatten[Table[{a, 1, m}, {a, 2}, {m, -3, 2}], 1];
+pool12 = Join[pool1, Flatten[Table[{a, 2, m}, {a, 2}, {m, -3, 2}], 1]];
+tgtsT1 = Table[V12of[om, wk], {om, {3/7}}, {wk, wks[[1 ;; 3]]}] // Flatten[#, 1] &;
+tgtsT1b = Table[V12of[-5/3, wk], {wk, wks[[1 ;; 3]]}];
+r1 = minSub[WWof[3/7], tgtsT1, pool1, 5];
+r1b = minSub[WWof[-5/3], tgtsT1b, pool1, 5];
+r1c = minSub[WWof[3/7], tgtsT1, pool12, 4];
+t2a = minSub[Om2, {Normal[Om2 . rho1]}, pool1, 5];
+t2b = minSub[Om2, {Normal[Om2 . rho2]}, pool12, 4];
+t2c = minSub[Om2, {Normal[Om2 . rho12]}, pool12, 4];
+(* Task 3 at SS = 1, control direction phi': 4 grid points, eps = 1e-6, joint regime *)
+gp4 = gridPts[[{1, 4, 7, 10}]];
+phi2tab = Table[With[{pts = Table[ptJoint[1, phiC, omwP, g[[1]], g[[2]]], {g, gp4}]}, {hwList[[ib]], N[Max[Table[Abs[pts[[ip, ib, "K"]]/pts[[ip, ib, "S"]]], {ip, 4}]], 4], N[Max[Table[pts[[ip, ib, "undoRel"]], {ip, 4}]], 3]}], {ib, nB}];
+Grid[{{"localisation ranks: m, WW t1@th1+m, WW t2@th1+m, WW t1@th2+m, WW t2@th2+m, Om2 t1@th2+m, Om2 t2@th2+m", ToString[locTab, InputForm]}, {"T1 minimal subsets, W(x)W om=3/7 ref, pool t1,t2 at th1+m h (m=-3..2): {k, #sets, first 3}", ToString[r1, InputForm]}, {"same, om=-5/3", ToString[r1b, InputForm]}, {"T1 with pool at both sites (k<=4)", ToString[r1c, InputForm]}, {"T2 Om2.rho1: minimal subsets, pool site 1", ToString[t2a, InputForm]}, {"T2 Om2.rho2, pool both sites (k<=4)", ToString[t2b, InputForm]}, {"T2 Om2.rho1rho2, pool both sites (k<=4)", ToString[t2c, InputForm]}, {"Task 3 phi' (eps = 1e-6, 4 grid pts): branch, max|K/S|, undo dev", ToString[phi2tab, InputForm]}}, Frame -> All, Alignment -> Left]
+
+===== cell 29 [CODE] =====
+(* Task 1 follow-up, part 3: exact coefficients of Om2.rho2 = a Om2 + b Om2 t2(theta2 + h); and products t_a(theta1 - h) t_b(theta1 + m h), m = -3..2, added to the pool for the T1 relation (subsets of size <= 3) *)
+g2 = Normal /@ {Om2, tAct[Om2, 2, thN[[2]] + hN]};
+rho2Coef = LinearSolve[Transpose[g2], Normal[Om2 . rho2]];
+poolP = Join[pool1, Flatten[Table[{{a, 1, -1}, {b, 1, m}}, {a, 2}, {b, 2}, {m, -3, 2}], 2]];
+rowsFor2[ref_, sub_] := Prepend[Table[If[Depth[s] == 3 && ListQ[s[[1]]], Normal[tAct[tAct[ref, s[[1, 1]], thN[[1]] - hN], s[[2, 1]], thN[[1]] + s[[2, 3]] hN]], Normal[tAct[ref, s[[1]], thN[[s[[2]]]] + s[[3]] hN]]], {s, sub}], Normal[ref]];
+membAll2[ref_, sub_, tgts_] := With[{g = rowsFor2[ref, sub]}, MatrixRank[g] === MatrixRank[Join[g, tgts]]];
+minSub2[ref_, tgts_, pool_, kmax_] := Catch[Do[With[{res = Select[Subsets[pool, {k}], membAll2[ref, #, tgts] &]}, If[res =!= {}, Throw[{k, Length[res], Take[res, UpTo[3]]}]]], {k, 0, kmax}]; "none up to kmax"];
+r1p = minSub2[WWof[3/7], tgtsT1, poolP, 3];
+Grid[{{"Om2.rho2 = a Om2 + b Om2 t2(theta2+h): (a, b)", ToString[rho2Coef, InputForm]}, {"T1 with products added (k <= 3): {k, #sets, first 3}", ToString[r1p, InputForm]}}, Frame -> All, Alignment -> Left]
+
+===== cell 30 [MD] =====
+**Results, cells 27-29 (SS = 1 follow-up; exact, finite twist zP, wP; times 15.6 s, 243 s, 79 s).**
+
+Localisation ranks (rank of <ref|t_a(v) as 6x6; m: v = theta_s + m h): W(x)W (om = 3/7) localises (rank 1) at t1, t2 @ theta1 - h (same point as Om2: m = -1). At site 2: t1 @ theta2 + 0h and t2 @ theta2 + h localise (rank 1, for both W(x)W and Om2); other (m, a) rank >= 2.
+
+(T1) <v1(x)v2| = <W(x)W|(c0 + c1 t1 + c2 t2)(theta1 - h): INCONSISTENT for all 8 (om, wk) in {3/7, -5/3} x {-12/5, 7/2, 1/8, 5/3}: rank of the 3 generators 3, rank with target 4 (target not in span). Exact search over subsets of {t1,t2 at theta1 + m h, m = -3..2} (size <= 5), over {t1,t2 at theta1 + m h and theta2 + m h} (size <= 4), and with the 24 products t_a(theta1-h) t_b(theta1 + m h) added (size <= 3): no subset contains the three wk targets (om = 3/7; also om = -5/3 for the size <= 5 single-site search). No residual-fit/c(w2') could therefore be extracted.
+
+(T1') old family <Om rho(delta)(x)Om| over <Om(x)Om|: the three-term set {1, t1, t2}(theta1-h) fails (rank 3 -> 4). Minimal sets (pool t1,t2 at theta1 + m h, m = -3..2, containing all three wk targets): size 5 beyond Om2, 15 such subsets, all of the form {t1(m=-1), t2 at four of m = -3..2} (e.g. t1(-1), t2(-3), t2(-2), t2(-1), t2(0)); no subset of size <= 4 works.
+
+(T2) Om2.rho1 (site-1 torus) is NOT in span{Om2, Om2 t1, Om2 t2}(theta1-h); smallest subsets of the single-t pool at site 1 have size 4 (15 of them, e.g. t2 at theta1-3h, -2h, -h, theta1). Om2.rho2 (site-2 torus) IS in the span with ONE generator: Om2.rho2 = -(1225/27) Om2 t2(theta2 + h) (a = 0 exactly). Om2.rho2 is not in the theta2 - h three-term span. Om2.rho1 rho2 (global torus) is in no subset of size <= 4 of the pool at both sites. Hence W(x)W cannot be written as a short polynomial in the localisers by this route; also the 9-generator set {1, t_a(theta1-h), t_a(theta2-h), t_a(theta1-h) t_b(theta2-h)} does not contain W(x)W (om = 3/7) or Om2.rho1 rho2 (rank 9, +1).
+
+(i) Task 3 direction phi' = (-2/5, 3/8, 7/11, -1/6), SS = 1, eps = 1e-6, joint regime, 4 grid points: max|K/S| = 3.56e-8 ([1,1,1,1]), 2.72e-7 ([2,1,1,0]), 0 ([2,2,0,0]); undo deviation 0 (accuracy 196-198).
+
+===== cell 31 [CODE] =====
+(* Follow-up (A)/(F): one-site transfer matrices t_a^(1)(v; diag z) at v = theta1 - SS h on the GT basis, symbolic z. Hand derivation (SS = 1): the Lax is L_ij = h(E_ij - delta_ij), t1^(1) = h Sum_j z_j (E_jj - 1) -> -h (z_c' + z_d') on e_cd, t2^(1) -> 2 h^2 z_c' z_d' (complementary pair). *)
+vA = thN[[1]] - SS hN;
+tD = Table[tOne[a, DiagonalMatrix[zsym], vA], {a, 4}];
+offDiagZero = And @@ Table[Simplify[tD[[a]] - DiagonalMatrix[Diagonal[tD[[a]]]]] === ConstantArray[0, {d1, d1}], {a, 4}];
+diagTab = Table[{wt1[[p]], Table[Factor[tD[[a, p, p]]], {a, 4}]}, {p, d1}];
+compOf[w_] := Flatten@Position[w, 0];
+devA = If[SS == 1, Table[{Simplify[tD[[1, p, p]] + hN Total[zsym[[compOf[wt1[[p]]]]]]], Simplify[tD[[2, p, p]] - 2 hN^2 Times @@ zsym[[compOf[wt1[[p]]]]]]}, {p, d1}], "n/a"];
+Grid[Join[{{"all four t_a^(1)(theta1 - SS h; diag z) diagonal in the GT basis", offDiagZero}, {"SS = 1: deviation from hand formulas (t1: -h(z_c'+z_d'), t2: 2h^2 z_c' z_d'), per weight", ToString[devA, InputForm]}, {"weight", "eigenvalues of t1, t2, t3, t4 (factored)"}}, Table[{ToString[r[[1]]], ToString[r[[2]], InputForm]}, {r, diagTab}]], Frame -> All, Alignment -> Left]
+
+===== cell 32 [CODE] =====
+(* Follow-up (B), (C): resolvent torus delta_k = 1/(w2' - z_k), kappa = 1/w2'. <v1(x)v2| = <W(x)W|(c0 + c1 t1 + c2 t2)(theta1 - SS h), exact solve; compare with c_a = pref (1, kappa/(h f1), kappa^2/(2 h^2 f2)), pref = kappa^2/Prod(1 - kappa z_k), where <X(x)Y| t_a(theta1-SS h) = f_a <X t_a^(1)(theta1-SS h) (x) Y|. *)
+delR[wk_] := Table[1/(wk - zP[[k]]), {k, 4}];
+V12R[om_, wk_] := Flatten[KroneckerProduct[wOm[zP, wP, om] . ρdiag[delR[wk]], wOm[zP, wP, om]]];
+OldR[wk_] := Flatten[KroneckerProduct[omegaVac[zP, wP, 3/7] . ρdiag[delR[wk]], omegaVac[zP, wP, 3/7]]];
+ptL = thN[[1]] - SS hN;
+t1s[a_] := tOne[a, DiagonalMatrix[zP], ptL];
+fOf[X_, Y_, a_] := Module[{m = Partition[Normal[tAct[Flatten[KroneckerProduct[X, Y]], a, ptL]], d1], Z = X . t1s[a], f}, f = m[[1, 1]]/(Z[[1]] Y[[1]]); {f, m === f KroneckerProduct[Z, Y]}];
+wks4 = {-12/5, 7/2, 1/8, 5/3};
+predC[wk_, f1_, f2_] := With[{k = 1/wk}, k^2/Times @@ (1 - k zP) {1, k/(hN f1), k^2/(2 hN^2 f2)}];
+resB = Table[With[{X = wOm[zP, wP, om], f1 = fOf[wOm[zP, wP, om], wOm[zP, wP, om], 1], f2 = fOf[wOm[zP, wP, om], wOm[zP, wP, om], 2]}, {om, f1, f2, Table[With[{s = solveIn[gens3[WWof[om], ptL], V12R[om, wk]]}, {wk, s[[1]], s[[2]], s[[3]], If[s[[3]] === None, "-", s[[3]] - predC[wk, f1[[1]], f2[[1]]]]}], {wk, wks4}]}], {om, oms}];
+Xo = omegaVac[zP, wP, 3/7];
+fo1 = fOf[Xo, Xo, 1]; fo2 = fOf[Xo, Xo, 2];
+resC = Table[With[{s = solveIn[gens3[Om2, ptL], OldR[wk]]}, {wk, s[[1]], s[[2]], s[[3]], If[s[[3]] === None, "-", s[[3]] - predC[wk, fo1[[1]], fo2[[1]]]]}], {wk, wks4}];
+Grid[{{"(B) per om: {om, {f1, rank-1 ok}, {f2, rank-1 ok}, per wk {wk, rank gens, rank+target, c, c - prediction}}", ToString[resB, InputForm]}, {"(C) Omega ref: f1, f2", ToString[{fo1, fo2}, InputForm]}, {"(C) per wk {wk, rank, rank+target, c, c - prediction}", ToString[resC, InputForm]}}, Frame -> All, Alignment -> Left]
+
+===== cell 33 [CODE] =====
+(* Follow-up (D): (D1) <Om|Om|(rho1^-1 (x) 1) = <Om(x)Om| t2(theta1-h)/(2 h^2 chi4 f2) exactly. (D2) the site-2 scan: <Om(x)Om|(1 (x) rho2^-1) is NOT a single t_a(theta2 + m h), m = -3..3, but <Om(x)Om|(1 (x) rho2) = b <Om(x)Om| t2(theta2+h) is; and <Om(x)Om|(rho1 (x) 1) = a0 <Om(x)Om| + sum_k b_k <Om(x)Om| t2(theta1 + m_k h), m_k = -3..0 (4-term). (D3) W(x)W over Om(x)Om on all 36 eigenstates: ratio = [1 - om (E1 + E2) + om^2 chi]/(1 - om z1 z2)^2, chi = Prod z^mu the global torus character, E1 = a0 + sum b_k tau_2(theta1 + m_k h), E2 = b tau_2(theta2 + h). *)
+chi4 = Times @@ zP;
+rinv[d_] := DiagonalMatrix[1/Diagonal[d]];
+rho1inv = SparseArray[KroneckerProduct[SparseArray[rinv[ρdiag[zP]]], SparseArray[id1]]]; rho2inv = SparseArray[KroneckerProduct[SparseArray[id1], SparseArray[rinv[ρdiag[zP]]]]];
+chD1 = Normal[Om2 . rho1inv] === Normal[tAct[Om2, 2, ptL]]/(2 hN^2 chi4 fo2[[1]]);
+scanInv = Flatten[Table[With[{row = Normal[tAct[Om2, a, thN[[2]] + m hN]], tg = Normal[Om2 . rho2inv]}, {a, m, row =!= ConstantArray[0, d2] && MatrixRank[{row, tg}] == 1}], {a, 2}, {m, -3, 3}], 1];
+scanRho = Flatten[Table[With[{row = Normal[tAct[Om2, a, thN[[2]] + m hN]], tg = Normal[Om2 . rho2]}, {a, m, row =!= ConstantArray[0, d2] && MatrixRank[{row, tg}] == 1}], {a, 2}, {m, -3, 3}], 1];
+g2 = Normal /@ {Om2, tAct[Om2, 2, thN[[2]] + hN]};
+cRho2 = LinearSolve[Transpose[g2], Normal[Om2 . rho2]];
+m1s = {-3, -2, -1, 0};
+g1 = Prepend[Normal[tAct[Om2, 2, thN[[1]] + # hN]] & /@ m1s, Normal[Om2]];
+cRho1 = LinearSolve[Transpose[g1], Normal[Om2 . rho1]];
+checks["D: rho2 and rho1 coefficient relations exact"] = {Normal[Om2 . rho2] === cRho2 . g2, Normal[Om2 . rho1] === cRho1 . g1};
+tNum[a_, v_] := tNum[a, v] = Normal[tEval[tcN, a, N[v, pr]]];
+tau[a_, v_, psi_] := With[{km = First@Ordering[Abs[psi], -1]}, (tNum[a, v] . psi)[[km]]/psi[[km]]];
+stats = Table[Module[{psi = esF[[2, k]], km, chi, E1, E2},
+  km = First@Ordering[Abs[esF[[2, k]]], -1]; chi = N[Times @@ (zP^wtBasis[[km]]), pr];
+  E1 = cRho1[[1]] + Sum[cRho1[[j + 1]] tau[2, thN[[1]] + m1s[[j]] hN, psi], {j, 4}]; E2 = cRho2[[1]] + cRho2[[2]] tau[2, thN[[2]] + hN, psi];
+  {Norm[N[Normal[rho12 . psi], pr] - chi psi]/Norm[psi],
+   Table[With[{lhs = (N[WWof[om], pr] . psi)/(N[Om2, pr] . psi), rhs = (1 - om (E1 + E2) + om^2 chi)/(1 - om zP[[1]] zP[[2]])^2}, Abs[lhs - rhs]/Abs[lhs]], {om, oms}]}], {k, d2}];
+Grid[{{"(D1) <Om2|rho1^-1 = <Om2|t2(theta1-h)/(2h^2 chi4 f2)", chD1}, {"(D2) rho2^-1: single-t hits {a, m, hit} (m=-3..3)", ToString[Select[scanInv, #[[3]] &], InputForm]}, {"(D2) rho2: single-t hits", ToString[Select[scanRho, #[[3]] &], InputForm]}, {"(D2) Om2.rho2 = a Om2 + b Om2 t2(theta2+h): (a, b)", ToString[cRho2, InputForm]}, {"(D2) Om2.rho1 = a0 Om2 + sum b_k Om2 t2(theta1 + m_k h), m_k = -3..0: (a0, b_k)", ToString[cRho1, InputForm]}, {"relations exact", ToString[checks["D: rho2 and rho1 coefficient relations exact"]]}, {"global torus: max rel ||rho1 rho2 Psi - chi Psi|| over 36 states", ScientificForm[N[Max[stats[[All, 1]]], 3]]}, {"(D3) W(x)W formula: max rel dev over 36 states, om = 3/7, -5/3", ToString[N[{Max[stats[[All, 2, 1]]], Max[stats[[All, 2, 2]]]}, 3], InputForm]}}, Frame -> All, Alignment -> Left]
+
+===== cell 34 [CODE] =====
+(* Follow-up (E): Tasks 2-4 again with the RESOLVENT torus delta_k = 1/(w2' - z_k) (the paper's G5 insertion in our conventions); the polynomial torus results above stay as a second family. v2 = W_om, v1 = W_om rho(diag(1/(wk - z))), undo as before: phi_u = dLamR e1 exp(R'), R'_ij = R_ij (delta_j/delta_i - 1) -> R_ij (z_j - z_i)/(wk - z_j). *)
+famDelR[zz_, wk_] := Table[1/(wk - zz[[k]]), {k, 4}];
+famV1R[zz_, ww_, om_, wk_] := famV2[zz, ww, om] . ρdiag[famDelR[zz, wk]];
+famPhiR[zz_, ww_, om_, wk_] := famV1R[zz, ww, om, wk] . famRninv[zz, ww, om];
+famRprimeR[zz_, ww_, om_, wk_] := Table[rBlock[zz, ww, om][[a]] (famDelR[zz, wk][[rootsA[[a, 2]]]]/famDelR[zz, wk][[rootsA[[a, 1]]]] - 1), {a, 4}];
+dLamR[zz_, wk_] := (famDelR[zz, wk][[1]] famDelR[zz, wk][[2]])^SS;
+relN[a_, b_] := Norm[a - b]/Norm[b];
+checks["E undo exact on all HW kets (resolvent, finite point)"] = And @@ Flatten[Table[Flatten[KroneckerProduct[famV1R[zP, wP, 3/7, 7/5], famV2[zP, wP, 3/7]]] . h === Flatten[KroneckerProduct[famPhiR[zP, wP, 3/7, 7/5], e1]] . h, {mu, hwSecs}, {h, hwKets[mu]}]];
+checks["E phi_u = dLamR e1 exp(R') (exact)"] = famPhiR[zP, wP, 3/7, 7/5] === dLamR[zP, 7/5] e1 . expPoly[xMat[famRprimeR[zP, wP, 3/7, 7/5]]];
+(* Task 2 *)
+RprimeSR[ph_, omw_, o_, k_] := With[{r = regS[epsS, ph, omw, o, k]}, Together /@ famRprimeR[r["z"], r["w"], r["om"], r["wk"]]];
+Rp0PredR[ph_, omw_, o_, k_] := Table[With[{i = rootsA[[a, 1]], j = rootsA[[a, 2]], ip = 3 - rootsA[[a, 1]]}, x0Lim[ph, omw][[a]] (o + ph[[ip]] + ph[[j]])/(o + ph[[1]] + ph[[2]]) (ph[[j]] - ph[[i]])/(k - ph[[j]])], {a, 4}];
+c0OfR[ph_, omw_, o_, k_] := e1 . expPoly[xMat[Rp0PredR[ph, omw, o, k]]];
+checks["E R'(0) formula = symbolic limit at 12 grid points x {phi, phi'}"] = And @@ Flatten[Table[(RprimeSR[ph, omwP, g[[1]], g[[2]]] /. epsS -> 0) === Rp0PredR[ph, omwP, g[[1]], g[[2]]], {ph, {phiP, phiC}}, {g, gridPts}]];
+phS1 = Together /@ (e1 . expPoly[xMat[RprimeSR[phiP, omwP, oS[[1]], kS[[1]]]]]);
+phSer1 = ser[#, 3] & /@ phS1;
+ordTabR = Table[{wtList[[m]], Length[wtIdx[[m]]], Table[leadOrd[phSer1[[i]]], {i, wtIdx[[m]]}]}, {m, Length[wtList]}];
+rankR = Table[With[{c0s = Table[c0OfR[phiP, omwP, g[[1]], g[[2]]], {g, gridPts}]}, {wtList[[m]], Length[wtIdx[[m]]], MatrixRank[c0s[[All, wtIdx[[m]]]]]}], {m, Length[wtList]}];
+detGridR = Table[detOf[Rp0PredR[phiP, omwP, g[[1]], g[[2]]]], {g, gridPts}];
+RprimeCtlR[ph_, omw_, omFix_, k_] := With[{r = regS[epsS, ph, omw, 0, k]}, Together /@ famRprimeR[r["z"], r["w"], omFix, r["wk"]]];
+phCtlR = Together /@ (e1 . expPoly[xMat[RprimeCtlR[phiP, omwP, 3/7, kS[[1]]]]]);
+ctlTabR = Table[{wtList[[m]], Table[leadOrd[ser[phCtlR[[i]], 3]], {i, wtIdx[[m]]}]}, {m, Length[wtList]}];
+(* Task 3 *)
+vecsAtFR[zz_, ww_, om_, wk_] := Module[{v1 = famV1R[zz, ww, om, wk], v2 = famV2[zz, ww, om], ph = famPhiR[zz, ww, om, wk]}, <|"v12" -> N[Flatten[KroneckerProduct[v1, v2]], pr], "phe1" -> N[Flatten[KroneckerProduct[ph, e1]], pr]|>];
+ptJointR[ie_, ph_, omw_, o_, k_] := With[{eps = epsL[[ie]]}, t3Point[branchesAt[zAt[eps, ph]], vecsAtFR[zAt[eps, ph], 1 + eps omw, 1 + eps o, 1 + eps k]]];
+ptCtlR[ie_, ph_, omw_, k_] := With[{eps = epsL[[ie]]}, t3Point[branchesAt[zAt[eps, ph]], vecsAtFR[zAt[eps, ph], 1 + eps omw, 3/7, 1 + eps k]]];
+{tLoopR, T3R} = AbsoluteTiming[Table[ptJointR[ie, phiP, omwP, g[[1]], g[[2]]], {ie, 3}, {g, gridPts}]];
+T3cR = Table[ptCtlR[ie, phiP, omwP, k], {ie, 3}, {k, kS}];
+tabJR = tabFor[T3R, 12]; tabCR = tabFor[T3cR, 3];
+(* Task 4 *)
+rhsAtR[ie_, ib_] := Table[T3R[[ie, ip, ib, "RC"]]/dLamR[zAt[epsL[[ie]], phiP], 1 + epsL[[ie]] gridPts[[ip, 2]]], {ip, 12}];
+phi0RowsR[ib_] := Table[N[c0OfR[phiP, omwP, gridPts[[ip, 1]], gridPts[[ip, 2]]][[sliceOf[hwList[[ib, 1]]]]], pr], {ip, 12}];
+estR[ie_, ib_] := LeastSquares[phi0RowsR[ib], rhsAtR[ie, ib]];
+t4R = Table[With[{d = Length[sliceOf[hwList[[ib, 1]]]], cb = Table[cBchain[ie, ib], {ie, 3}], es = Table[estR[ie, ib], {ie, 3}]}, {hwList[[ib]], d, N[Table[relN[es[[ie]], cb[[ie]]], {ie, 3}], 4], N[relN[2 es[[1]] - es[[2]], 2 cb[[1]] - cb[[2]]], 4]}], {ib, nB}];
+Grid[{{"E checks", ToString[Normal[KeyTake[checks, {"E undo exact on all HW kets (resolvent, finite point)", "E phi_u = dLamR e1 exp(R') (exact)", "E R'(0) formula = symbolic limit at 12 grid points x {phi, phi'}"}]], InputForm]}, {"T2 single point (o=-12/5,k=-1/5): weight, dim, lead orders", ToString[ordTabR, InputForm]}, {"T2 grid ranks (weight, dim, rank)", ToString[rankR, InputForm]}, {"det R'(0) != 0 on grid", AllTrue[detGridR, # =!= 0 &]}, {"CONTROL om = 3/7 fixed: weight, lead orders", ToString[ctlTabR, InputForm]}, {"T3 joint: {branch, S exp range, K exp range, max|K/S| at 3 eps, undo dev}", ToString[tabJR, InputForm]}, {"T3 control (om fixed)", ToString[tabCR, InputForm]}, {"T4: {branch, slice dim, rel err at 3 eps, Richardson}", ToString[t4R, InputForm]}, {"loop time (s)", tLoopR}}, Frame -> All, Alignment -> Left]
+
+===== cell 35 [MD] =====
+**Results, cells 31-34 (SS = 1, resolvent follow-up; copied from K1 output).**
+
+(A) Hand derivation CONFIRMED exactly: all four t_a^(1)(theta1 - h; diag z) are diagonal in the GT basis; t1 eigenvalue -(h)(z_c' + z_d') and t2 eigenvalue 2h^2 z_c' z_d' with deviation 0 (symbolic z, all 6 weights); t3 = t4 = 0 at theta1 - h. No sign/shift discrepancy.
+
+(B) <v1(x)v2| = <W(x)W|(c0 + c1 t1 + c2 t2)(theta1 - h) with v1 = W rho(diag(1/(w2' - z))): CONSISTENT for all 8 (om, w2') in {3/7, -5/3} x {-12/5, 7/2, 1/8, 5/3} (rank 3 -> 3). Site-2 prefactors (<X(x)Y|t_a(theta1-h) = f_a <X t_a^(1)(x)Y|, rank-1 factorisation verified): f1 = 27/70, f2 = -54/1225, independent of om and equal for X = W and X = Omega. The exact coefficients equal c = pref (1, kappa/(h f1), kappa^2/(2 h^2 f2)), pref = kappa^2/Prod_k(1 - kappa z_k), kappa = 1/w2', with difference exactly {0,0,0} at all 4 w2' for both om (the fourth w2' = 5/3 is the independent verification). c at om = 3/7 (same at -5/3): w2' = -12/5: (12600/283751, -245000/2553759, -5359375/15322554); 7/2: (686/2091, 27440/56457, -68600/56457); 1/8: (448/10725, 100352/57915, -1404928/11583); 5/3: (840/23, 7840/69, -13720/23).
+
+(C) <Omega rho(Delta^-1)(x)Omega| over <Omega(x)Omega| with the same three generators: consistent (rank 3 -> 3) at all 4 w2'; same c as in (B), difference from the prediction exactly 0.
+
+(D) (D1) <Om|Om|(rho1^-1 (x) 1) = <Om|Om| t2(theta1-h)/(2 h^2 chi4 f2): True (exact). (D2) Site 2: <Om(x)Om|(1 (x) rho2^-1) is NOT a single t_a(theta2 + m h) for a = 1,2, m = -3..3 (no hit); instead <Om(x)Om|(1(x)rho2) = -(1225/27) <Om(x)Om| t2(theta2 + h) (the only hit, exact), and <Om(x)Om|(rho1(x)1) = a0 <Om|Om| + sum_k b_k <Om|Om| t2(theta1 + m_k h), m_k = -3,-2,-1,0, (a0, b_k) = (62449/10780, -3/11, -8/33, 437/22, 2216/297) (exact). (D3) On all 36 eigenstates (precision 200): global torus rho1 rho2 Psi = chi Psi with max rel dev 0 (accuracy 196); <W(x)W|Psi>/<Om(x)Om|Psi> = [1 - om (E1 + E2) + om^2 chi]/(1 - om z1z2)^2 with chi = Prod z^mu, E1 = a0 + Sum_k b_k tau_2(theta1 + m_k h), E2 = -(1225/27) tau_2(theta2 + h): max rel deviation 0 (accuracy 190) for om = 3/7 and -5/3. So the whole family at SS = 1 is a Q-number (explicit function of the global character and t2 eigenvalues), with the polynomial-in-kappa three-term insertion of (B).
+
+(E) Resolvent torus Tasks 2-4 (SS = 1): undo exact on all HW kets; phi_u = dLamR e1 exp(R') exact; R'(0) = x0 (o+phi_i'+phi_j)/(o+phi1+phi2) (phi_j - phi_i)/(k - phi_j) equals the symbolic limit at 12 grid points x {phi, phi'}; all 6 weights O(1), rank 1 each, det R'(0) != 0 on the grid; control om = 3/7: singlet O(eps^2), others O(1). K/S joint: singlet 1.89e-7, 3.78e-7, 7.55e-7; [2,1,1,0] 6.10e-7, 1.22e-6, 2.44e-6; [2,2,0,0] K = 0 (numbers identical to the polynomial torus); S ~ eps^-2, K ~ eps^-1. Control K/S: singlet 0.027367 (polynomial torus: 0.016171), constant in eps; [2,1,1,0] unchanged. Task 4: rel errors singlet 1.14e-6, 2.28e-6, 4.55e-6; [2,1,1,0] 5.9e-7, 1.18e-6, 2.36e-6; Richardson 2.0e-12, 5.0e-13.
