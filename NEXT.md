@@ -49,8 +49,12 @@ Everything is in `Paul/Mathematica/su4-alternating/`: **read its `README.md`, th
 2e. **Other discrete symmetries (`abjm-other-symmetries.wb`):** besides LR (𝒫): parity P (𝒬): τ̄₁(u) = τ̄₁(2h−u)
    ⇔ Q₁(u) ∝ Q₁₂₃(2h−u); LP (𝒫𝒬): τ̄₁(u) = τ̄₃(3h−u) ⇔ Q₁(u) ∝ Q₁(h−u). All occur (L=4: 24 LR, 60 P, 40 LP of
    152). Product states: P is preserved by EVERY two-site state (v⊗w)^{⊗L} (L = 2, 3, 4, exact to 1e-16) —
-   integrable-boundary-state-like; LR none (L=2); LP only an L=2 accident (SU(2)xSU(2) sector). L=3 searches
-   (sketched kernel) were running at the last commit — see the notebook's last cell.
+   integrable-boundary-state-like; LR none (L=2); LP only an L=2 accident (SU(2)xSU(2) sector). (Per-length
+   product searches abandoned: the 3-pt bras must use the SAME polarisations at every L — see 2f.)
+2f. **Length-independent 3-pt configurations with a selection rule (`abjm-3pt-configs.wb`, last cells):**
+   P-selection rules (C = 0 unless Q₁(u) ∝ Q₁₂₃(2h−u)), operator-level on the cyclic sector at L = 3, 4:
+   note's configuration with bridge ℓ = 1 (or 2L−1); half-degenerate orbits at ℓ = 1; both-pairings-zero orbit
+   (block 2 = (e₂,e₃)) at ℓ = 2 (or 2L−2). No uniform LR or LP rule in the two-block BPS class.
 3. Integrability of ⟨W_a^L| (note's (4.8)); later the ⟨W^L|Ψ⟩ determinant (Q stage).
 4. Notebook versions of the numpy results ({1,3} common rotation closed form, frame map, odd-bridge formula).
 
