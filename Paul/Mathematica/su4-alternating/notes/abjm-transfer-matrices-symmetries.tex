@@ -252,9 +252,16 @@ Single-site (non-BPS) rotations site $1+\kappa e_4$ and site $2+\kappa e_3$ have
 \paragraph{At the ABJM point pair by pair.} With $\theta_{A,n}=\theta_{F,n}+2h$ and generic $\theta_{F,n}$, the words above
 degenerate: at $u=\theta_A-h=\theta_F+h$ the fused $t_3$ vanishes through its scalar factor, and even with the reduced
 $\tb_2,\tb_3$ the same-pair F Lax is $h(1-P)$, giving rank $169=13^2$ (13 per pair; same for $u_A=\theta_A,\theta_A\pm h,
-\theta_A-2h$). The basis is restored (rank 256) with the A-site words at $u_A=\theta_A-3h=\theta_F-h$ or
-$u_A=\theta_A+2h=\theta_F+4h$, using $\tb_2,\tb_3$. The BPS sparsity is unchanged (vacuum 1, F-only general 9,
-$E_{34}$: 4, $E_{24}$: 5, $E_{12}$: 13, A-only general 56, SU(2)$\times$SU(2) 37, generic 256).
+\theta_A-2h$). A word basis (rank 256) is restored with the A-site words at $u_A=\theta_A-3h$ or $\theta_A+2h$, using
+$\tb_2,\tb_3$, with unchanged BPS sparsity --- \emph{but it is not an SoV basis}.
+
+\paragraph{B-operator check.} Ryan--Volin $B(u)=\sum_{k_1}\sum_{K_2}T_{k_1,1}(u)\,\mathrm{qmin}_{K_2;(1,k_1+1)}(u+h)\,
+\mathrm{qmin}_{(1,2,3);(1,K_2+1)}(u+2h)$ from the untwisted $T$, $[B(u),B(v)]=0$. At generic $\theta$ all 256 words
+($u_A=\theta_A-h$) are $B$-eigenbras (exact): a genuine SoV basis, so the sparse expansions above are SoV expansions.
+At $\theta_A=\theta_F+2h$ only the 16 F-only words are $B$-eigen, and $B$ itself is degenerate: the number of distinct
+eigenvalues is $256$ for $d=\theta_A-\theta_F\in\{0,4h,\text{generic}\}$ but $169=13^2$ for $d\in\{h,2h,3h\}$ (collision of
+the separated variables of the two sites of a pair). The ABJM point therefore needs either a limit $d\to2h$ of the
+generic SoV basis or a different $B$.
 
 %======================================================================
 \section{Open}
