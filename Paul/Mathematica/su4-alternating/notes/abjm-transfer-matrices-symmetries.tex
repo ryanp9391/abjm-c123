@@ -220,6 +220,36 @@ the analogue of integrable two-site boundary states.
 \end{itemize}
 
 %======================================================================
+\section{Companion-twist SoV basis at four sites and BPS expansions}
+%======================================================================
+
+[\nb{sov-companion-L4.wb}] Four sites A F A F, companion twist $G_c(z)$, generic $\theta$. The 256 words
+\begin{equation}
+ \langle a_1,k_2,a_3,k_4|=\langle0|\,t_{a_1}(\theta_1-h)\,t_1(\theta_2)^{k_2}\,t_{a_3}(\theta_3-h)\,t_1(\theta_4)^{k_4},\qquad a_i,k_i\in\{0,1,2,3\},
+\end{equation}
+form a basis (exact rank 256), with factorised overlaps $\langle\Lambda|\Psi\rangle=\tau_{a_1}(\theta_1-h)\tau_1(\theta_2)^{k_2}
+\tau_{a_3}(\theta_3-h)\tau_1(\theta_4)^{k_4}\langle0|\Psi\rangle$. Expansions $\langle B|=\sum_\Lambda c_\Lambda\langle\Lambda|$ of BPS
+states $v\otimes w\otimes v\otimes w$, $v\cdot w=0$ (number of nonzero $c_\Lambda$):
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+BPS state & $\#\{c_\Lambda\neq0\}$\\
+\midrule
+vacuum & 1\\
+F sites only, $v=e_1$, $w\in e_1^\perp$ general & 9 \ ($a_1=a_3=0$, $k_2,k_4\le2$)\\
+F only, $\exp(\kappa E_{34})$ & 4 \ ($k\le1$; not a product, F--F exchange term)\\
+F only, $\exp(\kappa E_{24})$ & 5\\
+A only, $\exp(\kappa E_{12})$ & 13 \ ($a\le2$, $k\le1$)\\
+A only, $w=e_4$, $v\in e_4^\perp$ general & 56\\
+SU(2)$\times$SU(2) sector & 37\\
+torus $\mathbb C[G_c^T]$ & 134--236\\
+generic & 256\\
+\bottomrule
+\end{tabular}
+\end{center}
+Single-site (non-BPS) rotations site $1+\kappa e_4$ and site $2+\kappa e_3$ have two-term expansions.
+
+%======================================================================
 \section{Open}
 %======================================================================
 \begin{itemize}
