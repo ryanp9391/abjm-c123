@@ -37,6 +37,11 @@ Everything is in `Paul/Mathematica/su4-alternating/`: **read its `README.md`, th
    `su4-alternating/data/abjm-hw-states.wxf` — load, don't recompute. No 2603-type LR selection rule for ⟨B_ℓ|;
    vanishing = R-charge ([p,0,p], |ℓ−L| ≤ p) + bridge parity (L+p odd ⇒ ℓ ≡ L+p mod 2) + two isolated zeros at L = 4
    (E = 32 [1,0,1], E = 8 [2,0,2]). Open: 𝒫-symmetrised bra (both bridge placements)? twisted version?
+2c. **Q-functions + configurations (2026-10-12):** `abjm-Qfunctions.wb` — Q₁, Q₁₂, Q₁₂₃ for all 184 states
+   (`data/abjm-Qfunctions.wxf`); LR ⇔ Q₁(u) ∝ Q₁₂₃(u+h), spectrum = LR singlets + LR doublets (as in 2603).
+   `abjm-3pt-configs.wb` — no two-block BPS configuration (any polarisations, ℓ, A/F start) gives an LR selection
+   rule at L = 3, 4; "only non-LR couple" happens in many configurations but not uniformly in L. Next idea: bras
+   annihilated by t̄₁(u) − t̄₃(u+h) (twisted, à la 2603 ω = 1), or bridges built from transfer matrices.
 3. Integrability of ⟨W_a^L| (note's (4.8)); later the ⟨W^L|Ψ⟩ determinant (Q stage).
 4. Notebook versions of the numpy results ({1,3} common rotation closed form, frame map, odd-bridge formula).
 
