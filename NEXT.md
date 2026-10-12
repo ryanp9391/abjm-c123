@@ -62,7 +62,9 @@ Everything is in `Paul/Mathematica/su4-alternating/`: **read its `README.md`, th
    B-eigen (genuine SoV). At the ABJM point (θ_A,n = θ_F,n + 2h) the RV B is DEGENERATE (169 = 13² distinct
    eigenvalues for d = θ_A − θ_F ∈ {h, 2h, 3h}; simple for d ∈ {0, 4h, generic}); shifted word bases exist but are
    not SoV. Next: limit d → 2h, or a different B (4̄ aux / other frame) that stays simple at d = 2h.
-   Write-up of all results: `notes/abjm-transfer-matrices-symmetries.tex/.pdf`.
+   **Complete write-up of the whole thread** (conventions + RV dictionary, t₂/t₃, ABJM point, localisation, 3-pt
+   construction, states/Q's, symmetries, selection rules, SoV, open problems, notebook/data index, superseded
+   statements): `su4-alternating/notes/abjm-transfer-matrices-symmetries.tex/.pdf` (9 pp., 2026-10-12).
 3. Integrability of ⟨W_a^L| (note's (4.8)); later the ⟨W^L|Ψ⟩ determinant (Q stage).
 4. Notebook versions of the numpy results ({1,3} common rotation closed form, frame map, odd-bridge formula).
 

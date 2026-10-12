@@ -1,7 +1,8 @@
 \documentclass[11pt]{article}
-\usepackage[a4paper,margin=2.3cm]{geometry}
+\usepackage[a4paper,margin=2.2cm]{geometry}
 \usepackage{amsmath,amssymb}
 \usepackage{booktabs}
+\usepackage{longtable}
 \usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue]{hyperref}
 
 \newcommand{\tb}{\bar t}
@@ -11,124 +12,275 @@
 \newcommand{\cQ}{\mathcal Q}
 \newcommand{\HMZ}{H_{\rm MZ}}
 \newcommand{\nb}[1]{\texttt{#1}}
+\newcommand{\ex}{\textsf{[exact]}}
+\newcommand{\num}[1]{\textsf{[num, $#1$]}}
+\newcommand{\npy}{\textsf{[numpy]}}
+\newcommand{\ket}[1]{|#1\rangle}
+\newcommand{\bra}[1]{\langle#1|}
 
-\title{ABJM $\mathfrak{su}(4)$ alternating chain:\\ transfer matrices, ABJM point, discrete symmetries and selection rules}
-\author{Paul Ryan \quad(notes compiled with Claude, 12-10-2026)}
+\title{The ABJM $\mathfrak{su}(4)$ alternating chain:\\[2pt]
+transfer matrices, ABJM point, localisation, discrete symmetries,\\ selection rules and separation of variables}
+\author{Paul Ryan \qquad (complete notes, compiled with Claude, 12-10-2026)}
 \date{}
 
 \begin{document}
 \maketitle
 
-\noindent All results below were obtained in wolfbook notebooks in \nb{Paul/Mathematica/su4-alternating/}; the notebook
-that contains each result is given in brackets. Numerical checks are machine precision unless stated;
-``exact'' means rational/symbolic arithmetic. Data files are in \nb{data/}.
+\begin{abstract}
+\noindent These notes collect everything obtained so far in the \nb{su4-alternating} thread of the \nb{abjm-c123}
+repository: the one-pass fused transfer matrices $t_2,t_3$; the identification of the ABJM point
+$\theta_A-\theta_F=2h$ through the Minahan--Zarembo Hamiltonian; the localising transfer-matrix words and free-parameter
+rotations; the transfer-matrix construction of the ABJM three-point functions of the ABJM note; all highest-weight
+cyclic eigenstates and Q-functions up to $L=4$ pairs; three discrete symmetries (LR, parity, and their product) in
+eigenvalue and Q-function form; vanishing rules for structure constants and length-independent parity selection rules;
+factorised bras annihilated by the symmetry differences; and the companion-twist separation-of-variables basis at four
+sites with sparse expansions of BPS states.
+\end{abstract}
 
 \tableofcontents
 
 %======================================================================
-\section{Chain, conventions and transfer matrices}
+\section{Overview, evidence levels, reproducibility}
 %======================================================================
 
-\paragraph{Chain.} $2L$ sites (``$L$ pairs''), alternating A F A F $\dots$, periodic. A sites carry the $\mathbf 4$
-($\rho_A(E_{ij}) = e_{ij}$, group acts by $g$), F sites the $\bar{\mathbf 4}$ ($\rho_F(E_{ij}) = -e_{ji}$, group acts by
-$g^{-T}$). In ABJM language: $\mathrm{tr}(Y^{A_1}Y^\dagger_{B_1}\cdots Y^{A_L}Y^\dagger_{B_L})$. Length $L=2,3,4$ means
-$4,6,8$ sites and state spaces of dimension $256, 4096, 65536$. $P_{ab}=\sum e_{ij}\otimes e_{ji}$ (same-type sites),
-$K_{ab}=\sum e_{ij}\otimes e_{ij}$ (A--F pair; $4\times$ the singlet projector). $h=\tfrac12$ throughout.
+\paragraph{Evidence levels.} \ex: rational/symbolic arithmetic in a wolfbook notebook. \num{10^{-n}}: machine or
+high-precision numerics in a notebook, residual $10^{-n}$. \npy: double-precision checks in the legacy
+\nb{checks/*.py} scripts, not (yet) re-done in a notebook. All new work is done in wolfbook notebooks
+(\nb{Paul/Mathematica/su4-alternating/*.wb}); the notebook containing each result is given in brackets.
 
-\paragraph{Fundamental transfer matrix.} $\cL_s(u)=\sum_{ij}e_{ij}\otimes\big((u-\theta_s)\delta_{ij}+h\,\rho_s(E_{ij})\big)$,
-i.e.\ $\cL_A = u-\theta+hK$, $\cL_F=u-\theta-hP$; $T=\cL_1\cdots\cL_{2L}$, twist on the right,
-$t_1(u)=\mathrm{tr}\,T(u)G$. $t_a$ are the quantum-minor fusions (rows antisymmetrised, column $k$ at $u-(k-1)h$).
+\paragraph{Standard points.} $h=\tfrac12$. Generic: $\theta=(2/7,-3/5,8/11,-11/8)$, companion twist $G_c(z)$ with
+$z=(3/2,5/4,2/3,4/7)$. ABJM point: $\theta_A=\theta_F+2h$ (homogeneous $\theta_A=2h$, $\theta_F=0$ for spectra; pair by pair
+$\theta_{A,n}=\theta_{F,n}+2h$ with generic $\theta_{F,n}$ for SoV).
 
-\paragraph{One-pass $t_2$ and $t_3$} [\nb{dual-lax-t3.wb}, exact]. From the one-site quantum minors:
-\begin{align}
- t_3(u) &= \prod_s g^{(3)}_s(u)\;\mathrm{tr}\big[\Lb_1(u)\cdots\Lb_{2L}(u)\,\det G\,G^{-T}\big],\\
- \Lb_A &= (u-\theta+h)-hP,\qquad g^{(3)}_A=(u-\theta-h)(u-\theta-2h),\nonumber\\
- \Lb_F &= (u-\theta-3h)+hK,\qquad g^{(3)}_F=(u-\theta)(u-\theta-h),\nonumber
-\end{align}
-in the sign gauge $(-1)^k$ on the dual index; and
+\paragraph{Data} (in \nb{data/}, Mathematica WXF, each with a \nb{"description"} key documenting conventions):
+\nb{abjm-hw-states.wxf} (all HW cyclic eigenstates, $L=2,3,4$ pairs, with energies, LR data and $C_\ell$),
+\nb{abjm-tau.wxf} (eigenvalue polynomials $\tb_{1,2,3}(u)$ of these states), \nb{abjm-Qfunctions.wxf} ($Q_1,Q_{12},Q_{123}$,
+roots, degrees), \nb{abjm-tau-L4.wxf}. Load with \nb{Import[file,"WXF"]}.
+
+\paragraph{Headline results.}
+\begin{enumerate}
+\item $t_2$ and $t_3$ are single-pass transfer matrices with explicit $\wedge^2$ and dual Lax operators (\S\ref{sec:tm}).
+\item The ABJM chain is the point $\theta_A-\theta_F=2h$; there $\HMZ=U(0)^{-1}U'(0)+\mathrm{const}$ with
+$U=\tb_1\tb_3$ (\S\ref{sec:abjm}).
+\item Three discrete symmetries $\cP$ (LR), $\cQ$ (parity), $\cP\cQ$ with exact Q-function forms
+$Q_1\propto Q_{123}(u+h)$, $Q_1\propto Q_{123}(2h-u)$, $Q_1\propto Q_1(h-u)$ (\S\ref{sec:sym}).
+\item No LR selection rule for ABJM three-point functions in the two-block BPS class; length-independent \emph{parity}
+selection rules exist, e.g.\ the note's configuration with a one-field bridge (\S\ref{sec:configs}).
+\item The companion-twist SoV basis at four sites is a genuine $B$-eigenbasis at generic $\theta$; BPS states that rotate
+only the F sublattice have $\le9$ of 256 SoV coefficients; at the ABJM point the Ryan--Volin $B$ is degenerate
+(\S\ref{sec:sov}).
+\end{enumerate}
+
+%======================================================================
+\section{Conventions and dictionaries}\label{sec:conv}
+%======================================================================
+
+\paragraph{Chain.} $2L$ sites (``$L$ pairs''), A F A F $\dots$, periodic. A sites carry the $\mathbf4$:
+$\rho_A(E_{ij})=e_{ij}$, group acts by $g$; F sites the $\bar{\mathbf4}$: $\rho_F(E_{ij})=-e_{ji}$, group acts by $g^{-T}$.
+ABJM: $\mathrm{tr}(Y^{A_1}Y^\dagger_{B_1}\cdots)$; $L=2,3,4$ pairs $=4,6,8$ sites, dimensions $256,4096,65536$.
+$P_{ab}=\sum e_{ij}\otimes e_{ji}$ (same-type sites), $K_{ab}=\sum e_{ij}\otimes e_{ij}$ (A--F pair, $=|S\rangle\langle S|$,
+$S=\sum e_i\otimes e_i$). Bra site vectors transform as $v\to g^Tv$ (A), $w\to g^{-1}w$ (F); the bilinear pairing $v\cdot w$
+between an A and an F vector is invariant. (Paul's SoV naming calls A ``anti-fundamental'' and F ``fundamental''; see the
+\nb{README}. The $L=2$-site notebook uses the opposite names.)
+
+\paragraph{Lax, monodromy, fusion.}
 \begin{equation}
- t_2(u)=\prod_s g^{(2)}_s(u)\;\mathrm{tr}\big[\cL^{(2)}_1\cdots\cL^{(2)}_{2L}\,\wedge^2 G\big],\quad
- \cL^{(2)}_s=(u-\tilde\theta_s)+h\sum_{ab}D(e_{ab})\otimes\rho_s(E_{ab}),
+ \cL_s(u)=\sum_{ij}e_{ij}\otimes\big((u-\theta_s)\delta_{ij}+h\rho_s(E_{ij})\big),\qquad
+ \cL_A=u-\theta+hK,\quad \cL_F=u-\theta-hP,
 \end{equation}
-$D$ = derivation action on $\wedge^2\mathbb C^4$, $\tilde\theta_A=\theta$, $\tilde\theta_F=\theta+h$, $g^{(2)}_A=u-\theta-h$,
-$g^{(2)}_F=u-\theta$. Both checked identically against the quantum minors at $2L=2,4$ for companion, diagonal,
-generic and trivial twist. Relative A/F shift: $0$ for $t_1$, $h$ for $t_2$, $4h$ for $t_3$ (the earlier ``naive'' dual
-Lax had the right $P/K$ structure but no relative shift). $\tb_a$ denotes the reduced transfer matrices (without the
-scalar $\prod g_s$).
+$T=\cL_1\cL_2\cdots\cL_{2L}$ (site 1 leftmost), twist on the right, $T^G=TG$. Quantum minors: rows antisymmetrised,
+column $k$ at $u-(k-1)h$; $t_a(u)=\sum_{|I|=a}\mathrm{qmin}_{I,I}[T^G](u)$, equivalently
+$t_a=\sum_{I,J}\mathrm{qmin}_{I,J}[T](u)\det G_{J,I}$.
+
+\paragraph{Twists.} Companion $G_c(z)=\{\{c_1,-c_2,c_3,-c_4\},\{1,0,0,0\},\{0,1,0,0\},\{0,0,1,0\}\}$, $c_k=e_k(z)$;
+diagonal $\Lambda=\mathrm{diag}(z)$. Frame map \npy\ [\nb{checks/chk\_frame.py}]: with $V$ the Vandermonde matrix
+(columns $(z_j^3,z_j^2,z_j,1)^T$, $G_cV=V\Lambda$), $t^{G_c}(u)R=Rt^{\Lambda}(u)$, $R=\otimes(V^{-T}$ on A, $V$ on F$)$,
+$\bra{x_{\rm diag}}=\bra{x_{\rm comp}}R$. $\gamma:=G^{-T}$.
+
+\paragraph{Vacuum.} $\bra0=e_1\otimes e_4\otimes e_1\otimes e_4\cdots$ (A: $e_1$, F: $e_4$). It is the Ryan--Volin SoV vacuum
+(\S\ref{sec:sov}). On the ket vacuum $T_{ij}\ket0=0$ for $i<j$ and
+$T_{ii}\ket0=V_i\ket0$, $V_1=(u-\theta_A+h)^L(u-\theta_F)^L$, $V_2=V_3=(u-\theta_A)^L(u-\theta_F)^L$,
+$V_4=(u-\theta_A)^L(u-\theta_F-h)^L$ (pair-periodic $\theta$).
+
+\paragraph{Dictionary to Ryan--Volin (arXiv:2002.12341).} RV Lax $u-\hbar\sum E_{ij}\otimes\pi(E_{ji})$, $T=\cL_L\cdots\cL_1$.
+With $\hbar=h$: $\pi=-\rho^T$, so our A site is RV's dual irrep and our F site RV's fundamental; our site $s$ is RV's site
+$2L+1-s$. Quantum minors (2.15) and $B$ (2.25) agree verbatim.
+
+\paragraph{Dictionary to the ABJM note and 2603.} Note (\nb{StructuringABJM.pdf}): $O_2=\mathrm{tr}(Y_1^\dagger Y^4)^L$,
+$O_3=\mathrm{tr}(\tilde Y_1^\dagger\tilde Y^4)^L$, $\tilde Y_1^\dagger=Y_1^\dagger-Y_4^\dagger$, $\tilde Y^4=Y^1+Y^4$; (3.6)
+$C=\mathcal N(\bra{Y_1^\dagger Y^4}^{L-M}\otimes\bra{\tilde Y_1^\dagger\tilde Y^4}^{M})\ket\Psi$. On one pair:
+$W_a:=(e_1+ae_4)\otimes(e_4-ae_1)=\bra{\rm vac}\rho(1+aE_{14})$; $W_0$ = O$_2$ pair, $W_{-1}$ = O$_3$ pair. 2603
+(arXiv:2603.26617): $\mathfrak{so}(6)$ chain of 6's, LR symmetry $\tau_+=\tau_-$, structure constant $C=0$ unless LR
+symmetric (Sec.~IV, (18)--(20)); O$_2$ = O$_3$ with the first $\ell$ sites rotated by $1-\kappa\,$twist.
 
 %======================================================================
-\section{The ABJM point}
+\section{Transfer matrices}\label{sec:tm}
 %======================================================================
 
-[\nb{abjm-chain.wb}, \nb{abjm-bridges.wb}] Minahan--Zarembo Hamiltonian (arXiv:0806.3951; Bak--Rey arXiv:0807.2063),
-prefactor $\lambda^2/2$ dropped:
+[\nb{dual-lax-t3.wb}] From the one-site quantum minors (symbolic in $u,\theta,h$) and checked identically against the
+quantum-minor $t_a$ on the chain at 2 and 4 sites for companion, diagonal, generic and trivial twist \ex:
+\begin{align}
+ t_3(u)&=\prod_sg^{(3)}_s(u)\,\mathrm{tr}\big[\Lb_1\cdots\Lb_{2L}\,\det G\,G^{-T}\big],&
+ \Lb_A&=(u-\theta+h)-hP,\quad \Lb_F=(u-\theta-3h)+hK,\nonumber\\
+ &&g^{(3)}_A&=(u-\theta-h)(u-\theta-2h),\quad g^{(3)}_F=(u-\theta)(u-\theta-h),\\
+ t_2(u)&=\prod_sg^{(2)}_s(u)\,\mathrm{tr}\big[\cL^{(2)}_1\cdots\cL^{(2)}_{2L}\,\wedge^2G\big],&
+ g^{(2)}_A&=u-\theta-h,\quad g^{(2)}_F=u-\theta,\nonumber\\
+ &&\cL^{(2)}_s&=u-\tilde\theta_s+h\textstyle\sum_{ab}D(e_{ab})\otimes\rho_s(E_{ab}),
+\end{align}
+with the sign gauge $(-1)^k$ on the dual index of $t_3$, $D$ the derivation action on $\wedge^2\mathbb C^4$,
+$\tilde\theta_A=\theta$, $\tilde\theta_F=\theta+h$, $(\wedge^2G)_{JI}=\det G_{J,I}$. Relative A/F shift: $0$ ($t_1$), $h$ ($t_2$),
+$4h$ ($t_3$); the earlier naive dual Lax missed the shift. $\tb_a$ := reduced transfer matrices (no $\prod g_s$).
+Vector form: one pass per vector ($0.16$\,s for $t_3$ at 6 sites; a few seconds at 8 sites with the sparse site action),
+$[t_a,t_b]=0$ to $10^{-16}$ at 6 sites.
+
+%======================================================================
+\section{The ABJM point}\label{sec:abjm}
+%======================================================================
+
+[\nb{abjm-chain.wb}] Minahan--Zarembo two-loop Hamiltonian (arXiv:0806.3951; Bak--Rey arXiv:0807.2063; prefactor
+$\lambda^2/2$ dropped, form quoted from memory and confirmed by the commutation below):
 \begin{equation}
  \HMZ=\sum_{l=1}^{2L}\big(2-2P_{l,l+2}+P_{l,l+2}K_{l,l+1}+K_{l,l+1}P_{l,l+2}\big).
 \end{equation}
-Hermitian, $\mathfrak{su}(4)$-invariant, invariant under the pair shift $S$. Spectrum at $L=2$: $E=0\ (\times84,\ [2,0,2]$
-BPS), $4,\ 8\ (\times120),\ 12\ (\times30),\ 16\ (\times20),\ 20$.
+Hermitian, $\mathfrak{su}(4)$-invariant, $[\HMZ,S]=0$ \ex. $L=2$ spectrum: $0\,(\times84)$, $4$, $8\,(\times120)$,
+$12\,(\times30)$, $16\,(\times20)$, $20$.
+\begin{itemize}
+\item \ex\ ($L=2$, $u$ symbolic): $[\HMZ,\tb_a(u)]=0$ for $a=1,2,3$ at $\theta_A-\theta_F=2h$, not at $\theta_A=\theta_F$;
+with $d=\theta_A-\theta_F$ symbolic the gcd of all commutator coefficients is $\propto d-2h$: the point is unique.
+\num{10^{-15}} at $L=3$.
+\item $U(u)=\tb_1(\theta_F+u)\tb_3(\theta_A-h+u)$: at $u=0$, $\tb_1$ has $P$ on F sites, $\tb_3$ has $P$ on A sites and the
+A--F dressings are $(x+hK)(-x-4h+hK)=x(-x-4h)$, $x=\theta_F-\theta_A$. Hence $U(0)=cS$, $c=h^4[x(-x-4h)]^2$ at $L=2$
+\num{10^{-16}}, vanishing at $d\in\{0,4h\}$. At the ABJM point $U(0)=S/16$ and $\HMZ=U(0)^{-1}U'(0)+12$ \ex.
+\end{itemize}
 
-\paragraph{Result.} For pair-periodic inhomogeneities ($\theta_A$ on A sites, $\theta_F$ on F sites),
-$[\HMZ,\tb_a(u)]=0$ for $a=1,2,3$ \emph{iff} $\theta_A-\theta_F=2h$ (exact at $L=2$ with $u$ and $d=\theta_A-\theta_F$
-symbolic: the gcd of all commutator coefficients is $\propto d-2h$; numerically $10^{-15}$ at $L=3$). Moreover
+\paragraph{Superseded: computations at $\theta_A=\theta_F$.} There $U(0)=0$, $S$ drops out of the $t$-algebra, $\HMZ$ does not
+commute with the $t$'s, and an odd-momentum HW partner is degenerate with a cyclic state in $t_1,t_2,t_3$
+(only $S$ separates them); matching it through the untwisting limit required pair-periodic $\theta$ and a twisted shift
+$\hat S=S\circ\rho_{3..L}(\Lambda)$. All of this is an artefact of the singular point [\nb{abjm-bridges.wb} \S1--2].
+
+%======================================================================
+\section{Localising words and free-parameter rotations (companion frame, generic $\theta$)}\label{sec:loc}
+%======================================================================
+
+[\nb{L2-ffbar-SoV-localisation.wb}, \nb{L4-ffbar-free-rotations.wb}, \nb{checks/}]
+
+\paragraph{qKZ form.} $\cL_A(\theta)=hK$ (rank 1), $\cL_F(\theta)=-hP$, so $t_1$ at an inhomogeneity transports the twist onto
+one site: at 2 sites $t_1(\theta_1)=h\rho_1(G^T)(\theta_{12}-hK)$, $t_1(\theta_2)=h\rho_2(G)(\theta_{12}-hK)$,
+$t_1(\theta_1)t_1(\theta_2)^{-1}=\rho(G^T)$ \ex; at 4 sites
+$t_1(\theta_1)=hG_1^TR_{14}R_{13}R_{12}$, $t_1(\theta_2)=-hR_{23}R_{24}G_2R_{21}$, $t_1(\theta_3)=hR_{32}R_{31}G_3^TR_{34}$,
+$t_1(\theta_4)=-hG_4R_{41}R_{42}R_{43}$ with $R=\theta\pm hK$ (A--F) or $\theta\pm hP$ (same type) \ex.
+
+\paragraph{Bare vacuum: every site localises} \ex. $X=t_1(\theta_1)^{-1}\to\rho_1(\gamma)$,
+$Y=t_1(\theta_2)\to\rho_2(\gamma)$ (const $h\theta_{12}\theta_{23}(\theta_{24}-h)$), $Z=t_1(\theta_3)\to\rho_3(\gamma^{-1})$
+(const $h\theta_{32}(\theta_{31}+h)\theta_{34}$), $W=t_1(\theta_4)^{-1}\to\rho_4(\gamma^{-1})$; site vectors
+$e_1^T(1-\kappa_1G^{-T})$, $e_4^T(1-\kappa_2G)$, $e_1^T(1-\kappa_3G^T)$, $e_4^T(1-\kappa_4G^{-1})$. Overlaps
+$\prod(1-\kappa_s\hat o_s)\bra0\Psi\rangle$ for single sites and adjacent pairs; same-type pairs pick up an exchange term,
+e.g.\ $\{1,3\}$: $[(1-\kappa_1\hat o_1)(1-\kappa_3\hat o_3)-\tfrac{h}{\theta_{13}}\kappa_1\kappa_3(\hat o_1\hat o_3-1)]\bra0\Psi\rangle$;
+both ends $\{1,4\}$ need longer words (singlet channel). Exchange dressing
+$\bra0t_1(\theta_1)=h\theta_{12}\theta_{14}[\theta_{13}\bra0\rho_1(G^T)+h\bra0\rho_3(G^T)]$. Global torus $\rho(X)$,
+$X\in\mathbb C[G_c^T]$, commutes with all $t_a$; $\kappa$'s + torus: Jacobian rank 7. No fused $T_\lambda$ ($|\lambda|\le6$,
+2288 tried) gives $G^{\pm2}$ on a site: single words move a site only within span$\{{\rm vac},{\rm vac}\cdot\gamma^{\pm1}\}$.
+
+\paragraph{Generic globally rotated vacuum $\Omega$: only the ends localise} \ex: $t_1(\theta_1)^{-1}$, $t_1(\theta_4)^{-1}$;
+end blocks $\bra\Omega t_1(\theta_1)^{-1}t_1(\theta_2)=c_{12}\bra\Omega\rho_1(G^{-T})\rho_2(G)$,
+$c_{12}=\theta_{23}(\theta_{24}-h)/((\theta_{13}+h)\theta_{14})$; of the 16 two-site SoV words only
+$\{1,t_3(\theta_1-h)\}\times\{1,t_1(\theta_2)\}$ localise on block $\{1,2\}$ (2603 (G2) analogue).
+
+\paragraph{Common rotations and good references} \npy.
+$\bra0(1+a\,t_1(\theta_1)+b\,t_1(\theta_3)+c\,t_1(\theta_1)t_1(\theta_3))=\bra0\rho_1(g)\rho_3(g)$, $g=1-\kappa G_c^T$,
+$a=-\kappa/(\alpha\theta_{13})$, $b=-\kappa(\theta_{13}-h)/(\theta_{13}l_3)$, $c=\kappa^2/m$; this is a \emph{global}
+rotation $\exp(-\kappa'E_{12})$ (it fixes $e_4$). The $\{2,4\}$ analogue is generated by $E_{34}$. A global rotation
+$v\otimes w\otimes v\otimes w$ ($v\cdot w=0$) is as good a reference as $\bra0$ iff $wGv^T=0$. With $v=e_1^Tp(G^T)$,
+$w=e_4^Tq(G)$: global iff $\deg p+\deg q\le2$, good iff $\le1$. The nine $\bra0X^aY^b$ ($X=t_1(\theta_1)$, $Y=t_1(\theta_3)$,
+$a,b\le2$) span $\{e_i\otimes e_4\otimes e_j\otimes e_4:i,j\le3\}$ (contains $(G^T)^2$ on one site). On the 2-parameter state
+$\Omega_2$ (not a good reference) only end-growing words localise, as fixed twist rotations.
+
+%======================================================================
+\section{ABJM three-point functions from transfer matrices (diagonal frame)}\label{sec:3pt}
+%======================================================================
+
+[\nb{ABJM-3pt-transfer-matrices.md}, \nb{abjm-bridges.wb}] \npy\ unless stated.
+
+\paragraph{Identification.} A pair twist rotation $\rho_{\rm pair}(D)$, $D=\mathrm{diag}(d)$, maps $W_a\to W_{ad_4/d_1}$;
+$D_\kappa=1-\kappa\Lambda$ gives $W_a\to W_{a(1-\kappa z_4)/(1-\kappa z_1)}$, and $\kappa=1/z_4$ turns an O$_3$ pair into an
+O$_2$ pair. So (3.6) is $\bra{W_{-1}^L}$ with its first pairs rotated by $D_{1/z_4}$, the analogue of 2603's O$_2$. The
+companion SoV vacuum is a global rotation with all components nonzero in the diagonal frame, so the 3-pt reference is
+taken directly as a diagonal-frame global rotation (as in 2603).
+
+\paragraph{Pair localisation.} On $\bra{W_{-1}}^{\otimes2}$, of the 16 words $t_a(\theta_1-h)t_1(\theta_2)^k$ exactly
+$\{1,t_3(\theta_1-h)\}\times\{1,t_1(\theta_2)\}$ localise on pair 1; all 320 pair-1-localising words (up to two library factors
+per site) span only 4 dimensions and give product states only $\rho_1(\Lambda^i)\rho_2(\Lambda^j)$ with
+$(i,j)\in\{(0,0),(-1,0),(-1,1)\}$. The even bridge needs $\Lambda$ on the F site alone (fourth type), which is missing:
+\emph{the F-site gap}. Global torus: $t_1(\theta_1)^{-1}t_1(\theta_2)t_1(\theta_3)^{-1}t_1(\theta_4)=c\,\rho(\gamma)$.
+
+\paragraph{Odd bridge (one field): exact at any twist.}
+\[
+ \bra Wt_1(\theta_1)^{-1}=c_1\bra W\rho_1(\Lambda^{-1}),\qquad
+ 1/c_1=h\prod_{F\,s}\theta_{1s}\prod_{A\,s\ne1}(\theta_{1s}+h),
+\]
+hence
 \begin{equation}
- U(u)=\tb_1(\theta_F+u)\,\tb_3(\theta_A-h+u),\qquad U(0)=\tfrac1{16}S,\qquad \HMZ=U(0)^{-1}U'(0)+12\quad(L=2,\ \text{exact}).
+ \langle e_1\otimes(e_4+e_1)\otimes W_{-1}^{\otimes(L-1)}|\Psi\rangle=
+ \frac{1-z_4/(c_1\tau_1(\theta_1))}{1-z_4/z_1}\,\langle W_{-1}^{\otimes L}|\Psi\rangle.
 \end{equation}
-In general $U(0)=c\,S$ with $c=h^{4}[x(-x-4h)]^2$ at $L=2$, $x=\theta_F-\theta_A$; it vanishes at $\theta_A-\theta_F\in\{0,4h\}$.
+Verified through the untwisting limit at the ABJM point with a generic inhomogeneous deformation,
+$10^{-11}$--$10^{-14}$ [\nb{abjm-bridges.wb} \S3]; $\bra W\Psi\rangle\sim\epsilon$, bracket $\sim1/\epsilon$.
 
-\paragraph{Remark (superseded results).} The earlier bridge computations used $\theta_A=\theta_F$, where $U(0)=0$, the
-shift drops out of the $t$-algebra, $\HMZ$ does not commute with the $t$'s, and an odd-momentum HW partner is
-degenerate in $t_1,t_2,t_3$. All results below are at the ABJM point $\theta_A=2h$, $\theta_F=0$, untwisted and
-homogeneous unless stated.
+\paragraph{Highest-weight trick.} For HW $\Psi$, $\langle{\rm vac}\otimes W_{-1}|\Psi\rangle=\langle W_b\otimes W_{b-1}|\Psi\rangle$
+for all $b$ ($10^{-16}$); with $b=z_1/(z_1-z_4)$, $\bra{W_{b-1}^{\otimes2}}t_1(\theta_1)^{-1}t_1(\theta_2)=c\bra{W_b\otimes W_{b-1}}$
+exactly at finite twist, but $b\to\infty$ as $z\to1$ and the untwisting limit is wrong and state dependent. 2603 avoids
+this with a continuous $\kappa$-family; for ABJM pairs that family is the open problem.
 
 %======================================================================
-\section{Highest-weight eigenstates and Q-functions}
+\section{Highest-weight eigenstates and Q-functions}\label{sec:states}
 %======================================================================
 
-\paragraph{States} [\nb{abjm-LR-symmetry.wb}]. All HW, cyclic ($S=1$) joint eigenstates of $\tb_1,\tb_3$: $6,\,26,\,152$
-at $L=2,3,4$; all $\HMZ$ eigenstates ($\le3.5\cdot10^{-13}$), joint spectrum non-degenerate (gap $\ge0.0065$). Saved in
-\nb{data/abjm-hw-states.wxf}; eigenvalue polynomials $\tb_{1,2,3}(u)$ in \nb{data/abjm-tau.wxf}.
+\paragraph{States} [\nb{abjm-LR-symmetry.wb}] \num{10^{-13}}. All HW cyclic ($S=1$) joint eigenstates of $\tb_1,\tb_3$ at
+the ABJM point: $6,26,152$ at $L=2,3,4$; all are $\HMZ$ eigenstates ($\le3.5\cdot10^{-13}$); joint spectrum non-degenerate
+(gap $\ge0.0065$). (Pitfall found and fixed: degenerate kernel vectors returned by \nb{Eigensystem} need not be
+orthonormal.)
 
-\paragraph{Q-functions} [\nb{abjm-Qfunctions.wb}]. On the vacuum $T_{ii}|0\rangle=V_i|0\rangle$ with
-$V_1=(u-\theta_A+h)^L(u-\theta_F)^L$, $V_2=V_3=(u-\theta_A)^L(u-\theta_F)^L$, $V_4=(u-\theta_A)^L(u-\theta_F-h)^L$, and
-$\tau_a^{\rm vac}(u)=\sum_{i_1<\dots<i_a}V_{i_1}(u)V_{i_2}(u-h)\cdots$, so
-$\sum_a(-1)^a\tau_aD^a=(1-V_1D)\cdots(1-V_4D)$ on the vacuum, $D=e^{-h\partial_u}$. Baxter equation in polynomial gauge:
+\paragraph{Q-functions} [\nb{abjm-Qfunctions.wb}] \num{10^{-11}}. On the vacuum
+$\sum_a(-1)^a\tau_aD^a=(1-V_1D)(1-V_2D)(1-V_3D)(1-V_4D)$, $D=e^{-h\partial_u}$ (checked numerically), so the polynomial
+gauge is $Q\cdot\Phi$, $\Phi(u)=V_4(u)\Phi(u-h)$:
 \begin{equation}
- \sum_{a=0}^{4}(-1)^a\,\tau_a(u)\,Q(u+h-ah)\prod_{b=a}^{3}V_4(u-bh)=0 .
+ \sum_{a=0}^4(-1)^a\tau_a(u)\,Q(u+h-ah)\prod_{b=a}^3V_4(u-bh)=0 ,
 \end{equation}
-$Q_1,Q_2,Q_3$ = its polynomial solutions ordered by degree; $Q_{12}=\mathrm{Cas}(Q_1,Q_2)/\mathrm{Cas}_{\rm vac}$,
-$Q_{123}=\mathrm{Cas}(Q_1,Q_2,Q_3)/\mathrm{Cas}_{\rm vac}$. For all 184 states
-$\deg(Q_1,Q_{12},Q_{123})=(K_1,K_2,K_3)$ with $K_2=L-\tfrac{p+r}2-q$, $K_1=\tfrac{L-r+K_2}2$, $K_3=\tfrac{L-p+K_2}2$
-for Dynkin $[p,q,r]$. Saved in \nb{data/abjm-Qfunctions.wxf}.
-
-%======================================================================
-\section{Discrete symmetries: LR, parity and their product}
-%======================================================================
-
-[\nb{abjm-LR-symmetry.wb}, \nb{abjm-other-symmetries.wb}] Two operators commute with $\HMZ$:
-$\cP=$ (Weyl reversal $e_a\mapsto e_{5-a}$)$\,\circ\,$(one-site shift), and $\cQ=$ (signed Weyl $g$:
-$e_1\to e_4,\ e_2\to e_3,\ e_3\to e_2,\ e_4\to-e_1$)$\,\circ\,$(reflection $s\mapsto 2L+1-s$). Numerically
-($10^{-16}$):
+$\tau_2=\prod g^{(2)}\tb_2$, $\tau_3=\prod g^{(3)}\tb_3$, $\tau_4={\rm qdet}$ (A site: $(u-\theta+h)(u-\theta-h)(u-\theta-2h)(u-\theta-3h)$).
+Vacuum solutions have degrees $0,L+1,L+2$. $Q_1,Q_2,Q_3$ = polynomial solutions ordered by degree;
+$Q_{12}=\mathrm{Cas}(Q_1,Q_2)/\mathrm{Cas}_{\rm vac}$, $Q_{123}=\mathrm{Cas}(Q_1,Q_2,Q_3)/\mathrm{Cas}_{\rm vac}$ (shifts $0,-h,-2h$).
+For all 184 states $\deg(Q_1,Q_{12},Q_{123})=(K_1,K_2,K_3)$,
 \begin{equation}
- \cP\,\tb_1(u)\,\cP^{-1}=\tb_3(u+h),\qquad \cQ\,\tb_1(u)\,\cQ^{-1}=\tb_1(2h-u),\qquad \cP^2=S,\quad \cQ S\cQ^{-1}=S^{-1}.
+ K_2=L-\tfrac{p+r}2-q,\qquad K_1=\tfrac{L-r+K_2}2,\qquad K_3=\tfrac{L-p+K_2}2\qquad(\text{Dynkin }[p,q,r]),
 \end{equation}
-$\cP$ is the ABJM version of 2603's LR map ($\mathbf 4\leftrightarrow\bar{\mathbf 4}$). Symmetric states, with the
-Q-function form verified exactly (fixed shifts) on all 184 states:
+Casoratian remainders $\le8\cdot10^{-12}$. Eigenvalue polynomials by interpolation at $2L+1$ points, 8 parallel subkernels
+at $L=4$.
 
+%======================================================================
+\section{Discrete symmetries}\label{sec:sym}
+%======================================================================
+
+[\nb{abjm-LR-symmetry.wb}, \nb{abjm-other-symmetries.wb}] \num{10^{-16}}. Operators commuting with $\HMZ$:
+$\cP=$ (Weyl reversal $e_a\mapsto e_{5-a}$)$\circ$(one-site shift), $\cQ=$ (signed Weyl $e_1\to e_4$, $e_2\to e_3$,
+$e_3\to e_2$, $e_4\to-e_1$)$\circ$(reflection $s\mapsto2L+1-s$):
+\begin{equation}
+ \cP\tb_1(u)\cP^{-1}=\tb_3(u+h),\quad \cQ\tb_1(u)\cQ^{-1}=\tb_1(2h-u),\quad \cP^2=S,\quad \cQ S\cQ^{-1}=S^{-1}.
+\end{equation}
+$\cP$ maps HW states of $[p,q,r]$ to HW states of $[r,q,p]$ (it exchanges the $\mathbf4$ and $\bar{\mathbf4}$ slots). Symmetric
+states (eigenvalue polynomials exact to $10^{-8}$ relative; Q-function forms checked with fixed shifts on all 184 states):
 \begin{center}
-\begin{tabular}{lll}
+\begin{tabular}{llll}
 \toprule
-symmetry & eigenvalues & Q-functions\\
+symmetry & eigenvalues & Q-functions & also\\
 \midrule
-LR ($\cP$) & $\tau_1(u)=\tau_3(u+h)$ & $Q_1(u)\propto Q_{123}(u+h)$\\
-P ($\cQ$) & $\tau_1(u)=\tau_1(2h-u)$ & $Q_1(u)\propto Q_{123}(2h-u)$\\
-LP ($\cP\cQ$) & $\tau_1(u)=\tau_3(3h-u)$ & $Q_1(u)\propto Q_1(h-u)$\\
+LR ($\cP$) & $\tau_1(u)=\tau_3(u+h)$ & $Q_1(u)\propto Q_{123}(u+h)$ & \\
+P ($\cQ$) & $\tau_1(u)=\tau_1(2h-u)$ & $Q_1(u)\propto Q_{123}(2h-u)$ & $\tau_2(u)=\tau_2(c-u)$\\
+LP ($\cP\cQ$) & $\tau_1(u)=\tau_3(3h-u)$ & $Q_1(u)\propto Q_1(h-u)$ & $\tau_2(u)=\tau_2(c-u)$\\
 \bottomrule
 \end{tabular}
 \end{center}
-$\tau_2(u)=\tau_2(c-u)$ holds exactly for the P and LP states. Every non-LR state has an LR partner
-($Q_1^{\rm partner}=Q_{123}(u+h)$). Counts:
-
+Reflection turns the Baxter equation into its dual, hence P exchanges $Q_1\leftrightarrow Q_{123}$ and LP maps $Q_1$ to
+itself. Every non-LR state has an LR partner $\cP\Psi$ with $Q_1^{\rm partner}=Q_{123}(u+h)$.
 \begin{center}
 \begin{tabular}{cccccccccc}
 \toprule
@@ -140,20 +292,19 @@ $L$ & states & LR & P & LP & all three & LR only & P only & LP only & none\\
 \bottomrule
 \end{tabular}
 \end{center}
-$\cQ$-eigenstates have eigenvalue $(-1)^p$ (in this sign convention).
+$\cQ$-eigenstates have eigenvalue $(-1)^p$ in this sign convention.
 
 %======================================================================
-\section{Structure constants of the note's configuration}
+\section{Structure constants of the note's configuration}\label{sec:C}
 %======================================================================
 
-[\nb{abjm-bridges.wb}, \nb{abjm-LR-symmetry.wb}] Bra for bridge $\ell$: first $\ell$ sites O$_2$ fields (A: $e_1$, F: $e_4$),
-the rest O$_3$ fields (A: $e_1-e_4$, F: $e_4+e_1$); $C_\ell=\langle B_\ell|\Psi\rangle/\|\Psi\|$.
-
-\paragraph{$L=2$ at the ABJM point.}
+[\nb{abjm-bridges.wb}, \nb{abjm-LR-symmetry.wb}] Bra for bridge $\ell$: first $\ell$ sites O$_2$ fields (A $e_1$, F $e_4$),
+the rest O$_3$ fields (A $e_1-e_4$, F $e_4+e_1$); $C_\ell=\langle B_\ell|\Psi\rangle/\|\Psi\|$ (bilinear bra, phase of $\Psi$ fixed
+by its largest component).
 \begin{center}
 \begin{tabular}{lll}
 \toprule
-state & $E_{\rm MZ}$ & nonzero $C_\ell$\\
+$L=2$ state & $E_{\rm MZ}$ & nonzero $C_\ell$\\
 \midrule
 $[2,0,2]$ vacuum & 0 & all $1$\\
 $[0,2,0]$ & 16 & ---\\
@@ -163,32 +314,25 @@ singlet & 4 & $C_2=1/\sqrt{24}$\\
 \bottomrule
 \end{tabular}
 \end{center}
-The odd-bridge formula $\langle B_1|\Psi\rangle=\frac{1-z_4/(c_1\tau_1(\theta_1))}{1-z_4/z_1}\langle W^L_{-1}|\Psi\rangle$
-holds through the untwisting limit at the ABJM point ($10^{-11}$--$10^{-14}$, generic inhomogeneous deformation, no shift
-operator needed).
-
-\paragraph{When does $C_\ell$ vanish ($L=2,3,4$).}
-(i) R-charge: unless $\Psi\in[p,0,p]$, and unless $L-p\le\ell\le L+p$. (ii) Bridge parity (kinematic, whole HW cyclic
-sector): if $L+p$ is odd, $C_\ell=0$ unless $\ell\equiv L+p\pmod 2$. (iii) No LR selection rule: non-LR states have
-nonzero $C_\ell$ (e.g.\ the $L=2$ adjoint pair). (iv) Isolated zeros at $L=4$: the LR $[1,0,1]$ state at $E=32$
-(all $\ell$) and the LR $[2,0,2]$ state at $E=8$ (only even $\ell$ survive).
+(Closed forms are numerical recognitions.) Vanishing at $L=2,3,4$: (i) R-charge: unless $\Psi\in[p,0,p]$ and
+$L-p\le\ell\le L+p$; (ii) bridge parity, kinematic on the whole HW cyclic sector: if $L+p$ is odd, $C_\ell=0$ unless
+$\ell\equiv L+p\pmod2$; (iii) \emph{no LR selection rule}: non-LR states have nonzero $C_\ell$; (iv) isolated zeros at
+$L=4$: the LR $[1,0,1]$ state at $E=32$ (all $\ell$) and the LR $[2,0,2]$ state at $E=8$ (only even $\ell$).
 
 %======================================================================
-\section{Other three-point configurations}
+\section{Other three-point configurations; parity selection rules}\label{sec:configs}
 %======================================================================
 
 [\nb{abjm-3pt-configs.wb}] Two-block BPS bras: block 1 on $\ell$ sites with $(a_1,f_1)$, block 2 on the rest with
-$(a_2,f_2)$, $a_i\cdot f_i=0$. Up to $GL(4)$ and rescalings only six classes; with block 1 $=(e_1,e_4)$, block 2:
-generic $(e_1-e_4,e_4+e_1)$ (= the note's), $a_2\cdot f_1=0$: $(e_2,e_1+e_3)$, $a_1\cdot f_2=0$: $(e_4+e_2,e_3)$,
-both zero $(e_2,e_3)$, $a_2=a_1$: $(e_1,e_3)$, $f_2=f_1$: $(e_2,e_4)$. Bridge starting on A or F. Whole multiplets probed
-by random global rotations.
-
-\paragraph{LR.} No configuration has an LR rule at $L=3,4$ (only an isolated $L=2$ case). ``Only non-LR states couple''
-occurs (8, 14, 24 configurations at $L=2,3,4$) but not uniformly in $L$.
-
-\paragraph{P: length-independent selection rules.} With the \emph{same polarisations at every $L$}, the following give
-$C=0$ for every non-P state, verified at operator level on the cyclic sector ($\langle B|X_P(u)|r\rangle=0$ for cyclic $r$,
-$10^{-16}$ at $L=3,4$; empty at $L=2$ where every cyclic state is P-symmetric):
+$(a_2,f_2)$, $a_i\cdot f_i=0$, \emph{same polarisations for every $L$}. Up to $GL(4)$ and site rescalings the only
+invariants are whether the cross pairings $a_1\cdot f_2$, $a_2\cdot f_1$ vanish (plus linear dependences), giving six
+classes; with block 1 $=(e_1,e_4)$, block 2: generic $(e_1-e_4,e_4+e_1)$ (the note's), $a_2\cdot f_1=0$: $(e_2,e_1+e_3)$,
+$a_1\cdot f_2=0$: $(e_4+e_2,e_3)$, both zero: $(e_2,e_3)$, $a_2=a_1$: $(e_1,e_3)$, $f_2=f_1$: $(e_2,e_4)$; bridge starting on A or
+F; whole multiplets probed by random global rotations; 180 configurations at $L=2,3,4$.
+\begin{itemize}
+\item LR: no configuration couples only to LR states at $L=3,4$.
+\item P: length-independent selection rules ($C=0$ unless $Q_1(u)\propto Q_{123}(2h-u)$), verified at operator level on the
+cyclic sector, $\langle B|X_P(u)|r\rangle=0$ for cyclic $r$, $10^{-16}$ at $L=3,4$ (vacuous at $L=2$):
 \begin{center}
 \begin{tabular}{lll}
 \toprule
@@ -197,108 +341,147 @@ block 2 & bridge $\ell$ & start\\
 generic (note's $W_{-1}$) & $1$ or $2L-1$ & A or F\\
 $a_2\cdot f_1=0$ & $1$ & A\\
 $a_1\cdot f_2=0$ & $1$ & F\\
-both cross pairings zero, $(e_2,e_3)$ & $2$ or $2L-2$ & A or F\\
+both cross pairings zero & $2$ or $2L-2$ & A or F\\
 \bottomrule
 \end{tabular}
 \end{center}
-Control: the note's configuration at $\ell=2$ fails ($10^{-2.4}$). No uniform LP rule.
-
-%======================================================================
-\section{Factorised bras annihilated by the symmetry differences}
-%======================================================================
-
-[\nb{abjm-LR-factorized.wb}, \nb{abjm-other-symmetries.wb}] $X_{\rm LR}(u)=\tb_1(u)-\tb_3(u+h)$,
-$X_{\rm P}(u)=\tb_1(u)-\tb_1(2h-u)$, $X_{\rm LP}(u)=\tb_1(u)-\tb_3(3h-u)$.
-\begin{itemize}
-\item LR, $L=2$ untwisted: $\ker X_{\rm LR}$ (left) has dim $136/256$ ($X_{\rm LR}$ is linear in $u$); product states in it:
-only the BPS orbit. Twisted with $\Lambda=\mathrm{diag}(z_1,z_2,1/z_2,1/z_1)$ ($z_1z_4=z_2z_3=1$, so the $t_3$ twist
-$\det\Lambda\,\Lambda^{-1}$ is the Weyl image of $\Lambda$): 36 LR-symmetric eigenstates, kernel dim 36, product states only
-$e_a\otimes e_{5-a}$ (vacuum and Weyl images); the note's $W_a$ only for $a=0$.
-\item P: \emph{every} two-site state $(v\otimes w)^{\otimes L}$ is annihilated by $X_{\rm P}$ ($10^{-16}$ at $L=2,3,4$),
-the analogue of integrable two-site boundary states.
-\item LP: product solutions at $L=2$ (arbitrary product states in a rotated SU(2)$\times$SU(2) sector) fail at $L=3,4$.
+Control: the note's configuration at $\ell=2$ fails ($10^{-2.4}$). The full operator identity (without the cyclic
+restriction) fails, as it must.
+\item LP: no uniform rule.
 \end{itemize}
 
 %======================================================================
-\section{Companion-twist SoV basis at four sites and BPS expansions}
+\section{Factorised bras annihilated by the symmetry differences}\label{sec:fact}
 %======================================================================
 
-[\nb{sov-companion-L4.wb}] Four sites A F A F, companion twist $G_c(z)$, generic $\theta$. The 256 words
+[\nb{abjm-LR-factorized.wb}, \nb{abjm-other-symmetries.wb}] $X_{\rm LR}=\tb_1(u)-\tb_3(u+h)$,
+$X_{\rm P}=\tb_1(u)-\tb_1(2h-u)$, $X_{\rm LP}=\tb_1(u)-\tb_3(3h-u)$.
+\begin{itemize}
+\item LR, $L=2$, untwisted: left kernel 136/256 ($X_{\rm LR}$ linear in $u$); product states in it only the BPS orbit.
+Twisted, $\Lambda=\mathrm{diag}(z_1,z_2,1/z_2,1/z_1)$ ($z_1z_4=z_2z_3=1$, so the $t_3$ twist $\det\Lambda\,\Lambda^{-1}$ is the Weyl
+image of $\Lambda$): 36 LR states, kernel 36, product states only $e_a\otimes e_{5-a}$; the note's $W_a$ only at $a=0$.
+\item P: every two-site state $(v\otimes w)^{\otimes L}$ is annihilated ($10^{-16}$, $L=2,3,4$) -- integrable two-site
+boundary states.
+\item LP: product solutions at $L=2$ (SU(2)$\times$SU(2)-sector states) fail at $L=3,4$.
+\end{itemize}
+(Per-length product searches are superseded by the length-independent requirement of \S\ref{sec:configs}.)
+
+%======================================================================
+\section{Separation of variables at four sites}\label{sec:sov}
+%======================================================================
+
+[\nb{sov-companion-L4.wb}] Four sites A F A F, companion twist $G_c(z)$.
+
+\paragraph{Basis.} Words
 \begin{equation}
- \langle a_1,k_2,a_3,k_4|=\langle0|\,t_{a_1}(\theta_1-h)\,t_1(\theta_2)^{k_2}\,t_{a_3}(\theta_3-h)\,t_1(\theta_4)^{k_4},\qquad a_i,k_i\in\{0,1,2,3\},
+ \langle a_1,k_2,a_3,k_4|=\bra0\,t_{a_1}(\theta_1-h)\,t_1(\theta_2)^{k_2}\,t_{a_3}(\theta_3-h)\,t_1(\theta_4)^{k_4},\qquad
+ a_i,k_i\in\{0,1,2,3\},
 \end{equation}
-form a basis (exact rank 256), with factorised overlaps $\langle\Lambda|\Psi\rangle=\tau_{a_1}(\theta_1-h)\tau_1(\theta_2)^{k_2}
-\tau_{a_3}(\theta_3-h)\tau_1(\theta_4)^{k_4}\langle0|\Psi\rangle$. Expansions $\langle B|=\sum_\Lambda c_\Lambda\langle\Lambda|$ of BPS
-states $v\otimes w\otimes v\otimes w$, $v\cdot w=0$ (number of nonzero $c_\Lambda$):
+rank 256 \ex, overlaps $\langle\Lambda|\Psi\rangle=\tau_{a_1}(\theta_1-h)\tau_1(\theta_2)^{k_2}\tau_{a_3}(\theta_3-h)\tau_1(\theta_4)^{k_4}\bra0\Psi\rangle$.
+
+\paragraph{SoV vacuum.} RV's $\bra0$ (4.12) is the lowest-weight GT vacuum: (3.19) $\bra0T_{j1}=\delta_{j1}\nu\bra0$ applied
+recursively through the embeddings, i.e.\ killed by every strictly lower-triangular $T_{ij}(u)$ ($i>j$) of the
+untwisted monodromy and eigen of the $T_{ii}$. (3.19) alone leaves a 15-dim space; the full condition has a unique
+solution, equal to our $\bra0$ \ex\ (generic and ABJM $\theta$).
+
+\paragraph{$B$-operator.} RV (2.25): $B(u)=\sum_{k_1\in\{1,2,3\}}\sum_{K_2}T_{k_1,1}(u)\,\mathrm{qmin}_{K_2;(1,k_1+1)}(u+h)\,
+\mathrm{qmin}_{(1,2,3);(1,K_2+1)}(u+2h)$, untwisted $T$; $[B(u),B(v)]=0$ \ex. At generic $\theta$ all 256 words are
+$B$-eigenbras \ex: a genuine SoV basis, equal to RV's up to normalisation.
+
+\paragraph{BPS expansions} (generic $\theta$; number of nonzero coefficients of 256; unchanged at the shifted ABJM-point
+word bases):
 \begin{center}
 \begin{tabular}{ll}
 \toprule
-BPS state & $\#\{c_\Lambda\neq0\}$\\
+BPS state $v\otimes w\otimes v\otimes w$, $v\cdot w=0$ & $\#\{c_\Lambda\ne0\}$\\
 \midrule
 vacuum & 1\\
-F sites only, $v=e_1$, $w\in e_1^\perp$ general & 9 \ ($a_1=a_3=0$, $k_2,k_4\le2$)\\
-F only, $\exp(\kappa E_{34})$ & 4 \ ($k\le1$; not a product, F--F exchange term)\\
-F only, $\exp(\kappa E_{24})$ & 5\\
-A only, $\exp(\kappa E_{12})$ & 13 \ ($a\le2$, $k\le1$)\\
-A only, $w=e_4$, $v\in e_4^\perp$ general & 56\\
+F only: $v=e_1$, $w\in e_1^\perp$ general & 9 ($a_1=a_3=0$, $k\le2$)\\
+F only: $\exp(\kappa E_{34})$ & 4 ($k\le1$; not a product: F--F exchange term)\\
+F only: $\exp(\kappa E_{24})$ & 5\\
+A only: $\exp(\kappa E_{12})$ & 13 ($a\le2$, $k\le1$)\\
+A only: $w=e_4$, $v\in e_4^\perp$ general & 56\\
 SU(2)$\times$SU(2) sector & 37\\
 torus $\mathbb C[G_c^T]$ & 134--236\\
 generic & 256\\
 \bottomrule
 \end{tabular}
 \end{center}
-Single-site (non-BPS) rotations site $1+\kappa e_4$ and site $2+\kappa e_3$ have two-term expansions.
+$\exp(\kappa E_{34})$ is the $\{2,4\}$ common rotation and $\exp(\kappa E_{12})$ the $\{1,3\}$ one of \S\ref{sec:loc}.
 
-\paragraph{At the ABJM point pair by pair.} With $\theta_{A,n}=\theta_{F,n}+2h$ and generic $\theta_{F,n}$, the words above
-degenerate: at $u=\theta_A-h=\theta_F+h$ the fused $t_3$ vanishes through its scalar factor, and even with the reduced
-$\tb_2,\tb_3$ the same-pair F Lax is $h(1-P)$, giving rank $169=13^2$ (13 per pair; same for $u_A=\theta_A,\theta_A\pm h,
-\theta_A-2h$). A word basis (rank 256) is restored with the A-site words at $u_A=\theta_A-3h$ or $\theta_A+2h$, using
-$\tb_2,\tb_3$, with unchanged BPS sparsity --- \emph{but it is not an SoV basis}.
-
-\paragraph{Localisation on sites 1, 2 (generic $\theta$, exact).} Among the 16 site-1,2 words
-$\langle0|t_a(\theta_1-h)t_1(\theta_2)^k$, exactly $\{1,t_3(\theta_1-h)\}\times\{1,t_1(\theta_2)\}$ are localised (sites 3,4 at the
-vacuum), and the constants factorise:
+\paragraph{Localisation on sites 1,2} \ex. Of the 16 site-1,2 words exactly $\{1,t_3(\theta_1-h)\}\times\{1,t_1(\theta_2)\}$ leave
+sites 3,4 at the vacuum (they give $e_1e_4$, $e_1e_3$, $e_4e_4$, $e_4e_3$ on sites 1,2), and the constants factorise:
 \begin{equation}
- \langle0|\big(1+\alpha\,t_3(\theta_1-h)\big)\big(1+\beta\,t_1(\theta_2)\big)=(e_1+\alpha k_3e_4)\otimes(e_4+\beta k_1e_3)\otimes e_1\otimes e_4 ,
+ \bra0\big(1+\alpha t_3(\theta_1-h)\big)\big(1+\beta t_1(\theta_2)\big)=(e_1+\alpha k_3e_4)\otimes(e_4+\beta k_1e_3)\otimes e_1\otimes e_4,
 \end{equation}
-a two-parameter product rotation of sites 1, 2 only. The localised span is 5-dimensional; the extra element
-$\langle0|[t_1(\theta_2)^2+c\,t_1(\theta_1-h)t_1(\theta_2)]$ is entangled on sites 1, 2 ($e_1\otimes e_2+c'e_2\otimes e_3$, reaching
-$e_4^TG_c^2$ on site 2) and adds no new product states.
+$k_1=-2263/14000$, $k_3=-21489/120736$ at the generic point. The localised span is 5-dim; the extra element
+$\bra0[t_1(\theta_2)^2-\tfrac{15841}{1450}t_1(\theta_1-h)t_1(\theta_2)]=(e_1\otimes e_2+\tfrac{325}{357}e_2\otimes e_3)\otimes e_1\otimes e_4$
+is entangled (reaches $e_4^TG_c^2$ on site 2) and adds no product states.
 
-\paragraph{Sites 1, 2, 3.} Among the 64 words with $k_4=0$, the localised single words are
-$\{1,t_3(\theta_1-h)\}\times\{1,t_1(\theta_2)\}\times\{1,t_3(\theta_3-h)\}$ (localised span 15-dim), but $t_3(\theta_3-h)$ on
-$\langle0|$ gives an F$_2$--A$_3$ singlet plus an exchange term. Localised product states form exactly two families:
-(A) $(e_1+ae_4)\otimes(e_4+ce_3)\otimes e_1\otimes e_4$ and (B) $(e_1+ae_4)\otimes e_3\otimes(e_1+be_4)\otimes e_4$ (arbitrary
-$a,b$; site 3 rotates only when site 2 is fully flipped); (B) $=\langle0|\,t_1(\theta_2)\times$(degree $\le1$ in
-$t_3(\theta_1-h)$, $t_3(\theta_3-h)$, with an exchange correction). No three-parameter product rotation of sites 1, 2, 3.
+\paragraph{Localisation on sites 1,2,3} \ex. Localised single words $\{1,t_3(\theta_1-h)\}\times\{1,t_1(\theta_2)\}\times\{1,t_3(\theta_3-h)\}$,
+span 15-dim; $t_3(\theta_3-h)$ on $\bra0$ gives an F$_2$--A$_3$ singlet plus an exchange term with site 1. Product states:
+(A) $(e_1+ae_4)\otimes(e_4+ce_3)\otimes e_1\otimes e_4$; (B) $(e_1+ae_4)\otimes e_3\otimes(e_1+be_4)\otimes e_4$ (arbitrary $a,b$; words
+$\bra0t_1(\theta_2)\times$ degree $\le1$ in $t_3(\theta_1-h)$, $t_3(\theta_3-h)$, with an exchange correction). The three-site
+generic $(e_1+ae_4)\otimes(e_4+ce_3)\otimes(e_1+be_4)$ is not localisable.
 
-\paragraph{SoV vacuum.} Ryan--Volin's $\langle0|$ (arXiv:2002.12341, (4.12)) is the lowest-weight GT vacuum,
-$\langle0|T_{j1}(u)=\delta_{j1}\nu(u)\langle0|$ (3.19) applied recursively through the embeddings, i.e.\ killed by all
-strictly lower-triangular $T_{ij}(u)$, $i>j$, and eigen of the $T_{ii}$ (untwisted monodromy; our $\cL$ and RV's agree with
-$\pi=-\rho^T$ and site order reversed). The solution is unique and equals our $\langle0|=e_1\otimes e_4\otimes e_1\otimes e_4$
-(exact, generic and ABJM $\theta$). RV's genericity assumption (2.9), $\theta_\alpha-\theta_\beta\notin\hbar\mathbb Z$, fails at the
-ABJM point.
-
-\paragraph{B-operator check.} Ryan--Volin $B(u)=\sum_{k_1}\sum_{K_2}T_{k_1,1}(u)\,\mathrm{qmin}_{K_2;(1,k_1+1)}(u+h)\,
-\mathrm{qmin}_{(1,2,3);(1,K_2+1)}(u+2h)$ from the untwisted $T$, $[B(u),B(v)]=0$. At generic $\theta$ all 256 words
-($u_A=\theta_A-h$) are $B$-eigenbras (exact): a genuine SoV basis, so the sparse expansions above are SoV expansions.
-At $\theta_A=\theta_F+2h$ only the 16 F-only words are $B$-eigen, and $B$ itself is degenerate: the number of distinct
-eigenvalues is $256$ for $d=\theta_A-\theta_F\in\{0,4h,\text{generic}\}$ but $169=13^2$ for $d\in\{h,2h,3h\}$ (collision of
-the separated variables of the two sites of a pair). The ABJM point therefore needs either a limit $d\to2h$ of the
-generic SoV basis or a different $B$.
+\paragraph{ABJM point.} RV's genericity assumption (2.9) $\theta_\alpha-\theta_\beta\notin\hbar\mathbb Z$ fails. At
+$\theta_{A,n}=\theta_{F,n}+2h$: the fused $t_3(\theta_A-h)$ vanishes (scalar factor), the reduced words have rank
+$169=13^2$ (same-pair F Lax $h(1-P)$ at $u=\theta_F+h$); words at $u_A=\theta_A-3h$ or $\theta_A+2h$ are a basis but only the
+16 F-only words are $B$-eigen; $B$ itself has only $169$ distinct eigenvalues for $d=\theta_A-\theta_F\in\{h,2h,3h\}$ (256
+for $d\in\{0,4h\}$ and generic) \num{10^{-20}}.
 
 %======================================================================
-\section{Open}
+\section{Open problems}\label{sec:open}
 %======================================================================
+\begin{enumerate}
+\item SoV at the ABJM point: limit $d\to2h$ of the generic SoV basis (singular measure), or a different $B$ (e.g.\ from the
+$\bar{\mathbf4}$ auxiliary space, another frame) that stays simple at $d=2h$.
+\item Map the physical (diagonal-frame) 3-pt polarisations into the sparse companion-frame families; two-block bras from
+F-only blocks; closed forms of SoV coefficients.
+\item Even bridges: the F-site-only twist rotation ($\kappa$-family on a pair); $L=3$ pairs for the transfer-matrix
+construction; homogeneous limit of the odd-bridge formula.
+\item Mechanism of the $\ell=1$ (and both-zero $\ell=2$) parity rules; $L=5$; non-BPS two-block families; transfer-matrix
+bridges as in 2603.
+\item Twisted versions (2603 works at generic twist with $\omega=1$); LR-compatible non-diagonal twists; integrability of
+$\bra{W_a^L}$ (note's (4.8)).
+\end{enumerate}
+
+%======================================================================
+\appendix
+\section{Notebook and data index}
+%======================================================================
+\begin{longtable}{p{0.33\textwidth}p{0.6\textwidth}}
+\toprule
+file & content\\
+\midrule
+\nb{L2-ffbar-SoV-localisation.wb} & 2 sites: qKZ, spectrum, $B$, SoV basis, one-site rotations\\
+\nb{L4-ffbar-free-rotations.wb} & 4 sites: localisation inventory, $\kappa$-families, torus, fused-$T$ scan, reach\\
+\nb{dual-lax-t3.wb} & one-pass $t_3$ (dual Lax) and $t_2$ ($\wedge^2$ Lax), checks, vector form\\
+\nb{abjm-chain.wb} & $\HMZ$, commutation iff $\theta_A-\theta_F=2h$, $\HMZ$ from $U$, $L=3$ check\\
+\nb{abjm-bridges.wb} & bridge overlaps; $\theta=0$ (superseded), shift test, ABJM-point table and odd-bridge formula\\
+\nb{abjm-LR-symmetry.wb} & $\cP$, $\cQ$; all HW cyclic states $L=2,3,4$; $C_\ell$ vanishing rules; saves states\\
+\nb{abjm-Qfunctions.wb} & Baxter equation, $Q_1,Q_{12},Q_{123}$, LR in Q-language; saves Q's and $\tau$'s\\
+\nb{abjm-3pt-configs.wb} & two-block configuration scans (LR, P, LP); parity selection rules\\
+\nb{abjm-LR-factorized.wb} & factorised LR-annihilated bras, untwisted and twisted ($L=2$)\\
+\nb{abjm-other-symmetries.wb} & P and LP symmetries, Q-forms, factorised P/LP bras\\
+\nb{sov-companion-L4.wb} & SoV basis at 4 sites, $B$ and vacuum checks, BPS expansions, localisation, ABJM point\\
+\nb{ABJM-3pt-transfer-matrices.md} & write-up of the transfer-matrix 3-pt construction (numpy era)\\
+\nb{data/*.wxf} & states, $\tau$ polynomials, Q-functions\\
+\bottomrule
+\end{longtable}
+
+\section{Superseded or corrected statements}
 \begin{itemize}
-\item Mechanism behind the $\ell=1$ (and both-zero $\ell=2$) P rules; test $L=5$.
-\item Two-block non-BPS families ($v\cdot w\ne0$) for general $\ell$; transfer-matrix-built bridges as in 2603.
-\item Twisted versions (2603 works at generic twist with $\omega=1$); LR-compatible non-diagonal twists.
-\item SoV: companion-twist SoV basis at $2L=4$ and SoV expansions of BPS products (next).
+\item Bridge tables and degeneracy analyses at $\theta_A=\theta_F$ (singular point; replaced by the ABJM point).
+\item The twisted-shift fix $\hat S$ (artefact of $\theta_A=\theta_F$).
+\item ``The SoV basis survives at the ABJM point with shifted evaluation points'': the shifted words are a basis but not
+$B$-eigen.
+\item Per-length product-state searches for P/LP/LR (the 3-pt bras must be length independent).
+\item Odd-bridge formula: the factor $1/(1-z_4/z_1)$ was missing in an early version (corrected 11-10-2026).
 \end{itemize}
 
 \paragraph{References.} B.~Bargheer, C.~Bercini, B.~Lefundes, P.~Ryan, arXiv:2603.26617;
 J.~A.~Minahan, K.~Zarembo, arXiv:0806.3951; D.~Bak, S.-J.~Rey, arXiv:0807.2063;
-P.~Ryan, D.~Volin, arXiv:1810.10996, arXiv:2002.12341.
+P.~Ryan, D.~Volin, arXiv:1810.10996, arXiv:2002.12341; the ABJM note \nb{StructuringABJM.pdf}.
 
 \end{document}
