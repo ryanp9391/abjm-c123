@@ -46,6 +46,11 @@ Everything is in `Paul/Mathematica/su4-alternating/`: **read its `README.md`, th
    kernel (136/256 untwisted; 36/256 at twist z₁z₄ = z₂z₃ = 1), but the only product states in it are trivial
    eigen-bras (untwisted: BPS orbit; twisted: e_a ⊗ e_{5−a} vacua); the note's W_a only at a = 0. Next: L = 3,
    non-diagonal LR-compatible twists.
+2e. **Other discrete symmetries (`abjm-other-symmetries.wb`):** besides LR (𝒫): parity P (𝒬): τ̄₁(u) = τ̄₁(2h−u)
+   ⇔ Q₁(u) ∝ Q₁₂₃(2h−u); LP (𝒫𝒬): τ̄₁(u) = τ̄₃(3h−u) ⇔ Q₁(u) ∝ Q₁(h−u). All occur (L=4: 24 LR, 60 P, 40 LP of
+   152). Product states: P is preserved by EVERY two-site state (v⊗w)^{⊗L} (L = 2, 3, 4, exact to 1e-16) —
+   integrable-boundary-state-like; LR none (L=2); LP only an L=2 accident (SU(2)xSU(2) sector). L=3 searches
+   (sketched kernel) were running at the last commit — see the notebook's last cell.
 3. Integrability of ⟨W_a^L| (note's (4.8)); later the ⟨W^L|Ψ⟩ determinant (Q stage).
 4. Notebook versions of the numpy results ({1,3} common rotation closed form, frame map, odd-bridge formula).
 
