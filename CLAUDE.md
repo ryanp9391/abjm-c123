@@ -24,6 +24,8 @@ su(4) sector.
 
 ## Notebooks
 
+- **All computations and checks go in wolfbook `.wb` notebooks — never python.** Python only if the wolfbook kernel is
+  blocked (say so). The `checks/*.py` scripts are legacy; port to a notebook when needed instead of extending them.
 - `.wb` notebooks are wolfbook notebooks; use the wolfbook MCP tools, not generic JSON edits, when VS Code has them
   open. Notebooks built by agents as JSON have **no native outputs** (results in markdown cells) — rerun in VS Code.
 - Multi-statement Wolfram cells need `;` between statements; a comment containing `m*)` closes early; memoised
