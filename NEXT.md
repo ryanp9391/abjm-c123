@@ -58,7 +58,9 @@ Everything is in `Paul/Mathematica/su4-alternating/`: **read its `README.md`, th
 2g. **SoV at 4 sites (`sov-companion-L4.wb`, notes §8):** companion-twist word basis
    ⟨0|t_{a1}(θ1−h)t1(θ2)^{k2}t_{a3}(θ3−h)t1(θ4)^{k4} has rank 256. Sparse BPS expansions: F-only rotations
    (v = e1, w ∈ e1^⊥) ≤ 9 terms (exp κE34: 4); A-only exp κE12: 13; generic 256. Next: closed forms, map to the
-   physical 3-pt polarisations, θ at the ABJM point, two-block bras from F-only blocks.
+   physical 3-pt polarisations, two-block bras from F-only blocks. At the ABJM point pair by pair
+   (θ_A,n = θ_F,n + 2h, θ_F,n generic) the basis needs the A-site words at u_A = θ_A − 3h or θ_A + 2h with reduced
+   t̄₂, t̄₃ (θ_A − h gives rank 169 = 13²); sparsity unchanged.
    Write-up of all results: `notes/abjm-transfer-matrices-symmetries.tex/.pdf`.
 3. Integrability of ⟨W_a^L| (note's (4.8)); later the ⟨W^L|Ψ⟩ determinant (Q stage).
 4. Notebook versions of the numpy results ({1,3} common rotation closed form, frame map, odd-bridge formula).
