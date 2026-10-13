@@ -1,0 +1,19 @@
+rank words (mod p, exact)                               256
+# eigenstates                                           256
+max eigen residual                                      2.589383022578902e-47
+max Casoratian remainder                                9.622666179408828e-44
+max Baxter singular value                               7.704768086490187e-47
+deg q_i = 2 + mu_i for all states                       True
+q_1234 spread                                           0.0
+F site: tau1(thF) = Q_j(thF)/Q_j(thF-h), all j          8.76128367420767e-47
+A site: tau_a(thA-h) = D_a/D_0, all triples             3.486759736798511e-42
+RV product formula, all words, 4 sigma                  5.2828007525061906e-42
+polynomial gauge with exact N_x, all words              5.157672177291735e-42
+rank ket words (mod p)                                  256
+Gram nonzeros                                           1456
+Gram charge rule S_x + S_y = 12                         True
+Gram triangular                                         True
+measure nonzeros                                        1456
+dual wave functions: spread of N_A, N_F over states/triples 7.911561452501246e-40
+completeness 1 = sum |y> M_yx <x| on 16 eigenstates     1.768646025755187e-43
+time (s)                                                166.92500519752502

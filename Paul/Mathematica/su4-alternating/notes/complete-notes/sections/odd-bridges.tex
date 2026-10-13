@@ -1,0 +1,263 @@
+\begingroup\emergencystretch=4em % local: long file names and inline formulas
+%======================================================================
+\section{ABJM three-point functions from transfer matrices: setup}\label{sec:3pt}
+%======================================================================
+
+This section and the next two write the ABJM structure constants of the note \nb{StructuringABJM.pdf} as overlaps
+$\braket{B}{\Psi}$ of a transfer-matrix eigenstate $\Psi$ with a bra $B$ that is obtained from an integrable reference bra
+by a \emph{word} in transfer matrices, following arXiv:2603.26617 (``2603''). $\Psi$ is a cyclic highest-weight (HW)
+eigenstate of the ABJM chain (Secs.~\ref{sec:abjm}, \ref{sec:states}); conventions are those of Sec.~\ref{sec:conv}.
+Bras are row vectors, $\rho_{\rm pair}(g)$ is the group element $g$ acting on an A--F pair ($v\mapsto vg$ on the A site,
+$u\mapsto ug^{-T}$ on the F site), $J=\sum_s\rho_s(E_{14})$ is the global raising operator, $\Lambda=\mathrm{diag}(z_1,\dots,z_4)$ is
+the twist in the physical (diagonal) frame, and $\tau_a(u)$ is the eigenvalue of $t_a(u)$ on $\Psi$. Evidence tags are
+those of Sec.~\ref{sec:overview}.
+
+\subsection{Pair vectors and the bras of the note}\label{sec:3pt-bras}
+
+On one pair put
+\begin{equation}\label{eq:3pt-W}
+ \vac=e_1\otimes e_4,\qquad
+ W_a=(e_1+ae_4)\otimes(e_4-ae_1)=\vac\cdot\rho_{\rm pair}(e^{aE_{14}}),\qquad v\cdot u=0 .
+\end{equation}
+$W_0=\vac$ is an O$_2$ pair and $W_{-1}=(e_1-e_4)\otimes(e_4+e_1)$ an O$_3$ pair. The bra of the note (its (3.6)) is
+\begin{equation}\label{eq:3pt-B}
+ \bra{B_M}=\bra{\vac^{\otimes(L-M)}\otimes W_{-1}^{\otimes M}},\qquad C_M(\Psi)=\braket{B_M}{\Psi}/\|\Psi\| ,
+\end{equation}
+which is the $C_\ell$ of Sec.~\ref{sec:C} with $\ell=2(L-M)$ O$_2$ sites (data normalisation: unit-norm $\Psi$, $\braket{\vac}{\vac}=1$).
+Even bridges are $\ell$ even (a whole number $M$ of O$_3$ pairs); odd bridges have $\ell$ odd, i.e.\ one field of a pair
+is rotated, e.g.\ $\ell=1$: $\bra{e_1\otimes(e_4+e_1)\otimes W_{-1}^{\otimes(L-1)}}$. Because $\Psi$ is cyclic (translation by one
+pair), the position of the block in $B_M$ is immaterial.
+
+\paragraph{Identification} (2603 analogue) \npy\ [\nb{abjm-bridges.wb}, \nb{ABJM-3pt-transfer-matrices.md}]. A pair twist rotation
+$\rho_{\rm pair}(D)$ with $D=\mathrm{diag}(d_1,\dots,d_4)$ maps
+\begin{equation}\label{eq:3pt-rot}
+ W_a\,\rho_{\rm pair}(D)=\frac{d_1}{d_4}\,W_{a\,d_4/d_1}.
+\end{equation}
+With $D_\kappa=1-\kappa\Lambda$ this is $W_a\to W_{a'}$, $a'=a(1-\kappa z_4)/(1-\kappa z_1)$, and $\kappa=1/z_4$ gives $a'=0$:
+it turns an O$_3$ pair into an O$_2$ pair. The F-site factor $1/d_4$ is singular at $\kappa=1/z_4$; the regular
+(polynomial) normalisation is
+\begin{equation}\label{eq:3pt-T}
+ T_\kappa(v\otimes u)=(vD_\kappa)\otimes(u\,\mathrm{adj}\,D_\kappa),\qquad
+ T_\kappa(W_a)=(1-\kappa z_1)^2(1-\kappa z_2)(1-\kappa z_3)\,W_{a'} ,
+\end{equation}
+which at $\kappa=1/z_4$ gives $(1-z_1/z_4)^2(1-z_2/z_4)(1-z_3/z_4)\,\vac$. Hence the note's (3.6) is
+$\bra{W_{-1}^{\otimes L}}$ with its first $L-M$ pairs rotated by $D_{1/z_4}$, exactly 2603's statement
+``O$_2$ = O$_3$ with the first $\ell$ sites rotated by $1-\kappa\cdot$twist'' on a block. The companion SoV vacuum is a global
+rotation of the physical vacuum with all components non-zero in the diagonal frame (Sec.~\ref{sec:sov}), so, as in 2603,
+the three-point reference is taken directly as a diagonal-frame global rotation of $\vac^{\otimes L}$, namely
+$\bra{W_a^{\otimes L}}=\bra{\vac^{\otimes L}}\rho(e^{aJ})$.
+
+\paragraph{What 2603 provides} (reading of arXiv:2603.26617 App.~K, \nb{rv-sov-dictionary.md} \S5). A site of 2603 is the
+$\mathbf6=\wedge^2\mathbf4$ with vacuum $Z=e_1\wedge e_2$. Its $\kappa$-family is the one-point word
+$1-\kappa t_+(\theta_1)+\kappa^2t_0(\theta_1)$ ($t_0$ the $\wedge^2$ transfer matrix), which is the \emph{group element}
+$\wedge^2(1-\kappa g)$ on the site. Localisation needs only $\bra Z\cL_{jk}=0$ for $j<k$ plus two bonus zeros $\cL_{21}=\cL_{43}=0$;
+it holds for any global rotation of the vacuum (no goodness condition), and the pairing of a rotated with an unrotated
+vector is quadratic in $D=1-\kappa g$, hence finite and non-extremal. The ABJM analogue needed is a \emph{common pair
+rotation}: A by $D=1-\kappa\Lambda$, F by $D^{-1}\propto\mathrm{adj}\,D$ (cubic). It is automatically BPS; its pairings with the
+reference are $-\kappa\,u\Lambda v^T$ and $\sum_jv_ju_j/(1-\kappa z_j)$, which are $O(1)$ precisely for references with
+$u\Lambda v^T\ne0$ (``non-good'' references such as $W_a$, $a\ne0$). This is what Sec.~\ref{sec:kappa} constructs.
+
+\paragraph{Pair localisation at generic $\theta$} \npy\ [\nb{abjm-bridges.wb}, \nb{L4-ffbar-free-rotations.wb}]. On
+$\bra{W_{-1}}^{\otimes2}$, of the 16 words $t_a(\theta_1-h)t_1(\theta_2)^k$ exactly
+$\{1,t_3(\theta_1-h)\}\times\{1,t_1(\theta_2)\}$ localise on pair~1; all 320 pair-1-localising words (up to two library factors per
+site) span only 4 dimensions and give product states only $\rho_1(\Lambda^i)\rho_2(\Lambda^j)$ with
+$(i,j)\in\{(0,0),(-1,0),(-1,1)\}$. The global torus is
+$t_1(\theta_1)^{-1}t_1(\theta_2)t_1(\theta_3)^{-1}t_1(\theta_4)=c\,\rho(\gamma)$. This four-dimensional algebra of generic $\theta$
+is all one sees away from the ABJM point; it led to the earlier (superseded) conclusion that a $\Lambda$-rotation of an
+F site alone, hence the even bridge, is out of reach. It is not: the missing fifth word $t_2(\theta_F+h)$ localises only at
+$\theta_A-\theta_F=2h$, and the even bridge is constructed in Sec.~\ref{sec:kappa}.
+
+\subsection{The highest-weight trick and why it fails in the untwisting limit}\label{sec:3pt-hw}
+
+\npy\ [\nb{abjm-bridges.wb}]. For a HW state $J\Psi=0$, and $e^{bJ}$ shifts every pair vector of a product bra, $W_a\to W_{a+b}$; hence
+\begin{equation}\label{eq:3pt-hw}
+ \braket{\vac\otimes W_{-1}}{\Psi}=\braket{W_b\otimes W_{b-1}}{\Psi}\qquad\text{for all }b\qquad(10^{-16}).
+\end{equation}
+The end-growing chain of Sec.~\ref{sec:odd-chain} gives, exactly at finite twist,
+$\bra{W_{b-1}^{\otimes L}}t_1(\theta_1)^{-1}t_1(\theta_2)=c_{12}\bra{W_b\otimes W_{b-1}^{\otimes(L-1)}}$ when
+$(b-1)z_1/z_4=b$, i.e.\ $b=z_1/(z_1-z_4)$; this is a one-word finite-twist formula for the right-hand side
+of \eqref{eq:3pt-hw}. But $b\to\infty$ as $z\to1$, and the resulting untwisting limit is wrong and state dependent. 2603 avoids
+this by a \emph{continuous} $\kappa$-family on the block. For ABJM pairs that family is the pair $\kappa$-family of
+Sec.~\ref{sec:kappa}: there the free parameter is a finite $a$ with $a'-a\to-1$, so that the HW shift needed is finite
+(Sec.~\ref{sec:kappa-untw}). The old ``F-site gap'' framing of the even bridge as an open problem is thereby resolved
+(Sec.~\ref{sec:kappa}).
+
+%======================================================================
+\section{Odd bridges}\label{sec:odd}
+%======================================================================
+
+Odd bridges (one field of a pair rotated, $\ell=1,3,\dots$) are reachable with the words of the end-growing chain of the
+reference $\bra{W_a^{\otimes L}}$, exactly at finite twist, and have a regular untwisting limit. They see only the vacuum and
+the states with $n=1$, i.e.\ $[L-1,0,L-1]$ (Sec.~\ref{sec:odd-ff}).
+
+\subsection{The exact odd-bridge formula}\label{sec:odd-exact}
+
+\npy\ [\nb{abjm-bridges.wb} \S3; proved for all $L$ in \S\ref{sec:odd-chain}]. On any $\bra W=\bra{W_a^{\otimes L}}$,
+\begin{equation}\label{eq:odd-c1}
+ \bra Wt_1(\theta_1)^{-1}=c_1\,\bra W\rho_1(\Lambda^{-1}),\qquad
+ \frac1{c_1}=h\prod_{F\,s}\theta_{1s}\prod_{A\,s\ne1}(\theta_{1s}+h),
+\end{equation}
+where $\rho_1(\Lambda^{-1})$ multiplies the vector on the A site~1 from the right by $\Lambda^{-1}$ ($\theta_{ks}=\theta_k-\theta_s$).
+On the A vector $e_1-e_4$ of $W_{-1}$ one has $(e_1-e_4)(1-z_4\Lambda^{-1})=(1-z_4/z_1)e_1$, so
+$\bra{W_{-1}^{\otimes L}}\big(1-\tfrac{z_4}{c_1}t_1(\theta_1)^{-1}\big)=(1-z_4/z_1)\,\bra{e_1\otimes(e_4+e_1)\otimes W_{-1}^{\otimes(L-1)}}$, and
+\begin{equation}\label{eq:odd-exact}
+ \braket{e_1\otimes(e_4+e_1)\otimes W_{-1}^{\otimes(L-1)}}{\Psi}=
+ \frac{1-z_4/(c_1\tau_1(\theta_1))}{1-z_4/z_1}\;\braket{W_{-1}^{\otimes L}}{\Psi},
+\end{equation}
+exact at any twist, for every eigenstate $\Psi$ of $t_1$ with eigenvalue $\tau_1$.\footnote{An early version of the old note omitted
+the factor $1/(1-z_4/z_1)$; corrected 11-10-2026.} Verified through the untwisting limit at the ABJM point with a generic
+inhomogeneous deformation \num{10^{-11}} (down to $10^{-14}$ in places) [\nb{abjm-bridges.wb} \S3]; there $\braket{W}{\Psi}\sim\epsilon$ and the
+bracket in \eqref{eq:odd-exact} is $\sim1/\epsilon$. The general-$L$ forms below contain \eqref{eq:odd-exact} as the case
+$k=1$, $\kappa=z_4$, $a=-1$ of the A-site family (exact at finite $\epsilon$).
+
+\subsection{The end-growing chain: closed forms and proof}\label{sec:odd-chain}
+
+\ex\ [\nb{odd-bridge-general-L.wb} \S1; exact at $L=2,3$ on three parameter sets including generic $h$ and a generic BPS pair,
+$10^{-16}$ at $L=4$; fully reproduced in the rerun of 2026-10-13]. Let $\Omega=(v\otimes u)^{\otimes L}$ with $v\cdot u=0$ and the
+\emph{same} pair at every position, and let $\bra{P_k}$ be $\bra\Omega$ with the first $k$ sites rotated by the global-torus element
+$\gamma$ (A site: $v\mapsto v\Lambda^{-1}$; F site: $u\mapsto u\Lambda$), so $P_0=\Omega$ and $P_{2L}=\rho(\gamma)\Omega$. The
+end-growing chain uses the inverse letter on A sites and the forward letter on F sites:
+\begin{align}
+ \bra{P_{k-1}}\,t_1(\theta_k)^{-1}&=d_k\,\bra{P_k}&&(k\text{ odd, A site}),\label{eq:odd-dA}\\
+ \bra{P_{k-1}}\,t_1(\theta_k)&=d_k\,\bra{P_k}&&(k\text{ even, F site}),\label{eq:odd-dF}
+\end{align}
+with
+\begin{align}\label{eq:odd-d}
+ \frac1{d_k}&=h\prod_{s\ne k}\vartheta_{ks}\ \ (k\text{ odd}),&
+ \vartheta_{ks}&=\begin{cases}\theta_{ks}&s\ \mathrm F\\ \theta_{ks}+h&s\ \mathrm A,\end{cases}\\
+ d_k&=-h\prod_{s\ne k}\tilde\vartheta_{ks}\ \ (k\text{ even}),&
+ \tilde\vartheta_{ks}&=\begin{cases}\theta_{ks}&s\ \mathrm A\\ \theta_{ks}-h&s\ \mathrm F.\end{cases}
+\end{align}
+The cumulative constants $c_k=d_1\cdots d_k$ are those of the word $t_1(\theta_1)^{-1}t_1(\theta_2)t_1(\theta_3)^{-1}\cdots$
+($k$ letters) acting on $\Omega$: $\bra\Omega\,(\text{first }k\text{ letters})=c_k\bra{P_k}$. In particular
+\begin{align}
+ c_1&=d_1=\Big[h\prod_{F\,s}\theta_{1s}\prod_{A\,s\ne1}(\theta_{1s}+h)\Big]^{-1}\quad\text{(= \eqref{eq:odd-c1}, now proved)},\\
+ c_{12}&:=c_2=d_1d_2=\prod_{A,\,s\ge3}\frac{\theta_{2s}}{\theta_{1s}+h}\ \prod_{F,\,s\ge4}\frac{\theta_{2s}-h}{\theta_{1s}},\\
+ c_{2L}&=\frac{\prod_{F<F'}(h^2-\theta_{FF'}^2)}{\prod_{A<A'}(h^2-\theta_{AA'}^2)}\qquad\text{(full chain, global torus).}
+\end{align}
+Example, $L=2$ at $\theta=(2/7,-3/5,8/11,-11/8)$, $h=\tfrac12$: $c_4=-1108723/174000$ \ex.
+
+\paragraph{Proof (all $L$).} One-site lemma (BPS contraction). Let a site carry the bra vector $w$ and contract a column $c$ (or row $r$)
+of the auxiliary space into its Lax operator. For $\cL_A=x+hK$: $\sum_jc_j\cL_{ij}=x\,c_i\bra w+h\,w_i\bra c$ and
+$\sum_ir_i\cL_{ij}=x\,r_j\bra w+h\,(r\cdot w)\bra j$; for $\cL_F=x-hP$: $\sum_jc_j\cL_{ij}=x\,c_i\bra w-h\,(w\cdot c)\bra i$ and
+$\sum_ir_i\cL_{ij}=x\,r_j\bra w-h\,w_j\bra r$. So a site acts on the auxiliary column or row as the scalar $x$ if the two vectors
+are BPS-orthogonal, and as $x+h$ (A, $w=c$) or $x-h$ (F, $w=r$) if they coincide. At $u=\theta_k$ the Lax operator of site $k$ is
+$hK$ (A) or $-hP$ (F), so $t_1(\theta_k)$ factorises through site $k$ and every other site acts as a scalar $\theta_{ks}$,
+$\theta_{ks}+h$ or $\theta_{ks}-h$ as in \eqref{eq:odd-d}. The leftover contraction at site $k$ returns the unrotated
+vector for A ($k$ odd: one finds $\bra{P_k}t_1(\theta_k)=d_k^{-1}\bra{P_{k-1}}$, equivalent to \eqref{eq:odd-dA}) and the rotated
+vector for F ($k$ even, \eqref{eq:odd-dF}). The singlet terms $(r\cdot w)$,
+$(w\cdot c)$ vanish exactly because $\Lambda^{-1}$ on A and $\Lambda$ on F preserve $v\cdot u=0$: this is why the only fixed rotation
+is the global-torus $\gamma$. No condition on $h$, $\theta$, the diagonal twist or $a$ is used except $v\cdot u=0$ and that all pairs
+carry the same $(v,u)$; for independent pairs the A--A and F--F exchange terms do not collapse [\nb{abjm-nongood-reference-limit.wb}].
+
+\subsection{The two one-field families, at every placement}\label{sec:odd-fam}
+
+\ex\ [\nb{abjm-nongood-reference-limit.wb} (two pairs), \nb{odd-bridge-general-L.wb} \S2 ($L=3$, all placements)]. Two free
+rotations of a single field exist on $\bra\Omega$:
+\begin{align}
+ \text{(b) A site:}\quad &\bra\Omega\big(\alpha+\beta\,t_1(\theta_1)^{-1}\big)=\bra\Omega\ \text{with the A vector of pair 1 replaced by }v(\alpha+\beta c_1\Lambda^{-1}),\\
+ \text{(a) F site:}\quad &\bra\Omega\,t_1(\theta_1)^{-1}\big(\alpha+\beta\,t_1(\theta_2)\big)=\bra\Omega\ \text{with pair 1 replaced by }(v\Lambda^{-1})\otimes u(\alpha c_1+\beta c_{12}\Lambda).
+\end{align}
+At every placement $k=1,\dots,2L$ the same holds after the chain: $\bra\Omega\,(\text{letters }1,\dots,k-1)(\alpha+\beta\,t_1(\theta_k)^{\mp1})$
+rotates only the field at site $k$ (A site via the inverse letter, F site via the forward letter) on top of the fixed
+$\Lambda^{\mp1}$-twisting of sites $1,\dots,k-1$. Products of (a) and (b) are not product states. With the normalised letters
+$\hat t_k=d_kt_1(\theta_k)$ ($k$ odd), $\hat t_k=t_1(\theta_k)/d_k$ ($k$ even), \eqref{eq:odd-dA}--\eqref{eq:odd-dF} read
+$\bra{P_{k-1}}\hat t_k^{(-1)^k}=\bra{P_k}$ with no constant, and the words are
+\begin{equation}\label{eq:odd-words}
+ W_F(p)=\Big[\prod_{j<k}\hat t_j^{(-1)^j}\Big]\big(c\epsilon-1+\hat t_k\big)\ \ (k=2p),\qquad
+ W_A(p)=\Big[\prod_{j<k}\hat t_j^{(-1)^j}\Big]\big(1-\kappa\,\hat t_k^{-1}\big)\ \ (k=2p-1).
+\end{equation}
+
+\subsection{The untwisting limit of the one-field families}\label{sec:odd-limit}
+
+Take $z=1+\epsilon\varphi$, $\theta=\theta_{\rm ABJM}+\epsilon\theta^0$ (pair-preserving ABJM inhomogeneities), $\epsilon=10^{-2},\dots,10^{-4}$.
+Family (a) with $\alpha':=\alpha c_1=c\epsilon-1$, $\beta':=\beta c_{12}=1$ (i.e.\ the word $c\epsilon-1+\hat t_2$; $\alpha'+\beta'=c\epsilon$), for which
+$\alpha'+\beta'z_j=\epsilon(c+\varphi_j)$ on the F vector, gives
+\begin{equation}
+ \bra{\mathrm{bra}_\epsilon}=\frac{\epsilon(c+\varphi_4)}{z_1}\,\bra{N_\epsilon},\qquad
+ N_\epsilon=\Big[(e_1+a\tfrac{z_1}{z_4}e_4)\otimes(e_4-a'e_1)\Big]\otimes W_a^{\otimes(L-1)},\quad
+ a'=a\frac{c+\varphi_1}{c+\varphi_4},
+\end{equation}
+and a finite HW shift $e^{-aJ}$ maps the limiting bra to $\vac^{\otimes L}$ with one F site equal to $e_1$ on pair~1:
+$\bra{N_0}e^{-aJ}=\bra{\vac^{\otimes L}}+(a-a')\bra{e_1e_1\otimes\vac^{\otimes(L-1)}}$. Hence, at rate $O(\epsilon)$,
+\begin{equation}\label{eq:odd-limit}
+ \braket{N_\epsilon}{\Psi_\epsilon}\ \longrightarrow\ V_0+(a-a')\,X_{11}\quad(\text{F family}),\qquad
+ \braket{N^{\rm A}_\epsilon}{\Psi_\epsilon}\ \longrightarrow\ V_0+(a''-a)\,X_{44}\quad(\text{A family}),
+\end{equation}
+$a''=a(c+\varphi_4)/(c+\varphi_1)$ (the A family is the word $1-\kappa\hat t_1^{-1}$ with $\kappa=1-c\epsilon$: A vector $\propto(e_1+a''e_4)$, $F$ vector $e_4-ae_1$;
+the shift $e^{-aJ}$ then gives $\vac+(a''-a)e_4e_4$), with $V_0=\braket{\vac^{\otimes L}}{\Psi_0}$ ($=1$ on the vacuum, $0$ otherwise),
+$X_{11}=\braket{e_1e_1\otimes\vac^{\otimes(L-1)}}{\Psi_0}$, $X_{44}=\braket{e_4e_4\otimes\vac^{\otimes(L-1)}}{\Psi_0}$ (pair 1, by cyclicity any pair).
+The limit is independent of $\varphi$, $c$ and of the placement $p$ (on cyclic states pairs $2,3$ give the same limit; at finite $\epsilon$ the
+placements differ by $O(\epsilon)$), and $X_{11}=X_{44}=C_1$ of the data table (HW shift plus cyclicity). Values:
+$L=2$, the two $[1,0,1]$ states: $C_1=(1\mp i\sqrt3)/\sqrt{48}=0.144338\mp0.25i$ (Sec.~\ref{sec:C});
+$L=3$, the three $[2,0,2]$ states ($E_{\rm MZ}=8,8,16$): $C_1=+i/\sqrt{24},\,-i/\sqrt{24}$ (the two $E_{\rm MZ}=8$ states) and $1/\sqrt{24}$ ($E_{\rm MZ}=16$);
+the vacuum gives $V_0=1$ and all other saved states give $0$ (the notebook tabulates $(T_\epsilon-V_0)/(a-a')$, resp.\ $(T_\epsilon-V_0)/(a''-a)$, against $C_1$ for
+several $(\varphi,c)$ and both families). \num{O(\epsilon)}\ [\nb{odd-bridge-general-L.wb} \S2, rerun 2026-10-13]. The special member $\kappa=z_4$, $a=-1$ of the A family reproduces
+\eqref{eq:odd-exact} at finite $\epsilon$ exactly. The finite-twist identity
+$\braket{\mathrm{bra}_\epsilon}{\Psi_\epsilon}=(\text{word eigenvalue})\braket{W_a^{\otimes L}}{\Psi_\epsilon}$ with the closed-form $d_k$, $c_k$ holds to
+$10^{-15}$ for every state at $L=2,3$ and chain positions $k=1,2$ \num{10^{-15}}.
+
+\subsection{Homogeneous ABJM-point limit and the normalised $\hat\tau$ form}\label{sec:odd-hom}
+
+\ex\ / \num{O(\epsilon)}\ [\nb{odd-bridge-general-L.wb} \S4]. At the ABJM point every constant above is finite and non-zero in the fully
+homogeneous limit $\delta\to0$ (pair-periodic $\theta$): $d_k$ contains only $\theta_{ks}$ with $s$ on the opposite sublattice ($=\pm2h$) or on the same
+sublattice shifted by $\pm h$ ($=\pm h$ after the shift). In closed form
+\begin{equation}
+ c_1=(2h^2)^{-L},\qquad d_2=-h(-2h)^L(-h)^{L-1},\qquad c_{12}=c_1d_2=1 ,
+\end{equation}
+($c_1=8$, $d_2=1/8$ at $L=3$, $h=\tfrac12$). The homogeneous limit is therefore \emph{regular}; the singular locus is $\theta_A=\theta_F$ (the superseded
+``wrong chain'', Sec.~\ref{sec:abjm}), where $d_k\to\infty$ ($k$ odd) like $(\theta_A-\theta_F)^{-L}$ and $d_k\to0$ ($k$ even) like $(\theta_A-\theta_F)^{L}$, while the eigenvalues
+$\tau(\theta_k)$ go to zero at the same rate. Only the products $\hat\tau_k=d_k^{\pm1}\tau_1(\theta_k)$ (the eigenvalues of $\hat t_k$) stay finite; on the
+twisted vacuum, whose eigenvalues are known exactly, $\hat\tau_j=z_1$ ($j$ odd), $\hat\tau_j=z_4$ ($j$ even) at every $\theta$. In terms of them, exactly at finite twist,
+\begin{equation}\label{eq:odd-tauhat}
+ \braket{\mathrm{bra}_\epsilon}{\Psi_\epsilon}=\Big[\prod_{j<k}\hat\tau_j^{(-1)^j}\Big]\big(c\epsilon-1+\hat\tau_k\big)\braket{W_a^{\otimes L}}{\Psi_\epsilon}
+\end{equation}
+(F family, $k=2p$; for the A family replace the last factor by $1-\kappa/\hat\tau_k$). For the one-field F bridge on pair~1 (same form at every $L$)
+\begin{equation}\label{eq:odd-V0}
+ V_0+(a-a')C_1=\lim_{\epsilon\to0}\frac{c\epsilon-1+\hat\tau_2}{\hat\tau_1\,\epsilon\,(c+\varphi_4)}\ \braket{W_a^{\otimes L}}{\Psi_\epsilon},\qquad a'=a\frac{c+\varphi_1}{c+\varphi_4}.
+\end{equation}
+On the vacuum $\hat\tau_1=z_1$ exactly and the right side is $1$. On the states with $V_0=0$ (weight $(L-1)(e_1-e_4)$, the $n=1$ states of
+Sec.~\ref{sec:odd-ff}) one finds numerically $\hat\tau_1=\hat\tau_2$ in the limit (a fourth root of unity: $+i,-i,-1$ for the three $[2,0,2]$
+states at $L=3$), so that
+\begin{equation}\label{eq:odd-C1K}
+ C_1=\big(1-1/\hat\tau_1\big)K,\qquad K=\lim_{\epsilon\to0}\frac{\braket{W_a^{\otimes L}}{\Psi_\epsilon}}{\epsilon\,a\,(\varphi_4-\varphi_1)},
+\end{equation}
+independent of $\varphi$, $c$ and $a$ (tested at $\delta=0$) \num{O(\epsilon)}. The $\hat\tau$ are eigenvalues of $t_1$ at two inhomogeneities, hence
+Q-expressible (Sec.~\ref{sec:qform}); \eqref{eq:odd-V0} and \eqref{eq:odd-C1K} express the odd bridge through such data and the overlap
+$\braket{W_a^{\otimes L}}{\Psi}$ of Sec.~\ref{sec:qform}.
+
+\subsection{The odd one-field bridge as a $T_{14}$ form factor; which states it sees}\label{sec:odd-ff}
+
+Let $T_{14}(u)=\mathrm{tr}(T\,E_{41})$ be the $(1,4)$ monodromy element and $G_a=\Lambda+a(z_1-z_4)E_{41}=e^{aE_{41}}\Lambda e^{-aE_{41}}$. Then
+$\bra{W_a^{\otimes L}}$ is the vacuum eigenbra of $t^{G_a}(u)$ with eigenvalue $\tau_{\rm vac}(u)$, $t_1^{G_a}=t_1^\Lambda+a(z_1-z_4)T_{14}$ \ex\ [\nb{even-bridge-epsilon-expansion.wb}, $L=2$],
+and for every eigenstate $\Psi$ of $t^\Lambda$ at finite twist
+\begin{equation}\label{eq:odd-T14}
+ \big(\tau_{\rm vac}(u)-\tau_\Psi(u)\big)\braket{W_a^{\otimes L}}{\Psi}=a(z_1-z_4)\,\bra{W_a^{\otimes L}}T_{14}(u)\ket\Psi
+\end{equation}
+[\nb{even-bridge-epsilon-expansion.wb}: exact $30$-digit agreement, deviation $<10^{-29}$ on all $41$ eigenstates of the sectors $(2,0,0,-2)$, $(1,0,0,-1)$, $(0,0,0,0)$ at $L=2$].
+
+\paragraph{Orders in $\epsilon$.} For $\Psi$ of weight $(\mu_1,0,0,-\mu_1)$ put $n=L-\mu_1$; then $\braket{W_a^{\otimes L}}{\Psi}=(a^n/n!)\bra{\vac}J^n\ket\Psi$
+and $\braket{W_a^{\otimes L}}{\Psi_\epsilon}=(a^n/n!)\,\epsilon^n\omega_n+\dots$, while $\braket{W_a^{\otimes L}}{\Psi}\equiv0$ for every other weight. The bra of
+\eqref{eq:odd-limit} carries an explicit factor $\epsilon$, so a finite limit needs $\braket{W}{\Psi_\epsilon}=O(\epsilon)$:
+\emph{odd bridges see only the vacuum ($n=0$) and the states with $n=1$, i.e.\ $[L-1,0,L-1]$}; all other $\Psi$ give $0$ (Sec.~\ref{sec:odd-limit}; at $L=3$ exactly the vacuum and the three $[2,0,2]$ states).
+The even bridge $M=1$ sees only $n=2$, $[L-2,0,L-2]$ (Sec.~\ref{sec:kappa-untw}); hence for a fixed state the two are never both non-zero and
+there is \emph{no even/odd ratio relation} \npy\ [\nb{even-bridge-epsilon-expansion.wb}, \nb{checks/session-2026-10-13/epsexp/}].
+
+\paragraph{Form factor.} Matching orders in \eqref{eq:odd-T14} gives $\omega_1=(\varphi_1-\varphi_4)\bra\vac T_{14}(u)\ket{\Psi_0}/(\tau_{\rm vac}(u)-\tau_{\Psi_0}(u))$,
+independent of $u$. The odd-bridge chain gives $\omega_1(m)=(\varphi_4-\varphi_1)C_1(m)/D_0(m)$ with $D_0=(\hat\tau_2-1)/\hat\tau_1$ the $\epsilon\to0$ value of the chain-word eigenvalue
+($D_0=3/2\pm(\sqrt3/2)i$ at $L=2$ for the two $[1,0,1]$ states, same for $k=1,2$; $D_0=1\pm i,\,2$ at $L=3$ for the $[2,0,2]$ states, i.e.\ $1-1/\hat\tau_1$ of \eqref{eq:odd-C1K}).
+Therefore, for the HW states $m$ of $[L-1,0,L-1]$,
+\begin{equation}\label{eq:odd-ff}
+ \bra{\vac}T_{14}(u)\ket m=-\big(\tau_{\rm vac}(u)-\tau_m(u)\big)\,\frac{C_1(m)}{D_0(m)} ,
+\end{equation}
+numerically to $10^{-4}$ ($O(\epsilon)$) for the $2+3$ states at $L=2,3$ \npy\ [\nb{scan2.py}, \nb{odd\_check.py} in \nb{checks/session-2026-10-13/epsexp/}]. So the odd one-field bridge is the
+$T_{14}$ form factor $\bra\vac T_{14}\ket m$ normalised by the $\hat\tau$ ratio $D_0$.
+
+\paragraph{Relation to the even bridge.} The only relation between odd and even data is first-order perturbative: with $\kappa_m=-C_1(m)/D_0(m)$ and
+$g_m=\bra{\tilde m}T_{14}(u_1)\ket{\Psi_0}/(\tau_m(u_1)-\tau_{\Psi_0}(u_1))$,
+\begin{equation}
+ C_{M=1}(\Psi_0)=\frac{K_1(\tau_{\Psi_0})}{\tau_{\rm vac}(u)-\tau_{\Psi_0}(u)}\sum_m\kappa_m\big(\tau_{\rm vac}(u)-\tau_m(u)\big)g_m ,
+\end{equation}
+the sum over the HW states $m$ of $[L-1,0,L-1]$ (4 at $L=2$, 9 at $L=3$ including non-cyclic ones), with $K_1$ the pair-word eigenvalue of Sec.~\ref{sec:kappa-word}. It reproduces the data $C_{M=1}$
+to $6$ digits \npy; the new unknown is the form factor $g_m$ between two excited states, which is not obtainable from Q-brackets of $\Psi$ alone.
+\endgroup

@@ -1,0 +1,46 @@
+C:\Users\pryan\AppData\Local\Temp\claude\c--Users-pryan-git-projects-abjm-c123\794786d6-48ea-4307-bf67-7108309c1c97\scratchpad\twoblock\nb_cell21.py:96: SyntaxWarning: invalid escape sequence '\|'
+  print('| ε = δ | Dynkin | E_MZ | # c_x ≠ 0 | SoV Σc_xW_x⟨0|Ψ⟩/(λ₁²(−b)^{2−w₁}) | direct ⟨B|Ψ⟩/(…) | rel. diff | data C₂ | \|⟨0|Ψ⟩\|/λ₁² |')
+prime done 67108859 8.7
+prime done 67108837 18.0
+prime done 67108819 27.3
+prime done 67108777 36.4
+prime done 67108763 46.0
+prime done 67108757 55.2
+prime done 67108753 64.6
+prime done 67108747 74.7
+prime done 67108739 84.6
+prime done 67108729 94.7
+prime done 67108721 104.4
+prime done 67108709 114.0
+prime done 67108693 123.5
+prime done 67108669 133.6
+prime done 67108667 143.3
+prime done 67108661 153.7
+prime done 67108649 164.1
+prime done 67108633 173.9
+prime done 67108597 184.0
+prime done 67108579 194.2
+prime done 67108529 203.8
+prime done 67108511 213.6
+prime done 67108507 223.2
+prime done 67108493 232.5
+prime done 67108471 241.0
+prime done 67108463 250.3
+prime done 67108453 259.1
+prime done 67108439 268.7
+prime done 67108387 276.8
+prime done 67108373 284.4
+prime done 67108369 292.0
+prime done 67108351 300.1
+prime done 67108331 307.7
+prime done 67108313 318.2
+c: nonzero 36 reconstruction failures 0
+t-blocks reconstructed, failures 0 320.3
+| ε = δ | Dynkin | E_MZ | # c_x ≠ 0 | SoV Σc_xW_x⟨0|Ψ⟩/(λ₁²(−b)^{2−w₁}) | direct ⟨B|Ψ⟩/(…) | rel. diff | data C₂ | \|⟨0|Ψ⟩\|/λ₁² |
+| 1e-03 | [2, 0, 2] | 0.0000 | 36 | 1.0 | 1.0 | 8.35e-65 | 1.0000000000 | 1.0 |
+| 1e-03 | [0, 2, 0] | 16.0000 | 36 | 1.631644408e-7 | 1.631644408e-7 | 4.71e-65 | 0.0000000000 | 1.14e-7 |
+| 1e-03 | [1, 0, 1] | 12.0000 | 36 | -4.626032733e-7 -0.000332988i | -4.626032733e-7 -0.000332988i | 5.49e-71 | 0.0000000000 | 6.68e-11 |
+| 1e-03 | [1, 0, 1] | 12.0000 | 36 | -4.626032733e-7 0.000332988i | -4.626032733e-7 0.000332988i | 4.78e-71 | 0.0000000000 | 6.68e-11 |
+| 1e-03 | [0, 0, 0] | 20.0000 | 36 | -0.1576606207 | -0.1576606207 | 4.16e-69 | -0.1581138830 | 9.15e-22 |
+| 1e-03 | [0, 0, 0] | 4.0000 | 36 | 0.2036913891 | 0.2036913891 | 3.89e-70 | 0.2041241452 | 1.64e-20 |
+time 326.0

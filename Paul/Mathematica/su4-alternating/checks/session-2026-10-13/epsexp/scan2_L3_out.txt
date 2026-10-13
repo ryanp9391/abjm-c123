@@ -1,0 +1,7 @@
+eps 1e-02 done (51 s)
+eps 5e-03 done (101 s)
+eps 2e-03 done (151 s)
+eps 1e-03 done (201 s)
+eps 5e-04 done (253 s)
+eps 2e-04 done (303 s)
+eps 1e-04 done (355 s)

@@ -1,0 +1,63 @@
+%======================================================================
+\section{Overview}\label{sec:overview}
+%======================================================================
+
+\paragraph{Scope.} Research lead: P.~Ryan. The question is the computation of tree-level structure constants in ABJM
+theory in the full $\su(4)$ sector, using the methods of arXiv:2603.26617 (2603: localising transfer matrices,
+separation of variables, untwisting limit). Two operators are BPS, of the two-block form of the ABJM note
+\nb{StructuringABJM.pdf}, and the third is a non-BPS eigenstate of the two-loop dilatation operator. The spin chain is
+the alternating $\su(4)$ chain at the ABJM point (\S\ref{sec:abjm}). Conventions, frames and evidence tags are in
+\S\ref{sec:conv}, and the notebook index is Appendix~\ref{sec:index}.
+
+\paragraph{Timeline.}
+\begin{itemize}
+\item 11 Oct: SoV basis and localisation for the alternating chain at two and four sites, companion frame
+  (\S\ref{sec:loc}, \S\ref{sec:sov}).
+\item 12 Oct: transfer matrices $t_2,t_3$; the ABJM point; states, Q-functions and symmetries; selection rules
+  (\S\ref{sec:tm}--\S\ref{sec:fact}). Twisted vacua; odd bridges at any $L$; the pair $\kappa$-family; the SoV
+  dictionary and the ABJM-point regularisation (\S\ref{sec:twvac}, \S\ref{sec:sov}--\S\ref{sec:kappa}).
+\item 13 Oct: the reference-state question, the Q-form of the even bridge, and its untwisted limit
+  (\S\ref{sec:admiss}, \S\ref{sec:qform}).
+\end{itemize}
+
+\paragraph{Headline results.}
+\begin{enumerate}
+\item $t_2$ and $t_3$ are single-pass transfer matrices with explicit $\wedge^2$ and dual Lax operators (\S\ref{sec:tm}).
+\item The ABJM chain is the unique point $\theta_A-\theta_F=2h$ where the Minahan--Zarembo Hamiltonian commutes with the
+  transfer matrices. There $t_3(u_0)=0$ and $t_2(u_0)=t_1(u_0)t_1(\theta_F)$, with $u_0=\theta_F+h$ (\S\ref{sec:abjm}).
+\item Three discrete symmetries hold, with Q-function forms. There is no LR selection rule for two-block structure
+  constants, but length-independent parity selection rules exist. The bridge-parity vanishing rule is a property of the
+  note's polarisation, which is blind to all states with $L+p$ odd or $q>0$
+  (\S\ref{sec:sym}--\S\ref{sec:polforms}).
+\item The companion-twist SoV basis at four sites has an exact Q-dictionary: F sites carry single-Q ratios and A sites
+  $3\times3$ Casoratians. The dual basis has a triangular, non-diagonal measure. A regularised basis exists at the ABJM
+  point (\S\ref{sec:sov}).
+\item Odd (one-field) bridges are given in closed form at every length and placement, through an end-growing chain of
+  transfer matrices with proved constants. Their untwisting limit is continuous (\S\ref{sec:odd}).
+\item At the ABJM point with $z_2=z_3$, five pair words form a common group rotation of one pair of $\bra{W_a^L}$:
+  \[
+  \bra{W_a^L}K_\kappa=(1-\kappa z_1)^2\bra{W_{a'}\otimes W_a^{L-1}}.
+  \]
+  This gives the even bridges with $M\in\{1,L-1,L\}$ at every $L$ (\S\ref{sec:kappa}). $W_a$ is the only admissible
+  reference with nonzero cross pairings (\S\ref{sec:admiss}).
+\item The overlaps of $\bra{W_a^L}$ are twisted-vacuum overlaps, and they factorise into a polynomial in F-site
+  single-Q ratios:
+  \[
+  \frac{\braket{W_a^L}{\Psi}}{\braket0\Psi}=\Big(\frac a{\kappa_0}\Big)^n(\lambda_1u_4)^{-L}B_{z_2}(y)B_{z_3}(y).
+  \]
+  With this, the even-bridge structure constant is a Q-expression up to the known SoV norm. It reproduces the data at
+  $L=2,3$, and at $L=2$ it has the closed untwisted limit $|C_{M=1}|=K_1B_1^2/\sqrt{\bbB_0}$ (\S\ref{sec:qform}).
+\end{enumerate}
+
+\paragraph{How the pieces fit.}
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+2603 factor & ABJM analogue here & status\\
+\midrule
+$\bbA_{\ell,\kappa}$ (rotated block) & pair word $P_\kappa(\tau)$, limit $K_1$ & one pair; Q-form known (\S\ref{sec:kappa})\\
+$\bbW_\omega$ (reference overlap) & $B_{z_2}(y)B_{z_3}(y)$, limit $B_1^2$ & closed form; exact at $L\le3$ (\S\ref{sec:qform})\\
+$\sqrt{\bbB}$ (norm) & SoV norm $\braket0\Psi/\|\Psi\|$ & known (Paul); cross-checked (\S\ref{sec:sov})\\
+\bottomrule
+\end{tabular}
+\end{center}

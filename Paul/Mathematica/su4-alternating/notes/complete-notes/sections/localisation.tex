@@ -1,0 +1,328 @@
+%======================================================================
+\section{Localising words and free-parameter rotations}\label{sec:loc}
+%======================================================================
+
+{\raggedright [\nb{L2-ffbar-SoV-localisation.wb} (2 sites), \nb{L4-ffbar-free-rotations.wb} (4 sites), \nb{checks/chk\_common13.py},
+\nb{checks/chk\_rotref.py}]\par}
+
+\paragraph{Setting and notation.} Chain A F A F (four sites = two pairs) unless stated, companion twist
+$G=G_c(z)$ at the standard point ($h=\tfrac12$, $\theta=(2/7,-3/5,8/11,-11/8)$, $z=(3/2,5/4,2/3,4/7)$),
+$\theta_{ab}=\theta_a-\theta_b$, $\sigma_k=e_k(z)$ (so $\det G=\sigma_4$), $\gamma:=G^{-T}$. Bras are row vectors and operators act from the right.
+Two kinds of site operators are used. $\rho_s(g)$ is the representation matrix of $g\in GL(4)$ on site $s$, i.e.\ $g$ on an
+A site and $g^{-T}$ on an F site, so $\rho_{A}(\gamma^p)=G^{-pT}$ and $\rho_{F}(\gamma^p)=G^{p}$. $M_{[s]}$ is the plain
+$4\times4$ matrix $M$ acting on the row vector of site $s$ ($v\mapsto vM$); thus $\rho_F(g)=(g^{-T})_{[s]}$. A word $W$
+\emph{localises} on a set of sites $S$ of a reference $\Omega$ if $\bra\Omega W=c\,\bigotimes_{s\in S}x_s\otimes(\Omega\text{ on the
+other sites})$ with $c$ a scalar; overlaps with an eigenstate $\Psi$ then reduce to eigenvalue polynomials times
+$\braket{\Omega}{\Psi}$. Words are built from $t_1(\theta_s+mh)^{\pm1}$ and $t_3(\theta_s+mh)$ with twist $G_c(z)$ (\S\ref{sec:tm}).
+The reference $\bra0=e_1\otimes e_4\otimes e_1\otimes e_4$ is the SoV vacuum (\S\ref{sec:sov}); a ``generic rotated vacuum'' is
+$\Omega=\bra0\rho(g)$ with $g$ a generic element of $GL(4)$ (the cross-check element of the notebook has $\det g=-58$).
+
+\paragraph{qKZ form.} $\cL_A(\theta)=hK$ has rank one and $\cL_F(\theta)=-hP$, so $t_1$ at an inhomogeneity transports the twist
+onto one site and leaves $R$-matrices. At two sites, for any twist matrix $G$ (symbolic) \ex
+\begin{align}
+ t_1(\theta_1)&=h\,(G^T)_{[1]}(\theta_{12}-hK), & t_1(\theta_2)&=h\,G_{[2]}(\theta_{12}-hK),\nonumber\\
+ t_1(\theta_1)\,t_1(\theta_2)^{-1}&=(G^T)_{[1]}(G^{-1})_{[2]}=\rho(G^T),
+\end{align}
+the global twist rotation. At four sites \ex
+\begin{align}
+ t_1(\theta_1)&=h\,(G^T)_{[1]}R_{14}R_{13}R_{12}, & t_1(\theta_2)&=-h\,R_{23}R_{24}G_{[2]}R_{21},\nonumber\\
+ t_1(\theta_3)&=h\,R_{32}R_{31}(G^T)_{[3]}R_{34}, & t_1(\theta_4)&=-h\,G_{[4]}R_{41}R_{42}R_{43},
+\end{align}
+with $R_{ab}=\theta_{ab}\pm hK_{ab}$ for an A--F pair and $\theta_{ab}\pm hP_{ab}$ for a same-type pair. The mechanism behind
+everything below: the $R$-factors on either side of the twist matrix are scalars on the reference as long as the singlet overlap of
+the site vectors of each A--F pair vanishes (and same-type pairs are symmetric); then the word is a pure site rotation.
+
+\paragraph{Bare vacuum: every site localises} \ex. Let $X=t_1(\theta_1)^{-1}$, $Y=t_1(\theta_2)$, $Z=t_1(\theta_3)$,
+$W=t_1(\theta_4)^{-1}$. Then
+\begin{align}
+ \bra0X&=c_1\bra0\rho_1(\gamma), & c_1&=\frac1{h\,\theta_{12}(\theta_{13}+h)\theta_{14}},\nonumber\\
+ \bra0Y&=l_2\bra0\rho_2(\gamma), & l_2&=h\,\theta_{12}\theta_{23}(\theta_{24}-h),\nonumber\\
+ \bra0Z&=l_3\bra0\rho_3(\gamma^{-1}), & l_3&=h\,\theta_{32}(\theta_{31}+h)\theta_{34},\nonumber\\
+ \bra0W&=c_4\bra0\rho_4(\gamma^{-1}), & c_4&=\frac{-1}{h\,\theta_{43}(\theta_{42}-h)\theta_{41}}.
+\end{align}
+Write $(O_1,O_2,O_3,O_4)=(X,Y,Z,W)$, $(\lambda_1,\dots,\lambda_4)=(c_1,l_2,l_3,c_4)$ and $o_s=O_s/\lambda_s$. Then each site has one free
+parameter, $\bra0(1-\kappa\,o_s)=v_s(\kappa)\otimes\mathrm{vac}_{\bar s}$ (the vacuum on the other three sites), with
+\begin{align}
+ v_1&=e_1^T(1-\kappa G^{-T})=(1,0,0,\kappa/\sigma_4), & v_2&=e_4^T(1-\kappa G)=(0,0,-\kappa,1),\nonumber\\
+ v_3&=e_1^T(1-\kappa G^{T})=(1-\kappa\sigma_1,-\kappa,0,0), &
+ v_4&=e_4^T(1-\kappa G^{-1})=\big(\kappa,-\kappa\sigma_1,\kappa\sigma_2,\sigma_4-\kappa\sigma_3\big)/\sigma_4 .
+\end{align}
+The corresponding group elements are $h_1=1-\kappa G^{-T}$, $h_2=(1-\kappa G)^{-T}$, $h_3=1-\kappa G^T$, $h_4=(1-\kappa G^{-1})^{-T}$, with
+$\rho_A(h)=h$, $\rho_F(h)=h^{-T}$. The two end identities ($X$ and $W$) also hold for a generic global rotation $\bra0\rho(g)$; the two interior ones do not (see below).
+Also $t_1(\theta_s)\,t_3(\theta_s+mh)$ is an exact scalar at $(s,m)=(1,-1),(2,3),(3,-1),(4,3)$, so these $t_3$ operators are not new:
+$t_3(\theta_1-h)=q_1t_1(\theta_1)^{-1}$ with
+$q_1=-6h^4\det G\;\theta_{12}(\theta_{12}-h)(\theta_{12}-2h)(\theta_{12}-4h)\,(\theta_{13}+h)(\theta_{13}-h)(\theta_{13}-2h)(\theta_{13}-3h)\,
+\theta_{14}(\theta_{14}-h)(\theta_{14}-2h)(\theta_{14}-4h)$, and the one-site rotation of site~1 is also a $t_3$-word, as used in
+the SoV basis (\S\ref{sec:sov}) \ex\ [\nb{L4-ffbar-free-rotations.wb}, cells 10--25].
+
+On eigenstates, $\bra0(1-\kappa o_s)\ket\Psi=(1-\kappa\hat o_s)\braket0\Psi$ with $\hat o_s$ the eigenvalue of $o_s$:
+\begin{equation}
+ \hat o_1=\frac{h\theta_{12}(\theta_{13}+h)\theta_{14}}{\tau_1(\theta_1)},\quad
+ \hat o_2=\frac{\tau_1(\theta_2)}{h\theta_{12}\theta_{23}(\theta_{24}-h)},\quad
+ \hat o_3=\frac{\tau_1(\theta_3)}{h\theta_{32}(\theta_{31}+h)\theta_{34}},\quad
+ \hat o_4=\frac{-h\theta_{43}(\theta_{42}-h)\theta_{41}}{\tau_1(\theta_4)}
+\end{equation}
+\num{10^{-51}} on all 256 eigenstates (60-digit eigenvectors from exact weight blocks); $\braket0\Psi\neq0$ for all 256
+eigenstates (smallest $6.2\cdot10^{-4}$), i.e.\ $\bra0$ is cyclic for the Bethe algebra.
+Of the sixteen products $X^{e_1}Y^{e_2}Z^{e_3}W^{e_4}$ exactly those with $e\in\{0000$, one entry, $1100$, $0110$, $0011\}$
+(single sites and adjacent pairs) are pure site rotations, so there
+\begin{equation}
+ \bra0\prod_{s\in S}(1-\kappa_so_s)\ket\Psi=\prod_{s\in S}(1-\kappa_s\hat o_s)\,\braket0\Psi\qquad(S=\{s\}\ \text{or an adjacent pair}).
+\end{equation}
+Same-type pairs pick up an exchange term from $R=\theta\pm hP$: the pure product rotations $\Pi_{13}=\bra0\rho_1(\gamma)\rho_3(\gamma^{-1})$,
+$\Pi_{24}$, $\Pi_{123}$, $\Pi_{234}$ (rotations $\gamma,\gamma^{-1}$ alternating along the listed sites) are, as words on $\bra0$,
+$\Pi_{13}=[(\theta_{13}-h)o_1o_3+h]/\theta_{13}$, $\Pi_{24}=[(\theta_{24}-h)o_2o_4+h]/\theta_{24}$,
+$\Pi_{123}=[(\theta_{13}-h)o_1o_2o_3+ho_2]/\theta_{13}$, $\Pi_{234}=[(\theta_{24}-h)o_2o_3o_4+ho_3]/\theta_{24}$, e.g.\ on $\{1,3\}$
+\begin{equation}
+ \Big[(1-\kappa_1\hat o_1)(1-\kappa_3\hat o_3)-\frac h{\theta_{13}}\kappa_1\kappa_3(\hat o_1\hat o_3-1)\Big]\braket0\Psi,
+\end{equation}
+and for three consecutive sites $\braket{v_1(\kappa_1)\otimes v_2\otimes v_3\otimes\mathrm{vac}_4}{\Psi}=
+[ABC-\tfrac h{\theta_{13}}\kappa_1\kappa_3(\hat o_1\hat o_3-1)B]\braket0\Psi$, $A=1-\kappa_1\hat o_1$, etc.\ \num{10^{-51}};
+$\{1,2,3\}$ and $\{2,3,4\}$ are the maximal site sets on which the product deformation is polynomial in the $o_s$. The exchange
+dressings of the two end operators that are not site rotations are
+\begin{align}
+ \bra0t_1(\theta_1)&=h\theta_{12}\theta_{14}\big[\theta_{13}\bra0\rho_1(\gamma^{-1})+h\bra0\rho_3(\gamma^{-1})\big],\nonumber\\
+ \bra0t_1(\theta_4)&=-h\theta_{41}\theta_{43}\big[\theta_{42}\bra0\rho_4(\gamma)-h\bra0\rho_2(\gamma)\big]\ \ex
+\end{align}
+(block $\{1,3\}$, A--A exchange; block $\{2,4\}$, F--F exchange). \emph{Both ends} $\{1,4\}$ do not factorise: $\bra0o_1o_4=\Pi_{14}+\mu\,Q_{14}$ with $\Pi_{14}=\bra0\rho_1(\gamma)\rho_4(\gamma^{-1})$,
+$\mu=-h/((\theta_{14}-4h)\det G)$, with $Q_{14}=\langle S_{14}|\rho_4(\gamma^{-1})\otimes e_4^T\otimes e_1^T$ a singlet-channel covector
+on sites 1,4, so longer words are needed (the four failing products $e=1001,1011,1101,1111$ lie in the span of the words plus four
+singlet covectors $\langle S_{14}|\rho_4(\gamma^{n})\otimes\{\mathrm{vac}_2,\mathrm{vac}_2\gamma\}\otimes\{\mathrm{vac}_3,\mathrm{vac}_3\gamma^{-1}\}$
+exactly for $n=-1$) \ex. Why the interior sites localise only on the bare vacuum: for $g=1$ the singlet term of $t_1(\theta_2)$
+vanishes because the singlet overlap is $e_1\cdot(e_4^TG)^T=e_1\cdot e_3=0$; for a generic rotation $\bra0\rho(g)$ it does not.
+
+\paragraph{Global symmetries and counting.} The global torus $\rho(X)$, $X\in\mathbb C[G^T]$, commutes with all $t_a$ (eigenvalue
+$\prod_if(z_i)^{\mu_i}$ for $X=f(G^T)$ on a state of weight $\mu$); the four $\kappa_s$ together with the torus give a Jacobian of rank 7
+\ex. Reach on the 256 states \ex: global rotations see only the 84-dimensional vacuum multiplet $[2,0,2]$; the 16 products $\prod_s(1-\kappa_s o_s)$ see all six irrep types;
+$\kappa$'s plus torus span 193 of 256. \emph{No higher twist powers} \num{10^{-30}}: of 2288 fused transfer matrices $T_\lambda(\theta_\alpha+mh)^{\pm1}$,
+$|\lambda|\le6$ (at most 4 rows), acting on $\bra0$, 680 vanish, 86 localise on at most three sites (56 are quantum determinants), and the
+71 that localise on at most two sites reduce to the seven operators $t_1(\theta_s)^{\pm1}$ and the scalar; none gives $\gamma^p$, $|p|\ge2$,
+on a site: a single word moves a site only within $\mathrm{span}\{\mathrm{vac},\mathrm{vac}\,\gamma^{\pm1}\}$ [\nb{L4-ffbar-free-rotations.wb}, cells 14--18].
+
+\paragraph{Generic globally rotated vacuum $\Omega$: only the ends localise} \ex. For $\Omega=\bra0\rho(g)$, $g$ generic, only $t_1(\theta_1)^{-1}$ and
+$t_1(\theta_4)^{-1}$ are single-site rotations, with the constants $c_1,c_4$ above, and the end blocks are
+\begin{equation}
+ \bra\Omega t_1(\theta_1)^{-1}t_1(\theta_2)=c_{12}\bra\Omega\rho_1(\gamma)\rho_2(\gamma),\qquad
+ c_{12}=\frac{\theta_{23}(\theta_{24}-h)}{(\theta_{13}+h)\theta_{14}}=c_1l_2,
+\end{equation}
+and the mirror block $\{3,4\}$. Of the sixteen two-site SoV words $\bra0t_a(\theta_1-h)t_1(\theta_2)^k$ only
+$\{1,t_3(\theta_1-h)\}\times\{1,t_1(\theta_2)\}$ localise on the block $\{1,2\}$, with
+$\bra\Omega W=c_{ak}\bra{\Omega_2}W^{(2)}\otimes\bra{\Omega_2}$ ($W^{(2)}$ the same word on the two-site chain with the same twist),
+$c_{01}=\theta_{23}(\theta_{24}-h)$, $c_{30}=(\theta_{13}-h)(\theta_{13}-2h)(\theta_{13}-3h)(\theta_{14}-h)(\theta_{14}-2h)(\theta_{14}-4h)$,
+$c_{31}=c_{30}c_{01}$, independent of $g$ (the analogue of 2603 (G2), one operator per site) \ex\ [cell 12]. Interior sites do not localise
+because of the singlet term just described.
+
+\paragraph{Common rotations and good references} \npy\ ($10^{-14}$). On $\bra0$ write $R_s=\bra0\rho_s(G^T)$ for $s=1,3$, $R_{13}=\bra0\rho_1(G^T)\rho_3(G^T)$. Then
+$\bra0t_1(\theta_3)=l_3R_3$, $\bra0t_1(\theta_1)=\alpha(\theta_{13}R_1+hR_3)$ with $\alpha=h\theta_{12}\theta_{14}$, and
+$\bra0t_1(\theta_1)t_1(\theta_3)=m\,R_{13}$ exactly ($m=0.056461$ at the point, closed form not fitted). Hence, with $g=1-\kappa G^T$,
+\begin{align}
+ &\bra0\,\Xi_{13}(\kappa)=\bra0\rho_1(g)\rho_3(g),\qquad \Xi_{13}(\kappa):=1+a\,t_1(\theta_1)+b\,t_1(\theta_3)+c\,t_1(\theta_1)t_1(\theta_3),\nonumber\\
+ &a=-\frac{\kappa}{\alpha\theta_{13}},\qquad b=-\frac{\kappa(\theta_{13}-h)}{\theta_{13}l_3},\qquad c=\frac{\kappa^2}{m},
+\end{align}
+a common one-parameter rotation of sites 1 and 3 with overlap $\Xi_{13}(\kappa)|_\tau\braket0\Psi$, where $\Xi_{13}|_\tau$ is the same polynomial in $\tau_1(\theta_1),\tau_1(\theta_3)$
+(2603 resolvent structure; $10^{-14}$) [\nb{checks/chk\_common13.py}]. It is a \emph{global} rotation: $\bra0\rho_1(g)\rho_3(g)$ sees only the first row of $g$,
+so $g\to g'=1-\kappa(\sigma_1E_{11}+E_{12})\propto\exp(-\kappa'E_{12})$ fixes $e_4^T$ and $\bra0\rho_1(g)\rho_3(g)=\bra0\rho(g')$ on all four sites (not with $g$ itself, since $G_c^T$
+contains $E_{34}$). The $\{2,4\}$ analogue is generated by $E_{34}$. Earlier ``no common rotation'' statements, built from $t_1(\theta_1)^{-1}$,
+which gives $G^{-T}$ on site 1 against $G^T$ on site 3, are superseded.
+
+\emph{Good references} \npy\ [\nb{checks/chk\_rotref.py}, $10^{-14}$]: a global rotation $v\otimes w\otimes v\otimes w$ with $v\cdot w=0$ is as good a reference as $\bra0$
+(all four sites localise, both common rotations exist with the same $a,b,c$) iff $w\,G\,v^T=0$, i.e.\ iff the conjugated twist keeps $(G)_{41}=0$.
+For $v=e_1^Tp(G^T)$, $w=e_4^Tq(G)$, since $(G^k)_{41}=0$ for $k\le2$ and $(G^3)_{41}=1$: the rotation is global iff $\deg p+\deg q\le2$, good iff $\deg p+\deg q\le1$.
+So $\bra0\,\Xi_{13}(\kappa_1)\Xi_{13}(\kappa_2)=(e_1^T(1-\kappa_1G^T)(1-\kappa_2G^T)\otimes e_4)^{\otimes2}$ ($(G^T)^2$ on a pair of sites) and
+$\bra0\,\Xi_{13}(\kappa_1)\Xi_{24}(\kappa_2)$, with $\Xi_{24}$ the $\{2,4\}$ analogue, is one global rotation (A: $e_1^T(1-\kappa_1G^T)$, F: $e_4^T(1-\kappa_2G)$) with overlap
+$\Xi_{13}(\kappa_1)|_\tau\,\Xi_{24}(\kappa_2)|_\tau\braket0\Psi$,
+polynomial and without resolvent. References with $\deg p+\deg q=2$ are global but not good, and a third step leaves the global orbit. The nine words $\bra0X_1^aX_3^b$
+($X_1=t_1(\theta_1)$, $X_3=t_1(\theta_3)$, $a,b\le2$) are independent and span exactly $\{e_i\otimes e_4\otimes e_j\otimes e_4:i,j\le3\}$; the global rotations inside are
+$v\otimes e_4\otimes v\otimes e_4$ with $v\in\mathrm{span}(e_1,e_2,e_3)$ (generated by $E_{12},E_{13},E_{11}$ of the $\mathfrak{gl}(3)$ on $\{1,2,3\}$), and $(G^T)^2$ on one site
+alone is also in the span (combinations of words beat the single-$T_\lambda$ scan above); $v_4\ne0$ is not. On the two-parameter state $\Omega_2$ (not a good reference, $wGv^T\neq0$)
+only end-growing words localise, as fixed twist rotations: $t_1(\theta_1)^{-1}\to\rho_1(\gamma)$, $\cdot\,t_1(\theta_2)\to\rho_{12}(\gamma)$,
+$\cdot\,t_1(\theta_3)^{-1}\to\rho_{123}(\gamma)$, $\cdot\,t_1(\theta_4)\to\rho(\gamma)$ (the torus), mirror from site 4 with $\gamma^{-1}$; free parameters only on one end site
+[\nb{checks/scan\_*.py}, \nb{ABJM-3pt-transfer-matrices.md} \S4].
+
+\paragraph{Where this goes next.} The companion-frame results above are the template. The physical references of the ABJM three-point
+function are diagonal-frame global rotations, not $\bra0$ (\S\ref{sec:3pt}); the free parameters they need on a pair come from the pair
+$\kappa$-family at the ABJM point (\S\ref{sec:kappa}), whose admissible references are classified in \S\ref{sec:admiss}. The twisted vacua of the
+next section replace $\bra0$ by an eigenbra of a different companion twist and ask which of the words above survive.
+
+%======================================================================
+\section{Twisted vacua as references}\label{sec:twvac}
+%======================================================================
+
+{\raggedright [\nb{twisted-vacuum-localisation-L2.wb}, \nb{twisted-vacuum-localisation-L4.wb}, \nb{twisted-vacuum-blocks-L3.wb},
+\nb{twisted-vacuum-wordspan-L2.wb}, \nb{twisted-vacuum-untwisting.wb}, \nb{twisted-vacuum-companion-check.wb}]\par}
+
+\paragraph{Question, scope, status.} A reference that is an eigenbra of the transfer matrices of a \emph{different} companion twist
+$G_c(w)$ has overlaps that are finite SoV Q-sums (\S\ref{sec:qform}). The question of this section is which words of the transfer
+matrices of the twist $z$ of the state $\Psi$ act on such a reference as free-parameter rotations, in the sense of \S\ref{sec:loc}. Sizes
+are given in sites ($2$ sites = one pair); the suffixes of the notebook names are inconsistent (sites in two of them, pairs in the others).
+The notebooks were run exactly (rational arithmetic, or 50--60 digits where marked) on the shared kernel before the Wolfram licence expired
+on 2026-10-12 and have no stored outputs; results are pasted in markdown cells and a rerun is pending. The tags below refer to those runs.
+Standard point: $h=\frac12$, $\theta=(2/7,-3/5,8/11,-11/8)$, $z=(3/2,5/4,2/3,4/7)$, $w=(7/5,9/8,3/7,5/9)$; $G:=G_c(z)$.
+
+\subsection{The vacuum of the twist \texorpdfstring{$G_c(w)$}{G\_c(w)}}\label{sec:twvac-def}
+
+Let $V(x)$ be the Vandermonde matrix with columns $(x_j^3,x_j^2,x_j,1)^T$. Put
+\begin{align}
+ v_w&=(w_1^3,w_1^2,w_1,1),\qquad u_w=\text{row 4 of }V(w)^{-1},\nonumber\\
+ (u_w)_k&=(-1)^{k-1}\frac{\sigma_{k-1}(w_1,w_2,w_3)}{\prod_{m\le3}(w_4-w_m)},\quad k=1,\dots,4,
+\end{align}
+with $\sigma_j$ the $j$-th elementary symmetric polynomial ($\sigma_0=1$), so that $G_c(w)v_w^T=w_1v_w^T$ (right eigenvector), $u_wG_c(w)=w_4u_w$ (left eigenvector) and $u_w\cdot v_w=0$; $u_w$ depends on $w_4$
+only through its normalisation. The twisted vacuum is
+\begin{equation}
+ \bra{0_w}:=(v_w\otimes u_w)^{\otimes L}\qquad(\text{A sites }v_w,\ \text{F sites }u_w).
+\end{equation}
+It is an exact eigenbra of $t_1,t_2,t_3$ with twist $G_c(w)$ and the vacuum eigenvalue \ex\ (two sites: all $a$; four sites: $a=1,3$; \S3 of the first two notebooks listed above). At two sites
+\begin{equation}
+ \tau_a(u)=\sum_{i_1<\dots<i_a}\prod_{k=1}^aw_{i_k}\lambda_{i_k}(u-(k-1)h),\qquad
+ \lambda_i(u)=(u-\theta_1+h\delta_{i1})(u-\theta_2-h\delta_{i4}),
+\end{equation}
+and at four sites (A F A F)
+\begin{align}
+ \tau_1(u)&=w_1(u-\theta_1+h)(u-\theta_2)(u-\theta_3+h)(u-\theta_4)+(w_2+w_3)\prod_s(u-\theta_s)\nonumber\\
+ &\quad+w_4(u-\theta_1)(u-\theta_2-h)(u-\theta_3)(u-\theta_4-h).
+\end{align}
+Among product states with A site a right and F site a left eigenvector of $G_c(w)$, the eigenbras are exactly those with different eigenvalue
+indices ($A=C_i$, $F=R_j$, $i\ne j$: 12 states, four sites) \ex. At $w=z$ the bra is the Bethe vacuum of $t^{G_c(z)}$ (in the diagonal frame of \S\ref{sec:twvac-q} it is $\bra{\mathrm{vac}^L}=(e_1\otimes e_4)^{\otimes L}$). The bare vacuum $e_1\otimes e_4$ is \emph{not} an eigenbra of $t^{G_c(w)}$ (rank-two image, two sites) \ex.
+The sections below take $w\ne z$ and let words of $t^{G_c(z)}$ act.
+
+\subsection{The obstruction \texorpdfstring{$q(w,z)$}{q(w,z)}}\label{sec:twvac-q}
+
+Define
+\begin{equation}
+ q(w,z):=u_w\,G_c(z)\,v_w^T=-\frac{\prod_{i=1}^4(w_1-z_i)}{\prod_{m\le3}(w_4-w_m)}=-(u_w)_1\prod_i(w_1-z_i)\ \ex,
+\end{equation}
+which follows from $G_c(z)v(x)^T=x\,v(x)^T-\chi_z(x)e_1^T$ with $v(x)=(x^3,x^2,x,1)$ and $\chi_z(x)=\prod_i(x-z_i)$, together with $u_w\cdot v_w=0$
+(verified symbolically). At the standard point $q=232551/1558000$. It vanishes iff $w_1\in\{z_1,\dots,z_4\}$; moving $w_4$ into $\{z\}$ changes nothing
+(same word patterns). In the diagonal frame, with $\bra{x_{\rm diag}}=\bra{x_{\rm comp}}R$, $R=V(z)^{-T}$ on A and $V(z)$ on F,
+\begin{equation}
+ (v_w)_{\rm diag}=\big(l_j(w_1)\big)_j,\quad l_j(x)=\prod_{m\ne j}\frac{x-z_m}{z_j-z_m},\qquad
+ (u_w)_{\rm diag}=\Big(\prod_{m\le3}\frac{z_j-w_m}{w_4-w_m}\Big)_j,
+\end{equation}
+so $(v_w)_{\rm diag}=e_i$ when $w_1=z_i$, and $q=u_{\rm diag}\Lambda v_{\rm diag}^T$ is exactly the goodness quantity $w\,G\,v^T$ of \S\ref{sec:loc}
+transported to the diagonal frame (the README criterion $u\Lambda v^T=0$) \ex. So $\bra{0_w}$ is a ``good reference'' in the sense of \S\ref{sec:loc}
+iff $w_1\in\{z\}$.
+
+\emph{Mechanism} (two sites, twist $G=G_c(z)$) \ex: $t_1^z(\theta_1)=h(G^T)_{[1]}(\theta_{12}-hK)$ and $t_1^z(\theta_2)=hG_{[2]}(\theta_{12}-hK)$ with the rotation standing to
+the \emph{left} of $K$, so on a bra the rotation acts first and $K$ then sees the rotated pair; $\bra{0_w}K=0$ but $(\bra{0_w}\rho(\text{rot}))K=q\,\bra S$,
+$S=\sum_ie_i\otimes e_i$. Hence
+\begin{equation}
+ \bra{0_w}t_1^z(\theta_2)=h\theta_{12}\,(v_w\otimes u_wG)-h^2q\,\bra S,\qquad
+ \bra{0_w}t_1^z(\theta_1)=h\theta_{12}\,(v_wG^T\otimes u_w)-h^2q\,\bra S .
+\end{equation}
+Inverse words always localise, because $\bra{0_w}K=0$ makes the resolvent $(\theta_{12}-hK)^{-1}$ trivial on it:
+\begin{align}
+ &t_1(\theta_1)^{-1}\to v_wG^{-T},\quad t_1(\theta_2)^{-1}\to u_wG^{-1},\quad t_3(\theta_1-h)\to v_wG^{-T},\quad t_3(\theta_2+3h)\to u_wG^{-1},\nonumber\\
+ &t_1(\theta_1)t_1(\theta_2)^{-1}=G^T\otimes G^{-1}\ \ex.
+\end{align}
+
+\subsection{Generic \texorpdfstring{$w$}{w}: only the ends and end-growing chains}\label{sec:twvac-generic}
+
+Table of the two-site action ($v=v_w$, $u=u_w$, $G=G_c(z)$; words acting on $\bra{0_w}$; all \ex, single point $w=(7/5,9/8,3/7,5/9)$, and $w=(3/2,9/8,3/7,5/9)$ for the locus
+$w_1=z_1$ of \S\ref{sec:twvac-locus}):
+\begin{center}
+\begin{tabular}{p{0.30\textwidth}p{0.33\textwidth}p{0.27\textwidth}}
+\toprule
+word & generic $w$ ($q\ne0$) & locus $w_1=z_i$ ($q=0$)\\
+\midrule
+$t_1(\theta_1)^{-1}$, $t_3(\theta_1-h)$ & site 1: $vG^{-T}$ & trivial (scalar)\\
+$t_1(\theta_2)^{-1}$, $t_3(\theta_2+3h)$ & site 2: $uG^{-1}$ & site 2: $uG^{-1}$\\
+$t_1(\theta_1)$ & rank 4, entangled & trivial (scalar)\\
+$t_1(\theta_2)$ & rank 4, entangled & site 2: $uG$\\
+$t_1(\theta_1)t_1(\theta_2)^{-1}$ & A: $vG^{T}$, F: $uG^{-1}$ & site 2: $uG^{-1}$\\
+$t_1(\theta_1)^{-1}t_1(\theta_2)$ & A: $vG^{-T}$, F: $uG$ & site 2: $uG$\\
+$t_1(\theta_1)t_1(\theta_2)$, $t_1(\theta_1)^{-1}t_1(\theta_2)^{-1}$ & rank 4, entangled & site 2: $uG$, $uG^{-1}$\\
+$t_1(\theta_s+mh)$, $m\ne0$ & rank 3--4, not a product & site 2 only: $u(1+\kappa G)$, $\kappa$ fixed by $m$\\
+$t_2$ at tested points & rank 3--4 or zero & site 2 only, not in $\mathrm{span}\{1,G^{\pm1}\}$ (needs $G^2$)\\
+\bottomrule
+\end{tabular}
+\end{center}
+At four sites (A F A F) with generic $w$ ($q\neq0$; $w=$ standard, and two more points) \ex\ [\nb{twisted-vacuum-localisation-L4.wb} \S\S5--8]: only the end inverses move a single site,
+$t_1(\theta_1)^{-1}$ by $G^{-T}$ and $t_1(\theta_4)^{-1}$ by $G^{-1}$, and only the end-growing chains
+$t_1(\theta_1)^{-1}t_1(\theta_2)\,[t_1(\theta_3)^{-1}[t_1(\theta_4)]]$ give product states, with sites $1,3\to\cdot G^{-T}$ and sites $2,4\to\cdot G$
+(the torus element truncated at site $k$); the mirror chains from site 4 give site 4: $G^{-1}$, 3: $G^{T}$, 2: $G^{-1}$, 1: $G^T$. All are \emph{fixed} rotations with no free
+parameter. Interior single words entangle the end block: $t_1(\theta_2)$ entangles $\{1,2\}$ and leaves 3,4 alone, $t_1(\theta_3)$ entangles $\{3,4\}$, and the forward end words
+$t_1(\theta_1)$, $t_1(\theta_4)$ are fully entangled. At six sites the chain $t_1(\theta_1)^{-1}t_1(\theta_2)t_1(\theta_3)^{-1}\cdots$ through all six letters is an exact fixed rotation of sites $1,\dots,k$
+after $k$ letters (A sites by $G^{-T}$, F sites by $G$) [\nb{twisted-vacuum-blocks-L3.wb}, Task G: 60 digits and exact rational at four sites]; the difference $t_1(\theta_2)-t_1(\theta_1)$ is not
+block-localised (Schmidt ratios $10^{-4}$, rank 4 across $\{1,2\}$). For the rotated pair the pairings with the unrotated reference are
+$B_1=u_wG^{-1}v_w^T=-0.10075$ and $B_2=q=0.14926$, both non-zero (six sites, 60 digits).
+
+\subsection{Word span on pair 1}\label{sec:twvac-span}
+
+[\nb{twisted-vacuum-wordspan-L2.wb}, four sites, exact] Let $\mathcal S$ be the span of $\bra{0_w}W$ over all words $W$ with at most two factors from
+$\{t_1(\theta_s+mh)\ (m=-2..2),\ t_3(\theta_s+mh)\ (m=-1..3),\ t_1(\theta_s)^{-1}\}$ (703 words, zero matrices dropped), and $\mathcal S_{12}\subset\mathcal S$ the
+subspace with sites 3,4 unchanged ($=v_w\otimes u_w$). For generic $w$ \ex: $\dim\mathcal S=37$ and $\dim\mathcal S_{12}=4$,
+\begin{equation}
+ \mathcal S_{12}=\mathrm{span}\{\,v\otimes u,\ vG^{-T}\otimes u,\ vG^{-T}\otimes uG,\ S-\kappa\,v\otimes uG\,\},\qquad \kappa=\frac{\theta_{12}}{hq},
+\end{equation}
+the last element being $\bra{0_w}t_1(\theta_2)$ up to a scalar (entangled, rank 4). The vectors $v\otimes uG$, $vG^T\otimes u$, $S$, $vG^T\otimes uG$, $v\otimes uG^{-1}$ are \emph{not} in $\mathcal S_{12}$.
+Adding 400 random three-factor words raises $\dim\mathcal S$ to 93 but leaves $\dim\mathcal S_{12}=4$. The rank-one elements of $\mathcal S_{12}$ form only two one-parameter lines,
+\begin{align}
+ \text{(a)}\ \ &vG^{-T}\otimes u(\alpha+\beta G):\ \ B_1=u_wG^{-1}v_w^T,\ \ B_2=\beta q;\nonumber\\
+ \text{(b)}\ \ &v(\alpha+\beta G^{-T})\otimes u:\ \ B_1=\beta\,u_wG^{-1}v_w^T,\ \ B_2=0,
+\end{align}
+where $B_1=v'\cdot u_w$ and $B_2=v_w\cdot u'$ are the cross pairings of the rotated pair $(v',u')$ with the unrotated reference pair (the invariants that decide whether the
+rotated block is extremal with respect to the rest, \S\ref{sec:configs}). In each line only one of the two sites carries a free parameter, the other a fixed rotation ($G^{-T}$ on the A site in (a)) or none (the F site in (b)). At the locus $w_1=z_1$: $\dim\mathcal S=9$,
+$\dim\mathcal S_{12}=3$, every element has rank one with $v'=v_w$ frozen and $u'$ free in a three-dimensional space, $B_1=0$ \ex.
+
+\subsection{The locus \texorpdfstring{$w_1\in\{z\}$}{w\_1 in {z}}: A sites frozen, F sites free}\label{sec:twvac-locus}
+
+For $w_1=z_i$ the A vector $v_w$ is an eigenvector of $G_c(z)^T$ (in the sense $v_wG^T=z_iv_w$), so every A rotation acts as a scalar and all words reduce to
+rotations of the F sites alone; the F vector $u_w$ is not an eigenvector of $G$ and is free. The pairings of rotated and unrotated pairs vanish ($B_1=v\cdot u=0$, $B_2=-\kappa q=0$: the
+rotated pair is extremal) \ex. The words that rotate F sites are the \emph{forward} words in $t_1(\theta_{2k})$ (the ``wrong'' powers $t_1(\theta_2)^{-1}$, $t_1(\theta_4)$ do not localise; $t_1(\theta_1)^{\pm1}$,
+$t_1(\theta_3)^{\pm1}$ are scalars). With $\lambda=h\theta_{12}\prod_{k\ge1}\theta_{2,2k+1}(\theta_{2,2k+2}-h)$ (product over the further pairs)
+\begin{equation}
+ \bra{0_w}\big(1+a\,t_1(\theta_2)\big)=\bra{0_w}(1-\kappa G)_{[2]},\qquad a=-\frac\kappa\lambda,\qquad
+ \lambda=\begin{cases}h\theta_{12}\theta_{23}(\theta_{24}-h)&\text{4 sites}\\ h\theta_{12}\theta_{23}(\theta_{24}-h)\theta_{25}(\theta_{26}-h)&\text{6 sites}\end{cases}
+\end{equation}
+\ex\ at 2 and 4 sites, \num{10^{-15}} at 6 sites.\footnote{The session report of 2026-10-12 (\nb{session-2026-10-12-agent-reports.md} \S1) quotes
+the six-site case as exact; the notebook run (\nb{twisted-vacuum-blocks-L3.wb}) was at machine precision, which is what is tagged here.} This is a free-parameter rotation $u_w\to u_w(1-\kappa G)$ of the first F site.
+
+\emph{Two F sites in common} (4 and 6 sites): the words $\{1,t_1(\theta_2),t_1(\theta_4),t_1(\theta_2)t_1(\theta_4)\}$ give
+\begin{equation}
+ \bra{0_w}\big(1+a\,t_1(\theta_2)+b\,t_1(\theta_4)+c\,t_1(\theta_2)t_1(\theta_4)\big)=\bra{0_w}(1-\kappa G)_{[2]}(1-\kappa G)_{[4]},
+\end{equation}
+\begin{equation}
+ a=-\frac{\kappa(\theta_{24}-h)}{\theta_{24}\lambda},\qquad b=-\frac\kappa{\alpha_4},\qquad c=\frac{\kappa^2}\gamma,
+\end{equation}
+with the exchange dressing $\bra{0_w}t_1(\theta_4)=\alpha_4\big(G_{[4]}+\frac h{\theta_{24}}G_{[2]}\big)\bra{0_w}$ and $\bra{0_w}t_1(\theta_2)t_1(\theta_4)=\gamma\,G_{[2]}G_{[4]}\bra{0_w}$, where
+at six sites $\alpha_4=-h\theta_{41}\theta_{42}\theta_{43}\theta_{45}(\theta_{46}-h)$ (the factors $\theta_{45}(\theta_{46}-h)$ are absent at four sites) and
+$\gamma=\lambda\alpha_4(\theta_{24}+h)/\theta_{24}$ (residual $10^{-15}$ of the least-squares fit; the closed forms of $\alpha_4,\gamma$ were identified by matching at four $\theta$-points, relative tolerance $10^{-6}$)
+\num{10^{-6}}. At three pairs (six sites) the eight words $\prod_kt_1(\theta_{2k})^{e_k}$ reach $(1-\kappa G)$ on all three F sites with coefficients $d_S\kappa^{|S|}$ ($S\subseteq\{2,4,6\}$, residual $3\cdot10^{-15}$),
+using $\bra{0_w}t_1(\theta_6)=\alpha_6\big(G_{[6]}+\frac h{\theta_{46}}G_{[4]}+r_2G_{[2]}\big)\bra{0_w}$, $\alpha_6=-h\theta_{61}\theta_{62}\theta_{63}\theta_{64}\theta_{65}$, $r_2=h(\theta_{46}+h)/(\theta_{26}\theta_{46})$
+(same fit status). The three-pair target is not an eigenbra of $t_1^z$ (relative defect $2.6\cdot10^{-4}$). On the locus the single words $t_1(\theta_4+h)$ and $t_3(\theta_2+2h)$ also give $(1-\kappa G)$ on site 4 and
+$(1-\kappa G^{-1})$ on site 2, but with $\kappa$ fixed by the word.
+
+\subsection{The diagonal frame and untwisting: neither gives the note's \texorpdfstring{$W_{-1}$}{W\_{-1}}}\label{sec:twvac-diag}
+
+[\nb{twisted-vacuum-untwisting.wb}] The F-site rotation $u_w\to u_w(1-\kappa G)$ of \S\ref{sec:twvac-locus} becomes $f\to f(1-\kappa\Lambda)$ in the diagonal frame, $f=(u_w)_{\rm diag}$ (frame map of
+\S\ref{sec:twvac-q}). The frame map is \ex; the overlaps with the saved highest-weight states are \num{10^{-15}}. Untwisting: $z=1+\varepsilon\varphi$, $\kappa=1-c\varepsilon$, $w_{2,3,4}$ fixed.
+\begin{itemize}
+\item \emph{Locus $w_1=z_1$.} The pair becomes $e_1\otimes(e_4+\alpha_2e_2+\alpha_3e_3)$ with $\alpha_j=-f_j(\varphi_j-\varphi_4)/(c-\varphi_4)$, $f_j\to(\varphi_1-\varphi_j)/(\varphi_1-\varphi_4)$ (F vector normalised to $f_4=1$); the A vector is frozen at $e_1$
+and both pairings with the reference vanish identically. The overlaps with the saved states see only the BPS vacuum (sector with all A sites $=Y^1$).
+\item \emph{Generic $w$, family (a) of \S\ref{sec:twvac-span}.} The finite-twist pairings $B_1=u_wG^{-1}v_w^T$, $B_2=\beta q$ are non-zero. With $\alpha=-\beta+c\varepsilon$ and $w_{2,3}$ generic the F vector tends to
+$(c+\beta\varphi_4)e_4+\beta\sum_{j=2,3}(\varphi_j-\varphi_4)e_j$ (its $e_1$ component is $O(\varepsilon^2)$ relative) and A tends to $e_1+O(\varepsilon)$. With $w_2=z_2$, $w_3=z_3$ the F vector tends to
+$e_4+\tilde\alpha e_1$, $\tilde\alpha=-\beta\,\dfrac{(\varphi_1-\varphi_2)(\varphi_1-\varphi_3)(\varphi_1-\varphi_4)}{(\varphi_2-\varphi_4)(\varphi_4-\varphi_3)(c+\beta\varphi_4)}$, so $B_2=\tilde\alpha\ne0$ and $B_1=O(\varepsilon)\to0$; this bra sees only the
+states $[L-1,0,L-1]$.
+\item For comparison, the note's bra $\mathrm{vac}^{L-\ell}\otimes W_{-1}^\ell$ with $\ell$ rotated pairs sees the vacuum and $[L-2,0,L-2]$ and vanishes on $[L-1,0,L-1]$ (\S\ref{sec:C}(ii): $L+p$ odd).
+\end{itemize}
+Neither limit is the note's $W_{-1}=(e_1-e_4)\otimes(e_4+e_1)$: that pair needs an $O(1)$ rotation $e_1\to e_1-e_4$ of the A site, while all A rotations available from words on $\bra{0_w}$
+are fixed powers of the twist.
+
+\subsection{Relation to \texorpdfstring{$\langle W_a^L|$}{W\_a\^{}L} and to 2603}\label{sec:twvac-2603}
+
+\paragraph{$\bra{W_a}$ is not a companion eigenbra} [\nb{twisted-vacuum-companion-check.wb}, one pair, exact, $t_1$ only]. The set of twist matrices $g$ for which $\bra{W_a}$ is an eigenbra of $t_1^g$
+is 11-dimensional: $g_{24}=-g_{21}/a$, $g_{34}=-g_{31}/a$, $g_{42}=ag_{12}$, $g_{43}=ag_{13}$, $g_{44}=g_{11}+ag_{14}-g_{41}/a$. It contains $\Lambda+a(z_1-z_4)E_{41}$ and $\Lambda+((z_4-z_1)/a)E_{14}$ but
+no companion matrix: in the diagonal frame for no $a$, in the companion frame ($\bra{W_a}R^{-1}$) only for $a=0$. Hence the twisted vacua are not references for $W_a$ itself; they enter through the \emph{overlap}
+identity $\braket{0_w}{\Psi}=(v_1u_4)^L\braket{W_a^L}{\Psi}$ for $w=(w_1,z_2,z_3,w_4)$ and $\Psi$ of weight $(\mu,0,0,-\mu)$ (\S\ref{sec:qform}), while the free parameters on $W_a^L$ come from the pair $\kappa$-family
+(\S\ref{sec:kappa}).
+
+\paragraph{The reading of 2603} [reading of arXiv:2603.26617, \nb{notes/rv-sov-dictionary.md} \S5; no computation]. The site of 2603 is the $\mathbf6=\wedge^2\mathbf4$ with vacuum $Z=e_1\wedge e_2$, and its $\kappa$-family is the one-point word
+\begin{equation}
+ 1-\kappa\,t_+(\theta_1)+\kappa^2\,t_0(\theta_1)\qquad(t_0=\wedge^2\ \text{transfer matrix}),
+\end{equation}
+which equals the \emph{group element} $\wedge^2(1-\kappa g)$ acting on the site. Their localisation (App.~K) needs only $\bra Z\cL_{jk}=0$ for $j<k$ together with the bonus zeros $\cL_{21}=\cL_{43}=0$, so it holds for
+\emph{any global rotation} of $\bra Z$ and \emph{no goodness condition} enters. The rotated vector stays null, and its pairing with the unrotated one is quadratic in $D=1-\kappa g$, hence finite and non-extremal; only one $\kappa$ per block is available. Untwisting takes
+$z,\kappa,\omega\to1$ together, the rows of the SoV matrices vanish and are compensated by the normalisation $\mathcal N_\ell$, and the final structure constant is $\mathcal N\,\mathbb W_\omega\mathbb A_{\ell,\kappa}/\sqrt{\mathbb B}$.
+The ABJM analogue is a \emph{common pair rotation} (A by $D=1-\kappa\Lambda$, F by $D^{-1}\propto\mathrm{adj}\,D$, cubic): it is automatically BPS, its pairings with the reference are $-\kappa\,u\cdot\Lambda v$ and $\sum_jv_ju_j/(1-\kappa z_j)$
+($O(1)$ for non-good references) and on $W_a^L$ it maps pair 1 to $W_{a'}$ with $a'$ free. This is what \S\ref{sec:kappa} constructs at the ABJM point; the contrast with the generic-$w$ and locus results above (frozen A sites, fixed powers) is the reason the twisted vacua are
+used only for overlaps.

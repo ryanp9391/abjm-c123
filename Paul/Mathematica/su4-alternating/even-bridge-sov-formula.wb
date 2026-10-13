@@ -1,0 +1,155 @@
+{
+ "cells": [
+  {
+   "kind": 1,
+   "value": "# Even bridge from the companion SoV vacuum: K_κ on ⟨0|, physical frame, SoV-normalised formula (2026-10-12)\n\n**Status: written by an agent while the Wolfram kernel was dead and the licence expired.** All results below were computed in **python** (exact `fractions` / `mpmath` / numpy) in `checks/session-2026-10-12/sovformula/` (scripts named in each cell). The Wolfram code cells (`ef*` symbols) are the notebook transcription of those scripts and are **UNRUN** — rerun in VS Code once the licence is renewed. Python results are pasted as markdown under each code cell.\n\nConventions: chain A F A F …, bras = row vectors, A site v → v g, F site u → u g^{−T}; L_A(u) = (u−θ) + h Σ e_ij⊗e_ij, L_F(u) = (u−θ) − h Σ e_ij⊗e_ji, T = L₁⋯L_{2L} G (site 1 leftmost, twist right); companion G_c(z), diagonal Λ = diag(z), V = (z_j^{3},z_j^{2},z_j,1) columns, G_c V = V Λ, ⟨x_diag| = ⟨x_comp| R, R = ρ(V^{−T}). ABJM point pair by pair: θ_{A,n} = θ_{F,n} + 2h, θ_{F,1} ≠ θ_{F,2}. u₀ = θ_{F,1} + h = θ_{A,1} − h. X₁ = t₁(θ_{F,1}), X₂ = t₂(u₀) (= t₁(u₀)X₁), X₃ = t̂₃(u₀) (vanishing factor dropped). SoV vacua: ⟨0| = (e₁⊗e₄)^L, |0̄⟩ = (e₄⊗e₁)^L (companion frame).\n\n**Summary cell at the end.**",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 1. Setup: alternating chain, fused transfer matrices (bra action)\n\nTranscription of `pgbase.py` / `core.py`. Bras are row vectors, an operator M acts as ψ → ψ.M; the Lax is a 4×4 array of site matrices; t_a(u) = Σ_{|I|=a} quantum minor of T·G with columns at u−(k−1)h, product in bra order (`Dot`). Verified in python against the fused forms (`verify_fused.py`, 1e-15).",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "efE[i_, j_] := SparseArray[{{i, j} -> 1}, {4, 4}];\nefSiteOp[\"A\", i_, j_] := efE[i, j];\nefSiteOp[\"F\", i_, j_] := -efE[j, i];\nefLax[ty_, u_, th_, h_] := Table[(u - th) KroneckerDelta[a, b] IdentityMatrix[4, SparseArray] + h efSiteOp[ty, a, b], {a, 4}, {b, 4}];\nefMono[types_, u_, ths_, h_] := Fold[Function[{P, Ls}, Table[Sum[KroneckerProduct[P[[i, k]], Ls[[k, j]]], {k, 4}], {i, 4}, {j, 4}]],\n   efLax[types[[1]], u, ths[[1]], h], Table[efLax[types[[s]], u, ths[[s]], h], {s, 2, Length[types]}]];\nefMonoG[types_, u_, ths_, h_, G_] := With[{T = efMono[types, u, ths, h]}, Table[Sum[T[[i, k]] G[[k, j]], {k, 4}], {i, 4}, {j, 4}]];\nefT[types_, a_, u_, ths_, h_, G_] := Module[{TG = Table[efMonoG[types, u - k h, ths, h, G], {k, 0, a - 1}]},\n   Sum[Sum[Signature[sg] (Dot @@ Table[TG[[k]][[I[[sg[[k]]]], I[[k]]]], {k, a}]), {sg, Permutations[Range[a]]}], {I, Subsets[Range[4], {a}]}]];\n(* companion twist, Vandermonde, Lagrange weights *)\nefGc[z_] := Module[{c = Table[SymmetricPolynomial[k, z], {k, 4}]}, {{c[[1]], -c[[2]], c[[3]], -c[[4]]}, {1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}}];\nefV[z_] := Table[z[[j]]^(4 - i), {i, 4}, {j, 4}];\nefLam[z_] := Table[1/Product[If[m == j, 1, z[[j]] - z[[m]]], {m, 4}], {j, 4}];\n(* ABJM point pair by pair, L = 2 pairs *)\nefh = 1/2; efthF = {-3/5, -11/8}; efths = {efthF[[1]] + 2 efh, efthF[[1]], efthF[[2]] + 2 efh, efthF[[2]]};\neftypes = {\"A\", \"F\", \"A\", \"F\"}; efz = {3/2, 5/4, 5/4, 4/7}; efG = efGc[efz]; efu0 = efthF[[1]] + efh;\nefvec[i_] := UnitVector[4, i];\nefVac = Flatten[KroneckerProduct @@ {efvec[1], efvec[4], efvec[1], efvec[4]}];",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 2. Task 1 — the localised pair-1 words on the companion SoV vacuum ⟨0| = (e₁e₄)^L\n\nPairgroup lemma: X₁ = t₁(θ_F1), X₂ = t₂(u₀), X₃ = t̂₃(u₀), X₃X₁ act on any global rotation of vac^L only on pair 1, as λ_X × (one-pair chain). On ⟨0|_comp the pair-1 states are computed below (python: `t01_pairspan.py`, exact Fractions, L = 2; `t02_pairwords.py` L = 2, 3).",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "(* pair-level (one pair A F, twist Gc) action on the pair vacuum e1 x e4; Z = d/du t3 at u0 (t3(u0) = 0 identically) *)\nefPairTypes = {\"A\", \"F\"}; efPairTh = efths[[1 ;; 2]];\nefPairVac = Flatten[KroneckerProduct[efvec[1], efvec[4]]];\nefX1 = efPairVac . efT[efPairTypes, 1, efthF[[1]], efPairTh, efh, efG];\nefX2 = efPairVac . efT[efPairTypes, 2, efu0, efPairTh, efh, efG];\nefX3 = efPairVac . (D[efT[efPairTypes, 3, efu0 + s, efPairTh, efh, efG], s] /. s -> 0);\nefX3X1 = efX3 . efT[efPairTypes, 1, efthF[[1]], efPairTh, efh, efG];\nefShow[v_] := Select[Flatten[Table[{i, j, Partition[v, 4][[i, j]]}, {i, 4}, {j, 4}], 1], #[[3]] =!= 0 &];\nGrid[{{\"word\", \"pair-1 state {A idx, F idx, coeff}\"}, {\"1\", efShow[efPairVac]}, {\"X1\", efShow[efX1]}, {\"X2\", efShow[efX2]}, {\"X3 (=Z)\", efShow[efX3]}, {\"X3X1\", efShow[efX3X1]}}, Frame -> All]",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "**Python result (exact, z-independent; identical for z₂ = z₃ and generic z; L = 2 and L = 3 full chains agree with λ_X × pair word):**\n\n| word | pair-1 state on ⟨0| (companion) |\n|---|---|\n| 1 | e₁⊗e₄ |\n| X₁ = t₁(θ_F1) | 2h² e₁⊗e₃ |\n| X₂ = t₂(u₀) = t₁(u₀)X₁ | 2h⁴ (e₁⊗e₂ + e₂⊗e₃) |\n| X₃ = Z = t₃′(u₀) | −12h⁵ e₄⊗e₄ |\n| X₃X₁ | −24h⁷ e₄⊗e₃ |\n\n* **Rank-one elements of the span:** exactly (a e₁ + b e₄)⊗(c e₃ + d e₄) = ⟨0|(a′ + b′X₃)(c′ + d′X₁) (the X₂ direction has an e₂ row and is never rank one). BPS (v·u = 0) iff bd = 0: the F-only family e₁⊗(c e₃ + d e₄) = ⟨0|ρ(1 − (c/d)E₃₄) or the A-family (a e₁ + b e₄)⊗e₃.\n* **K_κ on ⟨0|:** pair state s² e₁e₄ + κs[2 e₁e₃ + (e₁e₂ + e₂e₃)/y − 2 e₄e₄/y²] − κ² e₄e₃/y² — **Schmidt rank 3** (3×3 minor −2κ³s³/y⁴ ≠ 0). **K_κ is not a common rotation (not even a product state) on ⟨0|**, for z₂ = z₃ and for generic z.\n* **Regularised SoV scan** (`t02_pairwords.py`, exact, L = 2 with z₂ = z₃ and generic z, and L = 3): of the 16 regularised pair-1 SoV words ⟨0|O₁ t₁(θ_F1)^k, O₁ ∈ {1, t₁(u₀), W, Z}, the localising combinations form exactly this 5-dim span, and each localising bra is a **single SoV word**: ⟨0|, ⟨0|t₁(θ_F), ⟨0|t₁(u₀)t₁(θ_F), ⟨0|Z, ⟨0|Z t₁(θ_F). W and t₁(θ_F)^{2,3} never localise. Hence P_K(τ) = c₀ + c₁τ_F + c₂ xτ_F + c₃ y + c₄ yτ_F with x = τ₁(u₀), y = τ₃′(u₀), τ_F = τ₁(θ_F1).",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 3. Physical frame of ⟨0| and of the localised bras — p₂₃ ≡ 0\n\n⟨0|_diag = ⟨0|_comp ρ(V^{−T}) = (λ⊗(1,1,1,1))^{⊗L} = λ₁^L ⟨vac^L|ρ(n′D′) with λ_j = 1/∏_{m≠j}(z_j−z_m), r = λ/λ₁, n′ = ((1,1,1,r₄),(0,1,0,−r₂),(0,0,1,−r₃),(0,0,0,1)), D′ = diag(1,r₂,r₃,1) (uses Σ_j r_j = 0; site by site, so every L). Ket: |0̄⟩_diag = ((1,1,1,1)⊗λ)^{⊗L}. For z = 1 + εφ the r_j (hence n′, D′) are **exactly ε-independent**.\n\nPhysical images (relative to the reference pairs λ₁(e₁,e₄)) of a companion pair-1 vector: A site v_c ↔ functional ℓ on cubic polynomials (e_i ↔ coefficient of x^{4−i}), F site u_c ↔ polynomial f:\n* v_phys = (λ₁ℓ(π₁), λ₁(ℓ(π₂) − ℓ(π₁)), λ₁(ℓ(π₃) − ℓ(π₁)), ℓ(1)), π_j = ∏_{m≠j}(x−z_m);\n* u_phys = (f₃/λ₁, r₂(f(z₂) − f(z₄)), r₃(f(z₃) − f(z₄)), f(z₄)), f₃ = coefficient of x³.\n\nThe cell checks these maps symbolically.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "ClearAll[za, zb, zc, zd]; efzs = {za, zb, zc, zd};\nefr[z_] := efLam[z]/efLam[z][[1]];\nefnp[z_] := With[{r = efr[z]}, {{1, 1, 1, r[[4]]}, {0, 1, 0, -r[[2]]}, {0, 0, 1, -r[[3]]}, {0, 0, 0, 1}}];\nefDp[z_] := With[{r = efr[z]}, DiagonalMatrix[{1, r[[2]], r[[3]], 1}]];\nefg0[z_] := efnp[z] . efDp[z];\n(* <0|_diag = lambda1 <vac| rho(n'D') on one pair: A e1 V^-T = lambda1 e1 g0, F e4 V = e4 g0^-T *)\nSimplify[{efvec[1] . Inverse[Transpose[efV[efzs]]] - efLam[efzs][[1]] efvec[1] . efg0[efzs],\n   efvec[4] . efV[efzs] - efvec[4] . Inverse[Transpose[efg0[efzs]]]}]\n(* physical images of the localised companion vectors: A e1, e4; F e2, e3, e4 *)\nefPhysA[vc_] := Simplify[vc . Inverse[Transpose[efV[efzs]]] . Inverse[efg0[efzs]]/efLam[efzs][[1]]];\nefPhysF[uc_] := Simplify[uc . efV[efzs] . Transpose[efg0[efzs]]];\nGrid[{{\"A e1\", efPhysA[efvec[1]]}, {\"A e4\", efPhysA[efvec[4]]}, {\"F e2\", efPhysF[efvec[2]]}, {\"F e3\", efPhysF[efvec[3]]}, {\"F e4\", efPhysF[efvec[4]]}, {\"F e1\", efPhysF[efvec[1]]}}, Frame -> All]",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "**Expected (derived by hand, checked numerically in python `t05_debug.py`):** ⟨0| identity → {0,0}. A e₁ → e₁; A e₄ → (−c₄/z₁, −c₄(1/z₂−1/z₁), −c₄(1/z₃−1/z₁), 1/λ₁) (in units of λ₁); F e₄ → e₄; F e₃ → (0, r₂(z₂−z₄), r₃(z₃−z₄), z₄); F e₂ → (0, r₂(z₂²−z₄²), r₃(z₃²−z₄²), z₄²); F e₁ → (1/λ₁, r₂(z₂³−z₄³), r₃(z₃³−z₄³), z₄³).\n\n**Consequence (exact):** no localised word puts e₁ on the pair-1 F site (§2), so (u₃)₁ = p₂₃ = 0 for **every** bra in the localised span: x = p₂₃/(a₂d₃) ≡ 0. In the two-block forms (`data/abjm-twoblock-forms.json`, F/F_vac = Σ c x^{e8}y^{e9}μ_v^{e5}μ_u^{e6}) the singlets (needs_both_pairings, c·xy) are invisible; [1,0,1] (c(x+y)) is seen only through y; [0,2,0] (−½μ_vμ_u) needs the A-site e₂ of the X₂ direction (entangled). **The even bridge cannot be reached from ⟨0| with pair-1-localised words.** The A-family gives y = p₃₂/(a₃d₂) finite only for a/b = c₄/z₁ + O(λ₁^{−1}), and then μ_v ~ ε^{−2} (A-site e₂,e₃ components λ₁c₄(1/z_{2,3} − 1/z₁)).",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 4. The SoV norm and the SoV-normalised structure constant (Task 3)\n\nSoV normalisation: ⟨0|Ψ⟩ = 1 = ⟨Ψᴸ|0̄⟩, 1/𝒩 := ⟨Ψᴸ|Ψ⟩ = Σ_{x,y} τ̃_y M_{yx} τ_x (completeness of bra and ket SoV bases, M = Gram⁻¹; sov_l4 at generic θ; at the ABJM point see §6). In arbitrary normalisation 𝒩 = ⟨0|Ψ⟩⟨Ψᴸ|0̄⟩/⟨Ψᴸ|Ψ⟩.\n\n**Weight identity (exact):** on every basis state of weight w (A e_i: +ε_i, F e_j: −ε_j), ∏_Aλ_{i_A} = λ^w ∏_Fλ_{j_F}; hence ⟨0|Ψ⟩ = λ^w⟨0̄ᵀ|Ψ⟩ and ⟨Ψᴸ|0ᵀ⟩ = λ^w⟨Ψᴸ|0̄⟩, λ^w = ∏_jλ_j^{w_j}. If Ψᴸ ∝ Ψ^† then |⟨0|Ψ⟩|²/‖Ψ‖² = |λ^w 𝒩|, and for any word K (⟨0|K|Ψ⟩ = P_K(τ)⟨0|Ψ⟩):\n\n|C_K(Ψ)| := |⟨0|K|Ψ⟩ / ⟨0|K|vac⟩| = |P_K(τ_Ψ)/P_K(τ_vac)| · |λ^{w−w_vac} 𝒩(Ψ)/𝒩(vac)|^{1/2},  𝒩(vac) = (λ₁λ₄)^L, λ^{w_vac} = (λ₁/λ₄)^L.\n\nThis is the analogue of 2603's C = 𝒩·𝕎·𝔸/√𝔹 with 𝕎 = ⟨0|Ψ⟩ ≡ 1, 𝔸 = P_K, 𝔹 = 1/𝒩_SoV and the prefactor |λ^{w−w_vac}/𝒩(vac)|^{1/2}/P_K(τ_vac).\n\nThe cell below checks the norm identity and the formula through the untwisting limit (python: `t08_mp_L2.py`, `t08b_mp_L2.py`, mpmath 80 digits, exact rational chain): θ_F,n = εθdir_n, θ_A,n = θ_F,n + 2h, z = 1 + εφ, diagonal frame, saved HW states.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "efData = Import[\"C:\\\\Users\\\\pryan\\\\git-projects\\\\abjm-c123\\\\Paul\\\\Mathematica\\\\su4-alternating\\\\data\\\\abjm-hw-states.wxf\"];\nefIdx = Tuples[Range[4], 4];\nefWeight[idx_] := Module[{w = ConstantArray[0, 4]}, Do[w[[idx[[s]]]] += If[OddQ[s], 1, -1], {s, 4}]; w];\nefSec[w_] := efSec[w] = Flatten[Position[efWeight /@ efIdx, w]];\nefUntw[eps_, phi_, thdir_, y0_, prec_ : 80] := Module[{ths, z, G, lam, c4, u0, l3, alpha, beta, T3, Mg, bra0, ket0b, rows, vac},\n  ths = Flatten[Table[{eps thdir[[n]] + 2 efh, eps thdir[[n]]}, {n, 2}]]; z = 1 + eps phi; G = DiagonalMatrix[z];\n  lam = efLam[z]; c4 = Times @@ z; u0 = ths[[2]] + efh;\n  l3 = (u0 - ths[[3]]) (u0 - ths[[3]] - efh) (u0 - ths[[3]] - 2 efh) (u0 - ths[[4]] - 3 efh) (u0 - ths[[4]]) (u0 - ths[[4]] - efh);\n  alpha = c4/z[[1]] + 1/(lam[[1]] y0); beta = -1/(12 efh^5 l3);\n  T3 = D[efT[eftypes, 3, u0 + s, ths, efh, G], s] /. s -> 0;            (* = t3hat(u0) *)\n  Mg = efT[eftypes, 1, ths[[2]], ths, efh, G] + 61/100 efT[eftypes, 3, -29/100, ths, efh, G] + 23/100 efT[eftypes, 2, 83/100, ths, efh, G];\n  bra0 = Flatten[KroneckerProduct @@ {lam, {1, 1, 1, 1}, lam, {1, 1, 1, 1}}]; ket0b = Flatten[KroneckerProduct @@ {{1, 1, 1, 1}, lam, {1, 1, 1, 1}, lam}];\n  rows = Table[Module[{w = st[\"w\"], sec, psi0, ev, vr, vl, m, psi, psiL, tau3, o0, o0b, nn, Nsov, lw, P},\n     sec = efSec[w]; psi0 = Normal[st[\"psi\"]][[sec]];\n     {ev, vr} = Eigensystem[N[Normal[Mg[[sec, sec]]], prec]]; vl = Inverse[Transpose[vr]];\n     m = Ordering[Abs[Conjugate[#] . psi0]/Norm[#] & /@ vr, -1][[1]];\n     psi = vr[[m]]/Norm[vr[[m]]]; psi = psi Exp[-I Arg[Conjugate[psi0] . psi]]; psiL = vl[[m]]/(vl[[m]] . psi);\n     tau3 = (Conjugate[psi] . (Normal[T3[[sec, sec]]] . psi)); o0 = bra0[[sec]] . psi; o0b = psiL . ket0b[[sec]]; nn = psiL . psi;\n     Nsov = o0 o0b/nn; lw = Times @@ (lam^w); P = alpha + beta tau3;\n     <|\"dyn\" -> st[\"dyn\"], \"w\" -> w, \"herm\" -> Abs[o0]^2/Abs[lw Nsov], \"P\" -> P, \"o0\" -> o0, \"Nsov\" -> Nsov, \"lw\" -> lw, \"Dw\" -> (lam[[2]]/lam[[1]])^w[[2]] (lam[[3]]/lam[[1]])^w[[3]]|>], {st, efData[\"L2\"]}];\n  vac = rows[[1]];\n  Grid[Prepend[Table[{r[\"dyn\"], N[r[\"herm\"], 12], N[r[\"P\"] r[\"o0\"]/(vac[\"P\"] vac[\"o0\"])/r[\"Dw\"], 10],\n      N[Abs[r[\"P\"]/vac[\"P\"]] Sqrt[Abs[r[\"lw\"]/vac[\"lw\"] r[\"Nsov\"]/vac[\"Nsov\"]]]/Abs[r[\"Dw\"]], 10]}, {r, rows}],\n    {\"state\", \"|<0|Psi>|^2/|lam^w N|\", \"C_direct\", \"|C_SoV formula|\"}], Frame -> All]];\nefUntw[1/10^7, {9/10, 7/20, -3/10, -11/10}, {0, 37/100}, 7/10]",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "**Python result (mpmath, 80 digits).** The ratio → 1 linearly in ε for every state, every direction φ ∈ {(0.9,0.35,−0.3,−1.1), (0.2,−0.7,0.5,1.3), (1,0,−0.5,0.25)}, θdir ∈ {(0,0.37), (1/3,−4/5)}; |C_SoV formula| = |C_direct|·(1+O(ε)):\n\n| state | |⟨0\\|Ψ⟩|²/|λ^w𝒩| (ε = 10⁻³ / 10⁻⁵ / 10⁻⁷) | C_direct (ε = 10⁻⁷, y₀ = 7/10) | |C_SoV formula| |\n|---|---|---|---|\n| vacuum [2,0,2] | 1 / 1 / 1 | 1 | 1 |\n| [0,2,0] | 1.00296 / 1.0000296 / 1.000000296 | 4.4·10⁶ (diverges ~ε⁻¹, μ_v ~ ε⁻²) | same |\n| [1,0,1] (P = ±) | 1.00222 / 1.0000222 / 1.000000222 | −0.0336788 ∓ 0.0583333 i | 0.0673575 |\n| singlet E = 20 | 1.00371 / 1.0000370 / 1.00000037 | −2.6·10⁻³² (→ 0) | same |\n| singlet E = 4 | 1.00074 / 1.0000074 / 1.000000074 | 4.7·10⁻²⁴ (→ 0) | same |\n\n**Verified:** Ψᴸ → cΨ^† in the untwisting limit, so the bilinear SoV norm 𝒩 gives the hermitian norm via |λ^w𝒩|; the SoV-normalised formula reproduces the direct overlaps. Singlets → 0 as predicted (x ≡ 0).",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 5. Physical meaning of the ⟨0|-based limit: NOT the naive highest-weight reduction\n\nNaive argument: ⟨B|Ψ_ε⟩ = λ₁^L D′^w ⟨B̃|ρ(n′)|Ψ_ε⟩ and ρ(n′)Ψ₀ = Ψ₀ would give C = ⟨B̃|Ψ₀⟩/⟨B̃|vac⟩ with the A-family polarisation v₃ = (1/y₀, O(ε⁻²), O(ε⁻²), 1), u₃ = e₄, i.e. C_naive = y₀⟨e₄e₄e₁e₄|Ψ₀⟩ = y₀(0.144338 ∓ 0.25 i) for [1,0,1].\n\n**Actual limit (mp, rate O(ε)):** C = (y₀/3)⟨e₂e₂e₁e₄|Ψ₀⟩ = (y₀/3)(−0.144338 ∓ 0.25 i) = (y₀/3) e^{∓iπ/3} C_naive/y₀ — independent of φ (three directions) and θdir (two), linear in y₀ (7/10, −13/10). The naive reduction fails because the bra has O(ε⁻²) components that multiply O(ε)–O(ε²) non-HW corrections of Ψ_ε. Structural reason: in the frame where ⟨0| is ⟨vac| the twist is G″ = n′^{−T}Λn′^{T} with (n′f(Λ)n′^{−1})₁₄ = Σ_j r_j f(z_j) = f[z₁..z₄]/λ₁ = 0 for deg f ≤ 2 (goodness, G″₄₁ = 0), so the vacuum–Ψ₀ mixing through T₁₄ starts at third order in the twist: the ⟨0|-based limits are third-order perturbative objects. **Only one state type checked (L = 2 [1,0,1]); the factor 1/3·e^{∓iπ/3} is an observation, not derived.**",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 6. Task 2 — what a common rotation on ⟨0| would have given, and what does reach the singlets\n\n(python `t17_frames.py`, exact sympy, z = 1 + εφ, φ = (9/10, 7/20, −3/10, −11/10).) The cell recomputes: (i) the physical image n′(1−κΛ)n′⁻¹ of the companion common rotation 1 − κG_c^T; (ii) the physical images of the 2603-type twist-dressed pair-1 vectors A: e₁(ζ − G_c^T)⁻¹, F: e₄(ζ′ − G_c)⁻¹ with ζ = 1+εξ, ζ′ = 1+εξ′.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "ClearAll[eps, kap, xi, xi2];\nefphi = {9/10, 7/20, -3/10, -11/10}; efzz = 1 + eps efphi;\nefLz = efLam[efzz]; efrz = Simplify[efLz/efLz[[1]]];\nefnz = {{1, 1, 1, efrz[[4]]}, {0, 1, 0, -efrz[[2]]}, {0, 0, 1, -efrz[[3]]}, {0, 0, 0, 1}}; efgz = efnz . DiagonalMatrix[{1, efrz[[2]], efrz[[3]], 1}];\nefVz = efV[efzz]; efGcz = Simplify[efVz . DiagonalMatrix[efzz] . Inverse[efVz]];\nefPA[vc_] := Simplify[vc . Transpose[Inverse[efVz]] . Inverse[efgz]/efLz[[1]]];\nefPF[uc_] := Simplify[uc . efVz . Transpose[efgz]];\n(* (i) common rotation *)\n{Simplify[(efnz . (IdentityMatrix[4] - kap DiagonalMatrix[efzz]) . Inverse[efnz])[[1, 4]]],\n efPA[efvec[1] . (IdentityMatrix[4] - kap Transpose[efGcz])],\n Factor[#[[1]]/#[[4]]] &[efPF[efvec[4] . Transpose[Inverse[IdentityMatrix[4] - kap Transpose[efGcz]]]]]}\n(* (ii) dressed pair-1 vectors, eps -> 0 *)\n{Limit[#/#[[4]], eps -> 0] &[efPA[efvec[1] . Inverse[(1 + eps xi) IdentityMatrix[4] - Transpose[efGcz]]]] // Factor,\n Limit[#/#[[4]], eps -> 0] &[efPF[efvec[4] . Inverse[(1 + eps xi2) IdentityMatrix[4] - efGcz]]] // Factor}",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "**Python (sympy) result:**\n* (n′(1−κΛ)n′⁻¹)₁₄ = **0 exactly** (Σ_j r_j z_j^k = 0, k ≤ 2; in general (n′f(Λ)n′⁻¹)₁₄ = f[z₁,z₂,z₃,z₄]/λ₁). Physical A vector of the would-be common rotation: (1 − κ − 9εκ/10, 11εκ/20, 6εκ/5, **0**) ⇒ p₃₂ = y = 0; F side x = (u₃)₁/(u₃)₄ = 2640ε³κ³/∏(…) = O(1). **So even if K_κ acted as a common rotation on ⟨0|, the limit would see only x, never xy: no singlets.** The task's first-order formula n′D_κn′⁻¹ ≈ ε[diag(c−φ) + (φ_i−φ_j)n′_ij] is wrong for the (1,4) entry: the n′₁₂, n′₁₃ paths cancel it (Σ_j r_jφ_j = 0).\n* Dressed pair 1 (ε → 0, normalised by the 4th component): v = ((10ξ+3)(10ξ+11)(20ξ−7)/2640, −(10ξ+3)(10ξ+11)/240, −(10ξ+11)(20ξ−7)/220, 1) (Lagrange-type polynomials ℓ₁(ξ) = ∏_{m≠1}(ξ−φ_m)/∏_{m≠1}(φ₁−φ_m), …), u = (2640/((10ξ′−9)(10ξ′+3)(20ξ′−7)), −960/(13(20ξ′−7)), 220/(13(10ξ′+3)), 1): **all Borel invariants nonzero, p₂₃ ≠ 0 ≠ p₃₂**. BPS iff c(ζ) = c(ζ′), c(x) = ∏_j(x − z_j) (v·u = (1/c(ζ) − 1/c(ζ′))/(ζ′−ζ)) — a one-parameter BPS family that sees the singlets. These dressings are not in the localised span (they need companion A components e₂, e₃ and F component e₁): they must be built into the **reference** (2603's step (i), ``⟨𝒲_ω| is a product state whose SoV overlap is a Q-bracket determinant'').",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 7. Task 4 — Q-form of P_K at the ABJM point\n\nBaxter Σ_a(−1)^a τ_a(u)Q(u−ah) = 0, Q_i = z_i^{u/h}Φ(u)q_i(u), Φ(u) = V₄(u)Φ(u−h), V₄(u) = ∏_A(u−θ_A)∏_F(u−θ_F−h). At u₀ = θ_F1 + h = θ_A1 − h: Q_i(u₀) = 0, τ₃(u₀) = τ₄(u₀) = τ₄′(u₀) = 0, Q_i(u₀−h) = τ_F Q_i(u₀−2h), τ₂(u₀) = xτ_F. The u-derivative of Baxter at u₀ gives for every i (rank 3)\n\nQ_i′(u₀) − x D_i + w Q_i(u₀−2h) − y Q_i(u₀−3h) = 0,  D_i := Q_i′(u₀−h) − τ_F Q_i′(u₀−2h),\n\nso with any three of Q₁..Q₄ (columns):\n\nx = det[Q′(u₀), Q(u₀−2h), Q(u₀−3h)] / det[D, Q(u₀−2h), Q(u₀−3h)],  y = det[D, Q(u₀−2h), Q′(u₀)] / det[D, Q(u₀−2h), Q(u₀−3h)],  w = −det[D, Q′(u₀), Q(u₀−3h)] / det[D, Q(u₀−2h), Q(u₀−3h)],  τ_F = Q_j(θ_F1)/Q_j(θ_F1−h) (any j).\n\nHence for every localised word on ⟨0|: **P_K = c₀ + c₁τ_F + c₂ xτ_F + c₃ y + c₄ yτ_F** (K = c₀ + c₁X₁ + c₂X₂ + c₃Z + c₄ZX₁), e.g. the A-family P = α − y/(12h⁵λ₃). Verified (`t16_qform.py`, mpmath 50 digits, 41 joint eigenstates, L = 2, θ_F = (−3/5, −11/8), h = 1/2, z = (3/2, 5/4, 2/3, 4/7)): rel. errors τ_F 4.5·10⁻⁴⁹, x 2.9·10⁻²⁷, w 2.8·10⁻²⁷, y 6.2·10⁻²⁷ (numerical u-derivatives), redundant 4th equation ≤ 2·10⁻³⁰.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 8. The SoV norm 𝔹 = 1/𝒩 exactly at the ABJM point: regularised bra AND ket bases\n\nAt θ_A = θ_F + 2h the standard bra and ket word bases both drop to rank 81 (`t11_ketrank.py`). Bra (ABJM-point agent): ⟨0|O₁t₁(θ₂)^{k₂}O₃t₁(θ₄)^{k₄}, O ∈ {1, t₁(u₀), W = t₂′(u₀) − t₁′(u₀)t₁(θ_F) (k ≤ 2; t₂(u₀) for k = 3), Z = t₃′(u₀)}. Ket (new, mirror): the exact identities t₂(θ_A) = t₁(θ_A)t₁(u₀) and t₃(θ_A+h) = 0 hold (`t12_ketident.py`); the regularised ket basis t₁(θ₁)^{m₁}K₂ t₁(θ₃)^{m₃}K₄|0̄⟩ with **K ∈ {1, t₁(u₀), W̃ = t₂′(θ_A) − t₁(θ_A)t₁′(u₀), Z̃ = t₃′(θ_A+h)}** has rank 256 (`t14_ketvariants.py`; the other splits t₂′ − t₁′(θ_A)t₁(u₀) give 241/240, the full derivative 248, or 256 only with the k = 3 exception). With both bases complete, 1/𝒩 = Σ_{x,y} τ̃_y M_{yx} τ_x, M = Gram⁻¹, holds identically; `t18_norm_abjm.py` checks it on joint eigenstates and records the Gram structure.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "efDT[a_, u_, ths_, G_] := D[efT[eftypes, a, u + s, ths, efh, G], s] /. s -> 0;\nefRegBases[ths_, G_] := Module[{bra, ket, vac = efVac, kvac = Flatten[KroneckerProduct @@ {efvec[4], efvec[1], efvec[4], efvec[1]}], P, K},\n  P = Table[With[{uF = ths[[2 p]], u0 = ths[[2 p]] + efh}, <|\"t1F\" -> efT[eftypes, 1, uF, ths, efh, G], \"t2u0\" -> efT[eftypes, 2, u0, ths, efh, G],\n      \"O\" -> {efT[eftypes, 1, u0, ths, efh, G], efDT[2, u0, ths, G] - efDT[1, u0, ths, G] . efT[eftypes, 1, uF, ths, efh, G], efDT[3, u0, ths, G]}|>], {p, 2}];\n  K = Table[With[{thA = ths[[2 p - 1]], u0 = ths[[2 p]] + efh}, <|\"t1A\" -> efT[eftypes, 1, thA, ths, efh, G],\n      \"K\" -> {efT[eftypes, 1, u0, ths, efh, G], efDT[2, thA, ths, G] - efT[eftypes, 1, thA, ths, efh, G] . efDT[1, u0, ths, G], efDT[3, thA + efh, ths, G]}|>], {p, 2}];\n  bra = Table[Fold[Function[{v, pk}, Module[{p = pk[[1]], a = pk[[2]], k = pk[[3]], w = v},\n        If[a > 0, w = w . If[a == 2 && k == 3, P[[p]][\"t2u0\"], P[[p]][\"O\"][[a]]]]; Nest[# . P[[p]][\"t1F\"] &, w, k]]], vac, {{1, x[[1]], x[[2]]}, {2, x[[3]], x[[4]]}}], {x, Tuples[Range[0, 3], 4]}];\n  ket = Table[Fold[Function[{v, pk}, Module[{p = pk[[1]], m = pk[[2]], n = pk[[3]], w = v},\n        If[n > 0, w = K[[p]][\"K\"][[n]] . w]; Nest[K[[p]][\"t1A\"] . # &, w, m]]], kvac, {{2, y[[3]], y[[4]]}, {1, y[[1]], y[[2]]}}], {y, Tuples[Range[0, 3], 4]}];\n  {bra, Transpose[ket]}];\n{efBra, efKet} = efRegBases[efths, efGc[{3/2, 5/4, 2/3, 4/7}]];\n{MatrixRank[efBra], MatrixRank[efKet]}\nefGram = efBra . efKet; efMeasure = Inverse[efGram];\n{Count[Flatten[efGram], Except[0]], Count[Flatten[efMeasure], Except[0]]}",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "**Python result (`t18_norm_abjm.py`, exact Fractions for words/Gram, float64 for M and eigenstates; companion twist z = (3/2, 5/4, 2/3, 4/7), θ_F = (−3/5, −11/8), h = 1/2):**\n* ranks (mod p): bra 256, ket 256.\n* Gram ⟨x|y⟩: 3323 nonzeros; charge sums S_x+S_y ∈ {12 (1755), 13 (370), 14 (263), 15 (298), 16 (551), 17 (36), 18 (24), 19 (16), 20 (10)} — the generic-θ charge rule S_x + S_y = 12 and triangularity (sov_l4) are **lost** at the ABJM point; measure M = Gram⁻¹ has 4267 nonzeros, cond(Gram) = 4.2·10¹⁰.\n* 1/𝒩 = Στ̃_y M_yx τ_x vs ⟨Ψᴸ|Ψ⟩/(⟨0|Ψ⟩⟨Ψᴸ|0̄⟩): max rel. err 1.4·10⁻⁵ on 29 joint eigenstates (float64; exact by completeness).\n* ⟨x|Ψ⟩/⟨0|Ψ⟩ = ∏_pairs λ(a,k)τ_F^k with λ ∈ {1, x, w, y} (and xτ_F for (a,k) = (2,3)): rel. err 2·10⁻¹³ – 10⁻⁴ (float64, near-degenerate eigenvalues; confirms the ABJM-point agent's dictionary).",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 9. Summary (2026-10-12, python-verified; Wolfram cells unrun)\n\n**Task 1 — K_κ on the companion SoV vacuum: NO.** On ⟨0| = (e₁e₄)^L the localised pair-1 algebra is exactly 5-dimensional with z-independent pair states e₁e₄, e₁e₃, e₁e₂+e₂e₃, e₄e₄, e₄e₃ (exact, L = 2, 3, z₂ = z₃ and generic z); each is a single regularised SoV word (1, t₁(θ_F), t₁(u₀)t₁(θ_F), Z, Zt₁(θ_F)); W and t₁(θ_F)^{2,3} never localise. ⟨0|K_κ is Schmidt rank 3. Product states = (A-family a e₁+b e₄)⊗(F-family c e₃+d e₄); BPS ones are single-site families.\n\n**Task 2 — physical identification.** ⟨0|_diag = λ₁^L⟨vac^L|ρ(n′D′) (exact, all L; r_j ε-independent for z = 1+εφ). No localised word puts e₁ on the F site ⇒ p₂₃ ≡ 0 ⇒ x ≡ 0: **singlets (even bridge, F/F_vac = c·xy) are unreachable from ⟨0|**; [1,0,1] only via y (odd bridge). Even a common rotation 1−κG_c^T would not help: (n′f(Λ)n′⁻¹)₁₄ = f[z₁..z₄]/λ₁ = 0 ⇒ p₃₂ ≡ 0 (the task's first-order E₁₄ entry (φ₁−φ₄)r₄ is cancelled by the n′₁₂, n′₁₃ paths). **2603-type twist-dressed references** (A: (ζ − Ĝ^T)⁻¹, F: (ζ′ − Ĝ)⁻¹, ζ,ζ′ = 1 + O(ε); BPS iff ∏(ζ−z_j) = ∏(ζ′−z_j)) have O(1) physical images with all Borel invariants nonzero — they are the natural ABJM analogue of ⟨𝒲_ω| and must enter as the reference (open: their SoV overlap as a Q-bracket determinant).\n\n**Task 3 — formula (verified at L = 2, mpmath 80 digits).** For any word K, |C_K(Ψ)| = |P_K(τ_Ψ)/P_K(τ_vac)|·|λ^{w−w_vac} 𝒩(Ψ)/𝒩(vac)|^{1/2}, 𝒩 = ⟨0|Ψ⟩⟨Ψᴸ|0̄⟩/⟨Ψᴸ|Ψ⟩ = 1/Στ̃Mτ, 𝒩(vac) = (λ₁λ₄)^L. Key identity |⟨0|Ψ⟩|² = |λ^w𝒩|‖Ψ‖² (weight identity + Ψᴸ → cΨ^†) verified to 1+O(ε) for all six L = 2 states. The ⟨0|-based limits exist but are **not** the naive highest-weight values: for the A-family, [1,0,1] → (y₀/3)⟨e₂e₂e₁e₄|Ψ₀⟩ = ⅓e^{∓iπ/3}×naive, independent of φ, θdir; singlets → 0. L = 3 untwisting not done (mp cost).\n\n**Task 4 — Q-form.** P_K = c₀ + c₁τ_F + c₂xτ_F + c₃y + c₄yτ_F with τ_F = Q_j(θ_F)/Q_j(θ_F−h) and x, y, w = 3×3 Cramer ratios of the derivative Baxter equation Q_i′(u₀) − xD_i + wQ_i(u₀−2h) − yQ_i(u₀−3h) = 0 (verified, 41 states). Norm at the ABJM point: complete regularised bra (ABJM-point agent) and ket (new: K ∈ {1, t₁(u₀), t₂′(θ_A) − t₁(θ_A)t₁′(u₀), t₃′(θ_A+h)}) bases, rank 256 each.\n\n**Not done / open:** SoV (Q-determinant) form of a dressed reference overlap (the 2603 step (i) analogue) — needed for the even bridge; derivation of the ⅓e^{∓iπ/3} factor; L = 3 untwisting; the K_κ/W_a route (pairgroup) needs z₂ = z₃, where the companion frame is singular and the diagonal-twist chain has a gl(2) symmetry (no SoV basis).",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  }
+ ],
+ "metadata": {
+  "createdBy": "wolfbook_newNotebook",
+  "createdAt": "2026-10-12T18:33:22.686Z"
+ }
+}

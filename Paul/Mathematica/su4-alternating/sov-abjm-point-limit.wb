@@ -1,0 +1,311 @@
+{
+ "cells": [
+  {
+   "kind": 1,
+   "value": "# SoV at the ABJM point: the limit d = θ_A − θ_F → 2h\n\n**Question (open problem 1 of `notes/abjm-transfer-matrices-symmetries.tex` §13, NEXT.md 2g).** The companion-twist SoV word basis ⟨a₁,k₂,a₃,k₄| = ⟨0| t_{a₁}(θ₁−h) t₁(θ₂)^{k₂} t_{a₃}(θ₃−h) t₁(θ₄)^{k₄} (Ryan–Volin, `sov-companion-L4.wb`) is a basis and B-eigenbasis at generic θ, but at the ABJM point θ_A − θ_F = 2h the RV B-operator is degenerate (169 = 13² eigenvalues). Make the SoV machinery usable there: ranks and dependencies of the words as d → 2h, the eigenvalue degeneracy behind it (Q-dictionary), a regularised basis, the divergence of the SoV coefficients of a fixed bra, the dual basis, and the resulting ABJM-point SoV formula.\n\n**Status (2026-10-12): NO CODE CELL OF THIS NOTEBOOK HAS BEEN RUN.** The shared Wolfram kernel died during the session and the Wolfram Engine licence has expired. All results were obtained in python in the session scratchpad (`…/scratchpad/abjmlimit/`, scripts listed in the last cell): exact GF(p) arithmetic (p = 16777213, ranks, identities, valuations, Laurent pole orders — exact up to the usual mod-p caveat, cross-checked by exact rational reconstruction where stated), exact rationals via CRT over 6–34 primes, sympy (L = 2, symbolic d), mpmath at 60 digits (eigenstates). The verified python results are pasted in the markdown cell **under** each code cell. The Wolfram cells are a faithful port of those computations (same definitions, same points); rerun them in VS Code after renewing the licence to store native outputs. All Wolfram symbols are prefixed `al`.\n\n**Conventions** (README, notes §2). Chain A F A F (site 1 = A), dim 256; bras are row vectors, an operator acts on a bra as ψ·M. Lax ℒ_s(u) = Σ e_ij ⊗ ((u−θ_s)δ_ij + h ρ_s(E_ij)), ρ_A(E_ij) = e_ij, ρ_F(E_ij) = −e_ji; T = ℒ₁ℒ₂ℒ₃ℒ₄ (site 1 leftmost), twist on the right, companion G_c(z), z = (3/2, 5/4, 2/3, 4/7), h = 1/2; t_a(u) = Σ_{|I|=a} qmin_{I,I}[T G](u) (rows antisymmetrised, column k at u − (k−1)h) — the **full** quantum-minor t_a (no reduced t̄'s). ⟨0| = e₁⊗e₄⊗e₁⊗e₄. Inhomogeneities: pair-by-pair θ = (θ_F1 + d, θ_F1, θ_F2 + d, θ_F2) with θ_F1 = −3/5, θ_F2 = −11/8; pair-periodic θ = (θ_F + d, θ_F, θ_F + d, θ_F), θ_F = −3/5; non-periodic deformations θ = (θ_A, θ_F, θ_A + δ₃, θ_F + δ₄). ABJM point: d = 2h. One pair (L = 2 sites A F): θ = (d, 0).",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 0. Setup\n\nTransfer matrices from the quantum minors of T·G (definition of the task, identical to the fused-Lax t₂, t₃ of `dual-lax-t3.wb`). `alTop[tys, ths, a, u]` = t_a(u) on the chain with site types `tys` and inhomogeneities `ths` (exact, u and θ may be symbolic). `alTder` = exact u-derivative t_a′(u₀) (t_a(u) is a polynomial of degree n·a in u; Lagrange weights on the integer nodes u₀ + {−⌊m/2⌋, …}). `alWordsGen[ths, op1, op3]` builds the 256 words ⟨0| op1(a₁,k₂) t₁(θ₂)^{k₂} op3(a₃,k₄) t₁(θ₄)^{k₄}, ordered as `Tuples[Range[0,3],4]`.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "ClearAll[alE, alRho, alGc, alLax, alMono, alTop, alVac, alLagW, alTder, alWordsGen, alWords4, alThPBP, alThPer];\nalH = 1/2; alZ = {3/2, 5/4, 2/3, 4/7};\nalE[i_, j_] := SparseArray[{{i, j}} -> 1, {4, 4}];\nalRho[\"A\"][i_, j_] := alE[i, j]; alRho[\"F\"][i_, j_] := -alE[j, i];\nalGc[z_] := Module[{c = Table[SymmetricPolynomial[k, z], {k, 4}]}, {{c[[1]], -c[[2]], c[[3]], -c[[4]]}, {1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}}];\nalG = alGc[alZ];\nalLax[ty_, u_, th_][i_, j_] := (u - th) KroneckerDelta[i, j] IdentityMatrix[4, SparseArray] + alH alRho[ty][i, j];\n(* untwisted monodromy T(u) = L_1 L_2 ... L_n, site 1 = leftmost = most significant tensor factor *)\nalMono[tys_, ths_, u_] := Module[{T},\n   T = Table[alLax[tys[[1]], u, ths[[1]]][i, j], {i, 4}, {j, 4}];\n   Do[T = Table[Sum[KroneckerProduct[T[[i, k]], alLax[tys[[s]], u, ths[[s]]][k, j]], {k, 4}], {i, 4}, {j, 4}], {s, 2, Length[tys]}];\n   T];\n(* t_a(u) = sum_{|I|=a} qmin_{I,I}[T G](u): rows antisymmetrised, column k at u-(k-1)h *)\nalTop[tys_, ths_, a_, u_] := Module[{tg},\n   tg[v_] := tg[v] = With[{T = alMono[tys, ths, v]}, Table[Sum[T[[i, k]] alG[[k, j]], {k, 4}], {i, 4}, {j, 4}]];\n   If[a == 0, IdentityMatrix[4^Length[tys], SparseArray],\n    Sum[Signature[p] (Dot @@ Table[tg[u - (k - 1) alH][[ii[[p[[k]]]], ii[[k]]]], {k, a}]), {ii, Subsets[Range[4], {a}]}, {p, Permutations[Range[a]]}]]];\nalVac[tys_] := Flatten[Outer[Times, Sequence @@ (If[# == \"A\", UnitVector[4, 1], UnitVector[4, 4]] & /@ tys)]];\n(* exact u-derivative: Lagrange weights for f'(0) on m+1 integer nodes *)\nalLagW[m_] := alLagW[m] = With[{nod = Range[-Floor[m/2], m - Floor[m/2]]},\n    {nod, Table[Coefficient[Expand[Product[If[j == i, 1, (alX - nod[[j]])/(nod[[i]] - nod[[j]])], {j, Length[nod]}]], alX, 1], {i, Length[nod]}]}];\nalTder[tys_, ths_, a_, u0_] := If[a == 0, 0 IdentityMatrix[4^Length[tys], SparseArray],\n   With[{nw = alLagW[Length[tys] a]}, Sum[nw[[2, i]] alTop[tys, ths, a, u0 + nw[[1, i]]], {i, Length[nw[[1]]]}]]];\nalTy4 = {\"A\", \"F\", \"A\", \"F\"}; alWidx = Tuples[Range[0, 3], 4];\n(* 256 words <0| op1(a1,k2) t1(th2)^k2 op3(a3,k4) t1(th4)^k4, as plain lists *)\nalWordsGen[ths_, op1_, op3_] := Module[{T2 = alTop[alTy4, ths, 1, ths[[2]]], T4 = alTop[alTy4, ths, 1, ths[[4]]], vac = alVac[alTy4]},\n   Table[Module[{v = vac . op1[w[[1]], w[[2]]]}, Do[v = v . T2, {w[[2]]}]; v = v . op3[w[[3]], w[[4]]]; Do[v = v . T4, {w[[4]]}]; Normal[v]], {w, alWidx}]];\nalWords4[ths_, uA1_, uA3_] := Module[{A1 = Table[alTop[alTy4, ths, a, uA1], {a, 0, 3}], A3 = Table[alTop[alTy4, ths, a, uA3], {a, 0, 3}]},\n   alWordsGen[ths, A1[[#1 + 1]] &, A3[[#1 + 1]] &]];\nalThPBP[d_] := {-3/5 + d, -3/5, -11/8 + d, -11/8};   (* pair by pair *)\nalThPer[d_] := {-3/5 + d, -3/5, -3/5 + d, -3/5};     (* pair periodic *)\nalTy2 = {\"A\", \"F\"};\nGrid[{{\"[t₁(3/10), t₃(−7/10)] = 0 at generic θ (exact)\", With[{th = {2/7, -3/5, 8/11, -11/8}}, Normal[alTop[alTy4, th, 1, 3/10] . alTop[alTy4, th, 3, -7/10] - alTop[alTy4, th, 3, -7/10] . alTop[alTy4, th, 1, 3/10]] == ConstantArray[0, {256, 256}]]},\n  {\"rank of the 256 words at generic θ = (2/7, −3/5, 8/11, −11/8)\", With[{th = {2/7, -3/5, 8/11, -11/8}}, MatrixRank[alWords4[th, th[[1]] - alH, th[[3]] - alH]]]}}, Frame -> All, Alignment -> Left]",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "**Result (python, `chain.py`/`words.py`, exact mod p):** [t₁, t₃] = [t₁, t₂] = 0 exactly; the 256 words have rank **256** at generic θ (reproduces `sov-companion-L4.wb`).",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 1. Rank of the word basis as a function of d\n\n### 1a. Pair-by-pair and pair-periodic θ (exact)",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "alRank[ths_] := MatrixRank[alWords4[ths, ths[[1]] - alH, ths[[3]] - alH]];\nalDs = {1/3, 0, alH, 2 alH, 3 alH, 4 alH, 2 alH + 1/1000, 2 alH - 1/1000, 2 alH + 10^-6};\nalRankRows = Table[{d, alRank[alThPBP[d]], alRank[alThPer[d]]}, {d, alDs}];\nGrid[Prepend[alRankRows, {\"d = θ_A − θ_F\", \"rank: pair-by-pair θ = (θ_F1+d, θ_F1, θ_F2+d, θ_F2)\", \"rank: pair-periodic θ = (θ_F+d, θ_F, θ_F+d, θ_F)\"}], Frame -> All, Alignment -> Left]",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "**Result (python `scan1.py`, exact mod p):**\n\n| d | pair-by-pair | pair-periodic |\n|---|---|---|\n| 1/3 (generic) | 256 | **70** |\n| 0 | 16 = 4² | 10 |\n| h | 25 = 5² | 9 |\n| **2h (ABJM)** | **81 = 9²** | **24** |\n| 3h | 169 = 13² | 46 |\n| 4h | 144 = 12² | 42 |\n| 2h ± 10⁻³, 2h + 10⁻⁶ | 256 | 70 |\n\n- Pair-by-pair: the words are a basis for every d ≠ 0, h, 2h, 3h, 4h (also arbitrarily close to 2h); at d = 2h the rank drops to **81 = 9²**, i.e. 9 of the 16 (a, k) per A–F pair survive (full quantum-minor t₃; with the reduced t̄₃ of `sov-companion-L4.wb` it is 169 = 13²).\n- **Pair-periodic θ is degenerate for every d:** with θ₁ = θ₃ and θ₂ = θ₄ the operators t_{a₁}(θ₁−h), t_{a₃}(θ₃−h) and t₁(θ₂), t₁(θ₄) coincide and commute, so the 256 words collapse to the 10 × 7 = **70** monomials t_{a}t_{a′}(θ_A−h) t₁(θ_F)^{k}, k ≤ 6. This is the usual homogeneous-limit degeneration of SoV (RV's genericity θ_α − θ_β ∉ hℤ also fails for θ₁ − θ₃ = 0), independent of the ABJM resonance. At d = 2h the two degenerations combine: 24 = 7 + 8 + 9 monomials X^m Y^n (m ≤ 2) in X = t₁(θ_A−h), Y = t₁(θ_F) (see 1c). The d → 2h analysis is therefore done on the pair-by-pair line; the physical (pair-periodic) point is treated in §5.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "### 1b. Is the degeneracy caused by the A–F shift or by pair periodicity? Non-periodic deformations θ = (θ_A, θ_F, θ_A+δ₃, θ_F+δ₄), θ_A = θ_F + 2h",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "alTF = -3/5; alTA = alTF + 2 alH; alD3 = -31/40; alD4 = 2/9;\nalDefCases = {\n   {\"δ₃, δ₄ generic (only θ₁−θ₂ = 2h)\", {alTA, alTF, alTA + alD3, alTF + alD4}},\n   {\"δ₃ = δ₄ (pair by pair: θ₁−θ₂ = θ₃−θ₄ = 2h)\", {alTA, alTF, alTA + alD3, alTF + alD3}},\n   {\"δ₄ = 0 (θ₁−θ₂ = θ₁−θ₄ = 2h, θ₂ = θ₄)\", {alTA, alTF, alTA + alD3, alTF}},\n   {\"δ₃ = 0 (θ₁ = θ₃, θ₁−θ₂ = θ₃−θ₂ = 2h)\", {alTA, alTF, alTA, alTF + alD4}},\n   {\"δ₃ = δ₄ = 0 (pair periodic = physical ABJM point)\", {alTA, alTF, alTA, alTF}},\n   {\"only θ₁−θ₄ = 2h\", {alTA, alTF + alD4, alTA + alD3, alTF}},\n   {\"only θ₃−θ₂ = 2h\", {alTF + alD4, alTF, alTF + 2 alH, alTF + alD3}},\n   {\"only θ₃−θ₄ = 2h\", {alTA + alD4, alTF, alTA + alD3, alTF + alD3}},\n   {\"θ₁ = θ₃ only (d = 1/3)\", {alTF + 1/3, alTF, alTF + 1/3, alTF + alD4}},\n   {\"θ₂ = θ₄ only (d = 1/3)\", {alTF + 1/3, alTF, alTF + 1/3 + alD3, alTF}}};\nGrid[Prepend[{#[[1]], #[[2]], alRank[#[[2]]]} & /@ alDefCases, {\"case\", \"θ\", \"rank of the 256 words\"}], Frame -> All, Alignment -> Left]",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "**Result (python `scan2.py`, exact mod p):**\n\n| case | rank |\n|---|---|\n| one resonant A–F pair, any of (1,2), (1,4), (3,2), (3,4) (all other differences generic) | **144 = 9·16** |\n| two disjoint resonant pairs (δ₃ = δ₄, pair by pair) | **81 = 9²** |\n| A₁ resonant with both F's (δ₄ = 0, also θ₂ = θ₄) | 60 |\n| both A's resonant with F₂ (δ₃ = 0, also θ₁ = θ₃) | 60 |\n| pair periodic (physical point) | 24 |\n| θ₁ = θ₃ only / θ₂ = θ₄ only (d generic) | 160 / 112 |\n| θ₁ = θ₃ and θ₂ = θ₄ (d generic) | 70 |\n\n**Conclusion:** the d = 2h degeneracy is caused by the **A–F shift** θ_A − θ_F = 2h and is local: every resonant pair (A site α, F site β with θ_α − θ_β = 2h, adjacent or not) cuts the 16 (a, k) words of that A site and that F site down to 9. Pair periodicity is a separate (homogeneous-limit) degeneration (256 → 70); at the physical point both act (24).",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "### 1c. One pair (L = 2 sites), symbolic d: the determinant of the 16 words",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "alM2[d_] := Module[{ths = {d, 0}, A, Y},\n   A = Table[Normal[alVac[alTy2] . alTop[alTy2, ths, a, d - alH]], {a, 0, 3}]; Y = Normal[alTop[alTy2, ths, 1, 0]];\n   Flatten[Table[Expand[A[[a + 1]] . MatrixPower[Y, k]], {a, 0, 3}, {k, 0, 3}], 1]];\nalDet2 = Factor[Det[alM2[alDd]]];\nGrid[{{\"det of the 16 words ⟨0|t_a(θ_A−h)t₁(θ_F)^k, θ = (alDd, 0), h = 1/2\", alDet2},\n  {\"ranks at d = 0, h, 2h, 3h, 4h, 1/3\", MatrixRank[alM2[#]] & /@ {0, alH, 2 alH, 3 alH, 4 alH, 1/3}}}, Frame -> All, Alignment -> Left]",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "**Result (python `L2sym.py`, sympy, exact):**\n\ndet M(d) = 81 d²³ (d−2)⁴ (d−1)⁷ (2d−3)³ (2d−1)¹¹ / 2⁵⁴, i.e. with h = 1/2\n\n**det M(d) ∝ d²³ (d−h)¹¹ (d−2h)⁷ (d−3h)³ (d−4h)⁴**,\n\nranks 4, 5, **9**, 13, 12, 16 at d = 0, h, **2h**, 3h, 4h, 1/3. At the ABJM point the zero is of order 7 = 16 − 9 (all elementary divisors simple: see §3), so one L'Hôpital step per lost word suffices.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "### 1d. Which words become dependent: two operator identities at θ_A − θ_F = 2h (exact, 4 sites)\n\nFor an A site at θ_A and an F site at θ_F = θ_A − 2h, at u₀ = θ_A − h = θ_F + h:\n\n(I) t₃(θ_A − h) = 0;  (II) t₂(θ_A − h) = t₁(θ_A − h) t₁(θ_F).",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "alIdent[ths_, s_, f_] := Module[{u0 = ths[[s]] - alH, t1, t2, t3, Y, z = ConstantArray[0, {256, 256}]},\n   t1 = alTop[alTy4, ths, 1, u0]; t2 = alTop[alTy4, ths, 2, u0]; t3 = alTop[alTy4, ths, 3, u0]; Y = alTop[alTy4, ths, 1, ths[[f]]];\n   {Normal[t3] == z, Normal[t2 - t1 . Y] == z, Normal[t2 - Y . t1] == z}];\nGrid[Prepend[{#[[1]], Sequence @@ alIdent[#[[2]], 1, 2]} & /@ alDefCases[[{1, 2, 5}]], {\"θ\", \"t₃(θ₁−h) = 0\", \"t₂(θ₁−h) = t₁(θ₁−h) t₁(θ₂)\", \"= t₁(θ₂) t₁(θ₁−h)\"}], Frame -> All, Alignment -> Left]",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "**Result (python `ident.py`, exact mod p, as 256×256 operator identities):** (I) and (II) hold for one resonant pair, pair by pair, and pair periodic.\n\n**Why.** (I): t₃ = ∏_s g₃ˢ(u)·t̄₃ with g₃^F(u) = (u−θ_F)(u−θ_F−h), which has a simple zero at u = θ_F + h = θ_A − h (one per resonant F site; pair periodic: double zero). (II): fusion t₁(u)t₁(u−h) = t₂(u) + t_{(2)}(u) (t₂ = antisymmetric, t_{(2)} = symmetric fusion); at u = θ_F + h the F-site Lax ℒ_F(θ_F+h) = h(1 − P) annihilates the aux-symmetric part, so t_{(2)}(θ_F + h) = 0, and u − h = θ_F.\n\n**Dependencies** (per resonant pair (A, F), any spectator words): the 4 words with a = 3 vanish, and\n\n⟨…, a = 2, k, …| = ⟨…, a = 1, k+1, …|  for k = 0, 1, 2\n\n(t₂ t₁(θ_F)^k = t₁ t₁(θ_F)^{k+1}); the word (2, 3) = t₁t₁(θ_F)⁴ survives. Survivors per pair: (0,k), (1,k), k ≤ 3, and (2,3): **9**. Pair periodic: in addition t_{a}(θ₁−h) = t_{a}(θ₃−h), t₁(θ₂) = t₁(θ₄), giving the monomials X^m Y^n, m ≤ 2, n ≤ 6 + m: 7 + 8 + 9 = 24.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {
+    "toolId": "X21sZmlsZQ"
+   }
+  },
+  {
+   "kind": 1,
+   "value": "## 2. Wave functions in the limit: which τ-products coincide, and why\n\nOn eigenstates (I), (II) read, per resonant pair, with x := τ₁(θ_A−h), τ_F := τ₁(θ_F):\n\n**τ₃(θ_A − h) = 0,  τ₂(θ_A − h) = x·τ_F**,\n\nso the wave functions of (2, k) and (1, k+1) coincide (xτ_F^{k+1}) and those of (3, k) vanish, for every state.\n\n**B-language.** RV separated variables (dictionary §2): F site k of {x_{j1}} at θ_F + h, 3 − k at θ_F; A site a: (θ_A−h, θ_A−2h, θ_A−3h), (θ_A, θ_A−2h, θ_A−3h), (θ_A, θ_A−h, θ_A−3h), (θ_A, θ_A−h, θ_A−2h) for a = 0..3. At θ_A = θ_F + 2h the A lattice θ_F + {2h, h, 0, −h} contains the F lattice {θ_F, θ_F + h}, and (a = 2, k) and (a = 1, k+1) give the same multiset (θ_F+2h, (θ_F+h)^{k+1}, θ_F^{3−k}, θ_F−h) for k = 0, 1, 2: 16 − 3 = **13** distinct B eigenvalues per pair (169 = 13²), exactly the collisions (II).\n\n**Q-language** (RV gauge, dictionary §6: τ_a(θ_A−h) = D_a/Q₁₂₃(θ_A−h), D_a = Casoratian of Q₁,Q₂,Q₃ at θ_A−h+h{1,0,−1,−2} minus column 1−a). The F-site Baxter equation at u = θ_F (t_{a≥2}(θ_F) = 0) gives Q_j(θ_F + h) = τ_F Q_j(θ_F) for all j. At d = 2h the A-site columns at θ_A − h = θ_F + h and θ_A − 2h = θ_F are therefore proportional: D₀ = Q₁₂₃(θ_A−h) = 0, D₃ = Q₁₂₃(θ_A) = 0 and D₂ = τ_F D₁. Hence τ₂/τ₁ = D₂/D₁ = τ_F (= (II)), τ₃ = D₃/D₀ is 0/0 (the scalar zero (I) of the full t₃, finite for the reduced t̄₃), and τ₁ = D₁/D₀ is 0/0 as well: **at d = 2h the Baxter equation at u₀ = θ_A − h no longer determines the A-site data** (in the polynomial gauge it collapses to the F-site relation). The missing information sits in the **u-derivative** of the Baxter equation at u₀ (cell below).\n\n**Relation to LR.** 2603's LR map 𝒫: t̄₁(u) ↔ t̄₃(u + h) (`abjm-LR-symmetry.wb`) sends the F-site SoV operator t₁(θ_F) to t̄₃(θ_F + h) = t̄₃(θ_A − h) exactly when θ_A − θ_F = 2h — the reduced A-site a = 3 operator, i.e. (up to g₃′(u₀)) the regularised word Z of §3. In Q-language (Q₁(u) ∝ Q₁₂₃(u+h), `abjm-Qfunctions.wb`): Q₁(θ_F+h)/Q₁(θ_F) ↔ Q₁₂₃(θ_A)/Q₁₂₃(θ_A−h), the F-site wave function ↔ the A-site a = 3 (single dual Q⁴ = Q₁₂₃) wave function. So the ABJM point is precisely where the A and F separated variables of a pair live on one lattice: this alignment is what makes the A ↔ F (LR) map a symmetry, and it is the same alignment that makes RV's B degenerate. For LR-symmetric states y = g₃′(u₀)·τ̄₃(θ_A−h) = g₃′(u₀)·τ_F: the regularised a = 3 variable equals the F variable of the same pair.\n\n### 2a. One pair, d = 2h: Q-functions of all 16 twisted eigenstates and the derivative Baxter equation\n\nTwisted Baxter equation in the polynomial gauge (RV gauge Q_j = z_j^{u/h} q_j Φ, Φ(u+h) = V₄(u)Φ(u), V₄ = ∏_A(u−θ_A)∏_F(u−θ_F−h)):\n\nΣ_{a=0}^{4} (−1)^a τ_a(u) z_j^{1−a} q_j(u + h − ah) P_a(u) = 0,  P_a(u) = ∏_{b=a}^{3} V₄(u − bh).\n\nAt u₀ = θ_A − h = θ_F + h: P₀(u₀) = 0 (V₄(u₀) = 0 — the resonance), τ₃ = τ₄ = 0, τ₂ = xτ_F. Differentiating at u₀ and using z_j V₄(θ_F) q_j(θ_F+h) = τ_F q_j(θ_F) gives, for j = 1..4, a linear system for the three A-site unknowns\n\n**x = τ₁(u₀), w = τ₂′(u₀) − τ₁′(u₀)τ_F, y = τ₃′(u₀)**:\n\nx R_j + w P₂(u₀) q_j(θ_F)/z_j − y P₃(u₀) q_j(θ_F−h)/z_j² = −z_j q_j(θ_F+2h) P₀′(u₀) − τ₄′(u₀) q_j(θ_F−2h)/z_j³,\n\nR_j = −(q_j P₁)′(u₀) + (τ_F/z_j)(q_j(u−h)P₂(u))′|_{u₀}  (contains q_j′(θ_F+h), q_j′(θ_F)).\n\nCramer on j = 1, 2, 3: **x, w, y are ratios of 3×3 determinants of q_j and q_j′ at θ_F + {2h, h, 0, −h, −2h}** (τ₄ = qdet known). The 4th equation is a consistency check.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "ClearAll[alU];\nalD0 = 2 alH; alU0 = alD0 - alH; alThA = alD0; alThF = 0;\nalTsym = Table[Normal[alTop[alTy2, {alD0, 0}, a, alU]], {a, 1, 4}];     (* t_a(u), polynomial in alU *)\nalV4[x_] := (x - alThA) (x - alThF - alH);\nalP[a_, x_] := Product[alV4[x - b alH], {b, a, 3}];\nalStates = Eigenvectors[N[Normal[alTop[alTy2, {alD0, 0}, 1, 3137/10000]], 60]];\nalTauPoly[a_, psi_] := Module[{v = alTsym[[a]] . psi, j = Ordering[Abs[psi], -1][[1]]}, Expand[v[[j]]/psi[[j]]]];\n(* polynomial solution q of the twisted Baxter equation with twist eigenvalue zeta, minimal degree dg *)\nalSolveQ[taus_, zeta_] := Module[{cs, eqs, ns, res = None},\n   Do[cs = Array[alC, dg + 1, 0];\n    eqs = CoefficientList[Expand[Sum[(-1)^a If[a == 0, 1, taus[[a]]] zeta^(1 - a) (cs . (alU + alH - a alH)^Range[0, dg]) alP[a, alU], {a, 0, 4}]], alU];\n    ns = NullSpace[N[Normal[CoefficientArrays[eqs, cs][[2]]], 60], Tolerance -> 10^-40];\n    If[Length[ns] > 0, res = ns[[1]] . alU^Range[0, dg]; Break[]], {dg, 0, 8}];\n   res];\nalQcheck[psi_] := Module[{taus = Table[alTauPoly[a, psi], {a, 4}], tF, x, w, y, qs, rows, rhs, sol},\n   tF = taus[[1]] /. alU -> alThF;\n   x = taus[[1]] /. alU -> alU0; w = (D[taus[[2]], alU] - D[taus[[1]], alU] tF) /. alU -> alU0; y = D[taus[[3]], alU] /. alU -> alU0;\n   qs = Table[alSolveQ[taus, z], {z, alZ}];\n   rows = Table[With[{q = qs[[j]], z = alZ[[j]]},\n      {(-D[q alP[1, alU], alU] + tF/z D[(q /. alU -> alU - alH) alP[2, alU], alU]) /. alU -> alU0,\n       alP[2, alU0] (q /. alU -> alThF)/z, -alP[3, alU0] (q /. alU -> alThF - alH)/z^2}], {j, 4}];\n   rhs = Table[With[{q = qs[[j]], z = alZ[[j]]}, -z (q /. alU -> alThF + 2 alH) (D[alP[0, alU], alU] /. alU -> alU0) - (D[taus[[4]], alU] /. alU -> alU0) (q /. alU -> alThF - 2 alH)/z^3], {j, 4}];\n   sol = LinearSolve[rows[[1 ;; 3]], rhs[[1 ;; 3]]];\n   {Exponent[#, alU] & /@ qs, Max[Abs[{taus[[3]], taus[[4]]} /. alU -> alU0]], Max[Abs[taus[[2 ;; 4]] /. alU -> alThF]],\n    Max[Table[Abs[alZ[[j]] alV4[alThF] (qs[[j]] /. alU -> alThF + alH)/(qs[[j]] /. alU -> alThF) - tF], {j, 4}]],\n    Max[Abs[sol - {x, w, y}]], Abs[rows[[4]] . sol - rhs[[4]]], N[{x, w, y}, 8]}];\nalQrows = alQcheck /@ alStates;\nGrid[Prepend[MapIndexed[Prepend[#1, #2[[1]]] &, alQrows], {\"state\", \"deg q₁..q₄\", \"|τ₃(u₀)|, |τ₄(u₀)|\", \"|τ_{2,3,4}(θ_F)|\", \"F relation z_jV₄q_j(θ_F+h)/q_j(θ_F) − τ_F\", \"Cramer (x,w,y) − direct\", \"4th eq. residual\", \"{x, w, y}\"}], Frame -> All, Alignment -> Left]",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "**Result (python `L2Q.py`, mpmath 60 digits, all 16 eigenstates of the twisted one-pair chain at d = 2h):**\n\n- twist convention: the polynomial solutions exist with z_j (not 1/z_j); degrees of (q₁, q₂, q₃, q₄) are permutations of the magnon content, e.g. (1,1,1,1), (0,2,1,1), (2,0,1,1), (0,1,2,1), …\n- τ₄(u₀) = 0 and τ_{2,3,4}(θ_F) = 0 to 10⁻⁶⁰; F relation z_j V₄(θ_F) q_j(θ_F+h)/q_j(θ_F) = τ_F for all j to ≤ 5·10⁻⁵⁷;\n- **Cramer solution of the derivative Baxter equation = (x, w, y) from the transfer matrices to ≤ 3·10⁻⁵⁴ for all 16 states**; 4th equation consistent to ≤ 5·10⁻⁵⁵.\n\nExamples (x, w, y): state 1: (−1.4566317, 2.0846579, −0.29139748); state 2: (−0.30952381, 1.3541667, 0.21428571); state 5: (−0.45535714, 1.765625, 0.40178571).",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 3. Regularised basis at d = 2h\n\n**Definition (L'Hôpital in the spectral parameter, at fixed θ).** For each A site s with resonant F site f (θ_s − θ_f = 2h), u₀ = θ_s − h, Y = t₁(θ_f):\n\n- X = t₁(u₀);  **W = t₂′(u₀) − t₁′(u₀) Y** (= ∂_u[t₂(u) − t₁(u)Y] at u₀; equivalently X t₁′(θ_f) − t̄_{(2)}(u₀) with the reduced symmetric fusion);  **Z = t₃′(u₀) = g₃′(u₀) t̄₃(u₀)**,\n- regularised A-site operator O(a, k) = 1, X, (W if k ≤ 2, t₂(u₀) = XY if k = 3), Z for a = 0, 1, 2, 3,\n- words ⟨a₁,k₂,a₃,k₄|_reg = ⟨0| O₁(a₁,k₂) Y₂^{k₂} O₃(a₃,k₄) Y₄^{k₄}.\n\nAll are elements of the commutative Bethe algebra at the ABJM point, so **⟨x|_reg Ψ⟩ = ∏_sites λ · ⟨0|Ψ⟩** with per-pair factors λ(a,k) τ_F^k, λ = 1, x, (w | xτ_F), y — the A-site data x, w, y of §2a (Q, Q′ Cramer formula).\n\n**Equivalently (exact):** it is the L'Hôpital limit of the generic SoV basis along the pair-by-pair line d = 2h + ε: (⟨2,k| − ⟨1,k+1|)/ε → W-word, ⟨3,k|/ε → Z-word (products over the two pairs, order εⁿ, n = number of regularised pairs). The d-derivative and the u-derivative words **coincide exactly** (both deformations move u₀ − θ_F at unit rate, and the combination vanishes through the F-site factor only).\n\n### 3a. One pair (exact, sympy in python): rank, and d-derivative = u-derivative",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "alReg2 = Module[{ths = {2 alH, 0}, u0 = alH, t, Y, W, Z, op},\n   t = Table[alTop[alTy2, ths, a, u0], {a, 0, 3}]; Y = Normal[alTop[alTy2, ths, 1, 0]];\n   W = alTder[alTy2, ths, 2, u0] - alTder[alTy2, ths, 1, u0] . Y; Z = alTder[alTy2, ths, 3, u0];\n   op[a_, k_] := Which[a < 2, t[[a + 1]], a == 2 && k <= 2, W, a == 2, t[[3]], True, Z];\n   Flatten[Table[Normal[alVac[alTy2] . op[a, k] . MatrixPower[Y, k]], {a, 0, 3}, {k, 0, 3}], 1]];\nalIdx2 = Flatten[Table[{a, k}, {a, 0, 3}, {k, 0, 3}], 1];\nalIsReg[a_, k_] := a == 3 || (a == 2 && k <= 2);\nalM2e = alM2[2 alH + alEps];\nalRd2 = Table[With[{a = ak[[1]], k = ak[[2]]},\n    Which[a == 3, Coefficient[Expand[alM2e[[Position[alIdx2, ak][[1, 1]]]]], alEps, 1],\n     a == 2 && k <= 2, Coefficient[Expand[alM2e[[Position[alIdx2, ak][[1, 1]]]] - alM2e[[Position[alIdx2, {1, k + 1}][[1, 1]]]]], alEps, 1],\n     True, alM2e[[Position[alIdx2, ak][[1, 1]]]] /. alEps -> 0]], {ak, alIdx2}];\nGrid[{{\"rank of the regularised one-pair basis (u-derivative)\", MatrixRank[alReg2]},\n  {\"d-derivative words = u-derivative words (all 16 rows)\", alRd2 == alReg2},\n  {\"order-0 parts of the regularised d-line combinations vanish\", AllTrue[Select[alIdx2, alIsReg @@ # &], Function[ak, With[{i = Position[alIdx2, ak][[1, 1]]}, (If[ak[[1]] == 3, alM2e[[i]], alM2e[[i]] - alM2e[[Position[alIdx2, {1, ak[[2]] + 1}][[1, 1]]]]] /. alEps -> 0) == ConstantArray[0, 16]]]]}}, Frame -> All, Alignment -> Left]",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "**Result (python `L2reg.py`, sympy, exact):** rank of the regularised one-pair basis **16**; the d-derivative regularised words (limits of (⟨2,k| − ⟨1,k+1|)/ε and ⟨3,k|/ε along d = 2h + ε) are **equal** to the u-derivative words, row by row; the order-ε⁰ parts of the regularised combinations vanish (they are the dependencies of §1d).",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "### 3b. Four sites, pair-by-pair ABJM point: regularised basis, valuation structure, equality with the d-line limit",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "alRegOps[ths_, s_, f_] := Module[{u0 = ths[[s]] - alH, t, W, Z, Y},\n   t = Table[alTop[alTy4, ths, a, u0], {a, 0, 3}]; Y = alTop[alTy4, ths, 1, ths[[f]]];\n   W = alTder[alTy4, ths, 2, u0] - alTder[alTy4, ths, 1, u0] . Y; Z = alTder[alTy4, ths, 3, u0];\n   Function[{a, k}, Which[a < 2, t[[a + 1]], a == 2 && k <= 2, W, a == 2, t[[3]], True, Z]]];\nalTh0 = alThPBP[2 alH];\nalR4 = alWordsGen[alTh0, alRegOps[alTh0, 1, 2], alRegOps[alTh0, 3, 4]];\nalPos[w_] := alPos[w] = Position[alWidx, w][[1, 1]];\nalPairTerms[a_, k_] := If[a == 2 && k <= 2, {{{2, k}, 1}, {{1, k + 1}, -1}}, {{{a, k}, 1}}];\nalSrow[w_] := Module[{s = ConstantArray[0, 256]}, Do[s[[alPos[Join[p1[[1]], p3[[1]]]]]] += p1[[2]] p3[[2]], {p1, alPairTerms[w[[1]], w[[2]]]}, {p3, alPairTerms[w[[3]], w[[4]]]}]; s];\nalS = alSrow /@ alWidx; alNreg = (Boole[alIsReg[#[[1]], #[[2]]]] + Boole[alIsReg[#[[3]], #[[4]]]]) & /@ alWidx;\nalDconv[delta_] := Module[{ths = alThPBP[2 alH + delta], M, RR},\n   M = alWords4[ths, ths[[1]] - alH, ths[[3]] - alH]; RR = (alS . M)/delta^alNreg;\n   N[Max[Table[Max[Abs[RR[[j]] - alR4[[j]]]]/Max[Abs[alR4[[j]]]], {j, 256}]]]];\nGrid[{{\"rank of the regularised basis at θ = (θ_F1+2h, θ_F1, θ_F2+2h, θ_F2)\", MatrixRank[alR4]},\n  {\"# regularised words of order ε⁰, ε¹, ε²\", Count[alNreg, #] & /@ {0, 1, 2}},\n  {\"max_j |(S·M(2h+δ))_j/δ^{n_j} − R_j|/|R_j|, δ = 10⁻², 10⁻³, 10⁻⁴\", ScientificForm[alDconv[#], 3] & /@ {1/100, 1/1000, 1/10000}}}, Frame -> All, Alignment -> Left]",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "**Result (python `regL4.py`, `dlineconv.py`):**\n\n- the explicit regularised basis has **rank 256** (exact mod p): orders ε⁰/ε¹/ε² = **81 / 126 / 49** = (9 + 7)²;\n- independent valuation analysis (Gaussian elimination over GF(p)[[ε]], no ansatz) of the d-line words d = 2h + ε (exact ε-polynomials of degree 24 from 27-point interpolation) gives the same elementary-divisor counts {0: 81, 1: 126, 2: 49}, and so does the u-shift u_A = θ_A − h + ε at fixed θ;\n- the d-derivative regularised rows (ε-Taylor coefficient of order n_j of S·M) are **equal** to the u-derivative rows for all 256 words (ratio exactly 1, exact mod p);\n- with exact rational M(2h+δ) (CRT): max relative deviation (S·M)_j/δ^{n_j} vs R_j = 3.2·10⁻¹, 2.9·10⁻², 2.8·10⁻³ for δ = 10⁻², 10⁻³, 10⁻⁴ (linear convergence).",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "### 3c. SoV coefficients of a fixed bra as d → 2h: divergences and finite combinations\n\nExpand a fixed bra ⟨b| = Σ_x c_x(δ) ⟨x|(δ) in the generic SoV basis at d = 2h + δ. With R(δ) = E(δ)⁻¹ S M(δ) (rows (S·M)_j/δ^{n_j}, R(0) = regularised basis, E = diag δ^{n_j}, S = the 0/±1 combination matrix of §3b):\n\n**c(δ) = β(δ) E(δ)⁻¹ S,  β(δ) = b R(δ)⁻¹ → r := b R(0)⁻¹ (finite).**\n\nHence, per resonant pair, the **singular set** 𝒮 = {(1,1),(1,2),(1,3),(2,0),(2,1),(2,2),(3,0),(3,1),(3,2),(3,3)} (10 of the 16 (a,k)) carries 1/δ and the regular set {(0,k), (1,0), (2,3)} is finite; a word has a pole of order n = number of pairs whose (a,k) ∈ 𝒮. Residues: δ^n c_x → r_x for x built from W/Z-type (a,k) only; finite combinations: c_{(2,k)} + c_{(1,k+1)} → r_{(1,k+1)}. In the overlap the divergences cancel as divided differences:\n\nc_{(2,k)}τ₂τ_F^k + c_{(1,k+1)} xτ_F^{k+1} = (r/δ)(τ₂ − xτ_F)τ_F^k + … → r·w·τ_F^k,  c_{(3,k)}τ₃τ_F^k → r·y·τ_F^k,\n\nso **the ABJM-point SoV formula is the generic one with the A-site factors τ₂ → w = ∂_u(τ₂ − τ₁τ_F), τ₃ → y = ∂_uτ₃ (u-derivatives at u₀ = θ_A − h)**.\n\nOne pair: test bra b = v⊗w, v = (1, 2/3, −1/2, 3/5), w = (2/7, −1, 1/3, 1); eigenstates of t₁(3137/10000) at 60 digits.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "alB2 = Flatten[Outer[Times, {1, 2/3, -1/2, 3/5}, {2/7, -1, 1/3, 1}]];\nalTau2[a_, u_, d_, psi_] := Module[{v = N[alTop[alTy2, {d, 0}, a, u], 60] . psi, j = Ordering[Abs[psi], -1][[1]]}, v[[j]]/psi[[j]]];\nalDelta2[delta_] := Module[{d = 2 alH + delta, M, c, vecs, res},\n   M = alM2[d]; c = LinearSolve[Transpose[M], alB2];          (* exact *)\n   vecs = Eigenvectors[N[alTop[alTy2, {d, 0}, 1, 3137/10000], 60]];\n   res = Table[Module[{ta = Table[alTau2[a, d - alH, d, psi], {a, 0, 3}], tF = alTau2[1, 0, d, psi], S, dir},\n       S = Sum[c[[i]] ta[[alIdx2[[i, 1]] + 1]] tF^alIdx2[[i, 2]], {i, 16}]; dir = (alB2 . psi)/psi[[4]];\n       Abs[S - dir]/Max[1, Abs[dir]]], {psi, vecs}];\n   {delta, N[Max[Abs[c]], 6], ScientificForm[Max[res], 3], N[delta c[[Position[alIdx2, #][[1, 1]]]] & /@ {{2, 0}, {2, 1}, {2, 2}, {3, 0}, {3, 1}, {3, 2}, {3, 3}}, 8],\n    N[Table[c[[Position[alIdx2, {2, k}][[1, 1]]]] + c[[Position[alIdx2, {1, k + 1}][[1, 1]]]], {k, 0, 2}], 8]}];\nalR2coef = LinearSolve[Transpose[alReg2], alB2];\nalReg2Test = Module[{d = 2 alH, u0 = alH, vecs, Y, res},\n   vecs = Eigenvectors[N[alTop[alTy2, {d, 0}, 1, 3137/10000], 60]];\n   res = Table[Module[{x = alTau2[1, u0, d, psi], t2 = alTau2[2, u0, d, psi], tF = alTau2[1, 0, d, psi], w, y, lam, S, dir, j = Ordering[Abs[psi], -1][[1]]},\n       w = (N[alTder[alTy2, {d, 0}, 2, u0], 60] . psi)[[j]]/psi[[j]] - (N[alTder[alTy2, {d, 0}, 1, u0], 60] . psi)[[j]]/psi[[j]] tF;\n       y = (N[alTder[alTy2, {d, 0}, 3, u0], 60] . psi)[[j]]/psi[[j]];\n       lam[a_, k_] := {1, x, If[k <= 2, w, t2], y}[[a + 1]] tF^k;\n       S = Sum[alR2coef[[i]] lam @@ alIdx2[[i]], {i, 16}]; dir = (alB2 . psi)/psi[[4]];\n       Abs[S - dir]/Max[1, Abs[dir]]], {psi, vecs}];\n   ScientificForm[Max[res], 3]];\nColumn[{Grid[Prepend[alDelta2 /@ {1/100, 1/1000, 1/10000}, {\"δ\", \"max|c|\", \"max rel. |Σcτ − ⟨b|Ψ⟩/⟨0|Ψ⟩| (16 states)\", \"δ·c for (2,0),(2,1),(2,2),(3,0..3)\", \"c(2,k) + c(1,k+1), k = 0,1,2\"}], Frame -> All],\n  Grid[{{\"regularised coefficients r (same order)\", N[alR2coef[[Position[alIdx2, #][[1, 1]]]] & /@ {{2, 0}, {2, 1}, {2, 2}, {3, 0}, {3, 1}, {3, 2}, {3, 3}}, 8]},\n    {\"r(1,k+1), k = 0,1,2\", N[Table[alR2coef[[Position[alIdx2, {1, k + 1}][[1, 1]]]], {k, 0, 2}], 8]},\n    {\"d = 2h: max rel. |Σ r_j λ_j − ⟨b|Ψ⟩/⟨0|Ψ⟩| (16 states)\", alReg2Test}}, Frame -> All]}]",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "**Result (python `L2num2.py`, `L2reg0.py`; exact c, 60-digit eigenstates):**\n\n| δ | max\\|c\\| | Σcτ vs ⟨b\\|Ψ⟩/⟨0\\|Ψ⟩ (16 states) | δ·c(2,0), (2,1), (2,2) | δ·c(3,0..3) | c(2,k)+c(1,k+1), k = 0,1,2 |\n|---|---|---|---|---|---|\n| 10⁻² | 470.4 | 9·10⁻⁵⁶ | −1.9608, 3.0451, −3.1457 | −3.0601, 2.6385, 4.7035, −3.5151 | −0.2157, 1.3562, −18.769 |\n| 10⁻³ | 4858.6 | 2·10⁻⁵⁵ | −1.9960, 3.0473, −3.0575 | −3.0602, 2.6180, 4.8586, −3.6426 | −0.2216, 1.1645, −19.019 |\n| 10⁻⁴ | 48744 | 8·10⁻⁵⁴ | −1.9996, 3.0476, −3.0486 | −3.0603, 2.6161, 4.8744, −3.6557 | −0.2222, 1.1450, −19.045 |\n| **0 (regularised r)** | — | **2·10⁻⁵⁶** | **−2, 3.047619, −3.047619** | **−3.060317, 2.615873, 4.876190, −3.657143** | **−0.222222, 1.142857, −19.047619** |\n\nmax|c| ≈ 4.9/δ (simple pole); the residues δ·c converge to the regularised coefficients r (r(2,0) = −2, r(2,1) = −r(2,2) = 64/21, r(1,1) = −2/9, r(1,2) = 8/7, r(1,3) = −400/21), the pair sums c(2,k) + c(1,k+1) are finite and converge to r(1,k+1); the overlap formula is exact at every δ and, at δ = 0, with the regularised basis and λ = (1, x, w | xτ_F, y)·τ_F^k.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "**Four sites (pair by pair).** Test bra b = v₁⊗w₂⊗v₃⊗w₄ (generic product), v₁ = (1, 2/3, −1/2, 3/5), w₂ = (2/7, −1, 1/3, 1), v₃ = (−4/3, 1, 5/2, 1/9), w₄ = (1, 3/4, −2/5, 7/3); and a BPS bra v⊗w⊗v⊗w, v = (1, −2, 3, 1), w = (2,1,−1,3) − (v·r/v·v)v. First the pole orders of the 256 coefficients (estimated here from δ = 10⁻⁶, 10⁻⁷ at 100 digits; python: exact Laurent expansion mod p).",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "alBtest = Flatten[Outer[Times, {1, 2/3, -1/2, 3/5}, {2/7, -1, 1/3, 1}, {-4/3, 1, 5/2, 1/9}, {1, 3/4, -2/5, 7/3}]];\nalBbps = Module[{v = {1, -2, 3, 1}, r = {2, 1, -1, 3}, w}, w = r - (v . r)/(v . v) v; Flatten[Outer[Times, v, w, v, w]]];\nalCoeffs[delta_, b_] := Module[{ths = alThPBP[2 alH + delta]}, LinearSolve[Transpose[N[alWords4[ths, ths[[1]] - alH, ths[[3]] - alH], 100]], N[b, 100]]];\nalPoleOrders[b_] := Module[{c6 = alCoeffs[10^-6, b], c7 = alCoeffs[10^-7, b]}, Round[Log[10, Abs[c7]/Abs[c6] + 10^-90]]];\nalCls[a_, k_] := If[MemberQ[{{1, 1}, {1, 2}, {1, 3}, {2, 0}, {2, 1}, {2, 2}, {3, 0}, {3, 1}, {3, 2}, {3, 3}}, {a, k}], \"S\", \"R\"];\nalPoleTable[b_] := Module[{po = alPoleOrders[b]}, Sort[Tally[Table[{alCls @@ alWidx[[i, 1 ;; 2]], alCls @@ alWidx[[i, 3 ;; 4]], po[[i]]}, {i, 256}]]]];\nGrid[{{\"generic product bra: {pair-1 class, pair-3 class, pole order} → count\", alPoleTable[alBtest]}, {\"BPS bra\", alPoleTable[alBbps]}}, Frame -> All, Alignment -> Left]",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "**Result (python `laurentL4.py`, exact Laurent coefficients mod p from the d-line Taylor data, c = βE⁻¹S):**\n\n| bra | pole order 0 | 1 | 2 | by class |\n|---|---|---|---|---|\n| generic product | 36 | 120 | 100 | (R,R)→0: 36, (R,S)/(S,R)→1: 60+60, (S,S)→2: 100 — **pole order = number of pairs in 𝒮, exactly** |\n| BPS v⊗w⊗v⊗w | 44 | 128 | 84 | (R,R)→0: 36; (R,S),(S,R): 56×order 1 + 4×order 0 each; (S,S): 84×order 2 + 16×order 1 (some residues vanish) |\n\nThe maximal pole order is the number of resonant pairs (2 here); no higher poles occur.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "**Overlaps on twisted eigenstates at d = 2h + δ and at d = 2h** (8 eigenstates of t₁(3137/10000) with the largest spectral gaps; eigenvectors refined to ~10⁻⁵⁵; τ's read off from the words (a,0,0,0), (0,1,0,0), (0,0,a,0), (0,0,0,1); all other 249 word overlaps checked to factorise).",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "alEig[ths_, prec_] := Module[{ev, vecs, gaps, ord},\n   {ev, vecs} = Eigensystem[N[Normal[alTop[alTy4, ths, 1, 3137/10000]], prec]];\n   gaps = Table[Min[Abs[Delete[ev, i] - ev[[i]]]], {i, Length[ev]}]; ord = Ordering[-gaps, 8]; vecs[[ord]]];\nalDeltaTest[delta_] := Module[{ths = alThPBP[2 alH + delta], M, c, rows},\n   M = N[alWords4[ths, ths[[1]] - alH, ths[[3]] - alH], 80]; c = LinearSolve[Transpose[M], N[alBtest, 80]];\n   rows = Table[Module[{ov = M . psi, o0, tA1, tA3, tF2, tF4, pred, S, dir},\n       o0 = ov[[1]]; tA1 = Table[ov[[alPos[{a, 0, 0, 0}]]]/o0, {a, 0, 3}]; tA3 = Table[ov[[alPos[{0, 0, a, 0}]]]/o0, {a, 0, 3}];\n       tF2 = ov[[alPos[{0, 1, 0, 0}]]]/o0; tF4 = ov[[alPos[{0, 0, 0, 1}]]]/o0;\n       pred = Table[tA1[[w[[1]] + 1]] tF2^w[[2]] tA3[[w[[3]] + 1]] tF4^w[[4]], {w, alWidx}];\n       S = c . pred; dir = (N[alBtest, 80] . psi)/o0;\n       {ScientificForm[Max[Abs[ov/o0 - pred]/(Max[1, Abs[#]] & /@ pred)], 3], N[S, 12], N[dir, 12], ScientificForm[Abs[S - dir]/Abs[dir], 3], ScientificForm[Max[Abs[c pred]]/Abs[S], 3]}], {psi, alEig[ths, 80]}];\n   {N[Max[Abs[c]], 6], rows}];\nalRegTest4 := Module[{ths = alTh0, R = N[alR4, 80], r, rows},\n   r = LinearSolve[Transpose[R], N[alBtest, 80]];\n   rows = Table[Module[{ov = R . psi, o0, tF2, tF4, x1, w1, y1, x3, w3, y3, lam, pred, S, dir},\n       o0 = ov[[1]]; tF2 = ov[[alPos[{0, 1, 0, 0}]]]/o0; tF4 = ov[[alPos[{0, 0, 0, 1}]]]/o0;\n       {x1, w1, y1} = Table[ov[[alPos[{a, 0, 0, 0}]]]/o0, {a, 1, 3}]; {x3, w3, y3} = Table[ov[[alPos[{0, 0, a, 0}]]]/o0, {a, 1, 3}];\n       lam[xx_, ww_, yy_, tF_, a_, k_] := {1, xx, If[k <= 2, ww, xx tF], yy}[[a + 1]];\n       pred = Table[lam[x1, w1, y1, tF2, q[[1]], q[[2]]] tF2^q[[2]] lam[x3, w3, y3, tF4, q[[3]], q[[4]]] tF4^q[[4]], {q, alWidx}];\n       S = r . pred; dir = (N[alBtest, 80] . psi)/o0;\n       {ScientificForm[Max[Abs[ov/o0 - pred]/(Max[1, Abs[#]] & /@ pred)], 3], N[S, 12], N[dir, 12], ScientificForm[Abs[S - dir]/Abs[dir], 3], N[{x1, w1, y1, tF2}, 8]}], {psi, alEig[ths, 80]}];\n   {N[Max[Abs[r]], 6], rows}];\nalDT = Table[{d, alDeltaTest[d]}, {d, {1/100, 1/1000, 1/10000}}];\nalRT = alRegTest4;\nColumn[Join[Table[Grid[Join[{{\"δ = \" <> ToString[t[[1]]], \"max|c| = \" <> ToString[t[[2, 1]]], \"\", \"\", \"\"}, {\"factorisation\", \"Σ cτ\", \"⟨b|Ψ⟩/⟨0|Ψ⟩\", \"rel. diff\", \"max|term|/|sum|\"}}, t[[2, 2]]], Frame -> All], {t, alDT}],\n   {Grid[Join[{{\"δ = 0, regularised basis\", \"max|r| = \" <> ToString[alRT[[1]]], \"\", \"\", \"\"}, {\"factorisation\", \"Σ rλ\", \"⟨b|Ψ⟩/⟨0|Ψ⟩\", \"rel. diff\", \"{x₁, w₁, y₁, τ_F2}\"}}, alRT[[2]]], Frame -> All]}]]",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "**Result (python `numL4.py`, `numL4reg.py`: exact rational M(2h+δ) and R(0) by CRT over 22/25/34/13 primes, mpmath 60 digits, eigenvectors by bordered Newton refinement to ≤ 10⁻⁵³):**\n\n| δ | max\\|c\\| | max\\|c\\|·δ² | factorisation of the 256 word overlaps | Σcτ vs ⟨b\\|Ψ⟩/⟨0\\|Ψ⟩ (8 states) | cancellation max\\|c_xτ_x\\|/\\|Σ\\| |\n|---|---|---|---|---|---|\n| 10⁻² | 1.78·10¹¹ | 1.78·10⁷ | ≤ 6·10⁻⁵¹ | ≤ 1·10⁻⁴⁸ | 28 – 5·10⁴ |\n| 10⁻³ | 2.04·10¹³ | 2.04·10⁷ | ≤ 2·10⁻⁴⁸ | ≤ 3·10⁻⁴⁶ | 2·10³ – 3·10⁶ |\n| 10⁻⁴ | 2.07·10¹⁵ | 2.07·10⁷ | ≤ 3·10⁻⁴⁸ | ≤ 4·10⁻⁴⁵ | 2·10⁵ – 3·10⁸ |\n| **0, regularised** | max\\|r\\| = 1.25·10⁸ | — | **≤ 3·10⁻⁴⁸** (per-site factors 1, x, w\\|xτ_F, y, τ_F) | **≤ 8·10⁻⁴⁸** | — |\n\nExample state (largest gap): Σcτ = −276.7287127 (δ = 10⁻²), −282.0198453 (10⁻³), −282.5557526 (10⁻⁴) → −282.6153751 at δ = 0 from the regularised formula, with x₁ = −0.43013877, w₁ = −0.039669942, y₁ = 0.0045705749, τ_F2 = 0.044720655.\n\nResidues and finite combinations (test bra b): δ²c(2,0,2,0) = 1566.40, 1580.68, 1582.29 → r = 1582.47; δ²c(3,0,3,0) = −1913.9, −1790.4, −1779.0 → −1777.76; δc(2,1,0,0) = −13960, −14893, −14992 → −15003; c(2,1,0,0)+c(1,2,0,0) = −31372, −34811, −35182 → r(1,2,0,0) = −35224; c(0,0,0,0) = −28/9 for all δ. max|c| scales as δ⁻² (two resonant pairs), the overlap stays finite and converges linearly to the d = 2h value.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 4. Dual basis and the B-operator at d = 2h\n\nDual basis = kets |y_x⟩ with ⟨x′|y_x⟩ = δ (columns of M⁻¹), so that ⟨Φ|Ψ⟩ = Σ_x ⟨Φ|y_x⟩⟨x|Ψ⟩. At generic d the rows of M are left B-eigenvectors with distinct eigenvalues, so the |y_x⟩ are the right B-eigenvectors. (A separately constructed right SoV basis and its measure ⟨x|y⟩ do not exist yet for mixed 4/4̄ chains — dictionary §4; here \"dual\" means M⁻¹.)\n\nFrom M(ε)⁻¹ = R(ε)⁻¹ E⁻¹ S: the generic dual kets of the singular words have simple poles (per pair), with residues given by the dual kets |r⟩ of the regularised basis (columns of R(0)⁻¹).",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "alM2inv = Together[Inverse[alM2e]]; alR2inv = Inverse[alReg2];\nalLaur2 = Table[Module[{col = alM2inv[[All, i]], lead, lim},\n     lead = Limit[alEps col, alEps -> 0];\n     If[lead =!= ConstantArray[0, 16],\n      {alIdx2[[i]], \"1/ε\", Select[alIdx2, Function[j, lead == alR2inv[[All, Position[alIdx2, j][[1, 1]]]]]], Select[alIdx2, Function[j, lead == -alR2inv[[All, Position[alIdx2, j][[1, 1]]]]]]},\n      lim = Limit[col, alEps -> 0]; {alIdx2[[i]], \"finite\", Select[alIdx2, Function[j, lim == alR2inv[[All, Position[alIdx2, j][[1, 1]]]]]], {}}]], {i, 16}];\nalSum2 = Table[Limit[alM2inv[[All, Position[alIdx2, {1, k + 1}][[1, 1]]]] + alM2inv[[All, Position[alIdx2, {2, k}][[1, 1]]]], alEps -> 0] == alR2inv[[All, Position[alIdx2, {1, k + 1}][[1, 1]]]], {k, 0, 2}];\n(* RV B-operator (untwisted T), one pair at d = 2h *)\nalBop[tys_, ths_, u_] := Module[{qm},\n   qm[rows_, cols_, v_] := Sum[Signature[p] (Dot @@ Table[alMono[tys, ths, v - (k - 1) alH][[rows[[p[[k]]]], cols[[k]]]], {k, Length[cols]}]), {p, Permutations[Range[Length[rows]]]}];\n   Sum[alMono[tys, ths, u][[k1, 1]] . qm[K2, {1, k1 + 1}, u + alH] . qm[{1, 2, 3}, Join[{1}, K2 + 1], u + 2 alH], {k1, 1, 3}, {K2, Subsets[{1, 2, 3}, {2}]}]];\nalB2op = Normal[alBop[alTy2, {2 alH, 0}, 37/100]];\nalB2ev = Tally[Eigenvalues[alB2op]];\nalB2jord = Tally[Table[{e[[2]], 16 - MatrixRank[alB2op - e[[1]] IdentityMatrix[16]]}, {e, alB2ev}]];\nColumn[{Grid[Prepend[alLaur2, {\"word x\", \"|y_x(ε)⟩\", \"residue/limit = +|r_j⟩, j =\", \"residue = −|r_j⟩, j =\"}], Frame -> All],\n  Grid[{{\"lim [|y_(1,k+1)⟩ + |y_(2,k)⟩] = |r_(1,k+1)⟩, k = 0,1,2\", alSum2}, {\"# distinct B eigenvalues (one pair, d = 2h)\", Length[alB2ev]},\n    {\"{algebraic mult., geometric mult.} → count\", alB2jord}}, Frame -> All]}]",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "**Result (python `L2dual.py`, `L2B.py`, sympy exact):**\n\n- |y_(0,k)⟩, |y_(1,0)⟩, |y_(2,3)⟩ are finite, limit = |r⟩ of the same word;\n- |y_(2,k)⟩ ≈ +|r_(2,k)⟩/ε, |y_(1,k+1)⟩ ≈ −|r_(2,k)⟩/ε + … (k = 0,1,2), |y_(3,k)⟩ ≈ +|r_(3,k)⟩/ε;\n- lim [|y_(1,k+1)⟩ + |y_(2,k)⟩] = |r_(1,k+1)⟩ exactly (k = 0, 1, 2).\n\nSo the generic SoV \"measure\" (dual basis) has simple poles at d = 2h along the 7 singular directions per pair; the residues are the dual kets of the W- and Z-words, and the opposite residues of the collided pair (2,k)/(1,k+1) cancel in their sum.\n\n**B at d = 2h (one pair): 13 distinct eigenvalues, 10 simple and 3 with algebraic multiplicity 2 but geometric multiplicity 1 — B is not diagonalisable.** The regularised W-words are the Jordan partners: ⟨W,k|B = β⟨W,k| + c_k⟨1,k+1| with c_k ≠ 0 (at u = 37/100: c₀ = −401464153840990149/2·10²⁰ ≈ −2.0073·10⁻³, c₁ ≈ 7.0527·10⁻⁴, c₂ ≈ −2.4780·10⁻⁴), the Z-words and the other 9 survivors are B-eigen. So the regularised basis is a Jordan basis of B and its dual basis is the dual (right) Jordan basis.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "alB4 = alBop[alTy4, alTh0, 37/100];\nalEigQ = Table[MatrixRank[{alR4[[i]], alR4[[i]] . alB4}] == 1, {i, 256}];\nalBeta = Association[Table[If[alEigQ[[i]], With[{j = FirstPosition[alR4[[i]], x_ /; x != 0, {0}, {1}][[1]]}, i -> (alR4[[i]] . alB4)[[j]]/alR4[[i, j]]], Nothing], {i, 256}]];\nalClassB = Tally[Values[alBeta]];\nalJordanRanks[beta_] := Module[{X = alB4 - beta IdentityMatrix[256, SparseArray]}, {256 - MatrixRank[X], 256 - MatrixRank[X . X], 256 - MatrixRank[X . X . X]}];\n(* representative eigenvalues: one generic, one whose eigen row is (1,1,0,0) [J2], one with eigen row (1,1,1,1) [J3+J1] *)\nGrid[{{\"# regularised rows that are B-eigen\", Count[alEigQ, True]}, {\"# distinct eigenvalues among them\", Length[alClassB]},\n  {\"non-eigen rows all contain a W factor\", AllTrue[Pick[alWidx, alEigQ, False], (#[[1]] == 2 && #[[2]] <= 2) || (#[[3]] == 2 && #[[4]] <= 2) &]},\n  {\"dim ker (B−β)^{1,2,3}, β of row (0,0,0,0)\", alJordanRanks[alBeta[alPos[{0, 0, 0, 0}]]]},\n  {\"… β of row (1,1,0,0)\", alJordanRanks[alBeta[alPos[{1, 1, 0, 0}]]]},\n  {\"… β of row (1,1,1,1)\", alJordanRanks[alBeta[alPos[{1, 1, 1, 1}]]]}}, Frame -> All, Alignment -> Left]",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "**Result (python `bjordan.py`, exact mod p, B(37/100) at the pair-by-pair ABJM point):**\n\n- 169 of the 256 regularised rows are B-eigen (169 distinct eigenvalues); the 87 others are exactly the rows with a W factor;\n- 78 single-W rows satisfy ⟨v|B = β⟨v| + (same-β eigen row), the 9 double-W rows ⟨v|B = β⟨v| + (same-β eigen and single-W rows);\n- Jordan structure of B: dim ker (B−β)^{1,2,3} = (1,1,1) for 100 eigenvalues, (1,2,2) for 60 (J₂), (2,3,4) for 9 (J₃ ⊕ J₁) — i.e. (10·J₁ ⊕ 3·J₂)^{⊗2}: 100 + 2·60 + 4·9 = 256.\n\n**Structure compared with generic d:** generic d — B diagonalisable with simple spectrum, words = left eigenvectors, dual = right eigenvectors, wave functions pure products of τ's. d = 2h — B has Jordan blocks (it is not just degenerate); the d → 2h limit of the SoV basis (after L'Hôpital) is a Jordan basis, its dual the dual Jordan basis; the dual kets of the generic basis acquire poles 1/δ^{n} whose residues are the regularised dual kets. The new wave-function entries (w, y) are u-derivatives of transfer-matrix eigenvalues, i.e. derivatives of Q-functions (§2a).",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 5. The physical point: pair periodic and d = 2h\n\nAt θ = (θ_A, θ_F, θ_A, θ_F), θ_A − θ_F = 2h, the words have rank 24 (§1). The Bethe algebra itself is still big enough: words with **independent spectral shifts** ⟨0| t_{a₁}(θ_A−h+η₁) t₁(θ_F+ζ₂)^{k₂} t_{a₃}(θ_A−h+η₃) t₁(θ_F+ζ₄)^{k₄} are a basis for generic shifts, so a regularised basis is again obtained by expanding in the shifts — but it needs higher derivatives.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "alWordsShift[ths_, e1_, z2_, e3_, z4_] := Module[{A1 = Table[alTop[alTy4, ths, a, ths[[1]] - alH + e1], {a, 0, 3}], A3 = Table[alTop[alTy4, ths, a, ths[[3]] - alH + e3], {a, 0, 3}],\n    T2 = alTop[alTy4, ths, 1, ths[[2]] + z2], T4 = alTop[alTy4, ths, 1, ths[[4]] + z4], vac = alVac[alTy4]},\n   Table[Module[{v = vac . A1[[w[[1]] + 1]]}, Do[v = v . T2, {w[[2]]}]; v = v . A3[[w[[3]] + 1]]; Do[v = v . T4, {w[[4]]}]; Normal[v]], {w, alWidx}]];\nalThPhys = alThPer[2 alH];\nGrid[Prepend[Table[{s, MatrixRank[alWordsShift[alThPhys, Sequence @@ s]]}, {s, {{1/7, 2/9, -1/5, 3/11}, {0, 0, 1/7, 2/9}, {1/7, 0, -1/5, 0}, {0, 2/9, 0, 3/11}}}], {\"shifts (η₁, ζ₂, η₃, ζ₄)\", \"rank at the physical point\"}], Frame -> All, Alignment -> Left]",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "**Result (python `physrank.py`, `phys.py`, exact mod p):**\n\n| shifts (η₁, ζ₂, η₃, ζ₄) | rank |\n|---|---|\n| (1/7, 2/9, −1/5, 3/11) | **256** |\n| (0, 0, 1/7, 2/9) (second pair only) | 144 |\n| (1/7, 0, −1/5, 0) (A sites only) | 112 |\n| (0, 2/9, 0, 3/11) (F sites only) | 96 |\n\nValuation structure of the shifted words along a generic line (η₁, ζ₂, η₃, ζ₄) = ε(λ₁, λ₂, λ₃, λ₄) (Gaussian elimination over GF(p)[[ε]] to order ε¹⁰; same counts for λ = (1,2,−3,5) and (2,−1,7,3)):\n\n| point | # basis elements at order ε⁰, ε¹, ε², … | max order | Σ orders |\n|---|---|---|---|\n| pair-by-pair ABJM (u-shift of the A sites) | 81, 126, 49 | 2 | 224 |\n| pair periodic, generic d (= 1/3) | 70, 92, 60, 28, 6 | 4 | 320 |\n| **physical point** (pair periodic, d = 2h) | 24, 26, 59, 50, 47, 29, 14, 7 | **7** | 760 |\n\nSo at the physical point the SoV basis requires derivatives up to 7th order of the transfer matrices (→ of the Q-functions): the ABJM resonance (first order per pair, §3) stacks on top of the homogeneous limit within each sublattice (up to 4th order already at generic d). The resonance part is fully understood (§2–§4); the homogeneous part is the standard confluent limit of SoV and should be organised by divided differences in θ₁ − θ₃, θ₂ − θ₄ (not done here).",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## Summary (2026-10-12; all numbers from python, cells above unrun)\n\n1. **Ranks.** Pair-by-pair θ: the 256 words are a basis for d ∉ {0, h, 2h, 3h, 4h}, including d = 2h ± 10⁻³, 2h + 10⁻⁶; at d = 2h rank **81 = 9²**. One pair: det M(d) ∝ d²³(d−h)¹¹(d−2h)⁷(d−3h)³(d−4h)⁴. The degeneracy is caused by the A–F shift, not by pair periodicity: each resonant (A, F) pair (θ_A − θ_F = 2h, adjacent or not) cuts its 16 (a,k) to 9 (one pair: 144; two: 81). **Pair-periodic θ is degenerate for every d** (rank 70: homogeneous limit, operators at only two points commute); physical point: 24.\n2. **Dependencies = two exact operator identities** at θ_A − θ_F = 2h, u₀ = θ_A − h = θ_F + h: t₃(u₀) = 0 (F-site factor g₃^F) and t₂(u₀) = t₁(u₀)t₁(θ_F) (symmetric fusion vanishes on ℒ_F(θ_F+h) = h(1−P)). Words (3,k) vanish, (2,k) = (1,k+1) for k ≤ 2.\n3. **Wave functions.** τ₃(u₀) = 0, τ₂(u₀) = τ₁(u₀)τ₁(θ_F) for every state = the B collisions (a=2,k) ↔ (a=1,k+1) (13 = 16 − 3 per pair). Q-dictionary: F-site Baxter Q_j(θ_F+h) = τ_F Q_j(θ_F) makes the A-site Casoratian columns at θ_A−h and θ_A−2h proportional: D₀ = D₃ = 0, D₂ = τ_F D₁; the Baxter equation at u₀ loses the A-site data. LR: 𝒫 maps t₁(θ_F) → t̄₃(θ_F+h) = t̄₃(θ_A−h) exactly at d = 2h (Q₁(θ_F+h)/Q₁(θ_F) ↔ Q₁₂₃(θ_A)/Q₁₂₃(θ_A−h)): A and F separated variables of a pair share one lattice — the same alignment that degenerates B.\n4. **Regularised basis (recommended).** Per resonant A site: O(a,k) = 1, t₁(u₀), W = t₂′(u₀) − t₁′(u₀)t₁(θ_F) (k ≤ 2) | t₂(u₀) (k = 3), Z = t₃′(u₀) = g₃′(u₀) t̄₃(u₀); words ⟨0|O₁ t₁(θ₂)^{k₂} O₃ t₁(θ₄)^{k₄}: rank 256 (orders 81/126/49), equal to the L'Hôpital limit of the generic SoV basis along d → 2h (d- and u-derivatives coincide exactly). It is a **Jordan basis of B** (B at d = 2h: (10J₁ ⊕ 3J₂)^{⊗2}, not diagonalisable).\n5. **ABJM-point SoV formula.** ⟨x|_regΨ⟩ = ⟨0|Ψ⟩ ∏_pairs λ(a,k)τ_F^k, λ = 1, x, w (k ≤ 2) | xτ_F (k = 3), y with **x = τ₁(u₀), w = ∂_u[τ₂ − τ₁τ_F](u₀), y = ∂_uτ₃(u₀)**, τ_F = z_jV₄(θ_F)q_j(θ_F+h)/q_j(θ_F); x, w, y = 3×3 Cramer ratios from the u-derivative of the twisted Baxter equation at u₀ (q_j and q_j′ at θ_F + {2h, h, 0, −h, −2h}), verified on all 16 one-pair states to 10⁻⁵⁴.\n6. **Coefficient divergence.** Generic SoV coefficients of a fixed bra: c(δ) = β(δ)E⁻¹S, pole order = number of pairs whose (a,k) lies in the singular set 𝒮 (10 of 16 per pair; generic product bra: 36/120/100 words with order 0/1/2, exact); max|c| ~ δ⁻¹ (one pair), δ⁻² (two pairs); residues → regularised coefficients, c(2,k)+c(1,k+1) → r(1,k+1); Σcτ = ⟨b|Ψ⟩/⟨0|Ψ⟩ to ≤ 4·10⁻⁴⁵ at δ = 10⁻²,⁻³,⁻⁴ despite cancellations up to 3·10⁸, and the regularised formula reproduces the d = 2h overlaps to ≤ 8·10⁻⁴⁸.\n7. **Dual basis.** Generic dual kets have simple poles per resonant pair with residues = regularised dual kets (opposite residues for (2,k)/(1,k+1)); dual of the regularised basis = dual Jordan basis.\n8. **Physical point.** Needs the homogeneous limit as well: shifted-spectral-parameter words are a basis (256) but the confluent expansion needs derivatives up to order 7 (homogeneous alone: 4).\n\n**Open:** confluent (homogeneous) part at the physical point in closed form; a right SoV basis / measure ⟨x|y⟩ for mixed 4/4̄ chains (dictionary §4) and its ABJM-point limit; a B built from the 4̄ auxiliary space as an alternative.\n\n**Files (python):** copied to `checks/abjmlimit/` in this folder (originals plus the exact-matrix pickles in the session scratchpad `abjmlimit/`): `chain.py` (chain, quantum minors, GF(p) linear algebra), `words.py`, `taylor.py` (Taylor coefficients in u, series words, valuation elimination), `crt.py` (CRT + rational reconstruction); `scan1.py`, `scan2.py` (§1), `L2sym.py` (§1c), `ident.py` (§1d), `L2Q.py` (§2a), `L2reg.py`, `t1.py`, `t2.py`, `regL4.py`, `ratio.py`, `dline.py`, `dlineconv.py` (§3), `L2num.py`, `L2num2.py`, `L2reg0.py`, `laurentL4.py`, `buildL4exact.py` (writes exact_*.pkl, ~10 min), `numL4.py`, `numL4reg.py` (§3c), `L2dual.py`, `L2B.py`, `bjordan.py` (§4), `t3.py`, `phys.py`, `physrank.py` (§5). Run from that folder; later scripts read pickles written by earlier ones (dline.py → dline_coef.pkl, t2.py → taylor_pbp.pkl, regL4.py → regL4*.pkl, L2num.py → L2tsym.pkl, L2reg.py → L2reg.pkl, L2reg0.py → L2reg0.pkl).",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  }
+ ],
+ "metadata": {
+  "createdBy": "wolfbook_newNotebook",
+  "createdAt": "2026-10-12T17:57:58.532Z"
+ }
+}

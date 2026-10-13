@@ -1,0 +1,728 @@
+{
+ "cells": [
+  {
+   "kind": 1,
+   "value": "# ⟨W_a^L|Ψ⟩ as an F-only SoV sum at L = 3 pairs (6 sites) — 2026-10-13\n\nAgent task: extend the L = 2 result of `Wa-sov-expansion-L4.wb` §10 to L = 3. Prefix `fd`, no memoisation, vectors only (no 4096×4096 matrix). Chain A F A F A F, site 1 most significant; Lax ℒ_s(u) = Σ e_ij ⊗ ((u−θ_s)δ_ij + hρ_s(E_ij)), ρ_A(E_ij) = e_ij, ρ_F(E_ij) = −e_ji; T = ℒ₁⋯ℒ₆, t₁^G(u) = Σ T_ij G_ji; M·ψ is the ket action, ψ·M (bra action) = Mᵀψ. Companion twist G_c(z), frame map t^{G_c}R = R t^Λ, R = V^{−T} (A) ⊗ V (F).\n\n**Evidence tags:** [exact] rational arithmetic; [hp] arbitrary-precision numerics (digits stated); [num] machine precision.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 0. Machinery: site-by-site propagation of the monodromy on vectors (ket action M.v, bra action v.M = Mᵀ.v)\n\nΦ_s[I][J] = (ℒ₁⋯ℒ_s)_{IJ} v; per site: A: Φ'_J[a] = (u−θ)Φ_J[a] + h Φ_a[J] (slice), F: Φ'_J[a] = (u−θ)Φ_J[a] − h δ_{aJ} Σ_K Φ_K[K]; the transposed (bra) versions swap the roles (A ↔ F structure with sign). t₁^G v = Σ_IJ G_JI Φ_N[I][J]. Tested against explicit 16×16 matrices on one pair before use.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "(* fd machinery. No memoisation. Vectors are flat lists of length 4^nn, site 1 most significant.\n   fdStep: one site of the monodromy propagation for the aux row I fixed (Phi = list over J of flat vectors).\n   tr = False: ket action M.v ; tr = True: transposed site operators, i.e. the bra action v.M. *)\nfdStep[Phi_, s_, nn_, ty_, th_, u_, h_, tr_] := Module[{l = 4^(s - 1), r = 4^(nn - s), X, sl, trc, sg, out, zero},\n  X = Table[ArrayReshape[Phi[[J]], {l, 4, r}], {J, 4}];\n  sl = (ty === \"A\") =!= tr; sg = If[ty === \"A\", 1, -1]; zero = ConstantArray[0, {l, r}];\n  If[sl,\n   out = Table[(u - th) X[[J]] + sg h Transpose[Table[X[[a, All, J, All]], {a, 4}], {2, 1, 3}], {J, 4}],\n   trc = Sum[X[[K, All, K, All]], {K, 4}];\n   out = Table[(u - th) X[[J]] + sg h Transpose[Table[If[a == J, trc, zero], {a, 4}], {2, 1, 3}], {J, 4}]];\n  Map[Flatten, out]];\nfdApplyT1[G_, u_, types_, th_, h_, v_, tr_] := Module[{nn = Length[types], rows, zero = ConstantArray[0, Length[v]], res = ConstantArray[0, Length[v]], Phi},\n  rows = Select[Range[4], AnyTrue[G[[All, #]], # =!= 0 &] &];\n  Do[Phi = Table[If[K == I1, v, zero], {K, 4}];\n   Do[Phi = fdStep[Phi, s, nn, types[[s]], th[[s]], u, h, tr], {s, nn}];\n   res = res + Sum[G[[J, I1]] Phi[[J]], {J, 4}], {I1, rows}];\n  res];\n(* explicit matrices (test only, nn <= 4): Lax entries, T, t1^G *)\nfdSiteOp[s_, nn_, m_] := KroneckerProduct @@ ReplacePart[Table[IdentityMatrix[4], nn], s -> m];\nfdExplicitT1[G_, u_, types_, th_, h_] := Module[{nn = Length[types], d, E1, lax, T},\n  d = 4^nn; E1[i_, j_] := Normal[SparseArray[{{i, j} -> 1}, {4, 4}]];\n  lax[s_] := Table[(u - th[[s]]) KroneckerDelta[i, j] IdentityMatrix[d] + h fdSiteOp[s, nn, If[types[[s]] === \"A\", E1[i, j], -E1[j, i]]], {i, 4}, {j, 4}];\n  T = Fold[Function[{A, B}, Table[Sum[A[[i, k]] . B[[k, j]], {k, 4}], {i, 4}, {j, 4}]], lax[1], Table[lax[s], {s, 2, nn}]];\n  Sum[T[[i, j]] G[[j, i]], {i, 4}, {j, 4}]];\n{\"loaded\", MemoryInUse[]/10.^9}",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wl-output-block\"><div class=\"wl-output-header\" style=\"display:flex;align-items:center;gap:6px;width:100%;min-height:22px;\" data-session-epoch=\"725116\" data-output-id=\"91\" data-out-n=\"516\" data-sub-idx=\"6\" data-output-format=\"WLLatex\" data-output-is-graphics=\"0\" data-cell-idx=\"2\" data-sub-start=\"24\" data-sub-end=\"24\"><span style=\"font-size:10px;color:#888;margin-right:8px;\">Out[516]=</span></div><div class=\"wl-output-content\"><div class=\"vscode-wolfram-wllatex-prerendered\" data-page-width-em=\"15\" data-latex-b64=\"XGxlZnRce1x0ZXh0e2xvYWRlZH0sMi4zOTQ0NzM2ODhccmlnaHRcfQ==\"><span class=\"katex-display\"><span class=\"katex\"><span class=\"katex-html\" aria-hidden=\"true\"><span class=\"base\"><span class=\"strut\" style=\"height:1em;vertical-align:-0.25em;\"></span><span class=\"minner\"><span class=\"mopen delimcenter\" style=\"top:0em;\">{</span><span class=\"mord text\"><span class=\"mord\">loaded</span></span><span class=\"mpunct\">,</span><span class=\"mspace\" style=\"margin-right:0.1667em;\"></span><span class=\"mord\">2.394473688</span><span class=\"mclose delimcenter\" style=\"top:0em;\">}</span></span></span></span></span></span></div></div></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "Out[516]= \\left\\{\\text{loaded},2.394473688\\right\\}",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "0c6cd5b0-3c5c-4c3f-a3d7-447e2de316fe"
+    }
+   ],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "(* Building-block test: ONE pair (A F) and TWO pairs (A F A F), exact, generic G and theta *)\nfdTest1 = Module[{h = 1/2, G = {{1, 2, -1, 3}, {0, 5, 1, -2}, {2, 1, 0, 4}, {3, -1, 2, 7}}},\n  Map[Function[pr, Module[{ty = pr[[1]], th = pr[[2]], u = 3/7, M, v},\n     M = fdExplicitT1[G, u, ty, th, h];\n     SeedRandom[5]; v = RandomInteger[{-5, 5}, 4^Length[ty]]/RandomInteger[{1, 4}, 4^Length[ty]];\n     {Length[ty], M . v === fdApplyT1[G, u, ty, th, h, v, False], v . M === fdApplyT1[G, u, ty, th, h, v, True]}]],\n   {{{\"A\", \"F\"}, {2/7, -3/5}}, {{\"A\", \"F\", \"A\", \"F\"}, {2/7, -3/5, 8/11, -11/8}}}]];\nGrid[Prepend[fdTest1, {\"# sites\", \"ket action == explicit M.v\", \"bra action == explicit v.M\"}], Frame -> All]",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wl-output-block\"><div class=\"wl-output-header\" style=\"display:flex;align-items:center;gap:6px;width:100%;min-height:22px;\" data-session-epoch=\"725116\" data-output-id=\"94\" data-out-n=\"522\" data-sub-idx=\"2\" data-output-format=\"WLLatex\" data-output-is-graphics=\"0\" data-cell-idx=\"3\" data-sub-start=\"7\" data-sub-end=\"7\"><span style=\"font-size:10px;color:#888;margin-right:8px;\">Out[522]=</span></div><div class=\"wl-output-content\"><div class=\"vscode-wolfram-wllatex-prerendered\" data-page-width-em=\"15\" data-latex-b64=\"XGJlZ2lue2FycmF5fXt8Y3xjfGN8fVxobGluZVx0ZXh0e1wjIHNpdGVzfSAmIFx0ZXh0e2tldCBhY3Rpb24gPT0gZXhwbGljaXQgTS52fSAmIFx0ZXh0e2JyYSBhY3Rpb24gPT0gZXhwbGljaXQgdi5NfVxcXGhsaW5lMiAmIFxtYXRocm17VHJ1ZX0gJiBcbWF0aHJte1RydWV9XFxcaGxpbmU0ICYgXG1hdGhybXtUcnVlfSAmIFxtYXRocm17VHJ1ZX1cXFxobGluZVxlbmR7YXJyYXl9\"><span class=\"katex-display\"><span class=\"katex\"><span class=\"katex-html\" aria-hidden=\"true\"><span class=\"base\"><span class=\"strut\" style=\"height:3.64em;vertical-align:-1.55em;\"></span><span class=\"mord\"><span class=\"vlist-t vlist-t2\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:2.09em;\"><span style=\"top:-4.05em;\"><span class=\"pstrut\" style=\"height:4.05em;\"></span><span class=\"mtable\"><span class=\"vertical-separator\" style=\"height:3.6em;border-right-width:0.04em;border-right-style:solid;margin:0 -0.02em;vertical-align:-1.55em;\"></span><span class=\"arraycolsep\" style=\"width:0.5em;\"></span><span class=\"col-align-c\"><span class=\"vlist-t vlist-t2\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:2.05em;\"><span style=\"top:-4.21em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord text\"><span class=\"mord\"># sites</span></span></span></span><span style=\"top:-3.01em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">2</span></span></span><span style=\"top:-1.81em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">4</span></span></span></span><span class=\"vlist-s\">​</span></span><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:1.55em;\"><span></span></span></span></span></span><span class=\"arraycolsep\" style=\"width:0.5em;\"></span><span class=\"vertical-separator\" style=\"height:3.6em;border-right-width:0.04em;border-right-style:solid;margin:0 -0.02em;vertical-align:-1.55em;\"></span><span class=\"arraycolsep\" style=\"width:0.5em;\"></span><span class=\"col-align-c\"><span class=\"vlist-t vlist-t2\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:2.05em;\"><span style=\"top:-4.21em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord text\"><span class=\"mord\">ket action == explicit M.v</span></span></span></span><span style=\"top:-3.01em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\"><span class=\"mord mathrm\">True</span></span></span></span><span style=\"top:-1.81em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\"><span class=\"mord mathrm\">True</span></span></span></span></span><span class=\"vlist-s\">​</span></span><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:1.55em;\"><span></span></span></span></span></span><span class=\"arraycolsep\" style=\"width:0.5em;\"></span><span class=\"vertical-separator\" style=\"height:3.6em;border-right-width:0.04em;border-right-style:solid;margin:0 -0.02em;vertical-align:-1.55em;\"></span><span class=\"arraycolsep\" style=\"width:0.5em;\"></span><span class=\"col-align-c\"><span class=\"vlist-t vlist-t2\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:2.05em;\"><span style=\"top:-4.21em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord text\"><span class=\"mord\">bra action == explicit v.M</span></span></span></span><span style=\"top:-3.01em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\"><span class=\"mord mathrm\">True</span></span></span></span><span style=\"top:-1.81em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\"><span class=\"mord mathrm\">True</span></span></span></span></span><span class=\"vlist-s\">​</span></span><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:1.55em;\"><span></span></span></span></span></span><span class=\"arraycolsep\" style=\"width:0.5em;\"></span><span class=\"vertical-separator\" style=\"height:3.6em;border-right-width:0.04em;border-right-style:solid;margin:0 -0.02em;vertical-align:-1.55em;\"></span></span></span><span style=\"top:-2.5em;\"><span class=\"pstrut\" style=\"height:4.05em;\"></span><span class=\"hline\" style=\"border-bottom-width:0.04em;\"></span></span><span style=\"top:-3.7em;\"><span class=\"pstrut\" style=\"height:4.05em;\"></span><span class=\"hline\" style=\"border-bottom-width:0.04em;\"></span></span><span style=\"top:-4.9em;\"><span class=\"pstrut\" style=\"height:4.05em;\"></span><span class=\"hline\" style=\"border-bottom-width:0.04em;\"></span></span><span style=\"top:-6.1em;\"><span class=\"pstrut\" style=\"height:4.05em;\"></span><span class=\"hline\" style=\"border-bottom-width:0.04em;\"></span></span></span><span class=\"vlist-s\">​</span></span><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:1.55em;\"><span></span></span></span></span></span></span></span></span></span></div></div></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "Out[522]= \\begin{array}{|c|c|c|}\\hline\\text{\\# sites} & \\text{ket action == explicit M.v} & \\text{bra action == explicit v.M}\\\\\\hline2 & \\mathrm{True} & \\mathrm{True}\\\\\\hline4 & \\mathrm{True} & \\mathrm{True}\\\\\\hline\\end{array}",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "3334d3c9-a3f6-47ae-ae77-c9e30f42d0db"
+    }
+   ],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "Building block verified [exact]: vector propagation == explicit M.v and v.M on 1 pair and 2 pairs (generic G, θ). Memory stays at 2.39 GB (shared kernel baseline).\n\n## 1. Frames: companion twist, V, R; check t^{G_c}R = R t^Λ on 1 and 2 pairs [exact]",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "fdVand[z_] := Table[z[[j]]^(4 - i), {i, 4}, {j, 4}];\nfdGc[z_] := Module[{c = Table[SymmetricPolynomial[k, z], {k, 4}]}, {{c[[1]], -c[[2]], c[[3]], -c[[4]]}, {1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}}];\nfdRmat[z_, nn_] := KroneckerProduct @@ Table[If[OddQ[s], Transpose[Inverse[fdVand[z]]], fdVand[z]], {s, nn}];\nfdKron[vs_List] := Flatten[Outer[Times, Sequence @@ vs]];\nfdFrame = Module[{h = 1/2, z = {3/2, 5/4, 2/3, 4/7}, u = 3/7, Gc, Lam, V},\n  Gc = fdGc[z]; Lam = DiagonalMatrix[z]; V = fdVand[z];\n  {Gc . V == V . Lam,\n   Map[Function[pr, Module[{ty = pr[[1]], th = pr[[2]], Mc, ML, R},\n      Mc = fdExplicitT1[Gc, u, ty, th, h]; ML = fdExplicitT1[Lam, u, ty, th, h]; R = fdRmat[z, Length[ty]];\n      {Length[ty], Mc . R == R . ML}]],\n    {{{\"A\", \"F\"}, {2/7, -3/5}}, {{\"A\", \"F\", \"A\", \"F\"}, {2/7, -3/5, 8/11, -11/8}}}]}];\nGrid[{{\"G_c V == V Lambda\", fdFrame[[1]]}, {\"t^{G_c} R == R t^Lambda (1 pair, 2 pairs)\", fdFrame[[2]]}}, Frame -> All]",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wl-output-block\"><div class=\"wl-output-header\" style=\"display:flex;align-items:center;gap:6px;width:100%;min-height:22px;\" data-session-epoch=\"725116\" data-output-id=\"95\" data-out-n=\"528\" data-sub-idx=\"5\" data-output-format=\"WLLatex\" data-output-is-graphics=\"0\" data-cell-idx=\"5\" data-sub-start=\"11\" data-sub-end=\"11\"><span style=\"font-size:10px;color:#888;margin-right:8px;\">Out[528]=</span></div><div class=\"wl-output-content\"><div class=\"vscode-wolfram-wllatex-prerendered\" data-page-width-em=\"15\" data-latex-b64=\"XGJlZ2lue2FycmF5fXt8Y3xjfH1caGxpbmVcdGV4dHtHXF9jIFYgPT0gViBMYW1iZGF9ICYgXG1hdGhybXtUcnVlfVxcXGhsaW5lXHRleHR7dFxee31ce0dcX2NcfSBSID09IFIgdFxee31MYW1iZGEgKDEgcGFpciwgMiBwYWlycyl9ICYgXGJlZ2lue3BtYXRyaXh9MiAmIFxtYXRocm17VHJ1ZX1cXDQgJiBcbWF0aHJte1RydWV9XGVuZHtwbWF0cml4fVxcXGhsaW5lXGVuZHthcnJheX0=\"><span class=\"katex-display\"><span class=\"katex\"><span class=\"katex-html\" aria-hidden=\"true\"><span class=\"base\"><span class=\"strut\" style=\"height:3.64em;vertical-align:-1.55em;\"></span><span class=\"mord\"><span class=\"vlist-t vlist-t2\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:2.09em;\"><span style=\"top:-4.05em;\"><span class=\"pstrut\" style=\"height:4.05em;\"></span><span class=\"mtable\"><span class=\"vertical-separator\" style=\"height:3.6em;border-right-width:0.04em;border-right-style:solid;margin:0 -0.02em;vertical-align:-1.55em;\"></span><span class=\"arraycolsep\" style=\"width:0.5em;\"></span><span class=\"col-align-c\"><span class=\"vlist-t vlist-t2\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:2.05em;\"><span style=\"top:-4.66em;\"><span class=\"pstrut\" style=\"height:3.45em;\"></span><span class=\"mord\"><span class=\"mord text\"><span class=\"mord\">G_c V == V Lambda</span></span></span></span><span style=\"top:-2.85em;\"><span class=\"pstrut\" style=\"height:3.45em;\"></span><span class=\"mord\"><span class=\"mord text\"><span class=\"mord\">t</span><span class=\"mord accent\"><span class=\"vlist-t\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:0.6944em;\"><span style=\"top:-3em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"></span></span><span style=\"top:-3em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"accent-body\" style=\"left:-0.25em;\"><span class=\"mord\">ˆ</span></span></span></span></span></span></span><span class=\"mord\">{G_c} R == R t</span><span class=\"mord accent\"><span class=\"vlist-t\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:0.6944em;\"><span style=\"top:-3em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"></span></span><span style=\"top:-3em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"accent-body\" style=\"left:-0.25em;\"><span class=\"mord\">ˆ</span></span></span></span></span></span></span><span class=\"mord\">Lambda (1 pair, 2 pairs)</span></span></span></span></span><span class=\"vlist-s\">​</span></span><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:1.55em;\"><span></span></span></span></span></span><span class=\"arraycolsep\" style=\"width:0.5em;\"></span><span class=\"vertical-separator\" style=\"height:3.6em;border-right-width:0.04em;border-right-style:solid;margin:0 -0.02em;vertical-align:-1.55em;\"></span><span class=\"arraycolsep\" style=\"width:0.5em;\"></span><span class=\"col-align-c\"><span class=\"vlist-t vlist-t2\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:2.05em;\"><span style=\"top:-4.66em;\"><span class=\"pstrut\" style=\"height:3.45em;\"></span><span class=\"mord\"><span class=\"mord\"><span class=\"mord mathrm\">True</span></span></span></span><span style=\"top:-2.85em;\"><span class=\"pstrut\" style=\"height:3.45em;\"></span><span class=\"mord\"><span class=\"minner\"><span class=\"mopen delimcenter\" style=\"top:0em;\"><span class=\"delimsizing size3\">(</span></span><span class=\"mord\"><span class=\"mtable\"><span class=\"col-align-c\"><span class=\"vlist-t vlist-t2\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:1.45em;\"><span style=\"top:-3.61em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">2</span></span></span><span style=\"top:-2.41em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">4</span></span></span></span><span class=\"vlist-s\">​</span></span><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:0.95em;\"><span></span></span></span></span></span><span class=\"arraycolsep\" style=\"width:0.5em;\"></span><span class=\"arraycolsep\" style=\"width:0.5em;\"></span><span class=\"col-align-c\"><span class=\"vlist-t vlist-t2\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:1.45em;\"><span style=\"top:-3.61em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\"><span class=\"mord mathrm\">True</span></span></span></span><span style=\"top:-2.41em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\"><span class=\"mord mathrm\">True</span></span></span></span></span><span class=\"vlist-s\">​</span></span><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:0.95em;\"><span></span></span></span></span></span></span></span><span class=\"mclose delimcenter\" style=\"top:0em;\"><span class=\"delimsizing size3\">)</span></span></span></span></span></span><span class=\"vlist-s\">​</span></span><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:1.55em;\"><span></span></span></span></span></span><span class=\"arraycolsep\" style=\"width:0.5em;\"></span><span class=\"vertical-separator\" style=\"height:3.6em;border-right-width:0.04em;border-right-style:solid;margin:0 -0.02em;vertical-align:-1.55em;\"></span></span></span><span style=\"top:-2.5em;\"><span class=\"pstrut\" style=\"height:4.05em;\"></span><span class=\"hline\" style=\"border-bottom-width:0.04em;\"></span></span><span style=\"top:-4.9em;\"><span class=\"pstrut\" style=\"height:4.05em;\"></span><span class=\"hline\" style=\"border-bottom-width:0.04em;\"></span></span><span style=\"top:-6.1em;\"><span class=\"pstrut\" style=\"height:4.05em;\"></span><span class=\"hline\" style=\"border-bottom-width:0.04em;\"></span></span></span><span class=\"vlist-s\">​</span></span><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:1.55em;\"><span></span></span></span></span></span></span></span></span></span></div></div></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "Out[528]= \\begin{array}{|c|c|}\\hline\\text{G\\_c V == V Lambda} & \\mathrm{True}\\\\\\hline\\text{t\\^{}\\{G\\_c\\} R == R t\\^{}Lambda (1 pair, 2 pairs)} & \\begin{pmatrix}2 & \\mathrm{True}\\\\4 & \\mathrm{True}\\end{pmatrix}\\\\\\hline\\end{array}",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "394f591e-44c3-42ac-8f66-05275945adf4"
+    }
+   ],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 2. L = 3 (6 sites): the F-only words and the target bra, generic point, exact\n\nGeneric point h = 1/2, θ = (2/7, −3/5, 8/11, −11/8, 5/13, −7/9), z = (3/2, 5/4, 2/3, 4/7). Companion frame, bras as row vectors acted on from the right with t₁^{G_c(z)}. Words W_k = ⟨0|t₁(θ₂)^{k₂}t₁(θ₄)^{k₄}t₁(θ₆)^{k₆}, k_s ≤ 2 (27 words); target ⟨T| = (e₁ ⊗ ũ)^{⊗3}, ũ = (0, 1, −(z₂+z₃), z₂z₃).",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "fdH = 1/2; fdTh6 = {2/7, -3/5, 8/11, -11/8, 5/13, -7/9}; fdZ = {3/2, 5/4, 2/3, 4/7}; fdTy6 = {\"A\", \"F\", \"A\", \"F\", \"A\", \"F\"};\nfdGc6 = fdGc[fdZ];\nfdUt = {0, 1, -(fdZ[[2]] + fdZ[[3]]), fdZ[[2]] fdZ[[3]]};\nfdVac6 = fdKron[{{1, 0, 0, 0}, {0, 0, 0, 1}, {1, 0, 0, 0}, {0, 0, 0, 1}, {1, 0, 0, 0}, {0, 0, 0, 1}}];\nfdTarget6 = fdKron[{{1, 0, 0, 0}, fdUt, {1, 0, 0, 0}, fdUt, {1, 0, 0, 0}, fdUt}];\nfdBraT[u_, v_] := fdApplyT1[fdGc6, u, fdTy6, fdTh6, fdH, v, True];\nfdTime1 = AbsoluteTiming[fdW1 = fdBraT[fdTh6[[2]], fdVac6];][[1]];\n{fdTime1, Count[fdW1, Except[0]], MemoryInUse[]/10.^9}",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wl-output-block\"><div class=\"wl-output-header\" style=\"display:flex;align-items:center;gap:6px;width:100%;min-height:22px;\" data-session-epoch=\"725116\" data-output-id=\"97\" data-out-n=\"571\" data-sub-idx=\"7\" data-output-format=\"WLLatex\" data-output-is-graphics=\"0\" data-cell-idx=\"7\" data-sub-start=\"7\" data-sub-end=\"7\"><span style=\"font-size:10px;color:#888;margin-right:8px;\">Out[571]=</span></div><div class=\"wl-output-content\"><div class=\"vscode-wolfram-wllatex-prerendered\" data-page-width-em=\"15\" data-latex-b64=\"XGxlZnRcezAuMjk2NzA1MSwxLDIuNDk2MjcwNDI0XHJpZ2h0XH0=\"><span class=\"katex-display\"><span class=\"katex\"><span class=\"katex-html\" aria-hidden=\"true\"><span class=\"base\"><span class=\"strut\" style=\"height:1em;vertical-align:-0.25em;\"></span><span class=\"minner\"><span class=\"mopen delimcenter\" style=\"top:0em;\">{</span><span class=\"mord\">0.2967051</span><span class=\"mpunct\">,</span><span class=\"mspace\" style=\"margin-right:0.1667em;\"></span><span class=\"mord\">1</span><span class=\"mpunct\">,</span><span class=\"mspace\" style=\"margin-right:0.1667em;\"></span><span class=\"mord\">2.496270424</span><span class=\"mclose delimcenter\" style=\"top:0em;\">}</span></span></span></span></span></span></div></div></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "Out[571]= \\left\\{0.2967051,1,2.496270424\\right\\}",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "c357067c-1460-46d0-9947-fd19ebbb6158"
+    }
+   ],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "(* the 27 F-only words, exact; built incrementally *)\nfdWordsK = Tuples[{0, 1, 2}, 3];   (* (k2,k4,k6) *)\nfdNZ[v_] := Flatten[Position[v, Except[0], {1}, Heads -> False]];\nfdWords = Module[{assoc = <||>},\n  Do[assoc[k] = If[k == {0, 0, 0}, fdVac6,\n     Module[{s = First[Flatten[Position[k, _?(# > 0 &), {1}, 1, Heads -> False]]], kk}, kk = ReplacePart[k, s -> k[[s]] - 1];\n      fdBraT[fdTh6[[2 s]], assoc[kk]]]], {k, fdWordsK}]; assoc];\nfdSupp = Union @@ (fdNZ /@ Append[Values[fdWords], fdTarget6]);\nfdWmat = Table[fdWords[k][[fdSupp]], {k, fdWordsK}];\nfdTsub = fdTarget6[[fdSupp]];\n{Length[fdSupp], MatrixRank[fdWmat], MemoryInUse[]/10.^9}",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wl-output-block\"><div class=\"wl-output-header\" style=\"display:flex;align-items:center;gap:6px;width:100%;min-height:22px;\" data-session-epoch=\"725116\" data-output-id=\"103\" data-out-n=\"613\" data-sub-idx=\"7\" data-output-format=\"WLLatex\" data-output-is-graphics=\"0\" data-cell-idx=\"8\" data-sub-start=\"10\" data-sub-end=\"10\"><span style=\"font-size:10px;color:#888;margin-right:8px;\">Out[613]=</span></div><div class=\"wl-output-content\"><pre class=\"vscode-wolfram-text-output\">No output at Out[613]</pre></div></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "Out[613]= No output at Out[613]",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "09be8190-71ce-4287-9d9d-44b14654d9ad"
+    }
+   ],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "(* (1) solve  c . Wmat = target  exactly on the union support, then verify on all 4096 components *)\nfdRk = {MatrixRank[fdWmat], MatrixRank[Append[fdWmat, fdTsub]]};\nfdSol = If[fdRk[[1]] == fdRk[[2]], LinearSolve[Transpose[fdWmat], fdTsub], None];\nfdResidAll = If[fdSol === None, None, Max[Abs[Total[MapThread[Times, {fdSol, fdWords /@ fdWordsK}]] - fdTarget6]]];\nGrid[{{\"rank(words), rank(words+target)\", fdRk}, {\"max |sum c_k W_k - target| over all 4096 components\", fdResidAll}, {\"# union support\", Length[fdSupp]}}, Frame -> All]",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wl-output-block\"><div class=\"wl-output-header\" style=\"display:flex;align-items:center;gap:6px;width:100%;min-height:22px;\" data-session-epoch=\"725116\" data-output-id=\"104\" data-out-n=\"617\" data-sub-idx=\"4\" data-output-format=\"WLLatex\" data-output-is-graphics=\"0\" data-cell-idx=\"9\" data-sub-start=\"4\" data-sub-end=\"4\"><span style=\"font-size:10px;color:#888;margin-right:8px;\">Out[617]=</span></div><div class=\"wl-output-content\"><pre class=\"vscode-wolfram-text-output\">No output at Out[617]</pre></div></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "Out[617]= No output at Out[617]",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "d721002c-c7dc-44a7-a869-a014ea54a64c"
+    }
+   ],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "**Note (fixed bug):** an earlier version of cells 9–12 used `Position[..., Except[0], {1}]` without `Heads -> False`, which returns position 0 (the head `List`) and polluted the support and the rank computations (spurious \"28th component\" and spurious negative result at L = 2 too). Everything below uses `fdNZ` (`Heads -> False`). The pipeline is validated at L = 2 against the known 9-word identity.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "(* generic F-only word pipeline for nL pairs; companion frame, bras; exact *)\nfdFonlyRun[nL_, th_, z_, h_, kmax_] := Module[{ty = Flatten[Table[{\"A\", \"F\"}, {nL}]], Gc = fdGc[z], ut, vac, tgt, ks, words = <||>, supp, Wm, Ts, braT, e1 = {1, 0, 0, 0}, e4 = {0, 0, 0, 1}, sol, rk, rk1},\n  ut = {0, 1, -(z[[2]] + z[[3]]), z[[2]] z[[3]]};\n  vac = fdKron[Flatten[Table[{e1, e4}, {nL}], 1]]; tgt = fdKron[Flatten[Table[{e1, ut}, {nL}], 1]];\n  braT[u_, v_] := fdApplyT1[Gc, u, ty, th, h, v, True];\n  ks = Tuples[Range[0, kmax], nL];\n  Do[words[k] = If[Total[k] == 0, vac, Module[{s = First[Flatten[Position[k, _?(# > 0 &), {1}, 1, Heads -> False]]]}, braT[th[[2 s]], words[ReplacePart[k, s -> k[[s]] - 1]]]]], {k, ks}];\n  supp = Union @@ (fdNZ /@ Append[Values[words], tgt]);\n  Wm = Table[words[k][[supp]], {k, ks}]; Ts = tgt[[supp]];\n  rk = MatrixRank[Wm]; rk1 = MatrixRank[Append[Wm, Ts]];\n  <|\"ks\" -> ks, \"supp\" -> supp, \"Wm\" -> Wm, \"Ts\" -> Ts, \"rank words\" -> rk, \"rank with target\" -> rk1, \"sol\" -> If[rk1 == rk, LinearSolve[Transpose[Wm], Ts], None], \"nL\" -> nL, \"words\" -> words, \"tgt\" -> tgt|>];\nfdL2 = fdFonlyRun[2, {2/7, -3/5, 8/11, -11/8}, fdZ, 1/2, 2];\nGrid[{{\"L = 2, k <= 2\", \"# words\", Length[fdL2[\"ks\"]], \"rank\", fdL2[\"rank words\"], \"rank with target\", fdL2[\"rank with target\"], \"|supp|\", Length[fdL2[\"supp\"]]}}, Frame -> All]",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wl-output-block\"><div class=\"wl-output-header\" style=\"display:flex;align-items:center;gap:6px;width:100%;min-height:22px;\" data-session-epoch=\"725116\" data-output-id=\"105\" data-out-n=\"620\" data-sub-idx=\"3\" data-output-format=\"WLLatex\" data-output-is-graphics=\"0\" data-cell-idx=\"11\" data-sub-start=\"12\" data-sub-end=\"12\"><span style=\"font-size:10px;color:#888;margin-right:8px;\">Out[620]=</span></div><div class=\"wl-output-content\"><pre class=\"vscode-wolfram-text-output\">No output at Out[620]</pre></div></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "Out[620]= No output at Out[620]",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "d0ca94f3-316c-42bd-b1a9-4ddad90c55aa"
+    }
+   ],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "### Result (1) [exact]\n\nAt L = 3 and the generic point the target ⟨(e₁⊗ũ)^{⊗3}| lies **exactly** in the span of the 27 F-only words k_s ≤ 2 (rank 27 = rank with target; residual 0 on all 4096 components; union support is the 27 components e₁⊗{e₂,e₃,e₄}^{⊗3}). At L = 2 the same code gives (9, 9, 9), i.e. the known identity. The solution c_k is `fdSol`, indexed by `fdWordsK` = (k₂,k₄,k₆).\n\n## 3. Weight sectors, sector matrices of t₁^Λ(u) (diagonal frame) by vector application\n\nSector bases (A sites +e_a, F sites −e_a): dimensions below. Matrices are built exactly (columns by propagating unit vectors, ket action), in chunks.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "(* weights of all 4096 basis vectors (site 1 most significant); A sites +e_d, F sites -e_d *)\nfdWtTab = Module[{dg = Tuples[Range[4], 6]}, Map[Function[d, Sum[If[OddQ[s], 1, -1] UnitVector[4, d[[s]]], {s, 6}]], dg]];\nfdSecIdx[w_] := Flatten[Position[fdWtTab, w, {1}, Heads -> False]];\nfdSecs = <|0 -> {3, 0, 0, -3}, 1 -> {2, 0, 0, -2}, 2 -> {1, 0, 0, -1}, 3 -> {0, 0, 0, 0}|>;\nfdIdx = Association[Table[n -> fdSecIdx[fdSecs[n]], {n, 0, 3}]];\nfdUnit[p_, len_] := ReplacePart[ConstantArray[0, len], p -> 1];\n(* columns of t1^Lam(u) restricted to a sector, exact *)\nfdSecCols[idx_, u_, types_, th_, h_, Lam_, from_, to_] := Table[fdApplyT1[Lam, u, types, th, h, fdUnit[idx[[j]], 4^Length[types]], False][[idx]], {j, from, to}];\nfdTimeCols = AbsoluteTiming[fdTc = fdSecCols[fdIdx[2], 1/3, fdTy6, fdTh6, fdH, DiagonalMatrix[fdZ], 1, 10];][[1]];\n{Map[Length, fdIdx], fdTimeCols, MemoryInUse[]/10.^9}",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wl-output-block\"><div class=\"wl-output-header\" style=\"display:flex;align-items:center;gap:6px;width:100%;min-height:22px;\" data-session-epoch=\"725116\" data-output-id=\"109\" data-out-n=\"657\" data-sub-idx=\"9\" data-output-format=\"WLLatex\" data-output-is-graphics=\"0\" data-cell-idx=\"13\" data-sub-start=\"9\" data-sub-end=\"9\"><span style=\"font-size:10px;color:#888;margin-right:8px;\">Out[657]=</span></div><div class=\"wl-output-content\"><pre class=\"vscode-wolfram-text-output\">No output at Out[657]</pre></div></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "Out[657]= No output at Out[657]",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "f331144c-3f83-485a-a999-f1d3fbb6db5f"
+    }
+   ],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "(* exact sector columns at the generic point, u = 1/3, G = Lambda = diag(z) ; stored per (sector, chunk) *)\nfdLam = DiagonalMatrix[fdZ]; fdColsA = <||>;\nfdBuildChunk[n_, from_, to_] := (fdColsA[{n, from}] = fdSecCols[fdIdx[n], 1/3, fdTy6, fdTh6, fdH, fdLam, from, to]; {n, from, to, MemoryInUse[]/10.^9});\n{fdBuildChunk[0, 1, 1], fdBuildChunk[1, 1, 24]}",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wl-output-block\"><div class=\"wl-output-header\" style=\"display:flex;align-items:center;gap:6px;width:100%;min-height:22px;\" data-session-epoch=\"725116\" data-output-id=\"110\" data-out-n=\"660\" data-sub-idx=\"3\" data-output-format=\"WLLatex\" data-output-is-graphics=\"0\" data-cell-idx=\"14\" data-sub-start=\"3\" data-sub-end=\"3\"><span style=\"font-size:10px;color:#888;margin-right:8px;\">Out[660]=</span></div><div class=\"wl-output-content\"><pre class=\"vscode-wolfram-text-output\">No output at Out[660]</pre></div></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "Out[660]= No output at Out[660]",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "ab9c06c3-6244-444c-95b8-4e01fe4ba360"
+    }
+   ],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "fdBuildChunk[2, 1, 141]",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wl-output-block\"><div class=\"wl-output-header\" style=\"display:flex;align-items:center;gap:6px;width:100%;min-height:22px;\" data-session-epoch=\"725116\" data-output-id=\"111\" data-out-n=\"661\" data-sub-idx=\"0\" data-output-format=\"WLLatex\" data-output-is-graphics=\"0\" data-cell-idx=\"15\" data-sub-start=\"0\" data-sub-end=\"0\"><span style=\"font-size:10px;color:#888;margin-right:8px;\">Out[661]=</span></div><div class=\"wl-output-content\"><pre class=\"vscode-wolfram-text-output\">No output at Out[661]</pre></div></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "Out[661]= No output at Out[661]",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "b920d6c0-2a6c-447a-8227-7a3171301202"
+    }
+   ],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "fdBuildChunk[3, 1, 90]",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wl-output-block\"><div class=\"wl-output-header\" style=\"display:flex;align-items:center;gap:6px;width:100%;min-height:22px;\" data-session-epoch=\"725116\" data-output-id=\"113\" data-out-n=\"665\" data-sub-idx=\"0\" data-output-format=\"WLLatex\" data-output-is-graphics=\"0\" data-cell-idx=\"16\" data-sub-start=\"0\" data-sub-end=\"0\"><span style=\"font-size:10px;color:#888;margin-right:8px;\">Out[665]=</span></div><div class=\"wl-output-content\"><pre class=\"vscode-wolfram-text-output\">No output at Out[665]</pre></div></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "Out[665]= No output at Out[665]",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "002e9c76-0fdf-4667-9c01-7d58a58e51cb"
+    }
+   ],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "fdBuildChunk[3, 91, 180]",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wl-output-block\"><div class=\"wl-output-header\" style=\"display:flex;align-items:center;gap:6px;width:100%;min-height:22px;\" data-session-epoch=\"725116\" data-output-id=\"114\" data-out-n=\"666\" data-sub-idx=\"0\" data-output-format=\"WLLatex\" data-output-is-graphics=\"0\" data-cell-idx=\"17\" data-sub-start=\"0\" data-sub-end=\"0\"><span style=\"font-size:10px;color:#888;margin-right:8px;\">Out[666]=</span></div><div class=\"wl-output-content\"><pre class=\"vscode-wolfram-text-output\">No output at Out[666]</pre></div></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "Out[666]= No output at Out[666]",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "7dcca4bb-68a6-46fa-a582-3cdb4440c8b4"
+    }
+   ],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "fdBuildChunk[3, 181, 256]",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wl-output-block\"><div class=\"wl-output-header\" style=\"display:flex;align-items:center;gap:6px;width:100%;min-height:22px;\" data-session-epoch=\"725116\" data-output-id=\"115\" data-out-n=\"667\" data-sub-idx=\"0\" data-output-format=\"WLLatex\" data-output-is-graphics=\"0\" data-cell-idx=\"18\" data-sub-start=\"0\" data-sub-end=\"0\"><span style=\"font-size:10px;color:#888;margin-right:8px;\">Out[667]=</span></div><div class=\"wl-output-content\"><pre class=\"vscode-wolfram-text-output\">No output at Out[667]</pre></div></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "Out[667]= No output at Out[667]",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "d40d3b75-9a05-4091-9886-b2108708e92e"
+    }
+   ],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "### (3) Q-form on eigenstates, generic point [hp]\n\nEigenvectors of t₁^Λ(1/3) in each sector: machine-precision `Eigensystem`, then refined by hp inverse iteration (50 digits). τ_s = eigenvalue of t₁^Λ(θ_s) read off by vector application. Test: ⟨W_a^3|Ψ⟩ (diag frame, a = 3/7) vs (a/κ₀)^n (λ₁u₄)^{−3} ⟨0|Ψ⟩ Σ_k c_k τ₂^{k₂}τ₄^{k₄}τ₆^{k₆}.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "fdSectorMat[n_] := Module[{ks = Sort[Select[Keys[fdColsA], First[#] == n &], #1[[2]] < #2[[2]] &]}, Transpose[Join @@ (fdColsA /@ ks)]];\n(* fixed-precision (no significance tracking) inverse iteration *)\nfdRefine[M_, x0_, sig_, prec_] := Block[{$MinPrecision = prec, $MaxPrecision = prec}, Module[{d = Length[M], ls, x = SetPrecision[x0, prec]},\n  ls = LinearSolve[SetPrecision[M, prec] - SetPrecision[sig, prec] IdentityMatrix[d]];\n  Do[x = ls[x]; x = x/Norm[x], {3}]; x]];\nfdLamZ = Table[1/Product[If[m == j, 1, fdZ[[j]] - fdZ[[m]]], {m, 4}], {j, 4}];\nfdKap0 = -((fdZ[[1]] - fdZ[[2]]) (fdZ[[1]] - fdZ[[3]]))/((fdZ[[4]] - fdZ[[2]]) (fdZ[[4]] - fdZ[[3]]));\nfdU4 = (fdZ[[4]] - fdZ[[2]]) (fdZ[[4]] - fdZ[[3]]);\nfdBra0Lam = fdKron[{fdLamZ, {1, 1, 1, 1}, fdLamZ, {1, 1, 1, 1}, fdLamZ, {1, 1, 1, 1}}];\nfdWaBra[a_] := fdKron[{{1, 0, 0, a}, {-a, 0, 0, 1}, {1, 0, 0, a}, {-a, 0, 0, 1}, {1, 0, 0, a}, {-a, 0, 0, 1}}];\nfdQcheck[n_, x_, idx_, a_] := Block[{$MinPrecision = 50, $MaxPrecision = 50}, Module[{psi = ConstantArray[0, 4096], p, taus, lhs, rhs, ov0, csum},\n  psi[[idx]] = x; p = idx[[First[Ordering[Abs[x], -1]]]];\n  taus = Table[(fdApplyT1[fdLam, fdTh6[[2 s]], fdTy6, fdTh6, fdH, psi, False])[[p]]/psi[[p]], {s, 3}];\n  lhs = fdWaBra[a] . psi; ov0 = fdBra0Lam . psi;\n  csum = Total[MapThread[#1 Times @@ (taus^#2) &, {fdSol, fdWordsK}]];\n  rhs = (a/fdKap0)^n (fdLamZ[[1]] fdU4)^-3 ov0 csum;\n  {n, N[Abs[lhs], 8], N[Abs[lhs - rhs]/Abs[lhs], 3], N[taus[[1]], 8]}]];\n{\"defined\", MemoryInUse[]/10.^9}",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wl-output-block\"><div class=\"wl-output-header\" style=\"display:flex;align-items:center;gap:6px;width:100%;min-height:22px;\" data-session-epoch=\"725116\" data-output-id=\"120\" data-out-n=\"696\" data-sub-idx=\"9\" data-output-format=\"WLLatex\" data-output-is-graphics=\"0\" data-cell-idx=\"20\" data-sub-start=\"17\" data-sub-end=\"17\"><span style=\"font-size:10px;color:#888;margin-right:8px;\">Out[696]=</span></div><div class=\"wl-output-content\"><pre class=\"vscode-wolfram-text-output\">No output at Out[696]</pre></div></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "Out[696]= No output at Out[696]",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "0cfa7b13-cd34-416f-b074-7a41561b81ea"
+    }
+   ],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "(* (3) sectors n = 0,1,2 : eigenstates refined to 50 digits; compare direct <W_a^3|Psi> with the Q-form *)\nfdGen012 = Flatten[Table[Module[{M = fdSectorMat[n], d, vals, vecs, picks},\n    d = Length[M]; {vals, vecs} = Eigensystem[N[M]]; picks = Take[Range[d], Min[d, {1, 3, 3}[[n + 1]]]];\n    Table[Module[{x = fdRefine[M, vecs[[j]], vals[[j]], 50], res},\n      res = Block[{$MinPrecision = 50, $MaxPrecision = 50}, Module[{Mx = SetPrecision[M, 50] . x, q = First[Ordering[Abs[x], -1]]}, Norm[Mx - (Mx[[q]]/x[[q]]) x]]];\n      Append[fdQcheck[n, x, fdIdx[n], 3/7], N[res, 3]]], {j, picks}]], {n, 0, 2}], 1];\nGrid[Prepend[fdGen012, {\"n\", \"|<W_a^3|Psi>|\", \"rel. dev. direct vs Q-form\", \"tau(th2)\", \"eigen-residual\"}], Frame -> All]",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<details class=\"vscode-wolfram-message-output\" style=\"color:#f44;border-left:3px solid #f44;background:rgba(255,68,68,0.08);padding:2px 6px;margin:1px 0;border-radius:0 3px 3px 0;font-family:monospace;font-size:0.85em\"><summary style=\"cursor:pointer\">4 warnings</summary><div style=\"padding:2px 0 2px 4px;border-top:1px solid rgba(255,68,68,0.15)\">N::precsm: Requested precision 8 is smaller than $MinPrecision. Using $MinPrecision instead.</div><div style=\"padding:2px 0 2px 4px;border-top:1px solid rgba(255,68,68,0.15)\">N::precsm: Requested precision 3 is smaller than $MinPrecision. Using $MinPrecision instead.</div><div style=\"padding:2px 0 2px 4px;border-top:1px solid rgba(255,68,68,0.15)\">N::precsm: Requested precision 8 is smaller than $MinPrecision. Using $MinPrecision instead.</div><div style=\"padding:2px 0 2px 4px;border-top:1px solid rgba(255,68,68,0.15)\">General::stop: Further output of N::precsm will be suppressed during this calculation.</div></details>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "N::precsm: Requested precision 8 is smaller than $MinPrecision. Using $MinPrecision instead.\nN::precsm: Requested precision 3 is smaller than $MinPrecision. Using $MinPrecision instead.\nN::precsm: Requested precision 8 is smaller than $MinPrecision. Using $MinPrecision instead.\nGeneral::stop: Further output of N::precsm will be suppressed during this calculation.",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "8b2cb9e1-8d05-459b-a2c0-b46ef630fdeb"
+    },
+    {
+     "items": [
+      {
+       "data": "<div class=\"wl-output-block\"><div class=\"wl-output-header\" style=\"display:flex;align-items:center;gap:6px;width:100%;min-height:22px;\" data-session-epoch=\"725116\" data-output-id=\"121\" data-out-n=\"698\" data-sub-idx=\"2\" data-output-format=\"WLLatex\" data-output-is-graphics=\"0\" data-cell-idx=\"21\" data-sub-start=\"6\" data-sub-end=\"6\"><span style=\"font-size:10px;color:#888;margin-right:8px;\">Out[698]=</span></div><div class=\"wl-output-content\"><pre class=\"vscode-wolfram-text-output\">No output at Out[698]</pre></div></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "Out[698]= No output at Out[698]",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "f75dae82-00a5-4499-8d99-c8301f8e019f"
+    },
+    {
+     "items": [
+      {
+       "data": "<span style=\"display:none\"></span>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "N::precsm: Requested precision 8 is smaller than $MinPrecision. Using $MinPrecision instead.\nN::precsm: Requested precision 3 is smaller than $MinPrecision. Using $MinPrecision instead.\nN::precsm: Requested precision 8 is smaller than $MinPrecision. Using $MinPrecision instead.\nGeneral::stop: Further output of N::precsm will be suppressed during this calculation.",
+       "mime": "text/plain"
+      },
+      {
+       "data": "{\n\t\"name\": \"WolframKernelMessage\",\n\t\"message\": \"N::precsm: Requested precision 8 is smaller than $MinPrecision. Using $MinPrecision instead.\\nN::precsm: Requested precision 3 is smaller than $MinPrecision. Using $MinPrecision instead.\\nN::precsm: Requested precision 8 is smaller than $MinPrecision. Using $MinPrecision instead.\\nGeneral::stop: Further output of N::precsm will be suppressed during this calculation.\",\n\t\"stack\": \"\"\n}",
+       "mime": "application/vnd.code.notebook.error"
+      }
+     ],
+     "id": "c7a84dec-914d-409d-b1ab-79e21e15e005"
+    }
+   ],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "(* (3) sector n = 3 (zero weight, 256 states): two states *)\nfdGen3 = Module[{M = fdSectorMat[3], d, vals, vecs},\n  d = Length[M]; {vals, vecs} = Eigensystem[N[M]];\n  Table[Module[{x = fdRefine[M, vecs[[j]], vals[[j]], 50], res},\n    res = Block[{$MinPrecision = 50, $MaxPrecision = 50}, Module[{Mx = SetPrecision[M, 50] . x, q = First[Ordering[Abs[x], -1]]}, Norm[Mx - (Mx[[q]]/x[[q]]) x]]];\n    Append[fdQcheck[3, x, fdIdx[3], 3/7], N[res, 3]]], {j, {5, 100}}]];\nGrid[Prepend[fdGen3, {\"n\", \"|<W_a^3|Psi>|\", \"rel. dev. direct vs Q-form\", \"tau(th2)\", \"eigen-residual\"}], Frame -> All]",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<details class=\"vscode-wolfram-message-output\" style=\"color:#f44;border-left:3px solid #f44;background:rgba(255,68,68,0.08);padding:2px 6px;margin:1px 0;border-radius:0 3px 3px 0;font-family:monospace;font-size:0.85em\"><summary style=\"cursor:pointer\">4 warnings</summary><div style=\"padding:2px 0 2px 4px;border-top:1px solid rgba(255,68,68,0.15)\">N::precsm: Requested precision 8 is smaller than $MinPrecision. Using $MinPrecision instead.</div><div style=\"padding:2px 0 2px 4px;border-top:1px solid rgba(255,68,68,0.15)\">N::precsm: Requested precision 3 is smaller than $MinPrecision. Using $MinPrecision instead.</div><div style=\"padding:2px 0 2px 4px;border-top:1px solid rgba(255,68,68,0.15)\">N::precsm: Requested precision 8 is smaller than $MinPrecision. Using $MinPrecision instead.</div><div style=\"padding:2px 0 2px 4px;border-top:1px solid rgba(255,68,68,0.15)\">General::stop: Further output of N::precsm will be suppressed during this calculation.</div></details>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "N::precsm: Requested precision 8 is smaller than $MinPrecision. Using $MinPrecision instead.\nN::precsm: Requested precision 3 is smaller than $MinPrecision. Using $MinPrecision instead.\nN::precsm: Requested precision 8 is smaller than $MinPrecision. Using $MinPrecision instead.\nGeneral::stop: Further output of N::precsm will be suppressed during this calculation.",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "4f8b613f-672b-43ee-a93f-55afd532cccd"
+    },
+    {
+     "items": [
+      {
+       "data": "<div class=\"wl-output-block\"><div class=\"wl-output-header\" style=\"display:flex;align-items:center;gap:6px;width:100%;min-height:22px;\" data-session-epoch=\"725116\" data-output-id=\"123\" data-out-n=\"703\" data-sub-idx=\"2\" data-output-format=\"WLLatex\" data-output-is-graphics=\"0\" data-cell-idx=\"22\" data-sub-start=\"6\" data-sub-end=\"6\"><span style=\"font-size:10px;color:#888;margin-right:8px;\">Out[703]=</span></div><div class=\"wl-output-content\"><pre class=\"vscode-wolfram-text-output\">No output at Out[703]</pre></div></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "Out[703]= No output at Out[703]",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "96dcaf28-84e8-40c1-a18c-d6a6407ea8b7"
+    },
+    {
+     "items": [
+      {
+       "data": "<span style=\"display:none\"></span>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "N::precsm: Requested precision 8 is smaller than $MinPrecision. Using $MinPrecision instead.\nN::precsm: Requested precision 3 is smaller than $MinPrecision. Using $MinPrecision instead.\nN::precsm: Requested precision 8 is smaller than $MinPrecision. Using $MinPrecision instead.\nGeneral::stop: Further output of N::precsm will be suppressed during this calculation.",
+       "mime": "text/plain"
+      },
+      {
+       "data": "{\n\t\"name\": \"WolframKernelMessage\",\n\t\"message\": \"N::precsm: Requested precision 8 is smaller than $MinPrecision. Using $MinPrecision instead.\\nN::precsm: Requested precision 3 is smaller than $MinPrecision. Using $MinPrecision instead.\\nN::precsm: Requested precision 8 is smaller than $MinPrecision. Using $MinPrecision instead.\\nGeneral::stop: Further output of N::precsm will be suppressed during this calculation.\",\n\t\"stack\": \"\"\n}",
+       "mime": "application/vnd.code.notebook.error"
+      }
+     ],
+     "id": "6825ec34-88a2-44fa-8c72-09a9e648cfff"
+    }
+   ],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 4. Fused transfer matrices t_2, t_3 on vectors (ket action), tests, then the L = 3 ABJM ε-chain\n\nPort of the `ue` fused construction (aux = ∧ᵏ C⁴, site blocks from the derivative of the compound determinant), with the site operators applied as sparse slice operations, number-agnostic (exact or hp). Tests: (a) k = 1 agrees with `fdApplyT1`; (b) L = 2 untwisted ABJM operator identity X̂₃X₁ = 24 h⁷ λ₁λ₃ P (pair translation); (c) L = 3: K₁ on the six data [1,0,1] HW states (3.656854, −7.656854, 14.658003 (x2), 1.842 (x2)).",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "fdDKall[k_] := Module[{S = Subsets[Range[4], {k}], eps},\n  Table[Coefficient[Det[(IdentityMatrix[4] + eps Normal[SparseArray[{{a, b} -> 1}, {4, 4}]])[[ii, jj]]], eps, 1], {a, 4}, {b, 4}, {ii, S}, {jj, S}]];\nfdBlk[k_, ty_] := Module[{dk = fdDKall[k], n = Binomial[4, k]},\n  Table[Module[{ent = {}}, Do[With[{c = dk[[a, b, K, J]]}, If[c =!= 0, AppendTo[ent, If[ty === \"A\", {a, b, c}, {b, a, -c}]]]], {a, 4}, {b, 4}]; ent], {K, n}, {J, n}]];\nfdBL = Association[Flatten[Table[{k, ty} -> fdBlk[k, ty], {k, 1, 3}, {ty, {\"A\", \"F\"}}], 1]];\nfdStepGen[Phi_, s_, nn_, ty_, th_, u_, h_, k_, tr_] := Module[{n = Binomial[4, k], l = 4^(s - 1), r = 4^(nn - s), tt, X, zero, bl},\n  bl = If[tr, Map[{#[[2]], #[[1]], #[[3]]} &, fdBL[{k, ty}], {3}], fdBL[{k, ty}]];\n  tt = If[ty === \"A\", th, th + (k - 1) h];\n  X = Table[ArrayReshape[Phi[[K]], {l, 4, r}], {K, n}]; zero = ConstantArray[0, {l, r}];\n  Table[Flatten[(u - tt) X[[J]] + h Sum[Transpose[Table[zero + Sum[e[[3]] X[[K, All, e[[2]], All]], {e, Select[bl[[K, J]], #[[1]] == a &]}], {a, 4}], {2, 1, 3}], {K, n}]], {J, n}]];\nfdCompound[k_, G_] := With[{S = Subsets[Range[4], {k}]}, Table[Det[G[[ii, jj]]], {ii, S}, {jj, S}]];\nfdGpref[k_, u_, types_, th_, h_, reg_] := Times @@ Flatten[Table[Table[With[{f = u - th[[s]] - j h}, If[reg && f == 0, 1, f]], {j, If[types[[s]] === \"A\", Range[1, k - 1], Range[0, k - 2]]}], {s, Length[types]}]];\n(* t_k^G(u) with prefactor; tr = False: ket action M.v ; tr = True: bra action v.M *)\nfdApplyTk[k_, G_, u_, types_, th_, h_, v_, reg_, tr_] := Module[{nn = Length[types], n = Binomial[4, k], W = fdCompound[k, G], zero = ConstantArray[0, Length[v]], res = ConstantArray[0, Length[v]], Phi},\n  Do[If[AnyTrue[W[[All, I1]], # =!= 0 &],\n    Phi = Table[If[K == I1, v, zero], {K, n}];\n    Do[Phi = fdStepGen[Phi, s, nn, types[[s]], th[[s]], u, h, k, tr], {s, nn}];\n    res = res + Sum[W[[J, I1]] Phi[[J]], {J, n}]], {I1, n}];\n  fdGpref[k, u, types, th, h, reg] res];\nfdLamC[k_, u_, thA_, thF_, p_, h_] := Times @@ Flatten[Table[If[n == p, {}, Table[With[{f = ff}, If[f == 0, 1, f]], {ff, Join[Table[u - thA[[n]] - j h, {j, 0, k - 1}], {u - thF[[n]] - k h}, Table[u - thF[[n]] - j h, {j, 0, k - 2}]]}]], {n, Length[thA]}]];\n(* tests on 2 pairs: (a) k = 1 vs fdApplyT1 (ket and bra), (b) untwisted ABJM identity X3^ X1 = 24 h^7 lam1 lam3 P, (c) ket/bra consistency of k = 2, 3 *)\nfdTestK = TimeConstrained[Module[{h = 1/2, ty = {\"A\", \"F\", \"A\", \"F\"}, thF = {0, 0}, thA, th, u0 = 1/2, I4 = IdentityMatrix[4], v, w, X3X1v, lam, tup, Pv, th1, G1},\n  thA = thF + 2 h; th = {thA[[1]], thF[[1]], thA[[2]], thF[[2]]};\n  SeedRandom[11]; v = RandomInteger[{-5, 5}, 256]; w = RandomInteger[{-5, 5}, 256];\n  lam = {fdLamC[1, thF[[1]], thA, thF, 1, h], fdLamC[2, u0, thA, thF, 1, h], fdLamC[3, u0, thA, thF, 1, h]};\n  X3X1v = fdApplyTk[3, I4, u0, ty, th, h, fdApplyTk[1, I4, thF[[1]], ty, th, h, v, False, False], True, False];\n  tup = Tuples[Range[4], 4];\n  Pv = Table[v[[FromDigits[{tup[[q, 3]], tup[[q, 4]], tup[[q, 1]], tup[[q, 2]]} - 1, 4] + 1]], {q, 256}];\n  th1 = {2/7, -3/5, 8/11, -11/8}; G1 = {{1, 2, -1, 3}, {0, 5, 1, -2}, {2, 1, 0, 4}, {3, -1, 2, 7}};\n  {fdApplyTk[1, G1, 3/7, ty, th1, h, v, False, False] === fdApplyT1[G1, 3/7, ty, th1, h, v, False],\n   fdApplyTk[1, G1, 3/7, ty, th1, h, v, False, True] === fdApplyT1[G1, 3/7, ty, th1, h, v, True],\n   X3X1v === 24 h^7 lam[[1]] lam[[3]] Pv,\n   Table[w . fdApplyTk[k, G1, 1/5, ty, th1, h, v, False, False] === v . fdApplyTk[k, G1, 1/5, ty, th1, h, w, False, True], {k, 2, 3}]}], 40, \"timed out\"];\nfdTestK",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wl-output-block\"><div class=\"wl-output-header\" style=\"display:flex;align-items:center;gap:6px;width:100%;min-height:22px;\" data-session-epoch=\"725116\" data-output-id=\"129\" data-out-n=\"739\" data-sub-idx=\"11\" data-output-format=\"WLLatex\" data-output-is-graphics=\"0\" data-cell-idx=\"24\" data-sub-start=\"33\" data-sub-end=\"33\"><span style=\"font-size:10px;color:#888;margin-right:8px;\">Out[739]=</span></div><div class=\"wl-output-content\"><pre class=\"vscode-wolfram-text-output\">No output at Out[739]</pre></div></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "Out[739]= No output at Out[739]",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "72abb8ce-0d34-4fc1-b54c-56943b0f0451"
+    }
+   ],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "(* test (c): L = 3 untwisted ABJM chain, K1 on the six data [1,0,1] HW states from hw_L3.json (machine precision), eigenvalues by the bra action on a unit vector *)\nfdDat = Import[\"C:/Users/pryan/git-projects/abjm-c123/Paul/Mathematica/su4-alternating/checks/session-2026-10-13/epsexp/hw_L3.json\", \"RawJSON\"];\nfdTestK3 = Module[{h = 1/2, th = {1, 0, 1, 0, 1, 0}, thA = {1, 1, 1}, thF = {0, 0, 0}, u0 = 1/2, I4 = IdentityMatrix[4], lam, c},\n  lam = {fdLamC[1, 0, thA, thF, 1, h], fdLamC[2, u0, thA, thF, 1, h], fdLamC[3, u0, thA, thF, 1, h]};\n  c = {1, -1/(h^2 lam[[1]]), -1/(2 h^4 lam[[2]]), -1/(6 h^5 lam[[3]]), 1/(24 h^7 lam[[1]] lam[[3]])};\n  Table[Module[{psi = fdDat[\"psiRe\"][[i]] + I fdDat[\"psiIm\"][[i]], p, e, t1, t2, t3, K1, Cd},\n    p = First[Ordering[Abs[psi], -1]]; e = fdUnit[p, 4096];\n    t1 = fdApplyTk[1, I4, 0, fdTy6, th, h, e, False, True] . psi/psi[[p]];\n    t2 = fdApplyTk[2, I4, u0, fdTy6, th, h, e, False, True] . psi/psi[[p]];\n    t3 = fdApplyTk[3, I4, u0, fdTy6, th, h, e, True, True] . psi/psi[[p]];\n    K1 = c . {1, t1, t2, t3, t3 t1}; Cd = fdDat[\"CRe\"][[i]][[5]] + I fdDat[\"CIm\"][[i]][[5]];\n    {i, fdDat[\"dyn\"][[i]], fdDat[\"w\"][[i]], Chop[N[K1, 7], 10^-6], N[Cd, 6]}], {i, 17, 22}]];\nGrid[Prepend[fdTestK3, {\"data state (1-based)\", \"Dynkin\", \"weight\", \"K1 (this port)\", \"C_data(M=1)\"}], Frame -> All]",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wl-output-block\"><div class=\"wl-output-header\" style=\"display:flex;align-items:center;gap:6px;width:100%;min-height:22px;\" data-session-epoch=\"725116\" data-output-id=\"137\" data-out-n=\"771\" data-sub-idx=\"3\" data-output-format=\"WLLatex\" data-output-is-graphics=\"0\" data-cell-idx=\"25\" data-sub-start=\"12\" data-sub-end=\"12\"><span style=\"font-size:10px;color:#888;margin-right:8px;\">Out[771]=</span></div><div class=\"wl-output-content\"><pre class=\"vscode-wolfram-text-output\">No output at Out[771]</pre></div></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "Out[771]= No output at Out[771]",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "d2dd6736-695e-4285-80be-5bac4dd58422"
+    }
+   ],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "(* eps-chain at L = 3: parameters exactly as Wa-sov-expansion-L4.wb cells 43-45 (L = 2) *)\nfdEpsPhi = {9/10, 7/20, 3/5, -11/10}; fdEpsTh0 = {0, 37/100, -52/100}; fdEpsC = 3/10;\nfdEpsSetup[eps_] := Module[{h = fdH, z = 1 + eps fdEpsPhi, thF = eps fdEpsTh0, thA, thE, u0, kap, a, y, s},\n  thA = thF + 2 h; thE = Riffle[thA, thF]; u0 = thF[[1]] + h; kap = 1 - fdEpsC eps; a = (fdEpsPhi[[1]] - fdEpsC)/(fdEpsPhi[[1]] - fdEpsPhi[[4]]);\n  y = (z[[2]] + z[[3]])/2; s = 1 - kap (z[[1]] + z[[4]]);\n  <|\"eps\" -> eps, \"z\" -> z, \"thF\" -> thF, \"thA\" -> thA, \"thE\" -> thE, \"u0\" -> u0, \"kap\" -> kap, \"a\" -> a, \"y\" -> y, \"s\" -> s, \"Nk\" -> (1 - kap z[[1]])^2,\n   \"l\" -> {fdLamC[1, thF[[1]], thA, thF, 1, h], fdLamC[2, u0, thA, thF, 1, h], fdLamC[3, u0, thA, thF, 1, h]},\n   \"lamz\" -> Table[1/Product[If[m == j, 1, z[[j]] - z[[m]]], {m, 4}], {j, 4}],\n   \"kap0\" -> -((z[[1]] - z[[2]]) (z[[1]] - z[[3]]))/((z[[4]] - z[[2]]) (z[[4]] - z[[3]])), \"u4\" -> (z[[4]] - z[[2]]) (z[[4]] - z[[3]])|>];\nfdEpsMats = <||>; fdEpsStates = <||>; fdEpsOut = <||>;\n(* data states 17..22 (1-based); 19,20 and 21,22 are degenerate (complex-conjugate parity partners): select eigenvectors by projection onto the span of each degenerate group *)\nfdEpsGroups = {{17}, {18}, {19, 20}, {21, 22}};\n(* stage A: exact sector matrix of t1^Lambda(3/11) in the (1,0,0,-1) sector *)\nfdEpsBuild[eps_] := Module[{S = fdEpsSetup[eps]}, fdEpsMats[eps] = Transpose[fdSecCols[fdIdx[2], 3/11, fdTy6, S[\"thE\"], fdH, DiagonalMatrix[S[\"z\"]], 1, 141]]; {eps, MemoryInUse[]/10.^9}];\n(* stage B: machine eigensystem, selection by projection on the data groups, hp inverse iteration *)\nfdEpsEig[eps_, prec_] := Module[{M = fdEpsMats[eps], vals, vecs, idx = fdIdx[2], picks},\n  {vals, vecs} = Eigensystem[N[M]];\n  picks = Flatten[Table[Module[{ps = Table[(fdDat[\"psiRe\"][[i]] + I fdDat[\"psiIm\"][[i]])[[idx]], {i, grp}], Q, w, sel},\n     Q = Orthogonalize[ps]; w = Table[Norm[Conjugate[Q] . vecs[[q]]]/Norm[vecs[[q]]], {q, Length[vecs]}];\n     sel = Take[Ordering[w, -Length[grp]], -Length[grp]]; Table[{grp[[1]], q, w[[q]]}, {q, Reverse[sel]}]], {grp, fdEpsGroups}], 1];\n  fdEpsStates[eps] = Map[<|\"group\" -> #[[1]], \"ov\" -> #[[3]], \"val\" -> vals[[#[[2]]]], \"x\" -> fdRefine[M, vecs[[#[[2]]]], vals[[#[[2]]]], prec]|> &, picks];\n  Map[{#[[1]], N[#[[3]], 6], N[vals[[#[[2]]]], 8]} &, picks]];\n(* stage C: exact c_k at this eps, bras for tau's, assembly of C_direct = K <W_a^3|Psi>/N and C_Q *)\nfdEpsAssemble[eps_, prec_] := Block[{$MinPrecision = prec, $MaxPrecision = prec}, Module[{S = fdEpsSetup[eps], h = fdH, z, thE, Lam, idx = fdIdx[2], sts = fdEpsStates[eps], run, sol, p, e, bras, psis, br0, brW, rows, u0},\n  z = S[\"z\"]; thE = S[\"thE\"]; Lam = DiagonalMatrix[z]; u0 = S[\"u0\"];\n  run = fdFonlyRun[3, thE, z, h, 2]; sol = run[\"sol\"]; run = Null;\n  psis = Table[Module[{ps = ConstantArray[0, 4096]}, ps[[idx]] = st[\"x\"]; ps], {st, sts}];\n  p = First[Ordering[Table[Min[Table[Abs[ps[[idx[[q]]]]], {ps, psis}]], {q, Length[idx]}], -1]]; p = idx[[p]]; e = fdUnit[p, 4096];\n  bras = {fdApplyT1[Lam, thE[[2]], fdTy6, thE, h, e, True], fdApplyT1[Lam, thE[[4]], fdTy6, thE, h, e, True], fdApplyT1[Lam, thE[[6]], fdTy6, thE, h, e, True],\n    fdApplyTk[2, Lam, u0, fdTy6, thE, h, e, False, True], fdApplyTk[3, Lam, u0, fdTy6, thE, h, e, True, True]};\n  br0 = fdKron[{S[\"lamz\"], {1, 1, 1, 1}, S[\"lamz\"], {1, 1, 1, 1}, S[\"lamz\"], {1, 1, 1, 1}}]; brW = fdWaBra[S[\"a\"]];\n  rows = Table[Module[{ps = psis[[j]], tau, X1, X2, X3, K, w, ov0, csum, cd, cq, l = S[\"l\"], kap = S[\"kap\"], y = S[\"y\"], ss = S[\"s\"]},\n    tau = (bras . ps)/ps[[p]]; X1 = tau[[1]]; X2 = tau[[4]]; X3 = tau[[5]];\n    K = ss^2 + kap ss (X1/(h^2 l[[1]]) + X2/(2 h^4 y l[[2]]) + X3/(6 h^5 y^2 l[[3]])) + kap^2 X3 X1/(24 h^7 y^2 l[[1]] l[[3]]);\n    w = brW . ps; ov0 = br0 . ps; csum = Total[MapThread[#1 Times @@ (tau[[1 ;; 3]]^#2) &, {sol, fdWordsK}]];\n    cd = K w/S[\"Nk\"]; cq = K (S[\"a\"]/S[\"kap0\"])^2 (S[\"lamz\"][[1]] S[\"u4\"])^-3 ov0 csum/S[\"Nk\"];\n    <|\"group\" -> sts[[j]][\"group\"], \"Cd\" -> cd, \"Cq\" -> cq, \"K\" -> K, \"w\" -> w, \"ov0\" -> ov0, \"tau\" -> tau|>], {j, Length[psis]}];\n  fdEpsOut[eps] = rows; Map[{#[\"group\"], N[Abs[#[\"Cd\"]], 8], N[Abs[#[\"Cq\"] - #[\"Cd\"]]/Abs[#[\"Cd\"]], 3]} &, rows]]];\n{\"defined\", MemoryInUse[]/10.^9}",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wl-output-block\"><div class=\"wl-output-header\" style=\"display:flex;align-items:center;gap:6px;width:100%;min-height:22px;\" data-session-epoch=\"725116\" data-output-id=\"138\" data-out-n=\"779\" data-sub-idx=\"12\" data-output-format=\"WLLatex\" data-output-is-graphics=\"0\" data-cell-idx=\"26\" data-sub-start=\"38\" data-sub-end=\"38\"><span style=\"font-size:10px;color:#888;margin-right:8px;\">Out[779]=</span></div><div class=\"wl-output-content\"><pre class=\"vscode-wolfram-text-output\">No output at Out[779]</pre></div></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "Out[779]= No output at Out[779]",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "2ebf89ea-d279-4981-a4fe-0b38f8bca42d"
+    }
+   ],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 5. Structure of the coefficients: the F-chain Cherednik model\n\nLevel grading: F-site vector e₄, e₃, e₂ = level 0, 1, 2; the twist acts as the raising operator N (e₄G = e₃, e₃G = e₂). On bras with no e₁ content at the F sites the A–F exchange terms are scalars, and t₁(θ_s) acts as t₁(θ_s) = κ_s Ŷ_s with\n\n  Ŷ_s = R_{s,s+1}⋯R_{s,L} N_s R_{s,1}⋯R_{s,s−1},  R_{sf} = 1 − (h/(θ_s−θ_f)) P_{sf}  (row-vector action, product in this order),\n\ncommuting Cherednik-type operators on (C³)^{⊗L}. Target: ⊗_s f(N_s) applied to the vacuum, f(x) = p − s x + x² (p = z₂z₃, s = z₂+z₃). Test of the model against the 27 exact words of cell 9, then the exact coefficients in the Ŷ monomials.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "(* model: Cherednik operators on levels {0,1,2}^L, row-vector action; th = F-site thetas (F1..FL) *)\nfdModelSetup[L_, th_, h_] := Module[{basis = Tuples[{0, 1, 2}, L], n, idx, swap, raise, pm, nm, rm, Y},\n  n = Length[basis]; idx = AssociationThread[basis -> Range[n]];\n  swap[t_, i_, j_] := ReplacePart[t, {i -> t[[j]], j -> t[[i]]}];\n  raise[t_, s_] := ReplacePart[t, s -> t[[s]] + 1];\n  pm[i_, j_] := SparseArray[Table[{q, idx[swap[basis[[q]], i, j]]} -> 1, {q, n}], {n, n}];\n  nm[s_] := SparseArray[Flatten[Table[If[basis[[q, s]] < 2, {{q, idx[raise[basis[[q]], s]]} -> 1}, {}], {q, n}]], {n, n}];\n  rm[s_, f_] := IdentityMatrix[n, SparseArray] - (h/(th[[s]] - th[[f]])) pm[s, f];\n  Y = Table[Normal[Dot @@ Join[Table[rm[s, f], {f, s + 1, L}], {nm[s]}, Table[rm[s, f], {f, 1, s - 1}]]], {s, L}];\n  <|\"basis\" -> basis, \"idx\" -> idx, \"Y\" -> Y, \"n\" -> n, \"L\" -> L|>];\n(* words <vac| Y^k *)\nfdModelWords[mod_] := Module[{L = mod[\"L\"], vac = UnitVector[mod[\"n\"], 1], ks = Tuples[{0, 1, 2}, mod[\"L\"]]},\n  <|\"ks\" -> ks, \"vecs\" -> Table[Fold[Function[{v, sk}, Nest[#1 . mod[\"Y\"][[sk[[1]]]] &, v, sk[[2]]]], vac, Transpose[{Range[L], k}]], {k, ks}]|>];\n(* check at L = 3 generic F thetas vs the exact words: <0|t(theta_s) = kappa_s <vac|Y_s ; compare all 27 words *)\nfdModelCheck = Module[{L = 3, thF = fdTh6[[{2, 4, 6}]], mod, wd, full, ks, kap, devs},\n  mod = fdModelSetup[L, thF, fdH]; wd = fdModelWords[mod]; ks = wd[\"ks\"];\n  full[t_] := FromDigits[{1, 4 - t[[1]], 1, 4 - t[[2]], 1, 4 - t[[3]]} - 1, 4] + 1;\n  kap = Table[Module[{k1 = UnitVector[3, s], vm, vn, q}, vm = wd[\"vecs\"][[First[Flatten[Position[ks, k1]]]]]; vn = fdWords[k1];\n     q = First[Flatten[Position[vm, Except[0], {1}, Heads -> False]]]; vn[[full[mod[\"basis\"][[q]]]]]/vm[[q]]], {s, 3}];\n  devs = Table[Module[{vm = wd[\"vecs\"][[i]], vn = fdWords[ks[[i]]]}, Max[Abs[Table[vn[[full[mod[\"basis\"][[q]]]]] - (Times @@ (kap^ks[[i]])) vm[[q]], {q, mod[\"n\"]}]]]], {i, Length[ks]}];\n  <|\"kappa\" -> kap, \"max word deviation\" -> Max[devs], \"kappa formula\" -> Table[fdKappaS[2 s, fdTh6, fdH], {s, 3}]|>];\nGrid[{{\"kappa_s from the exact words\", fdModelCheck[\"kappa\"]}, {\"kappa_s from the closed formula\", fdModelCheck[\"kappa formula\"]}, {\"max deviation |exact word - kappa^k model word| over all 27 words x 27 components\", fdModelCheck[\"max word deviation\"]}}, Frame -> All]",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wl-output-block\"><div class=\"wl-output-header\" style=\"display:flex;align-items:center;gap:6px;width:100%;min-height:22px;\" data-session-epoch=\"725116\" data-output-id=\"134\" data-out-n=\"761\" data-sub-idx=\"6\" data-output-format=\"WLLatex\" data-output-is-graphics=\"0\" data-cell-idx=\"28\" data-sub-start=\"21\" data-sub-end=\"21\"><span style=\"font-size:10px;color:#888;margin-right:8px;\">Out[761]=</span></div><div class=\"wl-output-content\"><pre class=\"vscode-wolfram-text-output\">No output at Out[761]</pre></div></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "Out[761]= No output at Out[761]",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "f91dfd2e-bf48-4dfb-9e3d-0c44ec8e2e73"
+    }
+   ],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "### Closed form (conjecture found in the model, python cross-checks `checks/session-2026-10-13/fonly/`), tested here on the full chain\n\nAll z-dependence is in the two roots: ⟨(e₁⊗ũ)^{⊗L}| = ⟨0| B_{z₂}(Ŷ) B_{z₃}(Ŷ), with the **single-root global F-rotation operator**\n\n  B_z(Ŷ) = Σ_{S ⊆ {F sites}} (−z)^{L−|S|} g_S ∏_{s∈S} Ŷ_s,  g_S = ∏_{s<t ∈ S} ν_st²/(ν_st² − h²),  ν_st = θ_s − θ_t,\n\nand t₁(θ_s) = κ_s Ŷ_s on the vacuum module, κ_s = h ∏_{A sites a} (±(θ_a − θ_s)) ∏_{F sites f≠s} (±(θ_f − θ_s)) with the sign + when the other site is to the left (θ_a − θ_s, θ_f − θ_s) and the opposite sign (θ_s − θ_a) when it is to the right (read off at L = 2). Test: c_k = [coefficient of Ŷ^k in B_{z₂}B_{z₃}]/∏κ_s^{k_s} against the exact solution `fdSol` of cell 10.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "(* closed form vs exact fdSol on the full chain, L = 3 generic point *)\nfdKappaS[q_, th_, h_] := h Times @@ Table[If[Mod[a, 2] == 1, If[a < q, th[[a]] - th[[q]], th[[q]] - th[[a]]], 1], {a, Length[th]}] Times @@ Table[If[Mod[a, 2] == 0 && a != q, If[a < q, th[[a]] - th[[q]], th[[q]] - th[[a]]], 1], {a, Length[th]}];\nfdClosedCk[th6_, z_, h_] := Module[{L = 3, thF = th6[[{2, 4, 6}]], y = {fdy1, fdy2, fdy3}, kap, g, B, F, z2 = z[[2]], z3 = z[[3]], cr},\n  kap = Table[fdKappaS[2 s, th6, h], {s, L}];\n  g[i_, j_] := (thF[[i]] - thF[[j]])^2/((thF[[i]] - thF[[j]])^2 - h^2);\n  B[zz_] := Sum[(-zz)^(L - Length[S]) Times @@ (g @@@ Subsets[S, {2}]) Times @@ y[[S]], {S, Subsets[Range[L]]}];\n  F = Expand[B[z2] B[z3]]; cr = Association[CoefficientRules[F, y]];\n  Table[Lookup[cr, {k}, 0][[1]]/Times @@ (kap^k), {k, fdWordsK}]];\nfdClosedSol = fdClosedCk[fdTh6, fdZ, fdH];\nGrid[{{\"closed form c_k == exact solution fdSol (all 27 k, exact rationals)\", fdClosedSol === fdSol}, {\"kappa_s\", Table[fdKappaS[2 s, fdTh6, fdH], {s, 3}]}}, Frame -> All]",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wl-output-block\"><div class=\"wl-output-header\" style=\"display:flex;align-items:center;gap:6px;width:100%;min-height:22px;\" data-session-epoch=\"725116\" data-output-id=\"136\" data-out-n=\"768\" data-sub-idx=\"4\" data-output-format=\"WLLatex\" data-output-is-graphics=\"0\" data-cell-idx=\"30\" data-sub-start=\"9\" data-sub-end=\"9\"><span style=\"font-size:10px;color:#888;margin-right:8px;\">Out[768]=</span></div><div class=\"wl-output-content\"><pre class=\"vscode-wolfram-text-output\">No output at Out[768]</pre></div></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "Out[768]= No output at Out[768]",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "3957a3e0-14b4-4634-aa04-86c3dbe85b07"
+    }
+   ],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "### (4) Even bridge M = 1 at L = 3 on the ABJM ε-chain (sector (1,0,0,−1), 141 states)\n\nStage A builds the exact 141×141 matrix of t₁^Λ(3/11) (vector propagation of unit vectors); stage B picks the eigenvectors that tend to the six data [1,0,1] HW states (by projection onto each degenerate data group; 19/20 and 21/22 are degenerate conjugate pairs) and refines them to 70 digits; stage C builds the exact c_k at this ε (27 words, exact solve), the bras for τ₁(θ_F1,2,3), X₂, X₃, and assembles C_direct = K·⟨W_a^3|Ψ⟩/(1−κ z₁)² and C_Q = K (a/κ₀)²(λ₁u₄)⁻³ ⟨0|Ψ⟩ Σc_kτ^k/(1−κ z₁)² (Ψ unit norm).",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "fdEpsNow = 1/800; fdEpsBuild[fdEpsNow]",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wl-output-block\"><div class=\"wl-output-header\" style=\"display:flex;align-items:center;gap:6px;width:100%;min-height:22px;\" data-session-epoch=\"725116\" data-output-id=\"149\" data-out-n=\"792\" data-sub-idx=\"0\" data-output-format=\"WLLatex\" data-output-is-graphics=\"0\" data-cell-idx=\"32\" data-sub-start=\"0\" data-sub-end=\"0\"><span style=\"font-size:10px;color:#888;margin-right:8px;\">Out[792]=</span></div><div class=\"wl-output-content\"><div class=\"vscode-wolfram-wllatex-prerendered\" data-page-width-em=\"15\" data-latex-b64=\"XGxlZnRce1xmcmFjezF9ezgwMH0sNC43NTQxNjEyNzJccmlnaHRcfQ==\"><span class=\"katex-display\"><span class=\"katex\"><span class=\"katex-html\" aria-hidden=\"true\"><span class=\"base\"><span class=\"strut\" style=\"height:2.4em;vertical-align:-0.95em;\"></span><span class=\"minner\"><span class=\"mopen delimcenter\" style=\"top:0em;\"><span class=\"delimsizing size3\">{</span></span><span class=\"mord\"><span class=\"mopen nulldelimiter\"></span><span class=\"mfrac\"><span class=\"vlist-t vlist-t2\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:1.3214em;\"><span style=\"top:-2.314em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">800</span></span></span><span style=\"top:-3.23em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"frac-line\" style=\"border-bottom-width:0.04em;\"></span></span><span style=\"top:-3.677em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">1</span></span></span></span><span class=\"vlist-s\">​</span></span><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:0.686em;\"><span></span></span></span></span></span><span class=\"mclose nulldelimiter\"></span></span><span class=\"mpunct\">,</span><span class=\"mspace\" style=\"margin-right:0.1667em;\"></span><span class=\"mord\">4.754161272</span><span class=\"mclose delimcenter\" style=\"top:0em;\"><span class=\"delimsizing size3\">}</span></span></span></span></span></span></span></div></div></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "Out[792]= \\left\\{\\frac{1}{800},4.754161272\\right\\}",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "40114738-039d-44cc-9d7c-fe95431302da"
+    }
+   ],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "fdEpsEig[fdEpsNow, 70]",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wl-output-block\"><div class=\"wl-output-header\" style=\"display:flex;align-items:center;gap:6px;width:100%;min-height:22px;\" data-session-epoch=\"725116\" data-output-id=\"150\" data-out-n=\"793\" data-sub-idx=\"0\" data-output-format=\"WLLatex\" data-output-is-graphics=\"0\" data-cell-idx=\"33\" data-sub-start=\"0\" data-sub-end=\"0\"><span style=\"font-size:10px;color:#888;margin-right:8px;\">Out[793]=</span></div><div class=\"wl-output-content\"><div class=\"vscode-wolfram-wllatex-prerendered\" data-page-width-em=\"15\" data-latex-b64=\"XGJlZ2lue3BtYXRyaXh9MTcgJiAwLjk5OTk5NzYxMDYxMDUxMDEgJiAtMC4wMjA4Nzg0ODQ3NzE5OTkzNDYrMC5cLFwsXG1hdGhybXtpfVxcMTggJiAwLjk5OTk5OTQwNTk5ODc5NDMgJiAwLjExOTQxMTM4MDU0MTA4NzUy4oCKKzAuXCxcLFxtYXRocm17aX1cXDE5ICYgMC45OTk5OTg3MzEyMTUwNzIzICYgLTAuMDA4MDQ2OTA0NDkwOTYwMjk0LTAuMTg4OTI2NzYwOTM1OTMzNjZcLFxtYXRocm17aX1cXDE5ICYgMC45OTk5OTg3MzEyMTUwNzE4ICYgLTAuMDA4MDQ2OTA0NDkwOTYwMjk0KzAuMTg4OTI2NzYwOTM1OTMzNjZcLFxtYXRocm17aX1cXDIxICYgMC45OTk5OTg5MjA0NDIyNzkyICYgLTAuMDM1NTY2NTQzNTcxMDkyMzc0LTAuMDA5NjQxMDc2NDE0NjE1MzU2XCxcbWF0aHJte2l9XFwyMSAmIDAuOTk5OTk4OTIwNDQyMjc5MiAmIC0wLjAzNTU2NjU0MzU3MTA5MjM3NCswLjAwOTY0MTA3NjQxNDYxNTM1NlwsXG1hdGhybXtpfVxlbmR7cG1hdHJpeH0=\"><span class=\"katex-display\"><span class=\"katex\"><span class=\"katex-html\" aria-hidden=\"true\"><span class=\"base\"><span class=\"strut\" style=\"height:7.2001em;vertical-align:-3.35em;\"></span><span class=\"minner\"><span class=\"mopen\"><span class=\"delimsizing mult\"><span class=\"vlist-t vlist-t2\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:3.85em;\"><span style=\"top:-5.8499em;\"><span class=\"pstrut\" style=\"height:9.2em;\"></span><span style=\"width:0.875em;height:7.200em;\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"0.875em\" height=\"7.200em\" viewBox=\"0 0 875 7200\"><path d=\"M863,9c0,-2,-2,-5,-6,-9c0,0,-17,0,-17,0c-12.7,0,-19.3,0.3,-20,1\nc-5.3,5.3,-10.3,11,-15,17c-242.7,294.7,-395.3,682,-458,1162c-21.3,163.3,-33.3,349,\n-36,557 l0,3684c0.2,6,0,26,0,60c2,159.3,10,310.7,24,454c53.3,528,210,\n949.7,470,1265c4.7,6,9.7,11.7,15,17c0.7,0.7,7,1,19,1c0,0,18,0,18,0c4,-4,6,-7,6,-9\nc0,-2.7,-3.3,-8.7,-10,-18c-135.3,-192.7,-235.5,-414.3,-300.5,-665c-65,-250.7,-102.5,\n-544.7,-112.5,-882c-2,-104,-3,-167,-3,-189\nl0,-3692c0,-162.7,5.7,-314,17,-454c20.7,-272,63.7,-513,129,-723c65.3,\n-210,155.3,-396.3,270,-559c6.7,-9.3,10,-15.3,10,-18z\"/></svg></span></span></span><span class=\"vlist-s\">​</span></span><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:3.35em;\"><span></span></span></span></span></span></span><span class=\"mord\"><span class=\"mtable\"><span class=\"col-align-c\"><span class=\"vlist-t vlist-t2\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:3.85em;\"><span style=\"top:-6.01em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">17</span></span></span><span style=\"top:-4.81em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">18</span></span></span><span style=\"top:-3.61em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">19</span></span></span><span style=\"top:-2.41em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">19</span></span></span><span style=\"top:-1.21em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">21</span></span></span><span style=\"top:-0.01em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">21</span></span></span></span><span class=\"vlist-s\">​</span></span><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:3.35em;\"><span></span></span></span></span></span><span class=\"arraycolsep\" style=\"width:0.5em;\"></span><span class=\"arraycolsep\" style=\"width:0.5em;\"></span><span class=\"col-align-c\"><span class=\"vlist-t vlist-t2\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:3.85em;\"><span style=\"top:-6.01em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">0.9999976106105101</span></span></span><span style=\"top:-4.81em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">0.9999994059987943</span></span></span><span style=\"top:-3.61em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">0.9999987312150723</span></span></span><span style=\"top:-2.41em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">0.9999987312150718</span></span></span><span style=\"top:-1.21em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">0.9999989204422792</span></span></span><span style=\"top:-0.01em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">0.9999989204422792</span></span></span></span><span class=\"vlist-s\">​</span></span><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:3.35em;\"><span></span></span></span></span></span><span class=\"arraycolsep\" style=\"width:0.5em;\"></span><span class=\"arraycolsep\" style=\"width:0.5em;\"></span><span class=\"col-align-c\"><span class=\"vlist-t vlist-t2\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:3.85em;\"><span style=\"top:-6.01em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">−</span><span class=\"mord\">0.020878484771999346</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mbin\">+</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mord\">0.</span><span class=\"mspace\" style=\"margin-right:0.1667em;\"></span><span class=\"mspace\" style=\"margin-right:0.1667em;\"></span><span class=\"mord mathrm\">i</span></span></span><span style=\"top:-4.81em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">0.11941138054108752 </span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mbin\">+</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mord\">0.</span><span class=\"mspace\" style=\"margin-right:0.1667em;\"></span><span class=\"mspace\" style=\"margin-right:0.1667em;\"></span><span class=\"mord mathrm\">i</span></span></span><span style=\"top:-3.61em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">−</span><span class=\"mord\">0.008046904490960294</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mbin\">−</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mord\">0.18892676093593366</span><span class=\"mspace\" style=\"margin-right:0.1667em;\"></span><span class=\"mord mathrm\">i</span></span></span><span style=\"top:-2.41em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">−</span><span class=\"mord\">0.008046904490960294</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mbin\">+</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mord\">0.18892676093593366</span><span class=\"mspace\" style=\"margin-right:0.1667em;\"></span><span class=\"mord mathrm\">i</span></span></span><span style=\"top:-1.21em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">−</span><span class=\"mord\">0.035566543571092374</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mbin\">−</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mord\">0.009641076414615356</span><span class=\"mspace\" style=\"margin-right:0.1667em;\"></span><span class=\"mord mathrm\">i</span></span></span><span style=\"top:-0.01em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">−</span><span class=\"mord\">0.035566543571092374</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mbin\">+</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mord\">0.009641076414615356</span><span class=\"mspace\" style=\"margin-right:0.1667em;\"></span><span class=\"mord mathrm\">i</span></span></span></span><span class=\"vlist-s\">​</span></span><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:3.35em;\"><span></span></span></span></span></span></span></span><span class=\"mclose\"><span class=\"delimsizing mult\"><span class=\"vlist-t vlist-t2\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:3.85em;\"><span style=\"top:-5.8499em;\"><span class=\"pstrut\" style=\"height:9.2em;\"></span><span style=\"width:0.875em;height:7.200em;\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"0.875em\" height=\"7.200em\" viewBox=\"0 0 875 7200\"><path d=\"M76,0c-16.7,0,-25,3,-25,9c0,2,2,6.3,6,13c21.3,28.7,42.3,60.3,\n63,95c96.7,156.7,172.8,332.5,228.5,527.5c55.7,195,92.8,416.5,111.5,664.5\nc11.3,139.3,17,290.7,17,454c0,28,1.7,43,3.3,45l0,3609\nc-3,4,-3.3,16.7,-3.3,38c0,162,-5.7,313.7,-17,455c-18.7,248,-55.8,469.3,-111.5,664\nc-55.7,194.7,-131.8,370.3,-228.5,527c-20.7,34.7,-41.7,66.3,-63,95c-2,3.3,-4,7,-6,11\nc0,7.3,5.7,11,17,11c0,0,11,0,11,0c9.3,0,14.3,-0.3,15,-1c5.3,-5.3,10.3,-11,15,-17\nc242.7,-294.7,395.3,-681.7,458,-1161c21.3,-164.7,33.3,-350.7,36,-558\nl0,-3744c-2,-159.3,-10,-310.7,-24,-454c-53.3,-528,-210,-949.7,\n-470,-1265c-4.7,-6,-9.7,-11.7,-15,-17c-0.7,-0.7,-6.7,-1,-18,-1z\"/></svg></span></span></span><span class=\"vlist-s\">​</span></span><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:3.35em;\"><span></span></span></span></span></span></span></span></span></span></span></span></div></div></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "Out[793]= \\begin{pmatrix}17 & 0.9999976106105101 & -0.020878484771999346+0.\\,\\,\\mathrm{i}\\\\18 & 0.9999994059987943 & 0.11941138054108752 +0.\\,\\,\\mathrm{i}\\\\19 & 0.9999987312150723 & -0.008046904490960294-0.18892676093593366\\,\\mathrm{i}\\\\19 & 0.9999987312150718 & -0.008046904490960294+0.18892676093593366\\,\\mathrm{i}\\\\21 & 0.9999989204422792 & -0.035566543571092374-0.009641076414615356\\,\\mathrm{i}\\\\21 & 0.9999989204422792 & -0.035566543571092374+0.009641076414615356\\,\\mathrm{i}\\end{pmatrix}",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "cc8eabb6-64eb-45fa-97f5-6436116b907d"
+    }
+   ],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "fdEpsAssemble[fdEpsNow, 70]",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<details class=\"vscode-wolfram-message-output\" style=\"color:#f44;border-left:3px solid #f44;background:rgba(255,68,68,0.08);padding:2px 6px;margin:1px 0;border-radius:0 3px 3px 0;font-family:monospace;font-size:0.85em\"><summary style=\"cursor:pointer\">4 warnings</summary><div style=\"padding:2px 0 2px 4px;border-top:1px solid rgba(255,68,68,0.15)\">N::precsm: Requested precision 8 is smaller than $MinPrecision. Using $MinPrecision instead.</div><div style=\"padding:2px 0 2px 4px;border-top:1px solid rgba(255,68,68,0.15)\">N::precsm: Requested precision 3 is smaller than $MinPrecision. Using $MinPrecision instead.</div><div style=\"padding:2px 0 2px 4px;border-top:1px solid rgba(255,68,68,0.15)\">N::precsm: Requested precision 8 is smaller than $MinPrecision. Using $MinPrecision instead.</div><div style=\"padding:2px 0 2px 4px;border-top:1px solid rgba(255,68,68,0.15)\">General::stop: Further output of N::precsm will be suppressed during this calculation.</div></details>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "N::precsm: Requested precision 8 is smaller than $MinPrecision. Using $MinPrecision instead.\nN::precsm: Requested precision 3 is smaller than $MinPrecision. Using $MinPrecision instead.\nN::precsm: Requested precision 8 is smaller than $MinPrecision. Using $MinPrecision instead.\nGeneral::stop: Further output of N::precsm will be suppressed during this calculation.",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "7a4a2361-8d3a-4c74-bd2c-233b0fe57d28"
+    },
+    {
+     "items": [
+      {
+       "data": "<div class=\"wl-output-block\"><div class=\"wl-output-header\" style=\"display:flex;align-items:center;gap:6px;width:100%;min-height:22px;\" data-session-epoch=\"725116\" data-output-id=\"151\" data-out-n=\"794\" data-sub-idx=\"0\" data-output-format=\"WLLatex\" data-output-is-graphics=\"0\" data-cell-idx=\"34\" data-sub-start=\"0\" data-sub-end=\"0\"><span style=\"font-size:10px;color:#888;margin-right:8px;\">Out[794]=</span></div><div class=\"wl-output-content\"><div class=\"vscode-wolfram-wllatex-prerendered\" data-page-width-em=\"15\" data-latex-b64=\"XGJlZ2lue3BtYXRyaXh9MTcgJiAwLjE3MDcwNTU2ODY1NTQ5NTc5OTI3NDQzNTA4OTkzMjU5Njg4MzQ4ODExNTMyMjI0MTU5ODQ4NDkzMzYxNTk3NjEzODM3NTEgJiA0LjE1MzI1NDE4MDg0MjU2NTYwNTU2Njg3NTE5MzE3OTU0MzM5NDA2MzUxODk5ODM4MzIzNDc4MzIwNTg1OTc0MzkzNDM4MVx0aW1lcyAxMF57LTM3fVxcMTggJiAwLjAyNzAxNDI2MzQ5MTA0MTQwOTE0MzQ3NTE2Mzg1MTkzMjg4MzQ2NzA0MjU3MTc0Nzc0NDU5NzA5NjAyNjIzNDE4NjM1NDIwICYgNC45NDgzOTIwMTM4NDgzOTg5MTQ3MDQ0ODk3MzM1NzMyOTk2NjY2MjU0NjUyNjEwODMyMzQ2NDYzMTk1NzA4MTU4MDM2NzBcdGltZXMgMTBeey00MH1cXDE5ICYgMC4wNDU2NzU4OTg4NDMxNzI3MTY5MjAzNjA1Njc1MTA0ODAwOTc4NzMzNTUwMTA2NTIzMzk0NzY1ODM1MzgzNTExODk4ODIyNSAmIDEuNjgwMzYyNjc4Njg3ODkyMjM0NTQ4OTk1OTk0Mjc5OTY1NTI3NDc3NzU4Mzk0MjY1OTI2MjQyNTE1MjYwNDMwNDA0NTk5XHRpbWVzIDEwXnstMzd9XFwxOSAmIDAuMDQ1Njc1ODk4ODQzMTcyNzE2OTIwMzYwNTY3NTEwNDgwMDk3ODczMzU1MDEwNjUyMzM5NDc2NTgzNTM4MzUxMTg5ODgyMjUgJiAxLjY4MDM2MjY3ODY4Nzg5MjIzNDU0ODk5NTk5NDI3OTk2NTUyNzQ3Nzc1ODM5NDI2NTkyNjI0MjUxNTI2MDQzMDQwNDU5OVx0aW1lcyAxMF57LTM3fVxcMjEgJiAwLjE1MzIxNzA3Mjc2NzIyMTk4MDUzMjYzMTgwNjgxMTk1NDY1OTg4ODE5MzM3MzMxMDY4OTc3MTE1MDUwNDUzNzIyMDI1NjUgJiA0LjU0MzAzMDc1MTE1NTk1ODk2NTU2NjU0NDk2MzcyNjIzNDQ0NTE2NjI1MjAxNzY0MTcxNzIxNzU1NTk1NTEzMzQ5OTE3OFx0aW1lcyAxMF57LTM3fVxcMjEgJiAwLjE1MzIxNzA3Mjc2NzIyMTk4MDUzMjYzMTgwNjgxMTk1NDY1OTg4ODE5MzM3MzMxMDY4OTc3MTE1MDUwNDUzNzIyMDI1NjUgJiA0LjU0MzAzMDc1MTE1NTk1ODk2NTU2NjU0NDk2MzcyNjIzNDQ0NTE2NjI1MjAxNzY0MTcxNzIxNzU1NTk1NTEzMzQ5OTE3OFx0aW1lcyAxMF57LTM3fVxlbmR7cG1hdHJpeH0=\"><span class=\"katex-display\"><span class=\"katex\"><span class=\"katex-html\" aria-hidden=\"true\"><span class=\"base\"><span class=\"strut\" style=\"height:7.2001em;vertical-align:-3.35em;\"></span><span class=\"minner\"><span class=\"mopen\"><span class=\"delimsizing mult\"><span class=\"vlist-t vlist-t2\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:3.85em;\"><span style=\"top:-5.8499em;\"><span class=\"pstrut\" style=\"height:9.2em;\"></span><span style=\"width:0.875em;height:7.200em;\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"0.875em\" height=\"7.200em\" viewBox=\"0 0 875 7200\"><path d=\"M863,9c0,-2,-2,-5,-6,-9c0,0,-17,0,-17,0c-12.7,0,-19.3,0.3,-20,1\nc-5.3,5.3,-10.3,11,-15,17c-242.7,294.7,-395.3,682,-458,1162c-21.3,163.3,-33.3,349,\n-36,557 l0,3684c0.2,6,0,26,0,60c2,159.3,10,310.7,24,454c53.3,528,210,\n949.7,470,1265c4.7,6,9.7,11.7,15,17c0.7,0.7,7,1,19,1c0,0,18,0,18,0c4,-4,6,-7,6,-9\nc0,-2.7,-3.3,-8.7,-10,-18c-135.3,-192.7,-235.5,-414.3,-300.5,-665c-65,-250.7,-102.5,\n-544.7,-112.5,-882c-2,-104,-3,-167,-3,-189\nl0,-3692c0,-162.7,5.7,-314,17,-454c20.7,-272,63.7,-513,129,-723c65.3,\n-210,155.3,-396.3,270,-559c6.7,-9.3,10,-15.3,10,-18z\"/></svg></span></span></span><span class=\"vlist-s\">​</span></span><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:3.35em;\"><span></span></span></span></span></span></span><span class=\"mord\"><span class=\"mtable\"><span class=\"col-align-c\"><span class=\"vlist-t vlist-t2\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:3.85em;\"><span style=\"top:-6.01em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">17</span></span></span><span style=\"top:-4.81em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">18</span></span></span><span style=\"top:-3.61em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">19</span></span></span><span style=\"top:-2.41em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">19</span></span></span><span style=\"top:-1.21em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">21</span></span></span><span style=\"top:-0.01em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">21</span></span></span></span><span class=\"vlist-s\">​</span></span><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:3.35em;\"><span></span></span></span></span></span><span class=\"arraycolsep\" style=\"width:0.5em;\"></span><span class=\"arraycolsep\" style=\"width:0.5em;\"></span><span class=\"col-align-c\"><span class=\"vlist-t vlist-t2\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:3.85em;\"><span style=\"top:-6.01em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">0.1707055686554957992744350899325968834881153222415984849336159761383751</span></span></span><span style=\"top:-4.81em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">0.02701426349104140914347516385193288346704257174774459709602623418635420</span></span></span><span style=\"top:-3.61em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">0.04567589884317271692036056751048009787335501065233947658353835118988225</span></span></span><span style=\"top:-2.41em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">0.04567589884317271692036056751048009787335501065233947658353835118988225</span></span></span><span style=\"top:-1.21em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">0.1532170727672219805326318068119546598881933733106897711505045372202565</span></span></span><span style=\"top:-0.01em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">0.1532170727672219805326318068119546598881933733106897711505045372202565</span></span></span></span><span class=\"vlist-s\">​</span></span><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:3.35em;\"><span></span></span></span></span></span><span class=\"arraycolsep\" style=\"width:0.5em;\"></span><span class=\"arraycolsep\" style=\"width:0.5em;\"></span><span class=\"col-align-c\"><span class=\"vlist-t vlist-t2\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:3.85em;\"><span style=\"top:-6.01em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">4.153254180842565605566875193179543394063518998383234783205859743934381</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mbin\">×</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mord\">1</span><span class=\"mord\"><span class=\"mord\">0</span><span class=\"msupsub\"><span class=\"vlist-t\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:0.8141em;\"><span style=\"top:-3.063em;margin-right:0.05em;\"><span class=\"pstrut\" style=\"height:2.7em;\"></span><span class=\"sizing reset-size6 size3 mtight\"><span class=\"mord mtight\"><span class=\"mord mtight\">−</span><span class=\"mord mtight\">37</span></span></span></span></span></span></span></span></span></span></span><span style=\"top:-4.81em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">4.948392013848398914704489733573299666625465261083234646319570815803670</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mbin\">×</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mord\">1</span><span class=\"mord\"><span class=\"mord\">0</span><span class=\"msupsub\"><span class=\"vlist-t\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:0.8141em;\"><span style=\"top:-3.063em;margin-right:0.05em;\"><span class=\"pstrut\" style=\"height:2.7em;\"></span><span class=\"sizing reset-size6 size3 mtight\"><span class=\"mord mtight\"><span class=\"mord mtight\">−</span><span class=\"mord mtight\">40</span></span></span></span></span></span></span></span></span></span></span><span style=\"top:-3.61em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">1.680362678687892234548995994279965527477758394265926242515260430404599</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mbin\">×</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mord\">1</span><span class=\"mord\"><span class=\"mord\">0</span><span class=\"msupsub\"><span class=\"vlist-t\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:0.8141em;\"><span style=\"top:-3.063em;margin-right:0.05em;\"><span class=\"pstrut\" style=\"height:2.7em;\"></span><span class=\"sizing reset-size6 size3 mtight\"><span class=\"mord mtight\"><span class=\"mord mtight\">−</span><span class=\"mord mtight\">37</span></span></span></span></span></span></span></span></span></span></span><span style=\"top:-2.41em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">1.680362678687892234548995994279965527477758394265926242515260430404599</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mbin\">×</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mord\">1</span><span class=\"mord\"><span class=\"mord\">0</span><span class=\"msupsub\"><span class=\"vlist-t\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:0.8141em;\"><span style=\"top:-3.063em;margin-right:0.05em;\"><span class=\"pstrut\" style=\"height:2.7em;\"></span><span class=\"sizing reset-size6 size3 mtight\"><span class=\"mord mtight\"><span class=\"mord mtight\">−</span><span class=\"mord mtight\">37</span></span></span></span></span></span></span></span></span></span></span><span style=\"top:-1.21em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">4.543030751155958965566544963726234445166252017641717217555955133499178</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mbin\">×</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mord\">1</span><span class=\"mord\"><span class=\"mord\">0</span><span class=\"msupsub\"><span class=\"vlist-t\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:0.8141em;\"><span style=\"top:-3.063em;margin-right:0.05em;\"><span class=\"pstrut\" style=\"height:2.7em;\"></span><span class=\"sizing reset-size6 size3 mtight\"><span class=\"mord mtight\"><span class=\"mord mtight\">−</span><span class=\"mord mtight\">37</span></span></span></span></span></span></span></span></span></span></span><span style=\"top:-0.01em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">4.543030751155958965566544963726234445166252017641717217555955133499178</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mbin\">×</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mord\">1</span><span class=\"mord\"><span class=\"mord\">0</span><span class=\"msupsub\"><span class=\"vlist-t\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:0.8141em;\"><span style=\"top:-3.063em;margin-right:0.05em;\"><span class=\"pstrut\" style=\"height:2.7em;\"></span><span class=\"sizing reset-size6 size3 mtight\"><span class=\"mord mtight\"><span class=\"mord mtight\">−</span><span class=\"mord mtight\">37</span></span></span></span></span></span></span></span></span></span></span></span><span class=\"vlist-s\">​</span></span><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:3.35em;\"><span></span></span></span></span></span></span></span><span class=\"mclose\"><span class=\"delimsizing mult\"><span class=\"vlist-t vlist-t2\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:3.85em;\"><span style=\"top:-5.8499em;\"><span class=\"pstrut\" style=\"height:9.2em;\"></span><span style=\"width:0.875em;height:7.200em;\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"0.875em\" height=\"7.200em\" viewBox=\"0 0 875 7200\"><path d=\"M76,0c-16.7,0,-25,3,-25,9c0,2,2,6.3,6,13c21.3,28.7,42.3,60.3,\n63,95c96.7,156.7,172.8,332.5,228.5,527.5c55.7,195,92.8,416.5,111.5,664.5\nc11.3,139.3,17,290.7,17,454c0,28,1.7,43,3.3,45l0,3609\nc-3,4,-3.3,16.7,-3.3,38c0,162,-5.7,313.7,-17,455c-18.7,248,-55.8,469.3,-111.5,664\nc-55.7,194.7,-131.8,370.3,-228.5,527c-20.7,34.7,-41.7,66.3,-63,95c-2,3.3,-4,7,-6,11\nc0,7.3,5.7,11,17,11c0,0,11,0,11,0c9.3,0,14.3,-0.3,15,-1c5.3,-5.3,10.3,-11,15,-17\nc242.7,-294.7,395.3,-681.7,458,-1161c21.3,-164.7,33.3,-350.7,36,-558\nl0,-3744c-2,-159.3,-10,-310.7,-24,-454c-53.3,-528,-210,-949.7,\n-470,-1265c-4.7,-6,-9.7,-11.7,-15,-17c-0.7,-0.7,-6.7,-1,-18,-1z\"/></svg></span></span></span><span class=\"vlist-s\">​</span></span><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:3.35em;\"><span></span></span></span></span></span></span></span></span></span></span></span></div></div></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "Out[794]= \\begin{pmatrix}17 & 0.1707055686554957992744350899325968834881153222415984849336159761383751 & 4.153254180842565605566875193179543394063518998383234783205859743934381\\times 10^{-37}\\\\18 & 0.02701426349104140914347516385193288346704257174774459709602623418635420 & 4.948392013848398914704489733573299666625465261083234646319570815803670\\times 10^{-40}\\\\19 & 0.04567589884317271692036056751048009787335501065233947658353835118988225 & 1.680362678687892234548995994279965527477758394265926242515260430404599\\times 10^{-37}\\\\19 & 0.04567589884317271692036056751048009787335501065233947658353835118988225 & 1.680362678687892234548995994279965527477758394265926242515260430404599\\times 10^{-37}\\\\21 & 0.1532170727672219805326318068119546598881933733106897711505045372202565 & 4.543030751155958965566544963726234445166252017641717217555955133499178\\times 10^{-37}\\\\21 & 0.1532170727672219805326318068119546598881933733106897711505045372202565 & 4.543030751155958965566544963726234445166252017641717217555955133499178\\times 10^{-37}\\end{pmatrix}",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "f847059f-7b85-4acc-9037-13c6e75660b7"
+    },
+    {
+     "items": [
+      {
+       "data": "<span style=\"display:none\"></span>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "N::precsm: Requested precision 8 is smaller than $MinPrecision. Using $MinPrecision instead.\nN::precsm: Requested precision 3 is smaller than $MinPrecision. Using $MinPrecision instead.\nN::precsm: Requested precision 8 is smaller than $MinPrecision. Using $MinPrecision instead.\nGeneral::stop: Further output of N::precsm will be suppressed during this calculation.",
+       "mime": "text/plain"
+      },
+      {
+       "data": "{\n\t\"name\": \"WolframKernelMessage\",\n\t\"message\": \"N::precsm: Requested precision 8 is smaller than $MinPrecision. Using $MinPrecision instead.\\nN::precsm: Requested precision 3 is smaller than $MinPrecision. Using $MinPrecision instead.\\nN::precsm: Requested precision 8 is smaller than $MinPrecision. Using $MinPrecision instead.\\nGeneral::stop: Further output of N::precsm will be suppressed during this calculation.\",\n\t\"stack\": \"\"\n}",
+       "mime": "application/vnd.code.notebook.error"
+      }
+     ],
+     "id": "b9290e95-d2e2-43a1-b661-1a8e23feb1e2"
+    }
+   ],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "(* extrapolation of |C(eps)| to eps -> 0 (Lagrange through the 4 eps values) and comparison with the data *)\nfdEpsList = {1/100, 1/200, 1/400, 1/800};\nfdLagr0[es_, vals_] := Sum[vals[[i]] Product[If[j == i, 1, (0 - es[[j]])/(es[[i]] - es[[j]])], {j, Length[es]}], {i, Length[es]}];\nfdDataMod = Table[Abs[fdDat[\"CRe\"][[i]][[5]] + I fdDat[\"CIm\"][[i]][[5]]], {i, {17, 18, 19, 20, 21, 22}}];\nfdSumTable = Table[Module[{cd = Table[N[Abs[fdEpsOut[e][[j]][\"Cd\"]], 30], {e, fdEpsList}], cq = Table[N[Abs[fdEpsOut[e][[j]][\"Cq\"]], 30], {e, fdEpsList}]},\n   {fdEpsOut[1/100][[j]][\"group\"], N[cd, 7], N[fdLagr0[fdEpsList, cd], 8], N[fdLagr0[fdEpsList, cq], 8], N[fdDataMod[[j]], 8], N[Max[Abs[(cq - cd)/cd]], 3]}], {j, 6}];\nGrid[Prepend[fdSumTable, {\"data state\", \"|C_direct|(eps = 1/100, 1/200, 1/400, 1/800)\", \"extrapolated |C_direct|\", \"extrapolated |C_Q|\", \"|C_data|\", \"max rel |C_Q - C_direct|\"}], Frame -> All]",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wl-output-block\"><div class=\"wl-output-header\" style=\"display:flex;align-items:center;gap:6px;width:100%;min-height:22px;\" data-session-epoch=\"725116\" data-output-id=\"158\" data-out-n=\"853\" data-sub-idx=\"5\" data-output-format=\"WLLatex\" data-output-is-graphics=\"0\" data-cell-idx=\"35\" data-sub-start=\"6\" data-sub-end=\"6\"><span style=\"font-size:10px;color:#888;margin-right:8px;\">Out[853]=</span></div><div class=\"wl-output-content\"><div class=\"vscode-wolfram-wllatex-prerendered\" data-page-width-em=\"15\" data-latex-b64=\"XGJlZ2lue2FycmF5fXt8Y3xjfGN8Y3xjfGN8fVxobGluZVx0ZXh0e2RhdGEgc3RhdGV9ICYgXHRleHR7fENcX2RpcmVjdHwoZXBzID0gMS8xMDAsIDEvMjAwLCAxLzQwMCwgMS84MDApfSAmIFx0ZXh0e2V4dHJhcG9sYXRlZCB8Q1xfZGlyZWN0fH0gJiBcdGV4dHtleHRyYXBvbGF0ZWQgfENcX1F8fSAmIFx0ZXh0e3xDXF9kYXRhfH0gJiBcdGV4dHttYXggcmVsIHxDXF9RIC0gQ1xfZGlyZWN0fH1cXFxobGluZTE3ICYgXGxlZnRcezAuMTY3NzYyMywwLjE2OTQ0MzYsMC4xNzAyODQ4LDAuMTcwNzA1NlxyaWdodFx9ICYgMC4xNzExMjY0MSAmIDAuMTcxMTI2NDEgJiAwLjE3MTEyNjQwNTM3OTYzNDIgJiAwLlx0aW1lcyAxMF57LTMwfVxcXGhsaW5lMTggJiBcbGVmdFx7MC4wMjYxNjAzNiwwLjAyNjY0NjA3LDAuMDI2ODkxMTYsMC4wMjcwMTQyNlxyaWdodFx9ICYgMC4wMjcxMzc3NDcgJiAwLjAyNzEzNzc0NyAmIDAuMDI3MTM3NzQ3MDYxODQxOTk0ICYgMC5cdGltZXMgMTBeey0zMH1cXFxobGluZTE5ICYgXGxlZnRcezAuMDQ0MTE3NzQsMC4wNDUwMDQ1OSwwLjA0NTQ1MTU0LDAuMDQ1Njc1OTBccmlnaHRcfSAmIDAuMDQ1OTAwODQ2ICYgMC4wNDU5MDA4NDYgJiAwLjA0NTkwMDg0NTYxOTgzMDAxNiAmIDAuXHRpbWVzIDEwXnstMzB9XFxcaGxpbmUxOSAmIFxsZWZ0XHswLjA0NDExNzc0LDAuMDQ1MDA0NTksMC4wNDU0NTE1NCwwLjA0NTY3NTkwXHJpZ2h0XH0gJiAwLjA0NTkwMDg0NiAmIDAuMDQ1OTAwODQ2ICYgMC4wNDU5MDA4NDU2MTk4MzAwMTYgJiAwLlx0aW1lcyAxMF57LTMwfVxcXGhsaW5lMjEgJiBcbGVmdFx7MC4xNTEzNDAxLDAuMTUyNDE0MywwLjE1Mjk0OTgsMC4xNTMyMTcxXHJpZ2h0XH0gJiAwLjE1MzQ4NDA4ICYgMC4xNTM0ODQwOCAmIDAuMTUzNDg0MDgyNDk0Mjg5NCAmIDAuXHRpbWVzIDEwXnstMzB9XFxcaGxpbmUyMSAmIFxsZWZ0XHswLjE1MTM0MDEsMC4xNTI0MTQzLDAuMTUyOTQ5OCwwLjE1MzIxNzFccmlnaHRcfSAmIDAuMTUzNDg0MDggJiAwLjE1MzQ4NDA4ICYgMC4xNTM0ODQwODI0OTQyODk0ICYgMC5cdGltZXMgMTBeey0zMH1cXFxobGluZVxlbmR7YXJyYXl9\"><span class=\"katex-display\"><span class=\"katex\"><span class=\"katex-html\" aria-hidden=\"true\"><span class=\"base\"><span class=\"strut\" style=\"height:8.44em;vertical-align:-3.95em;\"></span><span class=\"mord\"><span class=\"vlist-t vlist-t2\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:4.49em;\"><span style=\"top:-6.45em;\"><span class=\"pstrut\" style=\"height:6.45em;\"></span><span class=\"mtable\"><span class=\"vertical-separator\" style=\"height:8.4em;border-right-width:0.04em;border-right-style:solid;margin:0 -0.02em;vertical-align:-3.95em;\"></span><span class=\"arraycolsep\" style=\"width:0.5em;\"></span><span class=\"col-align-c\"><span class=\"vlist-t vlist-t2\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:4.45em;\"><span style=\"top:-6.61em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord text\"><span class=\"mord\">data state</span></span></span></span><span style=\"top:-5.41em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">17</span></span></span><span style=\"top:-4.21em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">18</span></span></span><span style=\"top:-3.01em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">19</span></span></span><span style=\"top:-1.81em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">19</span></span></span><span style=\"top:-0.61em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">21</span></span></span><span style=\"top:0.59em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">21</span></span></span></span><span class=\"vlist-s\">​</span></span><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:3.95em;\"><span></span></span></span></span></span><span class=\"arraycolsep\" style=\"width:0.5em;\"></span><span class=\"vertical-separator\" style=\"height:8.4em;border-right-width:0.04em;border-right-style:solid;margin:0 -0.02em;vertical-align:-3.95em;\"></span><span class=\"arraycolsep\" style=\"width:0.5em;\"></span><span class=\"col-align-c\"><span class=\"vlist-t vlist-t2\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:4.45em;\"><span style=\"top:-6.61em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord text\"><span class=\"mord\">|C_direct|(eps = 1/100, 1/200, 1/400, 1/800)</span></span></span></span><span style=\"top:-5.41em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"minner\"><span class=\"mopen delimcenter\" style=\"top:0em;\">{</span><span class=\"mord\">0.1677623</span><span class=\"mpunct\">,</span><span class=\"mspace\" style=\"margin-right:0.1667em;\"></span><span class=\"mord\">0.1694436</span><span class=\"mpunct\">,</span><span class=\"mspace\" style=\"margin-right:0.1667em;\"></span><span class=\"mord\">0.1702848</span><span class=\"mpunct\">,</span><span class=\"mspace\" style=\"margin-right:0.1667em;\"></span><span class=\"mord\">0.1707056</span><span class=\"mclose delimcenter\" style=\"top:0em;\">}</span></span></span></span><span style=\"top:-4.21em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"minner\"><span class=\"mopen delimcenter\" style=\"top:0em;\">{</span><span class=\"mord\">0.02616036</span><span class=\"mpunct\">,</span><span class=\"mspace\" style=\"margin-right:0.1667em;\"></span><span class=\"mord\">0.02664607</span><span class=\"mpunct\">,</span><span class=\"mspace\" style=\"margin-right:0.1667em;\"></span><span class=\"mord\">0.02689116</span><span class=\"mpunct\">,</span><span class=\"mspace\" style=\"margin-right:0.1667em;\"></span><span class=\"mord\">0.02701426</span><span class=\"mclose delimcenter\" style=\"top:0em;\">}</span></span></span></span><span style=\"top:-3.01em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"minner\"><span class=\"mopen delimcenter\" style=\"top:0em;\">{</span><span class=\"mord\">0.04411774</span><span class=\"mpunct\">,</span><span class=\"mspace\" style=\"margin-right:0.1667em;\"></span><span class=\"mord\">0.04500459</span><span class=\"mpunct\">,</span><span class=\"mspace\" style=\"margin-right:0.1667em;\"></span><span class=\"mord\">0.04545154</span><span class=\"mpunct\">,</span><span class=\"mspace\" style=\"margin-right:0.1667em;\"></span><span class=\"mord\">0.04567590</span><span class=\"mclose delimcenter\" style=\"top:0em;\">}</span></span></span></span><span style=\"top:-1.81em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"minner\"><span class=\"mopen delimcenter\" style=\"top:0em;\">{</span><span class=\"mord\">0.04411774</span><span class=\"mpunct\">,</span><span class=\"mspace\" style=\"margin-right:0.1667em;\"></span><span class=\"mord\">0.04500459</span><span class=\"mpunct\">,</span><span class=\"mspace\" style=\"margin-right:0.1667em;\"></span><span class=\"mord\">0.04545154</span><span class=\"mpunct\">,</span><span class=\"mspace\" style=\"margin-right:0.1667em;\"></span><span class=\"mord\">0.04567590</span><span class=\"mclose delimcenter\" style=\"top:0em;\">}</span></span></span></span><span style=\"top:-0.61em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"minner\"><span class=\"mopen delimcenter\" style=\"top:0em;\">{</span><span class=\"mord\">0.1513401</span><span class=\"mpunct\">,</span><span class=\"mspace\" style=\"margin-right:0.1667em;\"></span><span class=\"mord\">0.1524143</span><span class=\"mpunct\">,</span><span class=\"mspace\" style=\"margin-right:0.1667em;\"></span><span class=\"mord\">0.1529498</span><span class=\"mpunct\">,</span><span class=\"mspace\" style=\"margin-right:0.1667em;\"></span><span class=\"mord\">0.1532171</span><span class=\"mclose delimcenter\" style=\"top:0em;\">}</span></span></span></span><span style=\"top:0.59em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"minner\"><span class=\"mopen delimcenter\" style=\"top:0em;\">{</span><span class=\"mord\">0.1513401</span><span class=\"mpunct\">,</span><span class=\"mspace\" style=\"margin-right:0.1667em;\"></span><span class=\"mord\">0.1524143</span><span class=\"mpunct\">,</span><span class=\"mspace\" style=\"margin-right:0.1667em;\"></span><span class=\"mord\">0.1529498</span><span class=\"mpunct\">,</span><span class=\"mspace\" style=\"margin-right:0.1667em;\"></span><span class=\"mord\">0.1532171</span><span class=\"mclose delimcenter\" style=\"top:0em;\">}</span></span></span></span></span><span class=\"vlist-s\">​</span></span><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:3.95em;\"><span></span></span></span></span></span><span class=\"arraycolsep\" style=\"width:0.5em;\"></span><span class=\"vertical-separator\" style=\"height:8.4em;border-right-width:0.04em;border-right-style:solid;margin:0 -0.02em;vertical-align:-3.95em;\"></span><span class=\"arraycolsep\" style=\"width:0.5em;\"></span><span class=\"col-align-c\"><span class=\"vlist-t vlist-t2\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:4.45em;\"><span style=\"top:-6.61em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord text\"><span class=\"mord\">extrapolated |C_direct|</span></span></span></span><span style=\"top:-5.41em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">0.17112641</span></span></span><span style=\"top:-4.21em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">0.027137747</span></span></span><span style=\"top:-3.01em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">0.045900846</span></span></span><span style=\"top:-1.81em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">0.045900846</span></span></span><span style=\"top:-0.61em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">0.15348408</span></span></span><span style=\"top:0.59em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">0.15348408</span></span></span></span><span class=\"vlist-s\">​</span></span><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:3.95em;\"><span></span></span></span></span></span><span class=\"arraycolsep\" style=\"width:0.5em;\"></span><span class=\"vertical-separator\" style=\"height:8.4em;border-right-width:0.04em;border-right-style:solid;margin:0 -0.02em;vertical-align:-3.95em;\"></span><span class=\"arraycolsep\" style=\"width:0.5em;\"></span><span class=\"col-align-c\"><span class=\"vlist-t vlist-t2\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:4.45em;\"><span style=\"top:-6.61em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord text\"><span class=\"mord\">extrapolated |C_Q|</span></span></span></span><span style=\"top:-5.41em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">0.17112641</span></span></span><span style=\"top:-4.21em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">0.027137747</span></span></span><span style=\"top:-3.01em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">0.045900846</span></span></span><span style=\"top:-1.81em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">0.045900846</span></span></span><span style=\"top:-0.61em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">0.15348408</span></span></span><span style=\"top:0.59em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">0.15348408</span></span></span></span><span class=\"vlist-s\">​</span></span><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:3.95em;\"><span></span></span></span></span></span><span class=\"arraycolsep\" style=\"width:0.5em;\"></span><span class=\"vertical-separator\" style=\"height:8.4em;border-right-width:0.04em;border-right-style:solid;margin:0 -0.02em;vertical-align:-3.95em;\"></span><span class=\"arraycolsep\" style=\"width:0.5em;\"></span><span class=\"col-align-c\"><span class=\"vlist-t vlist-t2\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:4.45em;\"><span style=\"top:-6.61em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord text\"><span class=\"mord\">|C_data|</span></span></span></span><span style=\"top:-5.41em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">0.1711264053796342</span></span></span><span style=\"top:-4.21em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">0.027137747061841994</span></span></span><span style=\"top:-3.01em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">0.045900845619830016</span></span></span><span style=\"top:-1.81em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">0.045900845619830016</span></span></span><span style=\"top:-0.61em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">0.1534840824942894</span></span></span><span style=\"top:0.59em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">0.1534840824942894</span></span></span></span><span class=\"vlist-s\">​</span></span><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:3.95em;\"><span></span></span></span></span></span><span class=\"arraycolsep\" style=\"width:0.5em;\"></span><span class=\"vertical-separator\" style=\"height:8.4em;border-right-width:0.04em;border-right-style:solid;margin:0 -0.02em;vertical-align:-3.95em;\"></span><span class=\"arraycolsep\" style=\"width:0.5em;\"></span><span class=\"col-align-c\"><span class=\"vlist-t vlist-t2\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:4.45em;\"><span style=\"top:-6.61em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord text\"><span class=\"mord\">max rel |C_Q - C_direct|</span></span></span></span><span style=\"top:-5.41em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">0.</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mbin\">×</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mord\">1</span><span class=\"mord\"><span class=\"mord\">0</span><span class=\"msupsub\"><span class=\"vlist-t\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:0.8141em;\"><span style=\"top:-3.063em;margin-right:0.05em;\"><span class=\"pstrut\" style=\"height:2.7em;\"></span><span class=\"sizing reset-size6 size3 mtight\"><span class=\"mord mtight\"><span class=\"mord mtight\">−</span><span class=\"mord mtight\">30</span></span></span></span></span></span></span></span></span></span></span><span style=\"top:-4.21em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">0.</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mbin\">×</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mord\">1</span><span class=\"mord\"><span class=\"mord\">0</span><span class=\"msupsub\"><span class=\"vlist-t\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:0.8141em;\"><span style=\"top:-3.063em;margin-right:0.05em;\"><span class=\"pstrut\" style=\"height:2.7em;\"></span><span class=\"sizing reset-size6 size3 mtight\"><span class=\"mord mtight\"><span class=\"mord mtight\">−</span><span class=\"mord mtight\">30</span></span></span></span></span></span></span></span></span></span></span><span style=\"top:-3.01em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">0.</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mbin\">×</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mord\">1</span><span class=\"mord\"><span class=\"mord\">0</span><span class=\"msupsub\"><span class=\"vlist-t\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:0.8141em;\"><span style=\"top:-3.063em;margin-right:0.05em;\"><span class=\"pstrut\" style=\"height:2.7em;\"></span><span class=\"sizing reset-size6 size3 mtight\"><span class=\"mord mtight\"><span class=\"mord mtight\">−</span><span class=\"mord mtight\">30</span></span></span></span></span></span></span></span></span></span></span><span style=\"top:-1.81em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">0.</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mbin\">×</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mord\">1</span><span class=\"mord\"><span class=\"mord\">0</span><span class=\"msupsub\"><span class=\"vlist-t\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:0.8141em;\"><span style=\"top:-3.063em;margin-right:0.05em;\"><span class=\"pstrut\" style=\"height:2.7em;\"></span><span class=\"sizing reset-size6 size3 mtight\"><span class=\"mord mtight\"><span class=\"mord mtight\">−</span><span class=\"mord mtight\">30</span></span></span></span></span></span></span></span></span></span></span><span style=\"top:-0.61em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">0.</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mbin\">×</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mord\">1</span><span class=\"mord\"><span class=\"mord\">0</span><span class=\"msupsub\"><span class=\"vlist-t\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:0.8141em;\"><span style=\"top:-3.063em;margin-right:0.05em;\"><span class=\"pstrut\" style=\"height:2.7em;\"></span><span class=\"sizing reset-size6 size3 mtight\"><span class=\"mord mtight\"><span class=\"mord mtight\">−</span><span class=\"mord mtight\">30</span></span></span></span></span></span></span></span></span></span></span><span style=\"top:0.59em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">0.</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mbin\">×</span><span class=\"mspace\" style=\"margin-right:0.2222em;\"></span><span class=\"mord\">1</span><span class=\"mord\"><span class=\"mord\">0</span><span class=\"msupsub\"><span class=\"vlist-t\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:0.8141em;\"><span style=\"top:-3.063em;margin-right:0.05em;\"><span class=\"pstrut\" style=\"height:2.7em;\"></span><span class=\"sizing reset-size6 size3 mtight\"><span class=\"mord mtight\"><span class=\"mord mtight\">−</span><span class=\"mord mtight\">30</span></span></span></span></span></span></span></span></span></span></span></span><span class=\"vlist-s\">​</span></span><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:3.95em;\"><span></span></span></span></span></span><span class=\"arraycolsep\" style=\"width:0.5em;\"></span><span class=\"vertical-separator\" style=\"height:8.4em;border-right-width:0.04em;border-right-style:solid;margin:0 -0.02em;vertical-align:-3.95em;\"></span></span></span><span style=\"top:-2.5em;\"><span class=\"pstrut\" style=\"height:6.45em;\"></span><span class=\"hline\" style=\"border-bottom-width:0.04em;\"></span></span><span style=\"top:-3.7em;\"><span class=\"pstrut\" style=\"height:6.45em;\"></span><span class=\"hline\" style=\"border-bottom-width:0.04em;\"></span></span><span style=\"top:-4.9em;\"><span class=\"pstrut\" style=\"height:6.45em;\"></span><span class=\"hline\" style=\"border-bottom-width:0.04em;\"></span></span><span style=\"top:-6.1em;\"><span class=\"pstrut\" style=\"height:6.45em;\"></span><span class=\"hline\" style=\"border-bottom-width:0.04em;\"></span></span><span style=\"top:-7.3em;\"><span class=\"pstrut\" style=\"height:6.45em;\"></span><span class=\"hline\" style=\"border-bottom-width:0.04em;\"></span></span><span style=\"top:-8.5em;\"><span class=\"pstrut\" style=\"height:6.45em;\"></span><span class=\"hline\" style=\"border-bottom-width:0.04em;\"></span></span><span style=\"top:-9.7em;\"><span class=\"pstrut\" style=\"height:6.45em;\"></span><span class=\"hline\" style=\"border-bottom-width:0.04em;\"></span></span><span style=\"top:-10.9em;\"><span class=\"pstrut\" style=\"height:6.45em;\"></span><span class=\"hline\" style=\"border-bottom-width:0.04em;\"></span></span></span><span class=\"vlist-s\">​</span></span><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:3.95em;\"><span></span></span></span></span></span></span></span></span></span></div></div></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "Out[853]= \\begin{array}{|c|c|c|c|c|c|}\\hline\\text{data state} & \\text{|C\\_direct|(eps = 1/100, 1/200, 1/400, 1/800)} & \\text{extrapolated |C\\_direct|} & \\text{extrapolated |C\\_Q|} & \\text{|C\\_data|} & \\text{max rel |C\\_Q - C\\_direct|}\\\\\\hline17 & \\left\\{0.1677623,0.1694436,0.1702848,0.1707056\\right\\} & 0.17112641 & 0.17112641 & 0.1711264053796342 & 0.\\times 10^{-30}\\\\\\hline18 & \\left\\{0.02616036,0.02664607,0.02689116,0.02701426\\right\\} & 0.027137747 & 0.027137747 & 0.027137747061841994 & 0.\\times 10^{-30}\\\\\\hline19 & \\left\\{0.04411774,0.04500459,0.04545154,0.04567590\\right\\} & 0.045900846 & 0.045900846 & 0.045900845619830016 & 0.\\times 10^{-30}\\\\\\hline19 & \\left\\{0.04411774,0.04500459,0.04545154,0.04567590\\right\\} & 0.045900846 & 0.045900846 & 0.045900845619830016 & 0.\\times 10^{-30}\\\\\\hline21 & \\left\\{0.1513401,0.1524143,0.1529498,0.1532171\\right\\} & 0.15348408 & 0.15348408 & 0.1534840824942894 & 0.\\times 10^{-30}\\\\\\hline21 & \\left\\{0.1513401,0.1524143,0.1529498,0.1532171\\right\\} & 0.15348408 & 0.15348408 & 0.1534840824942894 & 0.\\times 10^{-30}\\\\\\hline\\end{array}",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "8eaa1037-467d-4371-82fa-1b49da14321c"
+    }
+   ],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "(* closed form vs exact solve at two further points: (i) other h, theta, z ; (ii) ABJM eps-chain point eps = 1/100 *)\nfdClosedCheck2 = Module[{pts, out},\n  pts = {{2/3, {3/11, -5/7, 9/13, -13/9, 4/9, -2/5}, {7/3, 3/2, -2/5, 5/6}}, With[{S = fdEpsSetup[1/100]}, {fdH, S[\"thE\"], S[\"z\"]}]};\n  Table[Module[{h = pt[[1]], th = pt[[2]], z = pt[[3]], run, cl}, run = fdFonlyRun[3, th, z, h, 2]; cl = fdClosedCk[th, z, h]; {run[\"rank words\"], run[\"rank with target\"], cl === run[\"sol\"]}], {pt, pts}]];\nGrid[Prepend[fdClosedCheck2, {\"rank(words)\", \"rank(words+target)\", \"closed form == exact c_k\"}], Frame -> All]",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wl-output-block\"><div class=\"wl-output-header\" style=\"display:flex;align-items:center;gap:6px;width:100%;min-height:22px;\" data-session-epoch=\"725116\" data-output-id=\"159\" data-out-n=\"855\" data-sub-idx=\"2\" data-output-format=\"WLLatex\" data-output-is-graphics=\"0\" data-cell-idx=\"36\" data-sub-start=\"4\" data-sub-end=\"4\"><span style=\"font-size:10px;color:#888;margin-right:8px;\">Out[855]=</span></div><div class=\"wl-output-content\"><div class=\"vscode-wolfram-wllatex-prerendered\" data-page-width-em=\"15\" data-latex-b64=\"XGJlZ2lue2FycmF5fXt8Y3xjfGN8fVxobGluZVx0ZXh0e3Jhbmsod29yZHMpfSAmIFx0ZXh0e3Jhbmsod29yZHMrdGFyZ2V0KX0gJiBcdGV4dHtjbG9zZWQgZm9ybSA9PSBleGFjdCBjXF9rfVxcXGhsaW5lMjcgJiAyNyAmIFxtYXRocm17VHJ1ZX1cXFxobGluZTI3ICYgMjcgJiBcbWF0aHJte1RydWV9XFxcaGxpbmVcZW5ke2FycmF5fQ==\"><span class=\"katex-display\"><span class=\"katex\"><span class=\"katex-html\" aria-hidden=\"true\"><span class=\"base\"><span class=\"strut\" style=\"height:3.64em;vertical-align:-1.55em;\"></span><span class=\"mord\"><span class=\"vlist-t vlist-t2\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:2.09em;\"><span style=\"top:-4.05em;\"><span class=\"pstrut\" style=\"height:4.05em;\"></span><span class=\"mtable\"><span class=\"vertical-separator\" style=\"height:3.6em;border-right-width:0.04em;border-right-style:solid;margin:0 -0.02em;vertical-align:-1.55em;\"></span><span class=\"arraycolsep\" style=\"width:0.5em;\"></span><span class=\"col-align-c\"><span class=\"vlist-t vlist-t2\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:2.05em;\"><span style=\"top:-4.21em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord text\"><span class=\"mord\">rank(words)</span></span></span></span><span style=\"top:-3.01em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">27</span></span></span><span style=\"top:-1.81em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">27</span></span></span></span><span class=\"vlist-s\">​</span></span><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:1.55em;\"><span></span></span></span></span></span><span class=\"arraycolsep\" style=\"width:0.5em;\"></span><span class=\"vertical-separator\" style=\"height:3.6em;border-right-width:0.04em;border-right-style:solid;margin:0 -0.02em;vertical-align:-1.55em;\"></span><span class=\"arraycolsep\" style=\"width:0.5em;\"></span><span class=\"col-align-c\"><span class=\"vlist-t vlist-t2\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:2.05em;\"><span style=\"top:-4.21em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord text\"><span class=\"mord\">rank(words+target)</span></span></span></span><span style=\"top:-3.01em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">27</span></span></span><span style=\"top:-1.81em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\">27</span></span></span></span><span class=\"vlist-s\">​</span></span><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:1.55em;\"><span></span></span></span></span></span><span class=\"arraycolsep\" style=\"width:0.5em;\"></span><span class=\"vertical-separator\" style=\"height:3.6em;border-right-width:0.04em;border-right-style:solid;margin:0 -0.02em;vertical-align:-1.55em;\"></span><span class=\"arraycolsep\" style=\"width:0.5em;\"></span><span class=\"col-align-c\"><span class=\"vlist-t vlist-t2\"><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:2.05em;\"><span style=\"top:-4.21em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord text\"><span class=\"mord\">closed form == exact c_k</span></span></span></span><span style=\"top:-3.01em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\"><span class=\"mord mathrm\">True</span></span></span></span><span style=\"top:-1.81em;\"><span class=\"pstrut\" style=\"height:3em;\"></span><span class=\"mord\"><span class=\"mord\"><span class=\"mord mathrm\">True</span></span></span></span></span><span class=\"vlist-s\">​</span></span><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:1.55em;\"><span></span></span></span></span></span><span class=\"arraycolsep\" style=\"width:0.5em;\"></span><span class=\"vertical-separator\" style=\"height:3.6em;border-right-width:0.04em;border-right-style:solid;margin:0 -0.02em;vertical-align:-1.55em;\"></span></span></span><span style=\"top:-2.5em;\"><span class=\"pstrut\" style=\"height:4.05em;\"></span><span class=\"hline\" style=\"border-bottom-width:0.04em;\"></span></span><span style=\"top:-3.7em;\"><span class=\"pstrut\" style=\"height:4.05em;\"></span><span class=\"hline\" style=\"border-bottom-width:0.04em;\"></span></span><span style=\"top:-4.9em;\"><span class=\"pstrut\" style=\"height:4.05em;\"></span><span class=\"hline\" style=\"border-bottom-width:0.04em;\"></span></span><span style=\"top:-6.1em;\"><span class=\"pstrut\" style=\"height:4.05em;\"></span><span class=\"hline\" style=\"border-bottom-width:0.04em;\"></span></span></span><span class=\"vlist-s\">​</span></span><span class=\"vlist-r\"><span class=\"vlist\" style=\"height:1.55em;\"><span></span></span></span></span></span></span></span></span></span></div></div></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "Out[855]= \\begin{array}{|c|c|c|}\\hline\\text{rank(words)} & \\text{rank(words+target)} & \\text{closed form == exact c\\_k}\\\\\\hline27 & 27 & \\mathrm{True}\\\\\\hline27 & 27 & \\mathrm{True}\\\\\\hline\\end{array}",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "616e5ea7-810f-4f6c-88a1-fb089aa0fa6b"
+    }
+   ],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## Summary (2026-10-13)\n\n* **(1) [exact]** At L = 3 the target (e₁⊗ũ)^{⊗3} is exactly in the span of the 27 F-only words k_s ≤ 2 (rank 27, residual 0 on all 4096 components); c_k = `fdSol`.\n* **(2) [exact]** c_k = [Ŷ^k](B_{z₂}B_{z₃})/∏κ_s^{k_s}, B_z = Σ_S (−z)^{L−|S|} g_S Ŷ^S, g_S = ∏_{pairs} ν²/(ν²−h²): model == chain words exactly (cell 29), closed form == exact c_k at three points incl. the ε-chain (cells 31, 37); model-level checks L = 2, 3, 4 in python (`checks/session-2026-10-13/fonly/`).\n* **(3) [hp, 50 digits]** Q-form verified on 9 eigenstates of sectors n = 0..3: deviation ≤ 2.5e-51 (cells 22–23).\n* **(4) [hp, 70 digits]** Even bridge at L = 3 on the ABJM ε-chain: C_Q = C_direct to 1e-41; extrapolated |C| = 0.17112641, 0.027137747, 0.045900846 (×2), 0.15348408 (×2) = the data (cell 36; cells 33–35 currently hold the last ε = 1/800 run, results for all four ε are in `fdEpsOut`).\n\nSee `notes/agent-2026-10-13-Fonly-L6.md`.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  }
+ ],
+ "metadata": {
+  "createdBy": "wolfbook_newNotebook",
+  "createdAt": "2026-10-13T07:40:08.935Z"
+ }
+}

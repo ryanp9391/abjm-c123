@@ -1,0 +1,275 @@
+%======================================================================
+\section{The even bridge in Q-functions}\label{sec:qform}
+%======================================================================
+
+{\sloppy[\nb{even-bridge-Qform.wb} (consolidated), \nb{Wa-sov-expansion-L4.wb} cells 30--48, \nb{Wa-Fonly-L6.wb},
+\nb{even-bridge-epsilon-expansion.wb}, \nb{abjm-sov-norm-L4.wb}; notes \nb{notes/w-a-reference-status.md},
+\nb{notes/agent-2026-10-13-*.md}.]\par}
+\noindent Throughout, $\Psi$ is an eigenstate of the diagonal-twist transfer matrices $t^\Lambda_a(u)$
+(\S\ref{sec:conv-frames}), and companion-frame objects are transported with the $R$ of the twist $z$ of $\Psi$. Notation:
+\begin{gather}
+ \lambda_j=\prod_{m\ne j}\frac1{z_j-z_m},\qquad f(x)=(x-z_2)(x-z_3),\qquad u_4=f(z_4),\\
+ \kappa_0=\frac{\lambda_4}{\lambda_1}=-\frac{f(z_1)}{f(z_4)}=-\frac{(z_1-z_2)(z_1-z_3)}{(z_4-z_2)(z_4-z_3)} .
+\end{gather}
+A state of weight $(\mu_1,0,0,-\mu_1)$ has $n:=L-\mu_1$; for every other weight $\braket{W_a^L}\Psi=0$.
+
+%----------------------------------------------------------------------
+\subsection{The problem}\label{sec:qform-problem}
+
+The pair $\kappa$-family (\S\ref{sec:kappa}) gives, exactly at finite twist with $z_2=z_3$,
+\begin{equation}\label{eq:qform-kappa}
+ \braket{W_{a'}\otimes W_a^{L-1}}{\Psi}=\frac{P_\kappa(\tau_\Psi)}{(1-\kappa z_1)^2}\,\braket{W_a^L}\Psi,\qquad
+ a'=a\,\frac{1-\kappa z_4}{1-\kappa z_1},
+\end{equation}
+with $P_\kappa$ a polynomial in the one-pair eigenvalues $\tau_1(\theta_F)$, $\tau_2(u_0)$, $\hat\tau_3(u_0)$, all of which are
+known Q-expressions (\S\ref{sec:kappa}). The missing piece is $\braket{W_a^L}\Psi$.
+
+$\bra{W_a^L}=\bra{\vac^L}\rho(e^{aE_{14}})$ is itself not a twisted vacuum. It is the vacuum eigenbra of the triangular twist
+$G_a=\Lambda+a(z_1-z_4)E_{41}$, and of $\Lambda(w)+a(w_1-w_4)E_{41}$ for every $w$, but never of a companion twist
+[\nb{twisted-vacuum-companion-check.wb}, \ex\ at $L=2$]. A two-line argument rules out any twist sharing the companion SoV
+basis. The eigenvalue of $\bra{W_a^L}$ is $\tau_\vac$, so its Q-functions are those of $\bra{\vac^L}$. A factorised dual wave
+function would therefore coincide with that of $\bra{\vac^L}$, and completeness would force $\bra{W_a^L}\propto\bra{\vac^L}$.
+Consistently, its SoV expansion is dense: all 256 words occur, in every power of $a$ (\S\ref{sec:sov}). The resolution is
+that only the overlaps on the weights $(\mu,0,0,-\mu)$ matter, and there $\bra{W_a^L}$ is indistinguishable from a twisted
+vacuum.
+
+%----------------------------------------------------------------------
+\subsection{Overlaps of $W_a$ are twisted-vacuum overlaps}\label{sec:qform-twvac}
+
+The companion twisted vacuum $\bra{0_w}=(v(w_1)\otimes u_w)^{\otimes L}$ (\S\ref{sec:twvac}) has the diagonal-frame image, per
+pair, \ex
+\begin{equation}
+ v_j=\lambda_j\prod_{m\ne j}(w_1-z_m),\qquad u_j=\frac{\prod_{m\le3}(z_j-w_m)}{\prod_{m\le3}(w_4-w_m)},\qquad v\cdot u=0 .
+\end{equation}
+
+\paragraph{Proposition 1.} Let $w=(w_1,z_2,z_3,w_4)$. For every $\Psi$ of weight $(\mu,0,0,-\mu)$,
+\begin{equation}\label{eq:qform-prop1}
+ \braket{0_w}\Psi=(v_1u_4)^L\,\braket{W_a^L}\Psi,\qquad
+ a(w_1)=\frac{v_4}{v_1}=-\frac{u_1}{u_4}=\kappa_0\,\frac{w_1-z_1}{w_1-z_4}.
+\end{equation}
+
+\emph{Proof.} With $w_2=z_2$ and $w_3=z_3$, $u_2=u_3=0$, so every F site carries only $e_1$ and $e_4$. An A site in $e_2$ or
+$e_3$ then gives the bra a positive $2$- or $3$-weight that no F site cancels. So on the weights $(\mu,0,0,-\mu)$ only $v_1$ and
+$v_4$ contribute, each pair acts as $(v_1e_1+v_4e_4)\otimes(u_1e_1+u_4e_4)=v_1u_4\,W_{v_4/v_1}$, and $v\cdot u=v_1u_1+v_4u_4=0$
+gives $v_4/v_1=-u_1/u_4$. $\square$
+
+\noindent Evidence: difference $0$ to 40 digits on all eigenstates of the five sectors $(2-n,0,0,n-2)$, $n=0..4$, at
+$L=2$ (1, 12, 28, 12, 1 states). Both overlaps vanish in $(1,1,-1,-1)$. In $(0,1,0,-1)$ only $\braket{0_w}\Psi\ne0$, as the
+proof predicts. The M\"obius map is symbolic \ex: $a(z_1)=0$ (vacuum), $a(z_4)=\infty$ (lowest-weight vacuum
+$e_4\otimes e_1$), $a(\infty)=\kappa_0$. The parameter $w_4$ only normalises.
+
+\paragraph{Q-sum.} Since $\bra{0_w}$ shares the companion SoV basis with $\Psi$, its dual wave functions factorise, with the
+vacuum dual Q-functions of twist $w$, and
+\begin{equation}
+ \bbW_w(\Psi):=\frac{\braket{0_w}\Psi}{\braket{0_w}{\bar0}\braket0\Psi}=\sum_{x,y}\tilde\tau_y(\vac_w)\,M_{yx}\,\tau_x(\Psi)
+\end{equation}
+holds on all 256 states to $10^{-44}$ \hp\ ($L=2$, generic $\theta,z$; $M$ = inverse Gram matrix, \S\ref{sec:sov}). With
+(\ref{eq:qform-prop1}) this expresses $\braket{W_a^L}\Psi$ in Q-functions, checked to $10^{-46}$ on the 54 sector states for
+three values of $w_1$. At $w_2=z_2$, $w_3=z_3$ the $\tilde\tau_y(\vac_w)$ do not depend on $w_4$ and are polynomials in $w_1$.
+$\bbW_w$ is a polynomial of degree 8 in $w_1$, and on the sectors \hp
+\begin{equation}
+ \bbW_w(\Psi)=\big[\lambda_1u_4(w_1-z_2)(w_1-z_3)(w_1-z_4)^2\big]^2\,a(w_1)^n\,\Gamma_\Psi,\qquad
+ \Gamma_\Psi=\frac{\braket{W_1^L}\Psi}{\braket0\Psi}\qquad(L=2).
+\end{equation}
+All $w_1$-dependence is therefore explicit, and one number $\Gamma_\Psi$ per state remains. It is computed most simply at
+$w_1=\infty$.
+
+%----------------------------------------------------------------------
+\subsection{The $w_1\to\infty$ form: an F-site rotation of the SoV vacuum}\label{sec:qform-winf}
+
+As $w_1\to\infty$, $v(w_1)\to w_1^3e_1$ and $u_w\to\tilde u/((w_4-z_2)(w_4-z_3))$, with
+\begin{equation}
+ \tilde u=e_4^T f(G_c)=(0,\,1,\,-(z_2+z_3),\,z_2z_3)\qquad\text{(companion frame).}
+\end{equation}
+So the twisted vacuum becomes $(e_1\otimes\tilde u)^{\otimes L}$: the A sites are exactly those of the SoV vacuum $\bra0$, and
+every F site is rotated by the degree-2 twist polynomial $f(G_c)$. In the diagonal frame $f(\Lambda)$ kills $e_2$ and $e_3$,
+which is Proposition~1 in one line: the image is $(\lambda\otimes(f(z_1),0,0,f(z_4)))^{\otimes L}$. Hence, on the sectors,
+\begin{equation}\label{eq:qform-winf}
+ \braket{W_a^L}\Psi=\Big(\frac a{\kappa_0}\Big)^n(\lambda_1u_4)^{-L}\,\big\langle(e_1\otimes\tilde u)^{\otimes L}\big|\Psi_c\big\rangle .
+\end{equation}
+The top power $w_1^8$ of $\bbW_w$ is supported on exactly the 9 F-only words and equals the SoV expansion of
+$e_1\otimes\tilde u\otimes e_1\otimes\tilde u$, with ratio exactly 1 \ex.
+
+%----------------------------------------------------------------------
+\subsection{The factorised closed form}\label{sec:qform-factor}
+
+\paragraph{F-only expansion.} $(e_1\otimes\tilde u)^{\otimes L}$ lies in the span of the $3^L$ F-only SoV words
+$\bra0\prod_s t_1(\theta_s)^{k_s}$, $k_s\le2$, $s$ running over the F sites \ex. This holds at $L=2$ (9 words) and at $L=3$
+(27 words, all 4096 components). No A-site words and no $k_s=3$ are needed. The system is graded by the level
+$\sum_sk_s$ (blocks $1,3,6,7,6,3,1$ at $L=3$).
+
+\paragraph{Cherednik operators.} On bras whose F sites have no $e_1$ component the A--F exchanges are scalars, and
+$\bra0\,t_1(\theta_s)=\kappa_s\bra0\hat Y_s$ with
+\begin{gather}
+ \kappa_s=h\prod_{r<s}(\theta_r-\theta_s)\prod_{r>s}(\theta_s-\theta_r)\qquad(\text{product over all sites }r\ne s),\\
+ \hat Y_s=R_{s,s+1}\cdots R_{s,L}\,N_s\,R_{s,1}\cdots R_{s,s-1}.
+\end{gather}
+Here the indices of $\hat Y$ run over F sites, $R_{sf}=1-\frac h{\theta_s-\theta_f}P_{sf}$, and $N$ is the twist raising
+$e_4\to e_3\to e_2$ (levels $0,1,2$). The $\hat Y_s$ commute. Checks \ex: $\kappa_s$ read off the exact chain words at $L=3$
+equals the formula; at $L=2$, $\kappa_2=h\theta_{12}\theta_{23}\theta_{24}$ and $\kappa_4=h\theta_{14}\theta_{24}\theta_{34}$.
+The model words agree with the chain words on all $27\times27$ components.
+
+\paragraph{Proposition 2 (closed form).} With $\nu_{st}=\theta_s-\theta_t$ over F sites,
+\begin{gather}\label{eq:qform-Bz}
+ \big\langle(e_1\otimes\tilde u)^{\otimes L}\big|=\bra0\,B_{z_2}(\hat Y)\,B_{z_3}(\hat Y),\\
+ B_z(\hat Y)=\sum_{S\subseteq\{\text{F sites}\}}(-z)^{L-|S|}\,g_S\prod_{s\in S}\hat Y_s,\qquad
+ g_S=\prod_{s<t\in S}\frac{\nu_{st}^2}{\nu_{st}^2-h^2}.\nonumber
+\end{gather}
+Evidence: exact on the full chain at $L=2$ and $L=3$, at three points (generic; $h=2/3$ with other $\theta,z$; the ABJM
+$\epsilon$-chain at $\epsilon=1/100$) \ex. Exact in the F-chain model at $L=4$, at one point \npy. Not proved for general $L$.
+$B_z$ is the root operator $\prod_s(G-z)$ on the F sites written in the $\hat Y$'s, as a cluster expansion with pair weights
+only. For $h\to0$ it is $\prod_s(\hat Y_s-z)$. At $L=2$, $B_z=z^2-z(\hat Y_2+\hat Y_4)+g\,\hat Y_2\hat Y_4$ with
+$g=\nu^2/(\nu^2-h^2)$ and $\nu=\theta_2-\theta_4$. This is agent B's $3\times3$ matrix $\tilde uP\tilde u$, which collapses to
+$\prod_{z\in\{z_2,z_3\}}[(\hat Y_2-z)(\hat Y_4-z)+(g-1)\hat Y_2\hat Y_4]$.
+
+\paragraph{Corollary (Q-form).} On eigenstates $\bra0\hat Y^k\ket\Psi=\braket0\Psi\prod_s y_s^{k_s}$, so for $\Psi$ of weight
+$(\mu,0,0,-\mu)$
+\begin{equation}\label{eq:qform-main}
+ \boxed{\;\frac{\braket{W_a^L}\Psi}{\braket0\Psi}=\Big(\frac a{\kappa_0}\Big)^n(\lambda_1u_4)^{-L}\,B_{z_2}(y)\,B_{z_3}(y),\qquad
+ y_s=\frac{\tau_1(\theta_s)}{\kappa_s}=\frac1{\kappa_s}\,\frac{Q_j(\theta_s)}{Q_j(\theta_s-h)}\;}
+\end{equation}
+Here $j$ is any index, in the Q-conventions of \S\ref{sec:sov}. The overlap is a polynomial of degree $\le2$ in each F-site
+single-Q ratio, and it factorises over the two middle twist eigenvalues. Evidence \hp: $L=2$, all 108 sector states, generic
+and ABJM pair-by-pair $\theta$, $<10^{-41}$; $L=3$, nine states across the sectors $n=0..3$ (dimensions 1, 24, 141, 256),
+$<2.5\cdot10^{-51}$. The coefficients involve only $\theta$-differences with $\nu\ne0,\pm h$, so the formula is regular at the
+pair-by-pair ABJM point. No regularised SoV basis is needed: only F-only words enter.
+
+%----------------------------------------------------------------------
+\subsection{Assembly and comparison with the data}\label{sec:qform-assembly}
+
+Combining (\ref{eq:qform-kappa}) and (\ref{eq:qform-main}):
+\begin{equation}\label{eq:qform-C}
+ C_{M=1}=\lim_{\epsilon\to0}\;\frac{P_\kappa(\tau)}{(1-\kappa z_1)^2}\Big(\frac a{\kappa_0}\Big)^n(\lambda_1u_4)^{-L}\,
+ B_{z_2}(y)B_{z_3}(y)\,\frac{\braket0{\Psi_\epsilon}}{\|\Psi_\epsilon\|},
+\end{equation}
+on the ABJM $\epsilon$-chain:
+\begin{itemize}
+\item $z=1+\epsilon\varphi$ with $\varphi=(9/10,7/20,3/5,-11/10)$, so $z_2-z_3=O(\epsilon)$ suffices, and $y=(z_2+z_3)/2$ in $P_\kappa$;
+\item pair-by-pair $\theta$ with $\theta_{F,n}=\epsilon\theta^0_n$;
+\item $\kappa=1-c\epsilon$ with $c=3/10$, and $a=(\varphi_1-c)/(\varphi_1-\varphi_4)$, so $a'-a\to-1$;
+\item the finite highest-weight shift $e^{-aE_{14}}$ maps the bra to $\bra{W_{-1}\otimes\vac^{L-1}}$ (\S\ref{sec:kappa}).
+\end{itemize}
+Unit-norm $\Psi_\epsilon$ and 70--110-digit eigenvectors are needed, because of the $\epsilon^{-3}$ cancellation in
+$\braket0\Psi$.
+
+\begin{center}
+\begin{tabular}{llll}
+\toprule
+$L$ & state & extrapolated $|C_{M=1}|$ from (\ref{eq:qform-C}) & data\\
+\midrule
+2 & singlet $E=20$ & $0.15811388301$ & $1/\sqrt{40}$ (diff $2\cdot10^{-12}$)\\
+2 & singlet $E=4$ & $0.20412414524$ & $1/\sqrt{24}$ (diff $9\cdot10^{-12}$)\\
+3 & $[1,0,1]$ \#17 & $0.17112641$ & $0.17112641$\\
+3 & $[1,0,1]$ \#18 & $0.027137747$ & $0.027137747$\\
+3 & $[1,0,1]$ \#19, \#20 & $0.045900846$ & $|{-0.035872}\mp0.028637i|$\\
+3 & $[1,0,1]$ \#21, \#22 & $0.15348408$ & $|0.129924\mp0.081713i|$\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The consolidated notebook \nb{even-bridge-Qform.wb} reaches $10^{-15}$ for the two singlets with a degree-4 fit.
+At every $\epsilon$ the Q-form equals the direct value $P_\kappa\braket{W_a^L}{\Psi_\epsilon}/(1-\kappa z_1)^2$: to $10^{-66}$ at
+$L=2$ and to $10^{-41}$--$10^{-44}$ at $L=3$ \hp. The formula gives $|C|$; the sign is the phase of $\Psi$. With the data
+phase, the signs agree ($-1/\sqrt{40}$, $+1/\sqrt{24}$). By $C_M=(-1)^{L+\mu_4}C_{L-M}$ the same covers $M=L-1$.
+
+%----------------------------------------------------------------------
+\subsection{Structure of the untwisting limit}\label{sec:qform-limit}
+
+[\nb{even-bridge-epsilon-expansion.wb}, ported \ex/\hp\ at $L=2$, $10^{-14}$ at $L=3$; $\epsilon$-scans \npy.]
+
+\paragraph{Orders.} $\braket{W_a^L}{\Psi_\epsilon}=\frac{a^n}{n!}\epsilon^n\omega_n+\dots$. $P_\kappa=O(\epsilon^2)$ for $n\le1$ and
+$O(1)$ for $n\ge2$. The $M=1$ even bridge sees only $n=2$ states $[L-2,0,L-2]$ (the $L=2$ singlets, the $L=3$ $[1,0,1]$). The
+vacuum gives 1, and $n=1$ and $n=3$ give 0. Odd one-field bridges see only $n=1$ (\S\ref{sec:odd}), so no even/odd ratio
+relation at fixed state exists.
+
+\paragraph{Factorisation.}
+\begin{equation}
+ C_{M=1}(\Psi_0)=K_1(\tau_{\Psi_0})\cdot\Omega(\Psi_0),\qquad
+ \Omega=\lim_{\epsilon\to0}\frac{\bra\vac\rho(E_{14})^2\ket{\Psi_\epsilon}}{2\epsilon^2(\varphi_1-\varphi_4)^2}.
+\end{equation}
+$K_1=P_{\kappa=1}$ is evaluated at the untwisted ABJM point. $\Omega$ is independent of the bridge and of the twist direction:
+only $(\varphi_1-\varphi_4)^2$ enters. This is exact at $L=2$, reproducing $-1/\sqrt{40}$ and $1/\sqrt{24}$, and holds to
+$10^{-14}$ at $L=3$. An exact finite-twist handle follows from $t^{G_a}=t^\Lambda+a(z_1-z_4)T_{14}$:
+\begin{gather}
+ (\tau_\vac(u)-\tau_\Psi(u))\braket{W_a^L}\Psi=a(z_1-z_4)\bra{W_a^L}T_{14}(u)\ket\Psi,\\
+ \Omega=\frac{\bra\vac T_{14}(u)\,(t_1(u_1)-\tau_{\Psi_0}(u_1))^{-1}\,T_{14}(u_1)\ket{\Psi_0}}{\tau_\vac(u)-\tau_{\Psi_0}(u)} .
+\end{gather}
+The second formula uses untwisted operators, holds for any $u,u_1$, and its intermediate states are the HW states of
+$[L-1,0,L-1]$. It is a second-order $T_{14}$ form factor. Proposition~1 now gives $\Omega$ as the $\epsilon^2$ coefficient of
+the Q-form (\ref{eq:qform-main}).
+
+\paragraph{The pair factor.} Write $A=\tau_1(\theta_F)/(h^2\lambda_1)$, $B=\tau_2(u_0)/(2h^4y\lambda_2)$ and
+$C=\hat\tau_3(u_0)/(6h^5y^2\lambda_3)$. Then $P_\kappa=s^2+\kappa s(A+B+C)+\kappa^2AC/4$ with $s=1-\kappa(z_1+z_4)$, and
+\begin{equation}
+ K_1=2-A-B-C,\qquad AC=4 .
+\end{equation}
+$AC=4$ holds on cyclic states because $\hat X_3X_1=24h^7\lambda_1\lambda_3\,S$, with $S$ the one-pair translation \ex\ at $L=2$; this is
+the shift-operator statement $U\propto S$ of \S\ref{sec:abjm}. $K_1$ vanishes on $n\le1$ and is nonzero on $n=2$. At $L=2$ the
+characteristic polynomial of the $K_1$ operator on the zero-weight sector is $x^{24}(x-2)(x-8)^2(x-10)$ \ex. On the singlets
+$(A,B,C)=(2,-12,2)$ and $(-2,4,-2)$, so $K_1=10$ and $2$. At $L=3$ the six $[1,0,1]$ states give $3.65685$, $-7.65685$,
+$14.658\,(\times2)$, $1.842\,(\times2)$. ``$K_1=0$ on all non-vacuum states'' is false.
+
+\paragraph{Analytic limit at $L=2$} [\nb{even-bridge-Qform.wb} Part 3]. Let $\tau=\tau_1(\theta_F)$, $\tau'=\partial_u\tau_1(\theta_F)$
+and $x=\tau_1(\theta_F+h)$, all at the untwisted ABJM point, with $h=\tfrac12$.
+\begin{itemize}
+\item \emph{Pair factor.} At $\theta_{F1}=\theta_{F2}$ the prefactor of $t_3$ has a double zero at $u_0$, so $t_3'(u_0)=0$ and the
+  regularised $\hat t_3(u_0)=\tfrac12t_3''(u_0)$. On translation-invariant states
+  \begin{equation}
+  K_1=2-8\tau-\frac1{2\tau}+64x\tau \qquad\text{\ex\ on the singlets}.
+  \end{equation}
+\item \emph{Overlap factor.} The normalised $y_s$ diverge, $\nu y_{2,4}\to\mp\tau/(4h^3)$, but the combinations
+  $y_2+y_4\to-(\tau+h\tau')/(4h^4)$ and $g\,y_2y_4\to\tau^2/(16h^8)$ are finite. So $B_{z_2},B_{z_3}\to B_1$ and
+  $B_{z_2}B_{z_3}\to B_1^2$, with
+  \begin{equation}
+  B_1=1+\frac{\tau+h\tau'}{4h^4}+\frac{\tau^2}{16h^8}=1+4\tau+2\tau'+16\tau^2 .
+  \end{equation}
+  This holds on all 28 zero-weight states, with $O(\epsilon)$ convergence \hp. $\tau'$ is genuine extra data: a parity shortcut
+  without it works only on the singlets.
+\item \emph{Result.} With $\bbB_0$ the limit of the SoV norm,
+  \begin{equation}
+  \boxed{\;|C_{M=1}|=\frac{K_1\,B_1^2}{\sqrt{\bbB_0}}\;}
+  \end{equation}
+  \begin{center}
+  \begin{tabular}{lcccccccc}
+  \toprule
+  singlet & $\tau$ & $\tau'$ & $x$ & $K_1$ & $B_1$ & $\bbB_0$ & $K_1B_1^2/\sqrt{\bbB_0}$\\
+  \midrule
+  $E=20$ & $\tfrac14$ & $1$ & $\tfrac34$ & $10$ & $5$ & $2.5\cdot10^6$ & $1/\sqrt{40}$\\
+  $E=4$ & $-\tfrac14$ & $1$ & $\tfrac14$ & $2$ & $3$ & $7776$ & $1/\sqrt{24}$\\
+  \bottomrule
+  \end{tabular}
+  \end{center}
+\item \emph{Higher $L$.} At $L=3$ the factors are not separately finite: $\bbW\sim\epsilon^2$,
+  $\braket0\Psi/\|\Psi\|\sim\epsilon^{-3}$ and the prefactor $\sim\epsilon$. Only the product is finite, so the limit at $L\ge3$ needs
+  the combined scaling.
+\end{itemize}
+
+%----------------------------------------------------------------------
+\subsection{The norm}\label{sec:qform-norm}
+
+The SoV norm $\bbB$, i.e.\ $\braket0\Psi/\|\Psi\|$, is known in Q-functions (P.~Ryan) and is not rederived here; in the
+numerics it is taken from the eigenvectors. As a cross-check [\nb{abjm-sov-norm-L4.wb}], it was assembled from eigenvalue data
+alone with the regularised bra and ket bases at the ABJM point. The result $\bbB=\sum\tilde\tau_yM_{yx}\tau_x$ equals the direct
+pairing to $10^{-29}$--$10^{-48}$ on all 28 zero-weight states, and gives $\bbB\to2.5\cdot10^6$ and $7776$ on the singlets,
+hence $1/\sqrt{40}$ and $1/\sqrt{24}$ to $10^{-16}$. At finite twist the Euclidean norm differs from the SoV pairing by
+$H=1+O(\epsilon)$, because twisted eigenvectors are not orthogonal; the limit is unaffected (\S\ref{sec:sov}).
+
+%----------------------------------------------------------------------
+\subsection{Comparison with 2603}\label{sec:qform-2603}
+
+2603 has $C=\cN\,\bbW_\omega\bbA_{\ell,\kappa}/\sqrt{\bbB}$. Here:
+\begin{itemize}
+\item $\bbA\leftrightarrow P_\kappa$: a one-pair word in Q-data at one pair, with limit $K_1$;
+\item $\bbW_\omega\leftrightarrow B_{z_2}B_{z_3}$, with 2603's $\omega$ played by $w_1$; the $w_1\to\infty$ member is the simplest;
+\item $\sqrt\bbB\leftrightarrow$ the SoV norm.
+\end{itemize}
+The differences from 2603:
+\begin{enumerate}
+\item The $\kappa$-family rotates one pair only. The $\ell$-pair structure is pretwisted, so the middle bridges
+  $2\le M\le L-2$ are not covered (\S\ref{sec:kappa}).
+\item $z_2=z_3$ is needed at finite twist; only $z_2-z_3=O(\epsilon)$ is needed in the limit.
+\item $\bbW$ is a cluster expansion with F--F exchange weights $g_S$, not yet a determinant. The mixed $\mathbf4/\bar{\mathbf4}$
+  measure that would give determinants is unknown (\S\ref{sec:sov}).
+\item The reference $W_a$ is not itself the twisted vacuum. It shares the twisted vacuum's overlaps on the relevant sectors,
+  while being the only admissible reference for the $\kappa$-family (\S\ref{sec:admiss}).
+\end{enumerate}

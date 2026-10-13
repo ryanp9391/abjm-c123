@@ -1,0 +1,13 @@
+odd-bridge chain: <bra_eps|Psi_eps> vs word_eig * w (exact), limit (a-a_) C_1 ... L=2
+#0 [2 0 2] n=0 k=1: |lhs-rhs|=0.0e+00  lhs/nrm=(0.99991+0j)  (a-a') C1=(-0.5+0j)  wordeig=(0.00012+0j)
+#0 [2 0 2] n=0 k=2: |lhs-rhs|=1.6e-16  lhs/nrm=(0.99991-0j)  (a-a') C1=(0.75+0j)  wordeig=(-8e-05+0j)
+#1 [0 2 0] n=None k=1: |lhs-rhs|=0.0e+00  lhs/nrm=0j  (a-a') C1=(-0+0j)  wordeig=(1.99976+0j)
+#1 [0 2 0] n=None k=2: |lhs-rhs|=0.0e+00  lhs/nrm=(-0-0j)  (a-a') C1=0j  wordeig=(1.999364+0j)
+#2 [1 0 1] n=1 k=1: |lhs-rhs|=1.4e-15  lhs/nrm=(-0.072164+0.125007j)  (a-a') C1=(-0.072169+0.125j)  wordeig=(1.499902+0.865856j)
+#2 [1 0 1] n=1 k=2: |lhs-rhs|=1.3e-15  lhs/nrm=(0.108246-0.18747j)  (a-a') C1=(0.108253-0.1875j)  wordeig=(1.49958+0.865856j)
+#3 [1 0 1] n=1 k=1: |lhs-rhs|=1.5e-15  lhs/nrm=(-0.072164-0.125007j)  (a-a') C1=(-0.072169-0.125j)  wordeig=(1.499902-0.865856j)
+#3 [1 0 1] n=1 k=2: |lhs-rhs|=1.5e-15  lhs/nrm=(0.108246+0.18747j)  (a-a') C1=(0.108253+0.1875j)  wordeig=(1.49958-0.865856j)
+#4 [0 0 0] n=2 k=1: |lhs-rhs|=8.0e-20  lhs/nrm=(-0+0j)  (a-a') C1=(-0+0j)  wordeig=(0.000227+0j)
+#4 [0 0 0] n=2 k=2: |lhs-rhs|=5.3e-20  lhs/nrm=(-0+0j)  (a-a') C1=0j  wordeig=(-0.000142+0j)
+#5 [0 0 0] n=2 k=1: |lhs-rhs|=1.5e-16  lhs/nrm=(6e-06-0j)  (a-a') C1=(-0+0j)  wordeig=(1.999921+0j)
+#5 [0 0 0] n=2 k=2: |lhs-rhs|=1.5e-16  lhs/nrm=(-9e-06+0j)  (a-a') C1=0j  wordeig=(1.999847+0j)

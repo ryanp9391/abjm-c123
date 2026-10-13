@@ -1,0 +1,8 @@
+C:\Users\pryan\git-projects\abjm-c123\Paul\Mathematica\su4-alternating\checks\session-2026-10-13\epsexp\an3.py:39: ComplexWarning: Casting complex values to real discards the imaginary part
+  print('#%2d %s n=%s | K1=%+.5f%+.5fi | A0,B0,C0 = %s | dA,dB,dC = %s | Kp(Rich)=%+.5f%+.5fi | chain=%+.5f%+.5fi | explicit part %+.5f' % (
+L=2 : state dyn n | K1 | A0 B0 C0 | A' B' C' (Richardson) | K' (Richardson of K(eps)/... ) | K'(chain rule from A',B',C' + explicit) 
+# 0 [2 0 2] n=0 | K1=+0.00000+0.00000i | A0,B0,C0 = [ 2.+0.j -2.+0.j  2.+0.j] | dA,dB,dC = [-2.2+0.j  2.2+0.j -2.2+0.j] | Kp(Rich)=+0.00000+0.00000i | chain=+0.00000+0.00000i | explicit part +0.00000
+# 2 [1 0 1] n=1 | K1=-0.00000+0.00000i | A0,B0,C0 = [-1.+1.73205j  4.+0.j      -1.-1.73205j] | dA,dB,dC = [ 1.56-2.702j  -6.84-0.5196j  1.86+3.2216j] | Kp(Rich)=+0.00000+0.00000i | chain=-0.00000-0.00000i | explicit part +0.00000
+# 3 [1 0 1] n=1 | K1=-0.00000-0.00000i | A0,B0,C0 = [-1.-1.73205j  4.-0.j      -1.+1.73205j] | dA,dB,dC = [ 1.56+2.702j  -6.84+0.5196j  1.86-3.2216j] | Kp(Rich)=+0.00000-0.00000i | chain=-0.00000+0.00000i | explicit part +0.00000
+# 4 [0 0 0] n=2 | K1=+10.00000+0.00000i | A0,B0,C0 = [  2.+0.j -12.+0.j   2.+0.j] | dA,dB,dC = [-3.45+0.j 23.4 -0.j -4.35+0.j] | Kp(Rich)=-30.50000+0.00000i | chain=-30.50000+0.00000i | explicit part -11.00000
+# 5 [0 0 0] n=2 | K1=+2.00000+0.00000i | A0,B0,C0 = [-2.+0.j  4.-0.j -2.+0.j] | dA,dB,dC = [ 0.49+0.j -1.88-0.j  1.39+0.j] | Kp(Rich)=-3.14000-0.00000i | chain=-3.14000-0.00000i | explicit part -2.20000

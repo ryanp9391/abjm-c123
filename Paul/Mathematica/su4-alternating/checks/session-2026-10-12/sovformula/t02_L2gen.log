@@ -1,0 +1,17 @@
+word 1
+word t1
+word W
+word Z
+words computed in 7.3 s
+L = 2 z = [Fraction(3, 2), Fraction(5, 4), Fraction(2, 3), Fraction(4, 7)] : #pair-1 SoV words = 16; localising combinations: dim 5
+  combo {'1*t1F^0': '1'}
+     pair-1 state (A,F,coef): [(1, 4, '1')]
+  combo {'1*t1F^1': '1'}
+     pair-1 state (A,F,coef): [(1, 3, '-99/3200')]
+  combo {'t1*t1F^1': '1'}
+     pair-1 state (A,F,coef): [(1, 2, '-55539/20480000'), (2, 3, '-55539/20480000')]
+  combo {'Z*t1F^0': '1'}
+     pair-1 state (A,F,coef): [(4, 4, '122554377/32768000000')]
+  combo {'Z*t1F^1': '1'}
+     pair-1 state (A,F,coef): [(4, 3, '-12132883323/104857600000000')]
+rank of pair-1 parts of all 16 words: 16

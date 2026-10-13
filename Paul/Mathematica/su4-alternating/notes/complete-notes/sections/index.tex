@@ -1,0 +1,247 @@
+%======================================================================
+\section{Notebook and data index}\label{sec:index}
+%======================================================================
+
+\providecommand{\idxrun}{\textsf{run}}
+\providecommand{\idxpart}{\textsf{part}}
+\providecommand{\idxunrun}{\textbf{\textsf{unrun}}}
+
+All paths are relative to \nb{Paul/Mathematica/su4-alternating/}. The date is the day the notebook was created (DD-MM-2026);
+later reruns are noted in the content column. Status as of 13-10-2026, counted from the notebook files:
+\idxrun\ means native outputs are stored on all code cells (or all but one set-up cell); \idxpart\ means only partly rerun or
+ported, as stated; \idxunrun\ means \emph{no} stored outputs: results of those notebooks are in markdown cells pasted from
+python, and the notebook must be rerun in VS Code (\nb{notes/rerun-2026-10-13.md} and the NEXT item~0 list the reruns done
+so far; the rerun was stopped after four notebooks). Notebooks built as JSON by agents carry no native outputs unless
+they have been rerun.
+
+\subsection{Notebooks}\label{sec:index-nb}
+
+{\footnotesize
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.33\textwidth}>{\raggedright\arraybackslash}p{0.105\textwidth}>{\raggedright\arraybackslash}p{0.06\textwidth}>{\raggedright\arraybackslash}p{0.405\textwidth}@{}}
+\toprule
+file & date & status & content\\
+\midrule
+\endfirsthead
+\toprule
+file & date & status & content\\
+\midrule
+\endhead
+\midrule
+\multicolumn{4}{r}{\emph{continued on the next page}}\\
+\endfoot
+\bottomrule
+\endlastfoot
+
+\multicolumn{4}{@{}l}{\textit{Companion frame, qKZ form, localisation (11-10)}}\\
+\nb{L2-ffbar-SoV-localisation.wb} & 11-10-2026 & \idxunrun &
+ $L=2$ (A F; names opposite to Paul's): qKZ form, spectrum, $\mathfrak{gl}(4)$ $B$-operator, SoV basis $\bra{a,k}$,
+ one-site rotations; $L=4$ preview. Spec \nb{L2-ffbar-SoV-localisation-spec.md}. (\S\ref{sec:loc})\\[3pt]
+\nb{L4-ffbar-free-rotations.wb} & 11-10-2026 & \idxunrun &
+ $L=4$: localisation inventory on $\bra0$ and on rotated references, one free $\kappa$ per site, $\{1,3\}$ common rotation,
+ torus, fused-$T$ scan, reach. Its four \nb{Export}s write to \nb{\$TemporaryDirectory}. Spec \nb{L4-ffbar-free-rotations-spec.md}. (\S\ref{sec:loc})\\[6pt]
+
+\multicolumn{4}{@{}l}{\textit{Transfer matrices and the ABJM chain (12-10)}}\\
+\nb{dual-lax-t3.wb} & 12-10-2026 & \idxrun &
+ One-pass $t_3$ (dual Lax) and $t_2$ ($\wedge^2$ Lax) from the quantum minors, exact checks at 2 and 4 sites, vector form,
+ $L=6$ commutation test. (\S\ref{sec:tm})\\[3pt]
+\nb{abjm-chain.wb} & 12-10-2026 & \idxrun &
+ $\HMZ$ and sanity checks; $[\HMZ,\tb_a(u)]=0$ iff $\theta_A-\theta_F=2h$ (symbolic $u$ and $\theta_A-\theta_F$);
+ $\HMZ=U(0)^{-1}U'(0)+\text{const}$; $L=3$ check. (\S\ref{sec:abjm})\\[3pt]
+\nb{abjm-bridges.wb} & 12-10-2026 & \idxrun &
+ Port of \nb{checks/abjm\_bridges*.py}: bridge overlaps; \S1--2 at $\theta=0$ superseded (singular point); shift test
+ $U\propto S$; $C_\ell$ table and odd-bridge untwisting test at the ABJM point; \nb{Lp} sets the number of pairs.
+ (\S\ref{sec:3pt}, \S\ref{sec:abjm})\\[6pt]
+
+\multicolumn{4}{@{}l}{\textit{States, Q-functions, symmetries, configurations (12-10)}}\\
+\nb{abjm-LR-symmetry.wb} & 12-10-2026 & \idxrun &
+ $\cP$ (LR) and $\cQ$ (parity); all highest-weight cyclic eigenstates at $L=2,3,4$ ($6,26,152$); $C_\ell$ for all bridges
+ and vanishing rules; writes \nb{data/abjm-hw-states.wxf}. (\S\ref{sec:states}, \S\ref{sec:sym}, \S\ref{sec:C})\\[3pt]
+\nb{abjm-Qfunctions.wb} & 12-10-2026 & \idxrun &
+ Baxter equation, $Q_1,Q_{12},Q_{123}$ of all $184$ states, degrees $=$ magnon numbers, LR in Q-language; writes
+ \nb{data/abjm-Qfunctions.wxf} and the $\tau$ files. (\S\ref{sec:states})\\[3pt]
+\nb{abjm-other-symmetries.wb} & 12-10-2026 & \idxrun &
+ P and LP symmetries in eigenvalue and Q-form on all saved states; factorised P/LP bras. (\S\ref{sec:sym}, \S\ref{sec:fact})\\[3pt]
+\nb{abjm-LR-factorized.wb} & 12-10-2026 & \idxrun &
+ Factorised bras annihilated by $\tb_1(u)-\tb_3(u+h)$, $L=2$, untwisted and twisted. (\S\ref{sec:fact})\\[3pt]
+\nb{abjm-3pt-configs.wb} & 12-10-2026 & \idxrun &
+ Two-block BPS configurations (six $GL(4)$ classes, bridge length, A/F start, $L=2,3,4$): no LR rule, length-independent
+ parity rules. (\S\ref{sec:configs})\\[6pt]
+
+\multicolumn{4}{@{}l}{\textit{SoV at four sites and at the ABJM point (12-10)}}\\
+\nb{sov-companion-L4.wb} & 12-10-2026 & \idxrun &
+ SoV word basis at 4 sites (rank 256), $B$-operator and vacuum checks, BPS expansions, localisation on sites $1,2$ and
+ $1,2,3$, ABJM-point degeneracy. (\S\ref{sec:sov})\\[3pt]
+\nb{sov-Q-dictionary-L4.wb} & 12-10-2026 & \idxrun &
+ Q-wave-function dictionary at 4 sites (F: single-Q ratios; A: $3\times3$ Casoratians), dual ket basis, Gram matrix and
+ measure, $1/\cN=\sum\tilde\tau M\tau$. Rerun and saved 13-10 (not logged in the rerun note). (\S\ref{sec:sov})\\[3pt]
+\nb{sov-onepair-determinant.wb} & 12-10-2026 & \idxunrun &
+ One pair exact: graded word basis, determinant formula $\braket{v\otimes u}\Psi=\braket0\Psi\det[\dots]/Q_{123}$, two pairs
+ never factorise, F--F exchange. (\S\ref{sec:sov})\\[3pt]
+\nb{sov-twoblock-expansion-L4.wb} & 12-10-2026 & \idxunrun &
+ Two-block bras in the SoV basis (operator-Schmidt rank $169$ of $M^{-1}$ across $\{1,2\}|\{3,4\}$, $36$-word sums), $\bra0_{\rm comp}$ in the Borel orbit of
+ $\bra{\vac^L}$, bordered Casoratian for the $M=1$ bridge. (\S\ref{sec:sov})\\[3pt]
+\nb{sov-abjm-point-limit.wb} & 12-10-2026 & \idxunrun &
+ ABJM-point limit of the SoV basis: rank collapse, $t_3(u_0)=0$, $t_2(u_0)=t_1(u_0)t_1(\theta_F)$, Jordan blocks of $B$,
+ regularised basis and Q-forms of $x,w,y$. Was mid-run on 13-10 (cells 27 onwards cancelled; earlier cells may hold
+ unsaved outputs). (\S\ref{sec:abjm-sov})\\[6pt]
+
+\multicolumn{4}{@{}l}{\textit{Twisted vacua as references (12-10)}}\\
+\nb{twisted-vacuum-localisation-L2.wb} & 12-10-2026 & \idxunrun &
+ $L=2$: $\bra{0_w}$, obstruction $q(w,z)$, exact $t_1$ actions, inverses localise. (\S\ref{sec:twvac})\\[3pt]
+\nb{twisted-vacuum-localisation-L4.wb} & 12-10-2026 & \idxrun &
+ $L=4$: generic $w$ (only end sites and end-growing chains localise), locus $w_1\in\{z\}$ (A frozen, F free), common F
+ rotations. (\S\ref{sec:twvac})\\[3pt]
+\nb{twisted-vacuum-blocks-L3.wb} & 12-10-2026 & \idxrun &
+ $L=3$ pairs: block structure, common F rotations on the first $\ell$ pairs with closed-form coefficients.
+ (\S\ref{sec:twvac})\\[3pt]
+\nb{twisted-vacuum-wordspan-L2.wb} & 12-10-2026 & \idxrun &
+ Word span on pair 1 at generic $w$ (dimension $37$; dimension $4$ on sites $1,2$). (\S\ref{sec:twvac})\\[3pt]
+\nb{twisted-vacuum-untwisting.wb} & 12-10-2026 & \idxrun &
+ Diagonal-frame map, untwisting limit and overlaps with the saved states; neither limit gives the note's $W_{-1}$.
+ (\S\ref{sec:twvac})\\[3pt]
+\nb{twisted-vacuum-companion-check.wb} & 13-10-2026 & \idxunrun &
+ $L=2$, exact: the $t_1$-twist space of $\bra{W_a}$ is $11$-dimensional and contains no companion $G_c(w)$ in either frame
+ for $a\ne0$; frame map $R=V^{-T}\otimes V$ verified. (\S\ref{sec:conv-refbras})\\[6pt]
+
+\multicolumn{4}{@{}l}{\textit{Odd bridges, the pair $\kappa$-family, even bridges (12-10)}}\\
+\nb{abjm-nongood-reference-limit.wb} & 12-10-2026 & \idxrun &
+ On the non-good $\bra{W_a^L}$: the two exact end-pair families, untwisting of the F-site family, control against the odd
+ bridge of \nb{abjm-bridges.wb}. (\S\ref{sec:odd})\\[3pt]
+\nb{pair-rotation-wordsearch.wb} & 12-10-2026 & \idxrun &
+ Search for a common pair rotation (A by $1-\kappa\Lambda$, F by the inverse) in the $t_{1,2,3}$ word span at 2 pairs; nearly
+ trivial there. (\S\ref{sec:kappa})\\[3pt]
+\nb{odd-bridge-general-L.wb} & 12-10-2026 & \idxrun &
+ Proved chain constants $d_k,c_k$, one-field bridges at every placement, $L=3$ untwisting tables, regular homogeneous limit.
+ Rerun 13-10, all numpy numbers reproduced; uses \nb{hw\_L3.json}. (\S\ref{sec:odd})\\[3pt]
+\nb{pair-group-rotation.wb} & 12-10-2026 & \idxpart &
+ The pair $\kappa$-family $K_\kappa$ at the ABJM point with $z_2=z_3$: column-support lemma, pair-vacuum pattern,
+ localisation scan, locality at $L=2,3$, untwisting. Rerun 13-10: sections 1--6 and 8 reproduced; $L=3$ rows of sections 7
+ and 9 skipped as too heavy; one discrepancy (cell 17, constants $51/31$, $71/31$). (\S\ref{sec:kappa}, \S\ref{sec:abjm-ident})\\[3pt]
+\nb{pair-rotation-locality-L3.wb} & 12-10-2026 & \idxunrun &
+ Brute-force locality at 3 pairs, generic $\theta,z$: the even bridge is not locally reachable; obstruction by the isolated
+ pair singlet. (\S\ref{sec:kappa})\\[3pt]
+\nb{even-bridge-lpairs.wb} & 12-10-2026 & \idxrun &
+ $\ell$-pair generalisation of $K_\kappa$ (pretwisted end-growing structure), all even bridges at $L=3$, Q-forms of
+ $x,\hat y$. Rerun 13-10 (the F1/F2 labels of its section 2 table are swapped relative to the text; limits unchanged;
+ the $L=3$ Q-form checks remain python). (\S\ref{sec:kappa})\\[3pt]
+\nb{even-bridge-sov-formula.wb} & 12-10-2026 & \idxunrun &
+ $K_\kappa$ on the SoV vacuum $\bra0_{\rm comp}$ (not a common rotation; singlets invisible), SoV-normalised formula
+ $|C_K|=|P_K(\tau_\Psi)/P_K(\tau_{\rm vac})|\cdots$, regularised ket basis, Q-forms. (\S\ref{sec:admiss}, \S\ref{sec:qform})\\[3pt]
+\nb{twoblock-polarisation-forms.wb} & 12-10-2026 & \idxunrun &
+ Two-block overlaps of all $184$ states as polynomials in $8$ Borel invariants; exponents from $[p,q,r]$; which polarisations
+ are blind; writes \nb{data/abjm-twoblock-forms.json}. (\S\ref{sec:polforms})\\[6pt]
+
+\multicolumn{4}{@{}l}{\textit{Reference states and the Q-form of the even bridge (13-10)}}\\
+\nb{reference-admissibility-Kkappa.wb} & 13-10-2026 & \idxrun &
+ Which references admit a pair $\kappa$-family: admissible set at $z_2=z_3$, none on $\bra{0_w}$ at $z_2\ne z_3$, $K^F$ for
+ the A-frozen class, $GL(4)$ covariance, Lie algebra of pair rotations. Notes \nb{agent-2026-10-13-reference-map.md}.
+ (\S\ref{sec:admiss}, \S\ref{sec:conv-cov})\\[3pt]
+\nb{Wa-sov-expansion-L4.wb} & 13-10-2026 & \idxrun &
+ Companion image and dense SoV expansion of $\bra{W_a^L}$ (no determinant form); twisted-vacuum Q-sum $\mathbb W_w$; follow-up
+ cells 30--48: overlap identity $\braket{0_w}\Psi=(v_1u_4)^L\braket{W_a^L}\Psi$ and the F-only form at $L=2$, $L=2$ even bridge in
+ Q's. Notes \nb{agent-2026-10-13-Wa-sov.md}. (\S\ref{sec:qform})\\[3pt]
+\nb{even-bridge-epsilon-expansion.wb} & 13-10-2026 & \idxpart &
+ $\varepsilon$-orders, $C_{M=1}=K_1\Omega$, $K_1=2-A-B-C$, $T_{14}$ identity, step 0a. Ported to the notebook: step 0a, $T_{14}$
+ identity, $K_1$ spectra at $L=2$, $C_{M=1}$ exact at $L=2$ and to $10^{-14}$ at $L=3$, $\hat X_3X_1=\tfrac9{256}S$; the
+ $\varepsilon$-scans, Richardson limits and Hellmann--Feynman remain python. Notes \nb{agent-2026-10-13-epsilon-expansion.md}.
+ (\S\ref{sec:conv-cov}, \S\ref{sec:qform})\\[3pt]
+\nb{Wa-Fonly-L6.wb} & 13-10-2026 & \idxrun &
+ $L=3$: $\bra{(e_1\otimes\tilde u)^{\otimes3}}$ as $27$ F-only words (exact), closed form $B_{z_2}(y)B_{z_3}(y)$, Q-form on
+ states, $L=3$ even bridge equals the data. Notes \nb{agent-2026-10-13-Fonly-L6.md}. (\S\ref{sec:qform})\\[3pt]
+\nb{abjm-sov-norm-L4.wb} & 13-10-2026 & \idxrun &
+ The SoV norm in Q's at the $L=2$ ABJM point (regularised bra and ket bases, $\mathbb B=\sum\tilde\tau M\tau$); the $L=2$ even bridge
+ fully Q-based, $1/\sqrt{40}$, $1/\sqrt{24}$ at $4\cdot10^{-16}$. Notes \nb{agent-2026-10-13-sov-norm.md}. (\S\ref{sec:qform})\\[3pt]
+\nb{even-bridge-Qform.wb} & 13-10-2026 & \idxrun &
+ Consolidated: the three finite-twist ingredients, the assembled $M=1$ bridge at $L=2,3$ against the data, and the $L=2$
+ analytic limit $|C_{M=1}|=K_1B_1^2/\sqrt{\mathbb B_0}$. Notes \nb{agent-2026-10-13-Qform.md}. (\S\ref{sec:qform})\\
+\end{longtable}
+}
+
+{\raggedright
+The ten notebooks with no stored outputs on 13-10-2026 are \nb{sov-abjm-point-limit}, \nb{even-bridge-sov-formula},
+\nb{sov-onepair-determinant}, \nb{sov-twoblock-expansion-L4}, \nb{twoblock-polarisation-forms},
+\nb{twisted-vacuum-localisation-L2}, \nb{twisted-vacuum-companion-check}, \nb{pair-rotation-locality-L3},
+\nb{L2-ffbar-SoV-localisation} and \nb{L4-ffbar-free-rotations}. Of these, \nb{sov-abjm-point-limit} was interrupted
+mid-run on 13-10; \nb{even-bridge-sov-formula}, \nb{sov-onepair-determinant}, \nb{sov-twoblock-expansion-L4},
+\nb{twoblock-polarisation-forms}, \nb{twisted-vacuum-localisation-L2} and \nb{twisted-vacuum-companion-check} are the
+``not started'' list of NEXT item~0; \nb{pair-rotation-locality-L3} was not reached by the rerun; the two notebooks of 11-10
+were built as JSON and never rerun with native outputs. For the notebooks marked \idxrun\ the python-only parts are stated
+in the content column and in the sections that use them.\par}
+
+\subsection{Data files}\label{sec:index-data}
+
+{\footnotesize
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.33\textwidth}>{\raggedright\arraybackslash}p{0.58\textwidth}@{}}
+\toprule
+file & content\\
+\midrule
+\endhead
+\nb{data/abjm-hw-states.wxf} & All highest-weight cyclic joint eigenstates of $\tb_1,\tb_3$ at the ABJM point, $L=2,3,4$
+ ($6,26,152$), with $\HMZ$ energies, LR data and $C_\ell$; keys \nb{L2}, \nb{L3}, \nb{L4}, and a \nb{"description"} key. Written
+ by \nb{abjm-LR-symmetry.wb}. \emph{Never import the $L=4$ key} (about $3$\,GB decompressed).\\[3pt]
+\nb{data/abjm-tau.wxf} & Eigenvalue polynomials $\tb_1,\tb_2,\tb_3(u)$ of all saved states, $L=2,3,4$.\\[3pt]
+\nb{data/abjm-tau-L4.wxf} & Eigenvalue data of the $L=4$ states, saved alongside the Q-functions by \nb{abjm-Qfunctions.wb}.\\[3pt]
+\nb{data/abjm-Qfunctions.wxf} & $Q_1,Q_{12},Q_{123}$, roots and degrees of all $184$ states (Baxter gauge $d=V_4$); written by
+ \nb{abjm-Qfunctions.wb}.\\[3pt]
+\nb{data/abjm-twoblock-forms.json} & Polynomial forms $F_\Psi(a_2,a_3,d_2,d_3,m_v,m_u,p_{23},p_{32};M)$ in the $8$ Borel invariants for
+ all $184$ states, all sectors ($7248$); written by \nb{twoblock-polarisation-forms.wb} via
+ \nb{checks/twoblock-polforms/gen\_json.py}.\\[3pt]
+\nb{hw\_L2.json}, \nb{hw\_L3.json} & In \nb{checks/session-2026-10-13/epsexp/}: the $L=2$ and $L=3$ highest-weight states exported from the
+ \nb{.wxf} file as raw JSON (with \nb{.npz} copies for python); used by the reruns of \nb{even-bridge-lpairs.wb} and
+ \nb{odd-bridge-general-L.wb} to avoid importing the $3$\,GB key.\\
+\bottomrule
+\end{longtable}
+}
+
+\subsection{Python check folders}\label{sec:index-py}
+
+All new computations go into notebooks. The python below is legacy or fallback (written while the kernel was unavailable) and is
+the cross-check for the notebooks; port a script to a notebook instead of extending it.
+
+{\footnotesize
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.33\textwidth}>{\raggedright\arraybackslash}p{0.58\textwidth}@{}}
+\toprule
+folder & content\\
+\midrule
+\endhead
+\nb{checks/} (top level) & Legacy numpy scripts of 11-10 (run \nb{python checks/<name>.py}; scripts \nb{exec} siblings):
+ \nb{ffbar*.py}, \nb{check5.py}, \nb{chk7.py}, \nb{chk13.py} (qKZ fits, end sites, interior sites, $\{1,3\}$ exchange);
+ \nb{check6.py} (SoV basis $z$-independence); \nb{g2test.py}, \nb{g2inv.py} ((G2)-type localisation inventory);
+ \nb{chk\_common13.py}, \nb{chk\_rotref.py} with \nb{rotbase.py}, \nb{chk\_span13\_words.py}, \nb{scan\_*.py} (common rotations,
+ good references, $3\otimes3$ word span, $\Omega_2$ scan); \nb{chk\_frame.py} (frame map); \nb{abjm\_*.py} (ABJM three-point
+ localisation, untwisting, bridge overlaps; script index in \nb{ABJM-3pt-transfer-matrices.md} \S7).\\[3pt]
+\nb{checks/session-2026-10-12/} (\nb{README.md}) & Verbatim python of the 12-10 agents (licence expired mid-session):
+ \nb{pairgroup/} (\nb{pgbase.py}, \nb{RESULTS.md}: $K_\kappa$), \nb{lpairs/} (\nb{eng.py}, \nb{RESULTS.md}, \nb{hw\_L3.npz}),
+ \nb{sovq/} (\nb{sov\_l4.py}: Q-dictionary, dual basis), \nb{sovformula/} (\nb{RESULTS.md}: SoV-normalised formula, regularised bases),
+ \nb{twoblock/} (\nb{RESULTS.md}), \nb{onepair/}, \nb{oddbridge/} (\nb{ob.py}, tables), \nb{locality/} (\nb{RESULTS.md}).\\[3pt]
+\nb{checks/abjmlimit/} & Python for \nb{sov-abjm-point-limit.wb}: \nb{chain.py}, \nb{words.py}, \nb{t1.py}--\nb{t3.py}, exact and
+ numerical $L=2$ and $L=4$ bases (\nb{L2*.py}, \nb{buildL4exact.py}, \nb{numL4*.py}), Jordan structure (\nb{bjordan.py}), regularised
+ bases (\nb{regL4.py}, \nb{L2reg*.py}), $d$-scans (\nb{dline*.py}).\\[3pt]
+\nb{checks/twoblock-polforms/} & Python for \nb{twoblock-polarisation-forms.wb}: \nb{core.py}, \nb{formula.py}, \nb{gen\_json.py}
+ (writes \nb{data/abjm-twoblock-forms.json}), \nb{inv*.py} (Borel invariants), \nb{symm.py}, \nb{polyverify.py}, \nb{run\_all.py}.\\[3pt]
+\nb{checks/session-2026-10-13/epsexp/} & \nb{even-bridge-epsilon-expansion.wb}: \nb{step0a.py} (exact), \nb{scan\_eps.py},
+ \nb{scan2.py}, \nb{an3.py}, \nb{hf.py}, \nb{pt.py}, \nb{pt2.py}, \nb{kspec.py}, \nb{odd\_check.py}, base modules \nb{ue\_base.py},
+ \nb{ue2.py}, outputs \nb{out\_*.txt}, \nb{tables\_C.txt}, and the state files \nb{hw\_L2.json}, \nb{hw\_L3.json}.\\[3pt]
+\nb{checks/session-2026-10-13/refmap/} & \nb{reference-admissibility-Kkappa.wb}: \nb{covariance.py}, \nb{scan.py},
+ \nb{obstruction.py}, \nb{genericz.py}, \nb{smallint.py}, \nb{l3check.py}, \nb{untw.py}, \nb{symR2.py}, \nb{symR6.py},
+ \nb{twloci\_generic.py}, with \nb{*\_out.txt}.\\[3pt]
+\nb{checks/session-2026-10-13/wasov/} & \nb{Wa-sov-expansion-L4.wb}: \nb{wa\_sov\_core.py}, \nb{run1.py}--\nb{run13.py}, logs,
+ \nb{Wa\_sov\_coefficients.json}.\\[3pt]
+\nb{checks/session-2026-10-13/fonly/} & \nb{Wa-Fonly-L6.wb}: the F-chain (Cherednik-type) model checks \nb{model\_cherednik.py},
+ \nb{model\_L3.py}, \nb{check\_conj.py}, \nb{check\_conj\_L4.py} (run \nb{model\_L3.py} first).\\[3pt]
+\nb{checks/session-2026-10-13/norm/} & \nb{abjm-sov-norm-L4.wb}: \nb{gram\_abjm.py}, \nb{abjm\_eval.py}, \nb{abjm\_eval2.py}, logs.\\
+\bottomrule
+\end{longtable}
+}
+
+\subsection{Other files}\label{sec:index-other}
+
+{\raggedright
+\nb{README.md} (conventions, results, file map), \nb{NEXT.md} in the repository root (resume point), \nb{ABJM-3pt-transfer-matrices.md}
+(transfer-matrix construction of the three-point functions, numpy era), the two \nb{*-spec.md} files of the 11-10 notebooks,
+\nb{ref/*.txt} (cell-source dumps of two gaudin-cg notebooks cited by the specs), and in \nb{notes/}:
+\nb{w-a-reference-status.md} (the four reference bras and the status of $\bra{W_a^L}$), \nb{rv-sov-dictionary.md}
+(Ryan--Volin, GLMR, 2603 formulas in our conventions), \nb{session-2026-10-12-agent-reports.md}, \nb{plan-2026-10-13.md},
+\nb{rerun-2026-10-13.md}, the six \nb{agent-2026-10-13-*.md} reports, and the earlier note
+\nb{abjm-transfer-matrices-symmetries.tex} (12-10), superseded by these complete notes. The folder \nb{img/} holds only
+wolfbook log files (\nb{btl.log}), no figures.\par}

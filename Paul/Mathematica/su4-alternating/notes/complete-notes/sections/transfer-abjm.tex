@@ -1,0 +1,229 @@
+%======================================================================
+\section{Transfer matrices}\label{sec:tm}
+%======================================================================
+
+[\nb{dual-lax-t3.wb}] The higher transfer matrices are single-pass. From the one-site quantum minors (symbolic in
+$u,\theta,h$), checked identically against the quantum-minor $t_a$ on the chain at 2 and 4 sites for companion, diagonal,
+generic and trivial twist \ex:
+\begin{align}
+ t_3(u)&=\prod_sg^{(3)}_s(u)\;\mathrm{tr}\big[\Lb_1\cdots\Lb_{2L}\,\det G\,G^{-T}\big],\\
+ \Lb_A&=(u-\theta+h)-hP,\qquad \Lb_F=(u-\theta-3h)+hK,\nonumber\\
+ g^{(3)}_A&=(u-\theta-h)(u-\theta-2h),\qquad g^{(3)}_F=(u-\theta)(u-\theta-h),\nonumber\\
+ t_2(u)&=\prod_sg^{(2)}_s(u)\;\mathrm{tr}\big[\cL^{(2)}_1\cdots\cL^{(2)}_{2L}\,\wedge^2G\big],\\
+ \cL^{(2)}_s&=u-\tilde\theta_s+h\sum_{ab}D(e_{ab})\otimes\rho_s(E_{ab}),\qquad
+ g^{(2)}_A=u-\theta-h,\quad g^{(2)}_F=u-\theta,\nonumber
+\end{align}
+with the sign gauge $(-1)^k$ on the dual index of $t_3$, $D$ the derivation action on $\wedge^2\mathbb C^4$,
+$\tilde\theta_A=\theta$, $\tilde\theta_F=\theta+h$, and $(\wedge^2G)_{JI}=\det G_{J,I}$. The relative A/F shift of the
+evaluation point is $0$ for $t_1$, $h$ for $t_2$ and $4h$ for $t_3$; the earlier naive dual Lax missed this shift and does
+not commute with $t_1$, $t_3$ (\nb{checks/abjm\_dual\_lax\_try.py}).
+
+\paragraph{All $k$ in one form.} Define for $k=1,\dots,4$ the fused Lax operator on $\wedge^k\mathbb C^4$,
+\begin{equation}
+ t_k(u)=\prod_sg^{(k)}_s(u)\;\mathrm{tr}\big[\cL^{(k)}_1\cdots\cL^{(k)}_{2L}\,\wedge^kG\big],\qquad
+ \cL^{(k)}_s=u-\tilde\theta_s+h\sum_{ab}D_k(e_{ab})\otimes\rho_s(E_{ab}),
+\end{equation}
+with $\tilde\theta_A=\theta$, $\tilde\theta_F=\theta+(k-1)h$, $g^{(k)}_A=\prod_{j=1}^{k-1}(u-\theta-jh)$,
+$g^{(k)}_F=\prod_{j=0}^{k-2}(u-\theta-jh)$, $D_k$ the derivation action on $\wedge^k\mathbb C^4$. For $k=2,3$ this reproduces
+the forms above, and for $k=4$ it gives $\mathrm{qdet}$ (for an A site
+$(u-\theta+h)(u-\theta-h)(u-\theta-2h)(u-\theta-3h)$ times $\det G$). It holds for any twist matrix $G$, including the
+non-diagonal twists $G_a$ and $G'$ of \S\ref{sec:conv-cov}. It was calibrated against the quantum-minor definition for
+$k=1,\dots,4$ on chains A\,F, A\,F\,A\,F and F\,A with a random twist, relative error $10^{-16}$ to $3\cdot10^{-14}$
+\num{10^{-14}} [\nb{pair-group-rotation.wb} \S1; python \nb{checks/session-2026-10-12/pairgroup/py/}].
+
+\paragraph{Reduced and regularised transfer matrices.} $\tb_a$ denotes the reduced transfer matrix without the scalar
+prefactor $\prod_sg^{(a)}_s$, so that $t_a=\prod_sg_s^{(a)}\,\tb_a$ and $\tau_a=\prod_sg^{(a)}_s\,\tb_a$ on states. $\hat t_k$
+denotes $t_k$ with exactly vanishing scalar factors $(u-\theta-jh)=0$ dropped (needed at the ABJM point,
+\S\ref{sec:abjm}); for a double zero from two coinciding F inhomogeneities, $\hat t_3(u_0)=\tfrac12t_3''(u_0)$.
+
+\paragraph{Vector form.} One pass per vector: $t_3$ takes $0.16$\,s at 6 sites and a few seconds at 8 sites with the sparse
+site action; $[t_a,t_b]=0$ to $10^{-16}$ at 6 sites \num{10^{-16}}. For $L=3$ (4096-dimensional) the monodromy is never built:
+$t_k^G(u)\psi=\prod g\sum(\wedge^kG)_{JI}T_{IJ}\psi$ and $T_{IJ}(u)\psi$ are propagated site by site on the
+auxiliary-block array, and bras are acted on by the transposed site operators. These vector builders were validated against
+the explicit one- and two-pair matrices to $10^{-16}$ \ex\ [\nb{even-bridge-epsilon-expansion.wb} \S10,
+\nb{Wa-Fonly-L6.wb}]. $T_{14}=t_1^{E_{41}}$.
+
+\paragraph{Q-side.} The eigenvalues $\tau_a$ satisfy the Baxter equation of \S\ref{sec:states}; $\tau_2=\prod g^{(2)}\tb_2$,
+$\tau_3=\prod g^{(3)}\tb_3$.
+
+%======================================================================
+\section{The ABJM point}\label{sec:abjm}
+%======================================================================
+
+\subsection{Minahan--Zarembo Hamiltonian and uniqueness of $\theta_A-\theta_F=2h$}\label{sec:abjm-mz}
+
+{\raggedright [\nb{abjm-chain.wb}] The two-loop Hamiltonian of Minahan--Zarembo (arXiv:0806.3951; Bak--Rey arXiv:0807.2063; the 't~Hooft
+prefactor $\lambda^2/2$ dropped; form quoted from memory and confirmed by the commutation below) is\par}
+\begin{equation}
+ \HMZ=\sum_{l=1}^{2L}\big(2-2P_{l,l+2}+P_{l,l+2}K_{l,l+1}+K_{l,l+1}P_{l,l+2}\big).
+\end{equation}
+It is Hermitian, $\mathfrak{su}(4)$-invariant, and commutes with the translation $S$ by one pair, $[\HMZ,S]=0$ \ex. The
+$L=2$ spectrum is $0\,(\times84)$, $4$, $8\,(\times120)$, $12\,(\times30)$, $16\,(\times20)$, $20$.
+\begin{itemize}
+\item \ex\ ($L=2$, $u$ symbolic): $[\HMZ,\tb_a(u)]=0$ for $a=1,2,3$ at $\theta_A-\theta_F=2h$, and not at
+ $\theta_A=\theta_F$. With $d=\theta_A-\theta_F$ symbolic the gcd of all commutator coefficients is proportional to $d-2h$, so
+ the point is unique. \num{10^{-15}} at $L=3$.
+\item $U(u)=\tb_1(\theta_F+u)\,\tb_3(\theta_A-h+u)$. At $u=0$, $\tb_1$ has $P$ on the F sites, $\tb_3$ has $P$ on the A sites,
+ and the A--F dressings are $(x+hK)(-x-4h+hK)=x(-x-4h)$ with $x=\theta_F-\theta_A$. Hence $U(0)=c\,S$ with
+ $c=h^4[x(-x-4h)]^2$ at $L=2$ \num{10^{-16}}, vanishing at $d\in\{0,4h\}$. At the ABJM point $x=-2h$, $c=16h^8$,
+ $U(0)=S/16$, and
+ \begin{equation}
+ \HMZ=U(0)^{-1}U'(0)+12\qquad(L=2)\ \ex .
+ \end{equation}
+\end{itemize}
+The shift-operator statement $U(0)\propto S$ is the translation-operator identity that reappears in
+\S\ref{sec:abjm-shift} for the regularised words.
+
+\paragraph{Superseded: computations at $\theta_A=\theta_F$.} There $U(0)=0$, $S$ drops out of the $t$-algebra, $\HMZ$ does not
+commute with the $t$'s, and an odd-momentum highest-weight partner is degenerate with a cyclic state in $t_1,t_2,t_3$
+(only $S$ separates them); matching it through the untwisting limit required pair-periodic $\theta$ and a twisted shift
+$\hat S=S\circ\rho_{3..L}(\Lambda)$. All of this is an artefact of the singular point [\nb{abjm-bridges.wb} \S1--2].
+
+%----------------------------------------------------------------------
+\subsection{Exact identities at the ABJM point}\label{sec:abjm-ident}
+%----------------------------------------------------------------------
+
+In this subsection $\theta_A-\theta_F=2h$ for every pair, and
+\begin{equation}
+ u_0:=\theta_F+h=\theta_A-h,\qquad \tau_F:=\tau_1(\theta_F),
+\end{equation}
+with $\theta_F,\theta_A$ those of pair 1; the other pairs have arbitrary $\theta_{F,n}$ with $\theta_{A,n}=\theta_{F,n}+2h$.
+$t_a$ are the full transfer matrices of \S\ref{sec:tm}.
+
+\paragraph{Operator identities.}
+\begin{equation}
+ t_3(u_0)=0,\qquad t_2(u_0)=t_1(u_0)\,t_1(\theta_F),
+\end{equation}
+and the mirror identities (used on the ket side),
+\begin{equation}
+ t_2(\theta_A)=t_1(\theta_A)\,t_1(u_0),\qquad t_3(\theta_A+h)=0 .
+\end{equation}
+The two vanishing statements are immediate from the prefactors of \S\ref{sec:tm}: $g^{(3)}_F(u)=(u-\theta)(u-\theta-h)$
+vanishes at $u=\theta_F+h$ and $g^{(3)}_A(u)=(u-\theta-h)(u-\theta-2h)$ at $u=\theta_A+h$. The content lies in the two
+$t_2$ identities, which involve $u_0=\theta_F+h=\theta_A-h$, and in the regularised $\hat t_3(u_0)$ of \S\ref{sec:abjm-shift}.
+The first pair is verified as operator identities at $L=2,3,4$ for the diagonal twists used in these notebooks \ex\
+[\nb{even-bridge-epsilon-expansion.wb} \S10 (one pair), \nb{even-bridge-lpairs.wb}, \nb{sov-abjm-point-limit.wb}]. The
+mirror pair was found in the SoV norm construction \npy\ [\nb{checks/session-2026-10-12/sovformula/}, report \S9d] and is
+used by the regularised ket basis of \nb{abjm-sov-norm-L4.wb}.
+
+\paragraph{On states.} $\tau_3(u_0)=0$ and $\tau_2(u_0)=\tau_1(u_0)\,\tau_F$ for every eigenstate. These are the collisions of
+the eigenvalues of Ryan--Volin's $B$ at the ABJM point: $13$ distinct eigenvalues per pair instead of $16$, i.e.\ $169=13^2$
+at two pairs. Q-reading, in the Baxter convention $\sum_{a=0}^4(-1)^at_a(u)Q(u+h-ah)=0$: at $u=\theta_F$ the prefactors
+kill $t_{a\ge2}$, so $Q_j(\theta_F+h)=\tau_FQ_j(\theta_F)$ for all four solutions. With
+$D_a=\det_{i\le3;\ b\in\{0,\dots,3\}\setminus\{a\}}Q_i\big(\theta_A-h+h(1-b)\big)$, which gives $\tau_a(\theta_A-h)=D_a/D_0$ at
+generic $\theta$, the identity $Q_j(u_0)=\tau_FQ_j(u_0-h)$ makes the columns at $\theta_A-h$ and $\theta_A-2h$ of the A-site
+Casoratian proportional, so
+\begin{equation}
+ D_0=D_3=0,\qquad D_2=\tau_F\,D_1 .
+\end{equation}
+Since $D_0=Q_{123}(\theta_A-h)$, the generic dictionary degenerates ($0/0$ for $a=3$); this is the Q-side of the $B$
+collisions and is resolved by the regularised basis of \S\ref{sec:abjm-sov}.\footnote{In the python convention of the
+2026-10-12 reports, $\sum_a(-1)^a\tau_aQ(u-ah)=0$ with $Q^{\rm RV}(u)=Q(u-h)$, the same columns sit at $\theta_A-3h$.} The LR map of \S\ref{sec:sym}, $\cP\,\tb_1(u)\cP^{-1}=\tb_3(u+h)$, sends $\tb_1(\theta_F)$ to $\tb_3(\theta_F+h)=\tb_3(\theta_A-h)$
+exactly at $d=2h$.
+
+\paragraph{Pair-vacuum zero pattern.} [\nb{pair-group-rotation.wb} \S2] On one pair, with $(\cL_A\cL_F)_{jk}$ the $(j,k)$
+element in the auxiliary space,
+\begin{equation}
+ \bra{e_1e_4}(\cL_A\cL_F)_{jk}(u)=(u-\theta_A)(u-\theta_F)\,\delta_{jk}\bra{e_1e_4}-h(u-\theta_A)\,\delta_{k4}\bra{e_1e_j}
+ +h(u-\theta_F)\,\delta_{j1}\bra{e_ke_4}-h^2\delta_{j1}\delta_{k4}\bra S .
+\end{equation}
+Seven entries vanish identically: the six lower-triangular ones and $(2,3)$. There are bonus zeros at $u=\theta_A$ for
+$(j,4)$, $j=2,3$ (and for the diagonal entries $(2,2),(3,3),(4,4)$), and at $u=\theta_F$ for $(1,k)$, $k=2,3$ (and
+for $(1,1)$). Only $(1,4)$ never vanishes; it carries the singlet $-h^2\bra S$. \ex\ (sympy exact; the formula holds for all
+$(j,k)$).
+
+\paragraph{Localisation on a pair, and why only the ABJM point.} In the $\wedge^k$ auxiliary space let
+$D_k=\{I:1\notin I,\ 4\in I\}$. Row $I$ of $\bra{e_1}\cL^{(k)}_A$ is off-diagonal only if $1\in I$, and row $I$ of
+$\bra{e_4}\cL^{(k)}_F$ is off-diagonal only if $4\notin I$. So on $D_k$ every vacuum site is diagonal, with $I$-independent
+eigenvalues $(u-\tilde\theta_A)$ and $(u-\tilde\theta_F-h)$. If the Lax product of pair 1 at the evaluation point $u_*$ has
+column support inside $D_k$, the index stays in $D_k$ through pairs $2,\dots,L$ and the twist only closes the trace:
+\begin{equation}
+ \bra{\vac^L}t_k(u_*)=\lambda_k(u_*)\,\bra{\vac}t_k^{(1\ \rm pair)}(u_*)\otimes\bra{\vac^{L-1}},
+\end{equation}
+\begin{equation}
+ \lambda_k(u)=\prod_{n\ge2}\ \prod_{j=0}^{k-1}(u-\theta_{A,n}-jh)\ (u-\theta_{F,n}-kh)\ \prod_{j=0}^{k-2}(u-\theta_{F,n}-jh),
+\end{equation}
+for every twist, and by the covariance of \S\ref{sec:conv-cov} for every global rotation of the vacuum, with no goodness
+condition. The F site at $u_*=\tilde\theta_F$ removes all columns without a $4$; the A site at $u_*=\theta_A-h$ removes all
+columns containing a $1$. Hence:
+\begin{itemize}
+\item $k=1$: $t_1(\theta_F)$ localises for any geometry;
+\item $k=3$: $\hat t_3(\theta_A-h)$ localises for any geometry;
+\item $k=2$: both conditions are needed at $u_*=\theta_F+h=\theta_A-h$, i.e.\ $t_2(\theta_F+h)$ localises on a pair
+ \emph{only at the ABJM point} $\theta_A-\theta_F=2h$.
+\end{itemize}
+\ex, $L=2,3$ pairs [\nb{pair-group-rotation.wb} \S\S2--3]. A scan of all single $t_k(\theta_F+mh)$ on four sites
+with a random twist and a random BPS reference, $k=1,2,3$, $m=-6,\dots,7$, $d=(\theta_A-\theta_F)/h=-5,\dots,5$ (binary-exact
+floats, \npy\ [\nb{checks/session-2026-10-12/pairgroup/}]; $d=-2,\dots,4$ in the notebook):
+\begin{center}
+\small
+\begin{tabular}{@{}ll@{}}
+\toprule
+$d$ & single words localising on pair 1\\
+\midrule
+$-5,\dots,1,3,5$ & $t_1(\theta_F)$, $\hat t_3(\theta_A-h)$\\
+$2$ (ABJM) & $t_1(\theta_F)$, $t_2(\theta_F+h)$, $\hat t_3(\theta_F+h)=\hat t_3(\theta_A-h)$\\
+$4$ & $t_1(\theta_F)$ ($t_3(\theta_A-h)$ vanishes identically)\\
+\bottomrule
+\end{tabular}
+\end{center}
+The localised algebra on pair 1 is therefore $5$-dimensional at the ABJM point,
+$\{1,\ X_1=t_1(\theta_F),\ X_2=t_2(\theta_F+h),\ X_3=\hat t_3(\theta_F+h),\ X_3X_1\}$, and $4$-dimensional off it. This is why
+all generic-$\theta$ searches for a pair rotation failed, and it is the mechanism behind the pair $\kappa$-family of
+\S\ref{sec:kappa}.\footnote{\raggedright The python check \nb{pairword\_check.py} and the text of the notebook of 12-10 state that every
+localising word, single or product, equals the localisation constant $\prod\lambda_k$ times the same word on the one-pair
+chain. The rerun of 13-10 shows this for the five $K_\kappa$ words (the only product word there, $X_3X_1$, has constant
+$\lambda_1\lambda_3$), but four other two-factor words, $t_1(\theta_F)t_1(\theta_F+h)$, $t_1(\theta_F)\hat t_3(\theta_F+3h)$,
+$t_1(\theta_F+2h)\hat t_3(\theta_F+h)$ and $\hat t_3(\theta_F+h)\hat t_3(\theta_F+2h)$, localise with constants $51/31$ or
+$71/31$ times $\prod\lambda_k$ [\nb{pair-group-rotation.wb} cell 17; \nb{notes/rerun-2026-10-13.md}]. $K_\kappa$ is
+unaffected.}
+
+%----------------------------------------------------------------------
+\subsection{The shift operator in the regularised words}\label{sec:abjm-shift}
+%----------------------------------------------------------------------
+
+Write $X_1=t_1(\theta_F)$ and $\hat X_3=\hat t_3(u_0)$. At $L=2$, untwisted, homogeneous ($\theta_A=1$, $\theta_F=0$, $h=\tfrac12$)
+one has the exact operator identity
+\begin{equation}
+ \hat X_3X_1=24\,h^7\lambda_1\lambda_3\;S,\qquad \lambda_1=\tfrac12,\ \lambda_3=\tfrac38,\quad 24h^7\lambda_1\lambda_3=\tfrac9{256},
+\end{equation}
+\ex\ [\nb{even-bridge-epsilon-expansion.wb} \S10, \nb{Wa-Fonly-L6.wb} (ket and bra port test)]. Here $\hat X_3=\tfrac12t_3''(u_0)$ because
+the prefactor of $t_3$ has a double zero at $u_0$, one from each F site, and $\lambda_1,\lambda_3$ are the localisation
+constants of the other pair with the vanishing factor dropped (the $\lambda_k$ of \S\ref{sec:abjm-ident}, here
+$\lambda_1(\theta_F)$ and $\lambda_3(u_0)$); $S$ is the translation by one pair, which at $L=2$ swaps the two pairs (the
+$\varepsilon$-notes call it $P$). The full operator $\hat X_3X_1$ is not a scalar. On the eigenvalue side, with
+$A=\tau_F/(h^2\lambda_1)$ and $C=\hat\tau_3(u_0)/(6h^5\lambda_3)$ (twist $y=1$) the identity gives
+\begin{equation}
+ A\,C=4\qquad\text{on translation-invariant states}\ (S=+1),
+\end{equation}
+{\raggedright i.e.\ $\tau_F\hat\tau_3(u_0)=24h^7\lambda_1\lambda_3$ is state independent. It holds on all $6$ cyclic highest-weight states at
+$L=2$ (exact operator identity) and on all $26$ at $L=3$ \npy\ [\nb{an3.py} in \nb{checks/session-2026-10-13/epsexp/}]; the
+Q-side use is in \S\ref{sec:kappa}.\par}
+
+This is the same statement as the shift test $U(0)\propto S$ of \S\ref{sec:abjm-mz}, in the regularised normalisation:
+$\hat X_3=\prod_{\rm rest}g^{(3)}(u_0)\,\tb_3(u_0)$ where the remaining prefactors at $L=2$ are $(6h^2)^2h^2=36h^6=\tfrac9{16}$,
+and $\tfrac9{16}\cdot\tfrac1{16}=\tfrac9{256}$ reproduces the constant above from $U(0)=S/16$ (an arithmetic cross-check of the two
+statements, made here).
+
+%----------------------------------------------------------------------
+\subsection{Consequences for the SoV basis}\label{sec:abjm-sov}
+%----------------------------------------------------------------------
+
+[\nb{sov-abjm-point-limit.wb}, \nb{checks/abjmlimit/}; not yet rerun, \npy\ with mpmath at $10^{-45}$] Ryan--Volin's genericity
+assumption (2.9) fails and $B$ is degenerate (\S\ref{sec:sov} has the full account). In short:
+\begin{itemize}
+\item With pair-by-pair $\theta=(\theta_{F,1}+d,\theta_{F,1},\theta_{F,2}+d,\theta_{F,2})$ the generic words have rank $256$;
+ at $d=2h$ the rank drops to $81=9^2$ (nine per resonant pair), and for one pair $\det M(d)\propto
+ d^{23}(d-h)^{11}(d-2h)^7(d-3h)^3(d-4h)^4$.
+\item $B$ has Jordan blocks at $d=2h$: $10$ simple and $3$ of size two per pair, i.e.\ $13$ distinct eigenvalues.
+\item The regularised basis is the $d\to2h$ limit of the RV basis. Per resonant A site $O(a,k)\in\{1,\ t_1(u_0),\
+ W,\ Z\}$ with $W=t_2'(u_0)-t_1'(u_0)t_1(\theta_F)$ for $k\le2$ ($t_2(u_0)$ at $k=3$) and $Z=t_3'(u_0)=g_3'\,\hat t_3(u_0)$;
+ the words $\bra0O_1t_1(\theta_2)^{k_2}O_3t_1(\theta_4)^{k_4}$ have rank $256$, and on states
+ $\braket x\Psi=\braket0\Psi\prod_{\rm pairs}\lambda(a,k)\tau_F^k$ with $\lambda\in\{1,\ x=\tau_1(u_0),\
+ w=\tau_2'(u_0)-\tau_1'(u_0)\tau_F\ (k\le2)\ \text{or}\ x\tau_F\ (k=3),\ y=\tau_3'(u_0)\}$ \npy.
+ The data $x,w,y$ come from the $u$-derivative of the twisted Baxter equation.
+\item Fixed-bra coefficients diverge like $\delta^{-\#\text{resonant pairs}}$ but overlaps converge ($10^{-45}$).
+ The $K_\kappa$ word of \S\ref{sec:kappa} is built from exactly these regularised pair words: $X_2=t_1(u_0)X_1$, $X_3\propto Z$.
+\item Fully pair-periodic $\theta$ (coincident inhomogeneities) collapses the generic words to rank $70$ and needs shift
+ derivatives up to order $7$: the homogeneous limit is a separate open problem. Use pair-by-pair $\theta$.
+\end{itemize}

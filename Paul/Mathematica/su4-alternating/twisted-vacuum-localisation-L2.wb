@@ -1,0 +1,148 @@
+{
+ "cells": [
+  {
+   "kind": 1,
+   "value": "# Twisted vacuum localisation at L = 2\n\nSite 1 type A (rho(E_ij) = e_ij), site 2 type F (rho(E_ij) = -e_ji). Bra (row-vector) convention: bra . operator. Lax L_s(u) = sum e_ij x ((u-theta_s) delta_ij + h rho_s(E_ij)), T = L_1 L_2, twist on the right, companion twist G_c(z). Exact rationals: h = 1/2, theta = (2/7, -3/5), z = (3/2, 5/4, 2/3, 4/7), w = (7/5, 9/8, 3/7, 5/9). All symbols carry the prefix tv (the kernel was shared with another notebook).\n\nNOTE: the notebook kernel binding was unavailable (private kernel creation denied), so all cells below were evaluated through wolfbook_evaluateExpression on the shared kernel K1; this file has no stored outputs. Rerun top to bottom.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 1. Definitions: Lax, monodromy, T^G, t_a (quantum minors), companion twist, Vandermonde, w-vacuum",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "tvEu[i_, j_] := Table[If[a == i && b == j, 1, 0], {a, 4}, {b, 4}];\ntvId = IdentityMatrix[4];\ntvLaxE[type_, i_, j_, u_, th_, h_] := (u - th) KroneckerDelta[i, j] tvId + h If[type === \"A\", tvEu[i, j], -Transpose[tvEu[i, j]]];\ntvMon[u_, ths_, h_] := Table[Sum[KroneckerProduct[tvLaxE[\"A\", i, k, u, ths[[1]], h], tvLaxE[\"F\", k, j, u, ths[[2]], h]], {k, 4}], {i, 4}, {j, 4}];\ntvGc[z_] := Module[{c = Table[SymmetricPolynomial[k, z], {k, 4}]}, {{c[[1]], -c[[2]], c[[3]], -c[[4]]}, {1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}}];\ntvTg[u_, ths_, h_, z_] := Module[{T = tvMon[u, ths, h], G = tvGc[z]}, Table[Sum[T[[i, k]] G[[k, j]], {k, 4}], {i, 4}, {j, 4}]];\ntvQmin[a_, rows_, cols_, u_, ths_, h_, z_] := Sum[Signature[s] Dot @@ Table[tvTg[u - (k - 1) h, ths, h, z][[rows[[s[[k]]]], cols[[k]]]], {k, a}], {s, Permutations[Range[a]]}];\ntvTt[1, u_, ths_, h_, z_] := Sum[tvTg[u, ths, h, z][[i, i]], {i, 4}];\ntvTt[a_, u_, ths_, h_, z_] /; a > 1 := Sum[tvQmin[a, rr, rr, u, ths, h, z], {rr, Subsets[Range[4], {a}]}];\ntvVm[z_] := Table[z[[j]]^(4 - k), {k, 4}, {j, 4}];\ntvH = 1/2; tvTh = {2/7, -3/5}; tvZ = {3/2, 5/4, 2/3, 4/7}; tvW = {7/5, 9/8, 3/7, 5/9};\ntvVec[w_] := Module[{v = {w[[1]]^3, w[[1]]^2, w[[1]], 1}, uu = Inverse[tvVm[w]][[4]]}, {v, uu, Flatten[KroneckerProduct[v, uu]]}];\n{tvVw, tvUw, tvB0} = tvVec[tvW];\ntvTz = Table[tvTt[a, tvU, tvTh, tvH, tvZ], {a, 3}]; tvTw = Table[tvTt[a, tvU, tvTh, tvH, tvW], {a, 3}];\ntvGz = tvGc[tvZ];\n{Dimensions[tvTz], tvUw . tvVw, Simplify[tvGc[tvZ] . tvVm[tvZ] - tvVm[tvZ] . DiagonalMatrix[tvZ]] === ConstantArray[0, {4, 4}]}",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 2. Sanity: [t_a(u), t_b(v)] = 0 for both twists, and simple spectrum of a generic combination of t_1,t_2,t_3 (minimal gap between eigenvalues, 40 digits). Result: all True, gaps 2.6e-5 (z) and 2.8e-4 (w), i.e. simple spectrum.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "tvCommOK[T_] := And @@ Flatten[Table[(T[[a]] /. tvU -> 1/3) . (T[[b]] /. tvU -> 5/11) == (T[[b]] /. tvU -> 5/11) . (T[[a]] /. tvU -> 1/3), {a, 3}, {b, 3}]];\ntvGap[T_] := Module[{ev = Eigenvalues[N[(T[[1]] + 3/7 T[[2]] + 2/5 T[[3]]) /. tvU -> 1/3, 40]]}, Min[Abs[Subtract @@@ Subsets[ev, {2}]]]];\n{tvCommOK[tvTz], tvCommOK[tvTw], N[tvGap[tvTz], 6], N[tvGap[tvTw], 6]}",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 3. The w-vacuum <0_w| = v_w (x) u_w is an eigenbra of t_1^w, t_2^w, t_3^w for symbolic u. Eigenvalue found (verified exactly): tau_a(u) = sum_{I=(i1<..<ia)} prod_k w_{i_k} lam_{i_k}(u-(k-1)h), lam_i(u) = (u-theta_1+h delta_{i1})(u-theta_2-h delta_{i4}). E.g. tau_1 = sum_i w_i lam_i(u). The bare vacuum e_1 (x) e_4 is not an eigenbra (rank-2 image).",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "tvLam[i_, u_] := (u - tvTh[[1]] + tvH KroneckerDelta[i, 1]) (u - tvTh[[2]] - tvH KroneckerDelta[i, 4]);\ntvTau[a_, u_, w_] := Sum[Product[w[[sub[[k]]]] tvLam[sub[[k]], u - (k - 1) tvH], {k, a}], {sub, Subsets[Range[4], {a}]}];\ntvEig[a_] := Module[{r = Expand[tvB0 . tvTw[[a]]]}, {r == Expand[tvB0 tvTau[a, tvU, tvW]], Simplify[r[[1]]/tvB0[[1]] - tvTau[a, tvU, tvW]] === 0}];\ntvBare = Flatten[KroneckerProduct[{1, 0, 0, 0}, {0, 0, 0, 1}]];\n{Table[tvEig[a], {a, 3}], MatrixRank[{tvBare, Expand[tvBare . tvTw[[1]]]}], Factor[tvTau[1, tvU, tvW]]}",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 4. u_w and q(w,z) = u_w . G_c(z) . v_w symbolically. Verified: (u_w)_k = (-1)^(k-1) e_(k-1)(w1,w2,w3) / prod_(m<=3)(w4-w_m) (coefficients of the Lagrange polynomial), u_w.v_w = 0, and q = -(u_w)_1 prod_i (w1 - z_i) = -prod_i(w1-z_i)/prod_(m<=3)(w4-w_m). Result: all True.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "tvws = Array[tvwS, 4]; tvzs = Array[tvzS, 4];\ntvUwSym = Inverse[tvVm[tvws]][[4]];\ntvDen = Product[tvws[[4]] - tvws[[m]], {m, 3}];\ntvUwClosed = Table[(-1)^(k - 1) If[k == 1, 1, SymmetricPolynomial[k - 1, tvws[[1 ;; 3]]]]/tvDen, {k, 4}];\ntvVwS = {tvws[[1]]^3, tvws[[1]]^2, tvws[[1]], 1};\ntvq = tvUwSym . tvGc[tvzs] . tvVwS;\n{Simplify[tvUwSym - tvUwClosed] === {0, 0, 0, 0}, Simplify[tvq - (-tvUwSym[[1]] Product[tvws[[1]] - tvzs[[i]], {i, 4}])] === 0, Simplify[tvUwSym . tvVwS] === 0}",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 5. Exact L=2 identities (numerical point, symbolic structure). With K = sum e_ij (x) e_ij, X = theta_12 - hK: t_1^z(theta_1) = h (G^T (x) 1) X, t_1^z(theta_2) = h (1 (x) G) X, hence t_1(theta_1) t_1(theta_2)^-1 = G^T (x) G^-1 exactly. NOTE the rotation stands to the LEFT of X, so acting on a bra the rotation acts first and then X sees (v_w G^T) . u_w = q(w,z) != 0: the K-obstruction does NOT vanish; it is q. Also <0_w|K = 0 (u_w.v_w = 0) and (<0_w| rot) K = q <S|, S = sum e_i (x) e_i (identity 4x4 when reshaped).",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "tvKk = Sum[KroneckerProduct[tvEu[i, j], tvEu[i, j]], {i, 4}, {j, 4}]; tvth12 = tvTh[[1]] - tvTh[[2]];\ntvX = tvth12 IdentityMatrix[16] - tvH tvKk; tvR1 = KroneckerProduct[Transpose[tvGz], tvId]; tvR2 = KroneckerProduct[tvId, tvGz];\ntvT1 = tvTz[[1]] /. tvU -> tvTh[[1]]; tvT2 = tvTz[[1]] /. tvU -> tvTh[[2]];\n{tvT1 == tvH tvR1 . tvX, tvT2 == tvH tvR2 . tvX, tvT1 . Inverse[tvT2] == KroneckerProduct[Transpose[tvGz], Inverse[tvGz]], tvT2 . Inverse[tvT1] == KroneckerProduct[Inverse[Transpose[tvGz]], tvGz], tvB0 . tvKk == ConstantArray[0, 16], (tvB0 . tvR1) . tvKk == (tvUw . tvGz . tvVw) Flatten[IdentityMatrix[4]], (tvB0 . tvR2) . tvKk == (tvUw . tvGz . tvVw) Flatten[IdentityMatrix[4]], tvUw . tvGz . tvVw}",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 6. Word classifier. A word is a list of {a, u, +-1} applied left to right to the bra. The 16-vector is reshaped to 4x4: rank 1 = product state; each factor is compared to (v_w, u_w) and fitted as a vec + b vec.M for M in {Gz, Gz^-1, Gz^T, Gz^-T} (row-vector action); 'pure' means a = 0, '(1+kM)' means a generic one-parameter combination.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "tvOp[{a_, uu_, e_}] := Module[{M = tvTz[[a]] /. tvU -> uu}, If[e == 1, M, Inverse[M]]];\ntvAct[b_, word_List] := Fold[#1 . tvOp[#2] &, b, word];\ntvMats = {\"Gz\" -> tvGz, \"GzInv\" -> Inverse[tvGz], \"GzT\" -> Transpose[tvGz], \"GzInvT\" -> Inverse[Transpose[tvGz]]};\ntvFit[vec_, f_] := Table[Module[{s = Solve[f == a vec + b (vec . m[[2]]), {a, b}]}, If[s === {}, Nothing, m[[1]] -> ({a, b} /. s[[1]])]], {m, tvMats}];\ntvSiteB[vec_, f_] := If[MatrixRank[{vec, f}] == 1, \"same\", StringRiffle[(#[[1]] <> If[#[[2, 1]] === 0, \"(pure)\", \"(1+kM)\"]) & /@ tvFit[vec, f], \",\"]];\ntvClassB[w_, word_] := Module[{v, uu, b0, b, M, r, f1, f2}, {v, uu, b0} = tvVec[w]; b = tvAct[b0, word];\n If[b === ConstantArray[0, 16], Return[\"zero\"]]; M = Partition[b, 4]; r = MatrixRank[M];\n If[r > 1, Return[\"r\" <> ToString[r]]];\n f1 = First[Select[Transpose[M], # =!= {0, 0, 0, 0} &]]; f2 = First[Select[M, # =!= {0, 0, 0, 0} &]];\n \"P A:\" <> tvSiteB[v, f1] <> \" F:\" <> tvSiteB[uu, f2]];\ntvPt[s_, m_] := tvTh[[s]] + m tvH;\ntvWords = Join[\n Flatten[Table[{\"t\" <> ToString[a] <> \"(th\" <> ToString[s] <> \"+\" <> ToString[m] <> \"h)\", {{a, tvPt[s, m], 1}}}, {a, {1, 3, 2}}, {s, 2}, {m, -3, 3}], 2],\n {{\"t1(th1)^-1\", {{1, tvPt[1, 0], -1}}}, {\"t1(th2)^-1\", {{1, tvPt[2, 0], -1}}}},\n {{\"t1(th1)t1(th2)\", {{1, tvPt[1, 0], 1}, {1, tvPt[2, 0], 1}}}, {\"t1(th1)t1(th2)^-1\", {{1, tvPt[1, 0], 1}, {1, tvPt[2, 0], -1}}}, {\"t1(th1)^-1 t1(th2)\", {{1, tvPt[1, 0], -1}, {1, tvPt[2, 0], 1}}}, {\"t1(th1)^-1 t1(th2)^-1\", {{1, tvPt[1, 0], -1}, {1, tvPt[2, 0], -1}}},\n  {\"t1(th1)t3(th1-h)\", {{1, tvPt[1, 0], 1}, {3, tvPt[1, -1], 1}}}, {\"t1(th2)t3(th1-h)\", {{1, tvPt[2, 0], 1}, {3, tvPt[1, -1], 1}}}, {\"t3(th1-h)t3(th2-h)\", {{3, tvPt[1, -1], 1}, {3, tvPt[2, -1], 1}}}, {\"t1(th2)t3(th2-h)\", {{1, tvPt[2, 0], 1}, {3, tvPt[2, -1], 1}}}}];\ntvTableB[w_] := Table[w1[[1]] <> \" = \" <> Quiet[Check[tvClassB[w, w1[[2]]], \"ERR\"]], {w1, tvWords}];\ntvWspecial = {3/2, 9/8, 3/7, 5/9};\n{tvBG = tvTableB[tvW]; Length[tvBG], tvBS = tvTableB[tvWspecial]; Length[tvBS]}",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "### 6a. Generic w (q != 0)",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "Column[tvBG]",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "### 6b. Special w with w1 = z1 (q = 0)",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "Column[tvBS]",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 7. Exact statements for generic w, and the one-parameter families at q = 0. Generic: <0_w| t_1^z(theta_2) = h theta_12 (v_w (x) u_w G_z) - h^2 q <S|; <0_w| t_1^z(theta_1) = h theta_12 (v_w G_z^T (x) u_w) - h^2 q <S|. Special w (q=0): <0_w|(1 - kp t_1^z(theta_2)) = <0_w| rho_2(1 - kp h theta_12 G_z), same for site 1 with G_z^T. Also q = 0 iff w1 in {z_i} (last list: q at w1 -> z_i).",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "tvSF = Flatten[IdentityMatrix[4]];\n{tvv, tvuu, tvbb} = tvVec[tvW];\ntvgenA = tvbb . tvT2 == tvH tvth12 Flatten[KroneckerProduct[tvv, tvuu . tvGz]] - tvH^2 (tvUw . tvGz . tvVw) tvSF;\ntvgenB = tvbb . tvT1 == tvH tvth12 Flatten[KroneckerProduct[tvv . Transpose[tvGz], tvuu]] - tvH^2 (tvUw . tvGz . tvVw) tvSF;\n{tvv2, tvuu2, tvbb2} = tvVec[tvWspecial];\ntvfam = Simplify[tvbb2 . (IdentityMatrix[16] - kp tvT2) == Flatten[KroneckerProduct[tvv2, tvuu2 . (tvId - kp tvH tvth12 tvGz)]]];\ntvfam1 = Simplify[tvbb2 . (IdentityMatrix[16] - kp tvT1) == Flatten[KroneckerProduct[tvv2 . (tvId - kp tvH tvth12 Transpose[tvGz]), tvuu2]]];\n{tvgenA, tvgenB, tvfam, tvfam1, Table[tvVec[ReplacePart[tvW, 1 -> tvZ[[i]]]] // (#[[2]] . tvGz . #[[1]] &), {i, 4}]}",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## Summary\r\n\r\nProvenance: sections 1-6 were run exactly (rational arithmetic) on the shared kernel; the last cell (section 7) is derived analytically from the verified identity t_1(theta_1) = h (G^T x 1) X etc. and may not have been run (kernel was busy).\r\n\r\nKey results.\r\n- tau_a(u) = sum_I prod_k w_{i_k} lam_{i_k}(u-(k-1)h), lam_i(u) = (u-theta_1+h delta_i1)(u-theta_2-h delta_i4); <0_w| is an exact eigenbra of t_1,t_2,t_3 (twist w). Bare vacuum is not.\r\n- (u_w)_k = (-1)^(k-1) e_(k-1)(w1,w2,w3)/prod_(m<=3)(w4-w_m); u_w.v_w = 0; q(w,z) = u_w G_c(z) v_w = -(u_w)_1 prod_i(w1-z_i), verified symbolically.\r\n- t_1^z(theta_1) = h (G^T x 1)(theta_12 - hK), t_1^z(theta_2) = h (1 x G)(theta_12 - hK) (rotation stands left of the K-term). Since (<0_w| rot) K = q <S|, the single t_1 words do NOT localise for generic w; they localise iff q = 0 i.e. w1 in {z_i}. Inverses and the ratio t_1(theta_1) t_1(theta_2)^-1 = G^T x G^-1 always localise.\r\n\r\nTable (row vector action; generic w / special w with w1 = z_i):\r\n| word | generic w | w1 = z_i |\r\n| t1(th1+mh), t1(th2+mh) m != 0 (and m = 0) | rank 4 (m=-1 at th1, m=+1 at th2: rank 3), not product | product, site 2 only: F -> u_w(1+k Gz) |\r\n| t1(th1) | rank 4 | trivial (prop. to <0_w|) |\r\n| t1(th2) | rank 4 | site 2: u_w Gz |\r\n| t1(th1)^-1 | site 1: v_w Gz^-T (pure) | trivial |\r\n| t1(th2)^-1 | site 2: u_w Gz^-1 (pure) | site 2: u_w Gz^-1 |\r\n| t1(th1) t1(th2)^-1 | both: A -> v_w Gz^T, F -> u_w Gz^-1 | site 2: u_w Gz^-1 |\r\n| t1(th1)^-1 t1(th2) | both: A -> v_w Gz^-T, F -> u_w Gz | site 2: u_w Gz |\r\n| t1(th1) t1(th2), t1(th1)^-1 t1(th2)^-1 | rank 4 / rank 4 | site 2: u_w Gz, u_w Gz^-1 |\r\n| t3(th1-h) | site 1: v_w Gz^-T | trivial |\r\n| t3(th2+3h) | site 2: u_w Gz^-1 | site 2: u_w Gz^-1 |\r\n| t3 at other tested points | rank 2 or zero (zero at th1+h,th1+2h,th2,th2+h) | site 2 only (F -> u_w(1+k Gz^-1)) or zero |\r\n| t1(th1) t3(th1-h) | trivial | trivial |\r\n| t1(th2) t3(th1-h) | both: v_w Gz^-T, u_w Gz | site 2: u_w Gz |\r\n| t3(th1-h) t3(th2-h), t1(th2) t3(th2-h) | rank 4 | site 2 |\r\n| t2 at tested points | rank 4/3 or zero | site 2 only but not in span{1,Gz^±1} (needs Gz^2) |\r\n\r\nEverything above was verified exactly (rational), at the single numerical point h=1/2, theta=(2/7,-3/5), z, w as in the header and for w1 = z1 (w=(3/2,9/8,3/7,5/9)).",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  }
+ ],
+ "metadata": {
+  "createdBy": "wolfbook_newNotebook",
+  "createdAt": "2026-10-12T13:41:31.947Z"
+ }
+}

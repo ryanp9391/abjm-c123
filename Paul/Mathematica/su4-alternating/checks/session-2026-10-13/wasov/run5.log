@@ -1,0 +1,12 @@
+A-site constants independent of the triple: True
+constants at twist z, w, w2 equal: False
+ const (0, 1) 25947/845152
+ const (1, 1) -459/26950
+ const (1, 2) -26625213/11620840000
+ const (1, 3) -1498387112001/357921872000000
+ const (2, 1) 1958225/2087008
+ const (3, 1) -3589/50176
+ const (3, 2) -15407577/13846970368
+ const (3, 3) 229218523029/7642641437032448
+bra-side dictionary error (twist w): 0  (twist z): 0
+mirror dictionary (constants from vac(z)) vs eigenvalue product, all 256 y, at w, w2, z: [16769860172488613359/7355827511386641, 299460301349831294378873634271/299496945547901850804899024896, 0]

@@ -1,0 +1,24 @@
+== <W_a| components (n = power of a):
+0 {'nnz': 256, 'site': [4, 4, 4, 4], 'pair12|34': 11, '13|24': 4}
+1 {'nnz': 256, 'site': [4, 4, 4, 4], 'pair12|34': 13, '13|24': 12}
+2 {'nnz': 256, 'site': [4, 4, 4, 4], 'pair12|34': 16, '13|24': 16}
+3 {'nnz': 256, 'site': [4, 4, 4, 4], 'pair12|34': 13, '13|24': 12}
+4 {'nnz': 256, 'site': [4, 4, 4, 4], 'pair12|34': 11, '13|24': 4}
+m rank comp 0 [2, 2, 2]
+m rank comp 1 [2, 2, 2]
+m rank comp 2 [4, 4, 4]
+m rank comp 3 [2, 2, 2]
+m rank comp 4 [2, 2, 2]
+generic a=3/7 {'nnz': 256, 'site': [4, 4, 4, 4], 'pair12|34': 16, '13|24': 16} [4, 4, 4]
+== <W^(n)|y> tensor ranks (site ranks all 1 <=> product over sites):
+0 {'nnz': 256, 'site': [1, 1, 1, 1], 'pair12|34': 1, '13|24': 1}
+1 {'nnz': 256, 'site': [4, 4, 4, 4], 'pair12|34': 6, '13|24': 6}
+2 {'nnz': 256, 'site': [4, 4, 4, 4], 'pair12|34': 15, '13|24': 15}
+3 {'nnz': 256, 'site': [4, 4, 4, 4], 'pair12|34': 6, '13|24': 6}
+4 {'nnz': 256, 'site': [1, 1, 1, 1], 'pair12|34': 1, '13|24': 1}
+generic a=3/7 {'nnz': 256, 'site': [4, 3, 4, 3], 'pair12|34': 9, '13|24': 9}
+== <0_w|y> tensor ranks (site ranks all 1 <=> product over sites): {'nnz': 256, 'site': [1, 1, 1, 1], 'pair12|34': 1, '13|24': 1}
+expansion of <0_w|: nnz 256  reproduces the bra: True
+eigenbra property at ket points: True
+<0_w|y> = <0_w|0bar> prod f: max rel err 0
+bra words z-independent: True

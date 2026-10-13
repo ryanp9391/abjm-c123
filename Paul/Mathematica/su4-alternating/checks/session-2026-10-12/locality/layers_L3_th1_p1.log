@@ -1,0 +1,8 @@
+layer 0: rank 1, loc 1, T1 [False, False, False, False], T2 [False, False, False], T3 [False, False, False, False, False]  t=0s
+layer 1: rank 17, loc 3, T1 [False, False, False, False], T2 [False, False, False], T3 [True, True, True, False, False]  t=1s
+layer 2: rank 117, loc 4, T1 [False, False, False, False], T2 [False, False, False], T3 [True, True, True, True, True]  t=13s
+layer 3: rank 400, loc 4, T1 [False, False, False, False], T2 [False, False, False], T3 [True, True, True, True, True]  t=92s
+layer 4: rank 563, loc 6, T1 [True, True, True, True], T2 [True, True, True], T3 [True, True, True, True, True]  t=283s
+layer 5: rank 587, loc 6, T1 [True, True, True, True], T2 [True, True, True], T3 [True, True, True, True, True]  t=369s
+layer 6: rank 588, loc 6, T1 [True, True, True, True], T2 [True, True, True], T3 [True, True, True, True, True]  t=382s
+layer 7: rank 588, loc 6, T1 [True, True, True, True], T2 [True, True, True], T3 [True, True, True, True, True]  t=384s

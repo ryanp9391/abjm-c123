@@ -1,0 +1,25 @@
+krylov step 50 time 1.463099479675293
+krylov step 100 time 3.2017650604248047
+krylov step 150 time 5.129418134689331
+krylov step 200 time 7.3265650272369385
+krylov step 250 time 9.89582896232605
+krylov step 300 time 12.826658487319946
+krylov step 350 time 15.916455745697021
+krylov step 400 time 19.220601081848145
+krylov step 450 time 22.731637477874756
+krylov step 500 time 26.507874488830566
+krylov step 550 time 30.43455410003662
+L 6 theta pt 1 prime 4194301 seed 1
+cyclic (Krylov) dimension 588  localised dim 6
+   T1 a'=-2/3 True
+   T1 a'=0 True
+   T1 a'=2/3 True
+   T1 a'=5/4 True
+   T2 k=1/3 True
+   T2 k=-2/5 True
+   T2 k=5/3 True
+   T3a k=1/3 True
+   T3a k=-2/5 True
+   T3a k=5/3 True
+   T3b vL^-1 x u(1+L) True
+   T3b vL^-1 x u(2-L) True

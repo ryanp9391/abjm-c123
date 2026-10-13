@@ -1,0 +1,10 @@
+factors 48
+modular words built (4096, 15625) 207.31508541107178
+words with <= 0 factors: rank 1 time 0.44834017753601074
+  loc dim 1  membership: {"T1 a'=-2/3": False, "T1 a'=0": False, "T1 a'=2/3": False, "T1 a'=5/4": False, 'T2 k=1/3': False, 'T2 k=-2/5': False, 'T2 k=5/3': False, 'T3a k=1/3': False, 'T3a k=-2/5': False, 'T3a k=5/3': False, 'T3b vL^-1 x u(1+L)': False, 'T3b vL^-1 x u(2-L)': False}
+words with <= 1 factors: rank 17 time 0.5659713745117188
+  loc dim 3  membership: {"T1 a'=-2/3": False, "T1 a'=0": False, "T1 a'=2/3": False, "T1 a'=5/4": False, 'T2 k=1/3': False, 'T2 k=-2/5': False, 'T2 k=5/3': False, 'T3a k=1/3': True, 'T3a k=-2/5': True, 'T3a k=5/3': True, 'T3b vL^-1 x u(1+L)': False, 'T3b vL^-1 x u(2-L)': False}
+words with <= 2 factors: rank 117 time 4.258331775665283
+  loc dim 4  membership: {"T1 a'=-2/3": False, "T1 a'=0": False, "T1 a'=2/3": False, "T1 a'=5/4": False, 'T2 k=1/3': False, 'T2 k=-2/5': False, 'T2 k=5/3': False, 'T3a k=1/3': True, 'T3a k=-2/5': True, 'T3a k=5/3': True, 'T3b vL^-1 x u(1+L)': True, 'T3b vL^-1 x u(2-L)': True}
+words with <= 3 factors: rank 400 time 37.896663665771484
+  loc dim 4  membership: {"T1 a'=-2/3": False, "T1 a'=0": False, "T1 a'=2/3": False, "T1 a'=5/4": False, 'T2 k=1/3': False, 'T2 k=-2/5': False, 'T2 k=5/3': False, 'T3a k=1/3': True, 'T3a k=-2/5': True, 'T3a k=5/3': True, 'T3b vL^-1 x u(1+L)': True, 'T3b vL^-1 x u(2-L)': True}

@@ -1,0 +1,13 @@
+E12 words per b-power [1, 30, 140, 236, 256] union 256
+E34 words per b-power [1, 30, 140, 236, 256] union 256
+E14 words per b-power [1, 30, 140, 236, 256] union 256
+E13 words per b-power [1, 30, 140, 236, 256] union 256
+E24 words per b-power [1, 30, 140, 236, 256] union 256
+E23 words per b-power [1, 30, 140, 236, 256] union 256
+--- contrast: generators acting directly in the companion frame (g_c = 1 + b E_ij, A: v g_c, F: u g_c^{-T})
+companion-frame E12 words per b-power [1, 4, 8, 0, 0] union 13
+companion-frame E34 words per b-power [1, 2, 1, 0, 0] union 4
+companion-frame E14 words per b-power [1, 16, 36, 16, 1] union 70
+companion-frame E13 words per b-power [1, 9, 23, 0, 0] union 33
+companion-frame E24 words per b-power [1, 3, 1, 0, 0] union 5
+companion-frame E23 words per b-power [1, 0, 0, 0, 0] union 1

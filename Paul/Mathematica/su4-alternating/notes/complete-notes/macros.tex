@@ -1,0 +1,34 @@
+% Shared macros for the complete notes. Section files use ONLY these and standard LaTeX/amsmath.
+\usepackage[a4paper,margin=2.2cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue]{hyperref}
+
+% evidence tags
+\newcommand{\ex}{\textsf{[exact]}}            % exact rational/symbolic, in a wolfbook notebook
+\newcommand{\hp}{\textsf{[hp]}}               % high-precision numerics (40--120 digits), notebook
+\newcommand{\num}[1]{\textsf{[num, $#1$]}}    % numerics with residual #1
+\newcommand{\npy}{\textsf{[python]}}          % python / numpy only, not (yet) in a notebook
+\newcommand{\nb}[1]{\texttt{#1}}              % file / notebook name
+
+% bras, kets
+\newcommand{\ket}[1]{|#1\rangle}
+\newcommand{\bra}[1]{\langle#1|}
+\newcommand{\braket}[2]{\langle#1|#2\rangle}
+
+% chain objects
+\newcommand{\tb}{\bar t}
+\newcommand{\cL}{\mathcal L}
+\newcommand{\Lb}{\bar{\mathcal L}}
+\newcommand{\cP}{\mathcal P}
+\newcommand{\cQ}{\mathcal Q}
+\newcommand{\cN}{\mathcal N}
+\newcommand{\HMZ}{H_{\rm MZ}}
+\newcommand{\Gc}{G_c}
+\newcommand{\vac}{\mathrm{vac}}
+\newcommand{\bbA}{\mathbb A}
+\newcommand{\bbB}{\mathbb B}
+\newcommand{\bbW}{\mathbb W}
+\newcommand{\su}{\mathfrak{su}}

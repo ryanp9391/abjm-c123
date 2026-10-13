@@ -1,0 +1,10 @@
+sector sizes: {0: 1, 1: 12, 2: 28, 3: 12, 4: 1}  states outside: 202
+component 0  max|direct - SoV sum| = 8.87e-42  max in-sector |overlap| = 1.0  max off-sector |overlap| = 3.85e-42
+component 1  max|direct - SoV sum| = 4.81e-42  max in-sector |overlap| = 2.3906  max off-sector |overlap| = 2.54e-42
+component 2  max|direct - SoV sum| = 4.87e-41  max in-sector |overlap| = 2.8705  max off-sector |overlap| = 2.03e-42
+component 3  max|direct - SoV sum| = 3.63e-43  max in-sector |overlap| = 3.1071  max off-sector |overlap| = 1.71e-43
+component 4  max|direct - SoV sum| = 4.6e-44  max in-sector |overlap| = 1.0  max off-sector |overlap| = 1.1e-44
+component 0 u = 3/10 proportional to eigenbra of t1: True  eigenvalue 0.06530084647495361
+component 0 u = -7/10 proportional to eigenbra of t1: True  eigenvalue -0.3120304383116883
+component 4 u = 3/10 proportional to eigenbra of t1: True  eigenvalue 0.010279974489795918
+component 4 u = -7/10 proportional to eigenbra of t1: True  eigenvalue -0.42097176484230053

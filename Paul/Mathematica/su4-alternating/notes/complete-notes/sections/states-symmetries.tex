@@ -1,0 +1,316 @@
+%======================================================================
+\section{Highest-weight eigenstates and Q-functions}\label{sec:states}
+%======================================================================
+
+\paragraph{States} [\nb{abjm-LR-symmetry.wb}] \num{10^{-13}}. All highest-weight (HW) cyclic ($S=1$, pair shift) joint eigenstates of $\tb_1,\tb_3$
+at the ABJM point: $6,26,152$ at $L=2,3,4$ pairs, 184 in all. All are $\HMZ$ eigenstates ($\le3.5\cdot10^{-13}$); the joint spectrum is non-degenerate
+(smallest gap $0.0065$ at $L=4$). (Pitfall found and fixed: degenerate kernel vectors returned by \nb{Eigensystem} need not be orthonormal.) Each state has a weight
+$(w_1,w_2,w_3,w_4)$, $\sum w_i=0$, and Dynkin labels $[p,q,r]=[w_1-w_2,\,w_2-w_3,\,w_3-w_4]$. They are saved with energy, weight, Dynkin labels, LR data and the
+bridge numbers $C_\ell$ in \nb{data/abjm-hw-states.wxf} (load, do not recompute). An independent check on all 184 states: $\max|E_{ij}\Psi|\le5.5\cdot10^{-15}$ for the six
+$E_{ij}$, $i<j$, and every non-zero component has weight $w$ \num{10^{-14}} [\nb{twoblock-polarisation-forms.wb} \S1, run].
+
+\paragraph{Q-functions} [\nb{abjm-Qfunctions.wb}] \num{10^{-11}}. On the vacuum
+$\sum_a(-1)^a\tau_aD^a=(1-V_1D)(1-V_2D)(1-V_3D)(1-V_4D)$, $D=e^{-h\partial_u}$ (checked numerically), so the polynomial
+gauge is $Q\cdot\Phi$ with $\Phi(u)=V_4(u)\Phi(u-h)$ and the Baxter equation reads
+\begin{equation}
+ \sum_{a=0}^4(-1)^a\tau_a(u)\,Q(u+h-ah)\prod_{b=a}^3V_4(u-bh)=0 ,
+\end{equation}
+with $\tau_2=\prod g^{(2)}\tb_2$, $\tau_3=\prod g^{(3)}\tb_3$, $\tau_4=\mathrm{qdet}$ (on an A site $(u-\theta+h)(u-\theta-h)(u-\theta-2h)(u-\theta-3h)$).\footnote{This is
+the polynomial-gauge convention of \nb{abjm-Qfunctions.wb}. The SoV sections (\S\ref{sec:sov} onwards) use $\sum_a(-1)^a\tau_a(u)Q(u-ah)=0$ with $Q_i=z_i^{u/h}\Phi(u)q_i$,
+which differs from the one here by a shift of the argument and the gauge factor.} Vacuum solutions have degrees $0,L+1,L+2$. $Q_1,Q_2,Q_3$ are the polynomial
+solutions ordered by degree, $Q_{12}=\mathrm{Cas}(Q_1,Q_2)/\mathrm{Cas}_{\rm vac}$, $Q_{123}=\mathrm{Cas}(Q_1,Q_2,Q_3)/\mathrm{Cas}_{\rm vac}$ (shifts $0,-h,-2h$).
+For all 184 states $\deg(Q_1,Q_{12},Q_{123})=(K_1,K_2,K_3)$ with
+\begin{equation}
+ K_2=L-\tfrac{p+r}2-q,\qquad K_1=\tfrac{L-r+K_2}2,\qquad K_3=\tfrac{L-p+K_2}2\qquad(\text{Dynkin }[p,q,r]),
+\end{equation}
+Casoratian remainders $\le8\cdot10^{-12}$. Eigenvalue polynomials by interpolation at $2L+1$ points, 8 parallel subkernels at $L=4$.
+{\raggedright\emph{Data:} \nb{data/abjm-tau.wxf}, \nb{data/abjm-tau-L4.wxf}, \nb{data/abjm-Qfunctions.wxf}.\par}
+
+%======================================================================
+\section{Discrete symmetries}\label{sec:sym}
+%======================================================================
+
+[\nb{abjm-LR-symmetry.wb}, \nb{abjm-other-symmetries.wb}] \num{10^{-16}}. Operators commuting with $\HMZ$:
+$\cP=$ (Weyl reversal $e_a\mapsto e_{5-a}$)$\circ$(one-site shift), $\cQ=$ (signed Weyl $e_1\to e_4$, $e_2\to e_3$,
+$e_3\to e_2$, $e_4\to-e_1$)$\circ$(reflection $s\mapsto2L+1-s$):
+\begin{equation}
+ \cP\tb_1(u)\cP^{-1}=\tb_3(u+h),\quad \cQ\tb_1(u)\cQ^{-1}=\tb_1(2h-u),\quad \cP^2=S,\quad \cQ S\cQ^{-1}=S^{-1}.
+\end{equation}
+The mechanism for $\cP$: at the ABJM point $\theta_A-\theta_F=2h$ the dual Lax of $\tb_3$ at $u+h$ is the Lax of $\tb_1$ with the roles of A and F
+exchanged, $\Lb_A(u+h)=(u-\theta_F)-hP$, $\Lb_F(u+h)=(u-\theta_A)+hK$ against $\cL_A(u)=(u-\theta_A)+hK$, $\cL_F(u)=(u-\theta_F)-hP$ (\S\ref{sec:tm}).
+$\cP$ maps HW states of $[p,q,r]$ to HW states of $[r,q,p]$ (it exchanges the $\mathbf4$ and $\bar{\mathbf4}$ slots). Symmetric
+states (eigenvalue polynomials exact to $10^{-8}$ relative; Q-function forms checked with fixed shifts on all 184 states):
+\begin{center}
+\begin{tabular}{llll}
+\toprule
+symmetry & eigenvalues & Q-functions & also\\
+\midrule
+LR ($\cP$) & $\tau_1(u)=\tau_3(u+h)$ & $Q_1(u)\propto Q_{123}(u+h)$ & \\
+P ($\cQ$) & $\tau_1(u)=\tau_1(2h-u)$ & $Q_1(u)\propto Q_{123}(2h-u)$ & $\tau_2(u)=\tau_2(c-u)$\\
+LP ($\cP\cQ$) & $\tau_1(u)=\tau_3(3h-u)$ & $Q_1(u)\propto Q_1(h-u)$ & $\tau_2(u)=\tau_2(c-u)$\\
+\bottomrule
+\end{tabular}
+\end{center}
+Reflection turns the Baxter equation into its dual, hence P exchanges $Q_1\leftrightarrow Q_{123}$ and LP maps $Q_1$ to
+itself. Every non-LR state has an LR partner $\cP\Psi$ with $Q_1^{\rm partner}=Q_{123}(u+h)$; the spectrum is LR singlets plus LR doublets, as in 2603.
+\begin{center}
+\begin{tabular}{cccccccccc}
+\toprule
+$L$ & states & LR & P & LP & all three & LR only & P only & LP only & none\\
+\midrule
+2 & 6 & 4 & 6 & 4 & 4 & 0 & 2 & 0 & 0\\
+3 & 26 & 8 & 18 & 12 & 8 & 0 & 10 & 4 & 4\\
+4 & 152 & 24 & 60 & 40 & 20 & 4 & 40 & 20 & 68\\
+\bottomrule
+\end{tabular}
+\end{center}
+$\cQ$-eigenstates have eigenvalue $(-1)^p$ in this sign convention; every four-pair state is either a $\cQ$-eigenstate or part of a $\cQ$-pair.
+
+%======================================================================
+\section{Structure constants of the note's configuration}\label{sec:C}
+%======================================================================
+
+[\nb{abjm-bridges.wb}, \nb{abjm-LR-symmetry.wb}] Bra for bridge $\ell$ (in sites): the first $\ell$ sites carry O$_2$ fields (A $e_1$, F $e_4$),
+the rest O$_3$ fields (A $e_1-e_4$, F $e_4+e_1$); $C_\ell=\langle B_\ell|\Psi\rangle/\|\Psi\|$ with a bilinear bra and the phase of $\Psi$ fixed
+by its largest component, normalised so that the vacuum has $C_\ell=1$. Even bridges $\ell=2(L-M)$ are whole pairs ($M$ pairs of O$_3$ fields); odd bridges change a single field.
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+$L=2$ state & $E_{\rm MZ}$ & nonzero $C_\ell$\\
+\midrule
+$[2,0,2]$ vacuum & 0 & all $1$\\
+$[0,2,0]$ & 16 & ---\\
+$[1,0,1]$ parity pair & 12, 12 & $C_1=C_3=(1\mp i\sqrt3)/\sqrt{48}$, $|C_1|=1/\sqrt{12}$\\
+singlet & 20 & $C_2=-1/\sqrt{40}$\\
+singlet & 4 & $C_2=1/\sqrt{24}$\\
+\bottomrule
+\end{tabular}
+\end{center}
+The closed forms are numerical recognitions of the data. The odd-bridge value $|C_1|=1/\sqrt{12}$ is reproduced by the one-field bridge formula through the untwisting limit at the ABJM point
+($10^{-11}$--$10^{-14}$, \S\ref{sec:odd}). The two even-bridge values $C_2=-1/\sqrt{40},\,1/\sqrt{24}$ are now reproduced by two independent routes: (i) the pair $\kappa$-family $K_\kappa$ of \S\ref{sec:kappa}, untwisted
+with $\kappa=1/z_4$, $a=-1$ (rate $O(\varepsilon)$) \num{O(\varepsilon)} [\nb{pair-group-rotation.wb}], and (ii) the Q-function expression of \S\ref{sec:qform}, $|C|=\lim\mathcal N_{\rm pre}\,\mathbb A\,\mathbb W/\sqrt{\mathbb B}$ with
+$(\mathbb A,\mathbb W,\mathbb B)\to(10,25,2.5\cdot10^6)$ and $(2,9,7776)$, i.e.\ $250/\sqrt{2.5\cdot10^6}=1/\sqrt{40}$ and $18/\sqrt{7776}=1/\sqrt{24}$ ($4\cdot10^{-16}$ extrapolated)
+[\nb{even-bridge-Qform.wb}, \nb{abjm-sov-norm-L4.wb}] \hp. Their closed forms as polynomials in the polarisation are in \S\ref{sec:polforms}.\footnote{The values $C_1=1/\sqrt8,\,1/\sqrt{24}$ for the adjoints and
+$C_2=-0.25,\,1/\sqrt{15}$ for the singlets in \nb{ABJM-3pt-transfer-matrices.md} \S5.7 (the $\theta=0$ table) and in the ``Where it stands'' paragraph of \nb{NEXT.md} belong to the singular chain $\theta_A=\theta_F$ and are superseded by the table above (ABJM point).}
+
+Vanishing at $L=2,3,4$:
+\begin{enumerate}
+\item[(i)] \emph{R-charge:} $C_\ell=0$ unless $\Psi\in[p,0,p]$, and then only for $L-p\le\ell\le L+p$ (the bra has only $e_1,e_4$ components, so $w_2=w_3=0$).
+\item[(ii)] \emph{Bridge parity:} if $L+p$ is odd, $C_\ell=0$ for even $\ell$, i.e.\ $C_\ell\ne0$ only for $\ell\equiv L+p\pmod2$; if $L+p$ is even both parities occur. It holds on the whole HW cyclic
+$[p,0,p]$ sector, for LR and non-LR, $\cQ$-symmetric and paired states alike, so the note's bra has no component along these subspaces. It is ``kinematic'' only in this sense:\footnote{The note of 2026-10-12 (\nb{abjm-transfer-matrices-symmetries.tex}, \S7(ii)) and the summary cell of \nb{abjm-LR-symmetry.wb} call the rule kinematic on the whole sector; \S\ref{sec:polforms} supersedes that reading.}
+it is a property of the \emph{polarisation} of the bra, not of the states. For the even bridges, $F/F_{\rm vac}$ of \S\ref{sec:polforms} is divisible by $x+y$ when $L+p$ is odd, and $x+y=0$ at the note's
+polarisation; at another polarisation the same states have non-zero even-bridge overlaps (e.g.\ the $L=2$ $[1,0,1]$ pair: $(x+y)/\sqrt{12}=0.144338$ at $P^*$ against $C_2=0$) \npy.
+\item[(iii)] \emph{No LR selection rule:} unlike 2603 ($C=0$ unless $\tau_+=\tau_-$), non-LR states have nonzero $C_\ell$, e.g.\ the $L=2$ adjoint pair with $|C_1|=1/\sqrt{12}$, and the $L=3$ $[1,0,1]$ pair at $E=6.456$
+($\ell=2,3,4$). The $\cQ$-pairs also have non-zero $C$. The bra $B_\ell$ is not $\cP$-covariant ($\cP$ moves the bridge to start on an F site), so the 2603 mechanism $\langle W|(t_+-t_-)=0$ is not available.
+\item[(iv)] \emph{Isolated dynamical zeros at $L=4$:} the LR $[1,0,1]$ state at $E=32$ has $C_\ell=0$ for all $\ell$ (its even-bridge component is one of the accidental zeros of \S\ref{sec:polforms}, which vanish for every polarisation); the LR $[2,0,2]$ state at
+$E=8$ ($\cP=-1$) has non-zero $C_\ell$ only at the even bridges $\ell\in\{2,4,6\}$, its odd bridges vanish. Not explained by $\cP$ or $\cQ$ (other LR states with the same eigenvalues are non-zero);
+both have integer energy (candidates for singular or exceptional Bethe states) \num{10^{-13}}.
+\end{enumerate}
+Open: whether the physical ABJM structure constant should use a $\cP$-symmetrised bra (both bridge placements, starting on A or F), which would change the LR question; the twisted version (2603 works at generic twist with $\omega=1$).
+
+%======================================================================
+\section{Other three-point configurations and parity selection rules}\label{sec:configs}
+%======================================================================
+
+[\nb{abjm-3pt-configs.wb}] Two-block BPS bras: block 1 on $\ell$ sites with $(a_1,f_1)$, block 2 on the rest with
+$(a_2,f_2)$, $a_i\cdot f_i=0$, \emph{same polarisations for every $L$}. Up to $GL(4)$ and site rescalings the only
+invariants are whether the cross pairings $a_1\cdot f_2$, $a_2\cdot f_1$ vanish (plus linear dependences), giving six
+classes; with block 1 $=(e_1,e_4)$, block 2: generic $(e_1-e_4,e_4+e_1)$ (the note's), $a_2\cdot f_1=0$: $(e_2,e_1+e_3)$,
+$a_1\cdot f_2=0$: $(e_4+e_2,e_3)$, both zero: $(e_2,e_3)$, $a_2=a_1$: $(e_1,e_3)$, $f_2=f_1$: $(e_2,e_4)$; bridge starting on A or
+F; whole multiplets probed by random global rotations; 180 configurations at $L=2,3,4$. (In \S\ref{sec:polforms} the two blocks are labelled 2 and 3 after the operators O$_2$, O$_3$,
+$(a_1,f_1,a_2,f_2)=(v_2,u_2,v_3,u_3)$, so the cross pairings are $a_1\cdot f_2=p_{23}$ and $a_2\cdot f_1=p_{32}$.)
+\begin{itemize}
+\item LR: no configuration couples only to LR states at $L=3,4$.
+\item P: length-independent selection rules ($C=0$ unless $Q_1(u)\propto Q_{123}(2h-u)$), verified at operator level on the
+cyclic sector, $\langle B|X_P(u)|r\rangle=0$ for cyclic $r$, $10^{-16}$ at $L=3,4$ (vacuous at $L=2$) \num{10^{-16}}:
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+block 2 & bridge $\ell$ & start\\
+\midrule
+generic (note's $W_{-1}$) & $1$ or $2L-1$ & A or F\\
+$a_2\cdot f_1=0$ & $1$ & A\\
+$a_1\cdot f_2=0$ & $1$ & F\\
+both cross pairings zero & $2$ or $2L-2$ & A or F\\
+\bottomrule
+\end{tabular}
+\end{center}
+Control: the note's configuration at $\ell=2$ fails ($10^{-2.4}$). The full operator identity (without the cyclic
+restriction) fails, as it must.
+\item LP: no uniform rule.
+\end{itemize}
+The P-rules in the table are statements about specific bridge lengths and configurations; they are not to be confused with the bridge-parity rule of \S\ref{sec:C}(ii), which concerns $L+p$ and, as shown in \S\ref{sec:polforms}, depends on the polarisation.
+By the criterion above (both cross pairings non-zero, no linear dependences) the note's polarisation and the example $P^*$ of \S\ref{sec:polforms} lie in the same $GL(4)$ class; they differ by a transformation
+outside the Borel subgroup fixed by a highest-weight $\Psi$, so for a highest-weight $\Psi$ they can give different overlaps.
+
+%======================================================================
+\section{Factorised bras annihilated by the symmetry differences}\label{sec:fact}
+%======================================================================
+
+[\nb{abjm-LR-factorized.wb}, \nb{abjm-other-symmetries.wb}] $X_{\rm LR}=\tb_1(u)-\tb_3(u+h)$,
+$X_{\rm P}=\tb_1(u)-\tb_1(2h-u)$, $X_{\rm LP}=\tb_1(u)-\tb_3(3h-u)$.
+\begin{itemize}
+\item LR, $L=2$, untwisted: left kernel 136/256 ($X_{\rm LR}$ linear in $u$); product states in it only the BPS orbit \ex.
+Twisted, $\Lambda=\mathrm{diag}(z_1,z_2,1/z_2,1/z_1)$ ($z_1z_4=z_2z_3=1$, so the $t_3$ twist $\det\Lambda\,\Lambda^{-1}$ is the Weyl
+image of $\Lambda$): 36 LR states, kernel 36, product states only $e_a\otimes e_{5-a}$; the note's $W_a$ only at $a=0$ \ex.
+\item P: every two-site state $(v\otimes w)^{\otimes L}$ is annihilated ($10^{-16}$, $L=2,3,4$) -- integrable two-site
+boundary states \num{10^{-16}}.
+\item LP: product solutions at $L=2$ (SU(2)$\times$SU(2)-sector states) fail at $L=3,4$.
+\end{itemize}
+(Per-length product searches are superseded by the length-independent requirement of \S\ref{sec:configs}.)
+
+%======================================================================
+\section{Two-block polarisation forms}\label{sec:polforms}
+%======================================================================
+
+{\raggedright [\nb{twoblock-polarisation-forms.wb}, \nb{data/abjm-twoblock-forms.json}, \nb{checks/twoblock-polforms/}]\par}
+\emph{Status:} the data and the structural statements come from python
+(numpy, sympy; \npy); the notebook redoes the computation in Wolfram, but only its sections 0--1 (set-up, highest-weight check of all 184 states) were run; every other cell is written in full with the python result pasted as markdown, and a rerun is pending.
+All coefficients are numerical (the states are accurate to $10^{-13}$); exponents and vanishing patterns are exact in the sense of a gap of more than ten orders of magnitude between zero and non-zero coefficients.
+
+\paragraph{The object.} For the 184 HW cyclic states and $M=0,\dots,L$ define
+\begin{equation}
+ F_\Psi(v_2,u_2;v_3,u_3;M)=\big\langle(v_2\otimes u_2)^{\otimes(L-M)}\otimes(v_3\otimes u_3)^{\otimes M}\big|\Psi\big\rangle,\qquad v_b\cdot u_b=0\ \ (\text{BPS pairs}),
+\end{equation}
+the first $L-M$ pairs carrying $(v_2,u_2)$ and the last $M$ pairs $(v_3,u_3)$ (blocks labelled 2 and 3 after O$_2$, O$_3$; bilinear pairing, phase of $\Psi$ as in \S\ref{sec:C}). It is a polynomial of multidegree
+$(L-M,L-M,M,M)$ in the four vectors. The note's even bridge is $C_{\ell}=F_\Psi$ at $\ell=2(L-M)$ and $(v_2,u_2;v_3,u_3)=(e_1,e_4;e_1-e_4,e_4+e_1)$.
+
+\paragraph{Borel invariants.} For a HW state $F_\Psi$ is invariant under the simultaneous action of the upper unitriangular group, $v\to vn$, $u\to un^{-T}$ on all four vectors, i.e.\ it is annihilated by
+$D_{ij}=\sum_{b=2,3}\big(v_{b,i}\partial_{v_{b,j}}-u_{b,j}\partial_{u_{b,i}}\big)$, $i<j$, and it is torus covariant with the weight of $\Psi$ (checked as polynomials for all six $D_{ij}$: max coefficient
+$4\cdot10^{-15}$ at $L=2,3$, $3\cdot10^{-14}$ at $L=4$ \npy). The eight building blocks are
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+block & weight & meaning\\
+\midrule
+$a_2=(v_2)_1$, $a_3=(v_3)_1$ & $\epsilon_1$ & first components of the A vectors\\
+$d_2=(u_2)_4$, $d_3=(u_3)_4$ & $-\epsilon_4$ & last components of the F vectors\\
+$m_v=(v_2)_1(v_3)_2-(v_2)_2(v_3)_1$ & $\epsilon_1+\epsilon_2$ & leading $2\times2$ minor of the A vectors\\
+$m_u=(u_2)_3(u_3)_4-(u_2)_4(u_3)_3$ & $-\epsilon_3-\epsilon_4$ & trailing $2\times2$ minor of the F vectors\\
+$p_{23}=v_2\cdot u_3$, $p_{32}=v_3\cdot u_2$ & 0 & cross pairings\\
+\bottomrule
+\end{tabular}
+\end{center}
+(plus $p_{22}=v_2\cdot u_2$, $p_{33}=v_3\cdot u_3$ if the pairs are not BPS).
+
+\paragraph{Structural observations} \npy. (1) For all 184 states and all $M$, $F_\Psi$ is a polynomial in $a_2,a_3,d_2,d_3,m_v,m_u,p_{23},p_{32}$, as an identity of 16-variable polynomials
+(coefficient residual $\le10^{-14}$ at $L=2,3$ and $\le4\cdot10^{-14}$ at $L=4$, with and without the BPS condition; least-squares fit residual at 60 random points $4\cdot10^{-16}$), and $F_\Psi$ vanishes identically wherever no invariant monomial of the right weight and degree exists.
+(2) \emph{Exponents.} With $n_2=L-M$, $n_3=M$ and weight $w$ of $\Psi$, the monomials are
+\begin{align}
+ &a_2^{e_1}a_3^{e_2}d_2^{e_3}d_3^{e_4}\,m_v^{e_5}m_u^{e_6}\,p_{23}^{e_8}p_{32}^{e_9},\nonumber\\
+ &e_5=w_2=\frac{2q+r-p}4,\quad e_6=-w_3=\frac{p+2q-r}4,\quad e_8+e_9=s:=L-\frac{p+2q+r}2,
+\end{align}
+with $e_1=n_2-e_5-e_8$, $e_2=n_3-e_5-e_9$, $e_3=n_2-e_6-e_9$, $e_4=n_3-e_6-e_8$ (all $\ge0$); so $e_5+e_6=q$ and $|p-r|\le2q$.
+(3) \emph{Structure count.} The number of independent structures per (state, $M$) is
+\begin{equation}
+ N(L,M,[p,q,r])=\max\Big(0,\ \min(s,\,n_2-e_5,\,n_3-e_6)-\max(0,\,s-n_3+e_5,\,s-n_2+e_6)+1\Big)
+\end{equation}
+when $e_5,e_6,s$ are non-negative integers and $0$ otherwise, labelled by $e_8$ between the two bounds (0 mismatches against the monomial enumeration in all 882 (state, $M$) pairs; the notebook identifies $N$ with the multiplicity of $[p,q,r]$ in
+$[n_2,0,n_2]\otimes[n_3,0,n_3]$). (4) \emph{Minimal and complete.} For every multidegree $(L-M,L-M,M,M)$, $L=2,3,4$, and every integer weight (7248 sectors, with and without the BPS condition), the dimension of the space of polynomials annihilated by
+$D_{12},D_{23},D_{34}$ equals the number of monomials in the eight (ten) invariants (exact integer linear algebra, no mismatch); the eight BPS invariants are algebraically independent (Jacobian rank 8). Hence nothing can be removed or replaced.
+
+\paragraph{Reduced form.} With $F_{\rm vac}=(a_2d_2)^{L-M}(a_3d_3)^M$ (the overlap of the vacuum state),
+\begin{equation}
+ \frac F{F_{\rm vac}}=\sum c\;x^{e_8}y^{e_9}\mu_v^{e_5}\mu_u^{e_6},\qquad
+ x=\frac{p_{23}}{a_2d_3},\quad y=\frac{p_{32}}{a_3d_2},\quad \mu_v=\frac{m_v}{a_2a_3},\quad \mu_u=\frac{m_u}{d_2d_3},
+\end{equation}
+the coefficients $c$ (``reduced structure constants'') being polarisation independent. At the note's polarisation $a_2=a_3=d_2=d_3=1$, $m_v=m_u=0$, $p_{23}=1$, $p_{32}=-1$, i.e.\ $(x,y,\mu_v,\mu_u)=(1,-1,0,0)$, so
+\begin{equation}
+ C_{M}^{\rm note}=\frac F{F_{\rm vac}}\Big|_{(1,-1,0,0)}=\sum_{e_5=e_6=0}(-1)^{e_9}c ,
+\end{equation}
+reproduced against the saved $C_\ell$ for all 184 states and all $M$ to $7\cdot10^{-15}$ (directly) and $2\cdot10^{-15}$ (from the invariant form) \npy. Two relations: \emph{cyclicity}, which is exact,
+$F(v_2,u_2;v_3,u_3;M)=F(v_3,u_3;v_2,u_2;L-M)$ (at random points $2\cdot10^{-16}$), i.e.\ $c(M;e)=(-1)^{e_5+e_6}c(L-M;e\text{ swapped})$ with $a_2\leftrightarrow a_3$, $d_2\leftrightarrow d_3$, $p_{23}\leftrightarrow p_{32}$,
+$m_v\to-m_v$, $m_u\to-m_u$; and a $x\leftrightarrow y$ symmetry, which is empirical (not derived): for every state with $p=r$ the coefficients are symmetric, $c(e_8,e_9)=c(e_9,e_8)$ ($\mu_v\leftrightarrow\mu_u$ exchanged as well; $1.2\cdot10^{-15}$).
+It presumably is the parity operator $\cQ$ of \S\ref{sec:sym} acting on the bra. After cyclicity and this symmetry \emph{one} constant remains per (state, $M$), except for $[2,0,2]$ at $L=4$, $M=2$, where $F/F_{\rm vac}=c_0(x^2+y^2)+c_1xy$ has two and the note's value is $C=2c_0-c_1$
+(the $E=16$ pair has $c_0=0$).
+
+\paragraph{Explicit forms.} $L=2$, BPS pairs (the only non-zero entries; $M=0,2$ vanish except for the vacuum), with the phase of $\Psi$ fixed as above:
+\begin{center}
+\begin{tabular}{lllll}
+\toprule
+state & $E_{\rm MZ}$ & $M$ & $F_\Psi$ & $F/F_{\rm vac}$\\
+\midrule
+$[2,0,2]$ & 0 & $0,1,2$ & $a_2^2d_2^2,\ a_2a_3d_2d_3,\ a_3^2d_3^2$ & $1$\\
+$[0,2,0]$ & 16 & 1 & $-\tfrac12\,m_vm_u$ & $-\tfrac12\mu_v\mu_u$\\
+$[1,0,1]$ (two) & 12 & 1 & $(a_3d_2p_{23}+a_2d_3p_{32})/\sqrt{12}$ & $(x+y)/\sqrt{12}$\\
+singlet & 20 & 1 & $p_{23}p_{32}/\sqrt{40}$ & $xy/\sqrt{40}$\\
+singlet & 4 & 1 & $-p_{23}p_{32}/\sqrt{24}$ & $-xy/\sqrt{24}$\\
+\bottomrule
+\end{tabular}
+\end{center}
+(closed forms: $|c|^2$ recognised as rationals). $L=3$ (26 states), BPS pairs; $c$ denotes a state-dependent constant, listed where a closed form is known:
+\begin{center}\small
+\begin{tabular}{@{}lp{2.9cm}p{3.1cm}p{5.6cm}@{}}
+\toprule
+$[p,q,r]$ & $E_{\rm MZ}$ (number) & $M=1$ ($M=2$ by cyclicity) & constant\\
+\midrule
+$[3,0,3]$ & 0 (1) & $1$ & ---\\
+$[1,2,1]$ & 12 (2) & $-\tfrac13\mu_v\mu_u$ & exact\\
+$[2,0,2]$ & 8 (2) & $c\,(x+y)$ & $c=(-1\pm i)/\sqrt{24}$\\
+$[2,1,0]$ & 12 (3) & $c\,y\,\mu_u$ & $|c|^2=\tfrac1{72},\tfrac1{72},\tfrac1{18}$\\
+$[0,1,2]$ & 12 (3) & $c\,x\,\mu_v$ & $|c|^2=\tfrac1{72},\tfrac1{72},\tfrac1{18}$\\
+$[1,0,1]$ & $16\mp4\sqrt2$ (1 each) & $c\,xy$ & $|c|^2=(58\pm39\sqrt2)/3864$ (PSLQ, 12 digits)\\
+$[1,0,1]$ & 23.544, 6.456 (2 each) & $c\,xy$ & numerical (data file)\\
+\bottomrule
+\end{tabular}
+\end{center}
+(for $[2,1,0]$ and $[0,1,2]$ the $M=2$ entry is $-c\,x\,\mu_u$, resp.\ $-c\,y\,\mu_v$; for $[1,0,1]$ the upper sign is $E=16-4\sqrt2$). All other $L=3$ states vanish: $[4,0,0]$, $[0,0,4]$, $[0,2,0]$ and the four singlets for every $M$
+and every polarisation (no invariant exists, $e_5<0$ or $e_6<0$ or $N=0$), and the $[2,0,2]$ state at $E=16$ by an accidental zero (see below). At $L=4$ (152 states), BPS pairs, with $M=3,4$ by cyclicity:
+\begin{center}\small
+\begin{tabular}{@{}lp{1.2cm}p{4.6cm}p{5.4cm}@{}}
+\toprule
+$[p,q,r]$ & states & $M=1$ & $M=2$\\
+\midrule
+$[4,0,4]$ & 1 & $1$ & $1$\\
+$[2,2,2]$ & 3 & $-\tfrac14\mu_v\mu_u$ ($E=8$ pair), $+\tfrac14\mu_v\mu_u$ ($E=16$) & $-\tfrac12\mu_v\mu_u$ ($E=8$ pair), $0$ ($E=16$, accidental)\\
+$[3,0,3]$ & 4 & $c(x+y)$ & $c'(x+y)$\\
+$[3,1,1]$, $[1,1,3]$ & 8, 8 & $c\,y\,\mu_u$, $c\,x\,\mu_v$ & $c'(x-y)\mu_u$, $c'(x-y)\mu_v$\\
+$[2,0,2]$ & 20 & $c\,xy$ & $c_0(x^2+y^2)+c_1xy$\\
+$[1,0,1]$ & 23 & 0 & $c\,xy(x+y)$\\
+$[1,2,1]$ & 13 & 0 & $c\,(x+y)\mu_v\mu_u$\\
+$[0,2,0]$ & 16 & 0 & $c\,xy\,\mu_v\mu_u$\\
+$[0,0,0]$ & 10 & 0 & $c\,x^2y^2$\\
+$[4,2,0]$, $[0,2,4]$ & 1, 1 & 0 & $-\tfrac1{2\sqrt3}\mu_u^2$, $-\tfrac1{2\sqrt3}\mu_v^2$\\
+$[0,4,0]$ & 2 ($E=24,8$) & 0 & $\tfrac1{12}\mu_v^2\mu_u^2$, $\tfrac14\mu_v^2\mu_u^2$\\
+\bottomrule
+\end{tabular}
+\end{center}
+($[2,1,0]$, $[0,1,2]$, $[2,3,0]$, $[0,3,2]$: no structure at $M=1$ and zero at $M=2$ by cyclicity; $[4,0,0]$, $[0,0,4]$, $[1,0,5]$, $[5,0,1]$: $e_5<0$ or $e_6<0$, zero for every polarisation and $M$.) The complete data, including the full
+(non-BPS) forms and the 16-variable polynomials at $L\le3$, are in \nb{data/abjm-twoblock-forms.json}.
+
+\paragraph{Zero patterns.} $F_\Psi=0$ for all polarisations (kinematic zero) whenever $e_5<0$, $e_6<0$, $s<0$ or $N=0$. Of the (state, $M$) pairs with allowed monomials, 39 vanish dynamically: 34 are forced by cyclicity (at $M=L/2$ the structure $e_8=e_9$
+maps to itself with sign $(-1)^q$, so $q$ odd gives $F=0$; $L=4$, $M=2$, classes $[2,1,0]$ (16 states), $[0,1,2]$ (16), $[2,3,0]$ (1), $[0,3,2]$ (1)), and 5 are \emph{accidental} zeros: at $L=3$ the $[2,0,2]$ state at $E=16$ ($M=1,2$), and at $L=4$,
+$M=2$, the $[2,2,2]$ state at $E=16$, the $[1,2,1]$ state at $E=16$ and the $[1,0,1]$ state at $E=32$ (the all-bridge zero of \S\ref{sec:C}(iv)). All accidental zeros sit at $E=16$ or $32$. \emph{The $[2,0,2]$, $E=16$ state at $L=3$ vanishes for every two-block polarisation.}
+Classes with $s=0$ ($p+2q+r=2L$: the vacuum, $[0,2,0]$ at $L=2$, $[1,2,1]$ at $L=3$, $[2,2,2]$, $[0,4,0]$, $[4,2,0]$, $[0,2,4]$ at $L=4$, \dots) do not depend on the pairings, so they are seen even when $p_{23}=p_{32}=0$ (doubly extremal);
+the singly extremal classes (one pairing allowed to vanish) occur only for $M\ne L/2$, since at $M=L/2$ the structures come in $x\leftrightarrow y$ pairs. $F$ need not vanish when one pairing vanishes (e.g.\ the $L=2$ $[1,0,1]$ pair), so ``both pairings needed'' is a
+statement about the O$_2$--O$_3$ contraction, not about $F$.
+
+\paragraph{What the note's polarisation does not see} \npy. On the BPS locus the sublocus $\mu_v=\mu_u=0$ forces $x+y=0$; in the frame $v_2=e_1$, $u_2=e_4$ one finds
+\begin{equation}
+ x+y=-\mu_v\,\frac{(u_3)_2}{(u_3)_4}+\mu_u\,\frac{(v_3)_3}{(v_3)_1}
+\end{equation}
+(from $v_3\cdot u_3=0$; checked on random BPS points). The note's polarisation lies on this sublocus, so it probes only the single alternating combination $\sum(-1)^{e_9}c$ and \emph{vanishes identically for every state whose $F/F_{\rm vac}$ is divisible by $x+y$ or
+contains $\mu_v$ or $\mu_u$}. Consequently:
+\begin{itemize}
+\item it is blind to all states with $s$ odd, i.e.\ $L+p$ odd for $q=0$ (a symmetric binary form of odd degree is divisible by $x+y$: $c(x+y)$ for $[2,0,2]$ at $L=3$ and $[3,0,3]$ at $L=4$, $c\,xy(x+y)$ for $[1,0,1]$ at $L=4$): the even-bridge parity rule of \S\ref{sec:C}(ii) is a property of the
+polarisation, not of the states;
+\item it is blind to all $q>0$ states, which need $\mu_v$ or $\mu_u\ne0$ (those with $s=0$ depend on the polarisation only through $m_v,m_u$ and $a,d$).
+\end{itemize}
+Example $P^*$: $v_2=e_1$, $u_2=e_4$, $v_3=(1,1,0,1)$, $u_3=(1,1,0,-2)$ (BPS: $v_3\cdot u_3=0$) gives $(x,y,\mu_v,\mu_u)=(-\tfrac12,1,1,0)$. States invisible at the note's point but visible at $P^*$ (number of states with $F/F_{\rm vac}^{\rm note}=0\neq F/F_{\rm vac}^{P^*}$, example value):
+\begin{center}
+\begin{tabular}{llcll}
+\toprule
+$L$ & $[p,q,r]$ & $M$ & states & example $F/F_{\rm vac}(P^*)$\\
+\midrule
+2 & $[1,0,1]$ & 1 & 2 & $0.144338$\\
+3 & $[0,1,2]$ & 1, 2 & 3, 3 & $0.0295-0.0510i$, $0.0589-0.1021i$\\
+3 & $[2,0,2]$ & 1, 2 & 2, 2 & $-0.1021+0.1021i$\\
+4 & $[0,2,4]$ & 2 & 1 & $-0.288675$\\
+4 & $[1,0,1]$ & 2 & 22 & $-0.00096-0.00166i$\\
+4 & $[1,1,3]$ & 1, 2, 3 & 8, 8, 8 & $0.0360-0.0456i$, $0.1600-0.2025i$, $0.0720-0.0911i$\\
+4 & $[3,0,3]$ & 1, 2, 3 & 4, 4, 4 & $0.1035+0.0752i$, $0.1674+0.1217i$, $0.1035+0.0752i$\\
+\bottomrule
+\end{tabular}
+\end{center}
+The invariant form reproduces the direct overlap at $P^*$ to $2.7\cdot10^{-15}$. The $L=2$ $[1,0,1]$ pair gives $F/F_{\rm vac}(P^*)=(x+y)/\sqrt{12}=0.144338$ although $C_2^{\rm note}=0$. (Rows with $q>0$ and $\mu_u=0$ at $P^*$ are
+seen through $\mu_v=1$; states needing $\mu_u\ne0$ require a different polarisation.)

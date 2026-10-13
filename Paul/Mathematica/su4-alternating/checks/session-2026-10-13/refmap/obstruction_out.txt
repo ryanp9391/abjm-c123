@@ -1,0 +1,15 @@
+(a) charged weight states e_a (x) e_b (a != b) are eigenvectors of x1, x2, x3 with eigenvalues z_b, z_b(sigma - z_a - z_b), det/z_a: True  z = ['3/2', '5/4', '2/3', '4/7']
+(a) charged weight states e_a (x) e_b (a != b) are eigenvectors of x1, x2, x3 with eigenvalues z_b, z_b(sigma - z_a - z_b), det/z_a: True  z = ['-1/3', '7/5', '2/9', '11/4']
+(b) formal twisted vacuum, generic z=(3/2,5/4,2/3,4/7) | v.u = 0 | rank span 5 | #kappa-comps 13 rank 13 | dim(span cap kappa-orbit span) = 2 | charged |S| = 12 rank of |S|x5 eigenvalue matrix 5 | rank(span+T_kappa) [6, 6, 6]
+(b) W_a, a=1/3, same generic z | v.u = 0 | rank span 5 | #kappa-comps 13 rank 3 | dim(span cap kappa-orbit span) = 2 | charged |S| = 2 rank of |S|x5 eigenvalue matrix 2 | rank(span+T_kappa) [6, 6, 6]
+(c) best-fit relative residual of T_kappa in the 5-word span; z = 1 + eps*phi, w = 1 + eps*omega, kappa = 1 - c*eps; phi = (9/10, 7/20, 7/20 + dphi, -11/10), omega = (7/10,-3/10,1/5,1/2), c = 4/5
+dphi  eps | tw.vac all | tw.vac charged | W_a all | W_a charged
+0.01 e=2 | 0.05716 0.02662 | 0.01127 0
+0.01 e=3 | 0.05739 0.02704 | 0.01145 0
+0.01 e=4 | 0.05741 0.02708 | 0.01146 0
+0.1 e=2 | 0.3423 0.1595 | 0.1119 0
+0.1 e=3 | 0.3432 0.1611 | 0.1137 0
+0.1 e=4 | 0.3433 0.1613 | 0.1139 0
+0.5 e=2 | 0.4952 0.3366 | 0.4862 0
+0.5 e=3 | 0.4551 0.3094 | 0.4932 0
+0.5 e=4 | 0.4514 0.3069 | 0.4939 0

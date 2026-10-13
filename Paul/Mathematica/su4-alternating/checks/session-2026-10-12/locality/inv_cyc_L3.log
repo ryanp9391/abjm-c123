@@ -1,0 +1,12 @@
+inverses built 48 of 48 136.08925104141235
+1 + positive singles                                           nwords     49 rank   17 loc 3 T1:nnnn T2:nnn T3:YYYnn
+1 + inverse singles                                            nwords     49 rank   49 loc 3 T1:nnnn T2:nnn T3:YYYnn
+1 + positive singles + inverse singles                         nwords     97 rank   61 loc 3 T1:nnnn T2:nnn T3:YYYnn
+1 + singles + inv singles + (inv f)(single g)                  nwords   2401 rank  588 loc 6 T1:YYYY T2:YYY T3:YYYYY
+1 + singles + inverse t1 only x (1,single)  [18 inverses]      nwords    931 rank  296 loc 4 T1:nnnn T2:nnn T3:YYYYY
+1 + singles + inverse t2 only x (1,single)  [16 inverses]      nwords    833 rank  269 loc 3 T1:nnnn T2:nnn T3:YYYnn
+1 + singles + inverse t3 only x (1,single)  [14 inverses]      nwords    735 rank  232 loc 4 T1:nnnn T2:nnn T3:YYYYY
+1 + singles + inverse A-site (s=1) only x (1,single)  [24 inverses] nwords   1225 rank  385 loc 4 T1:nnnn T2:nnn T3:YYYYY
+1 + singles + inverse F-site (s=2) only x (1,single)  [24 inverses] nwords   1225 rank  385 loc 4 T1:nnnn T2:nnn T3:YYYYY
+1 + singles + inverse m=0 only x (1,single)  [4 inverses]      nwords    245 rank   72 loc 4 T1:nnnn T2:nnn T3:YYYYY
+1 + singles + inverse t1(th1), t1(th2) (task) x (1,single)  [2 inverses] nwords    147 rank   42 loc 4 T1:nnnn T2:nnn T3:YYYYY

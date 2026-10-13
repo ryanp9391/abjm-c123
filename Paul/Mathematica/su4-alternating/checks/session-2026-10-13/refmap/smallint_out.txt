@@ -1,0 +1,3 @@
+candidates (v.u=0): 8946
+z2=z3 : admissible 2690  mismatches with closed form: 0 []
+generic z : admissible 1890 ; of which blockwise (v_j u_j = 0 for all j): 1890 of 1890 blockwise candidates; NON-blockwise admissible: 0 []

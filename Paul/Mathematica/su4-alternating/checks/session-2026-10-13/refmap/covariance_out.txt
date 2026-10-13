@@ -1,0 +1,19 @@
+(6a) rho(g) t_k^Lambda rho(g)^-1 == t_k^{G'} with G' = g^-1 L g : [False, False, False]
+(6a) rho(g) t_k^Lambda rho(g)^-1 == t_k^{G'} with G' = g L g^-1 : [False, False, False]
+(6a) rho(g) t_k^Lambda rho(g)^-1 == t_k^{G'} with G' = g^T L g^-T : [False, False, False]
+(6a) rho(g) t_k^Lambda rho(g)^-1 == t_k^{G'} with G' = g^-T L g^T : [True, True, True]
+(6b) family | v=e1 g | u=e4 g^-T | closed form 5c | exact covariance <vac|rho(g)K[Lam] == <vac|K[G']rho(g) (G'=g Lam g^-1) | <vac|K_kappa[G'] ~ <vac|rho(1-kappa G') | (K_kappa[Lam] on v(x)u) ~ T_kappa | [G'^n]_14 n=1,2,3 | off-diagonal part of G'
+W_a: exp(E14/3) | ['1', '0', '0', '1/3'] ['-1/3', '0', '0', '1'] | True | True | True | True | ['-13/42', '-377/588', '-8749/8232'] |      .     .     .     .      .     .     .     .      .     .     .     . -13/42     .     .     .
+torus x W_a: diag(2,1,1,3)(1+E14/5) | ['2', '0', '0', '2/5'] ['-1/15', '0', '0', '1/3'] | True | True | True | True | ['-13/105', '-377/1470', '-8749/20580'] |      .     .     .     .      .     .     .     .      .     .     .     . -13/105     .     .     .
+R5: 1+2E24+3E34 (v=e1) | ['1', '0', '0', '0'] ['0', '-2', '-3', '1'] | True | True | False | False | ['0', '0', '0'] |      .     .     .     .      .     .     .     .      .     .     .     .      .-19/14-57/28     .
+R2: (1+2E12+3E13)(1+3E24-2E34) [p.c=0] | ['1', '2', '3', '0'] ['0', '-3', '2', '1'] | True | True | False | False | ['0', '0', '0'] |      .     .     .     .   -1/2     .     .     .   -3/4     .     .     .      .-57/28 19/14     .
+R2 broken: (1+2E12+3E13)(1+E24+E34) [p.c=5] | ['1', '2', '3', '5'] ['0', '-1', '-1', '1'] | False | True | False | False | ['-95/28', '-4845/784', '-193895/21952'] |      .     .     .     .   -1/2     .     .     .   -3/4     .     .     . -95/28-19/28-19/28     .
+generic Borel element | ['2', '1/3', '-1', '2'] ['-4/45', '-8/3', '8/5', '4/3'] | False | True | False | False | ['-584/315', '-7537/2205', '-306449/61740'] |      .     .     .     .  -1/12     .     .     .   9/40     .     .     . -584/315-19/105 38/21     .
+W_a x R2: exp(E14/3)(1+2E12+3E13)(1+3E24-2E34) | ['1', '2', '3', '1/3'] ['-1/3', '-3', '2', '1'] | False | True | False | False | ['-13/42', '-377/588', '-8749/8232'] |      .     .     .     .   -1/2     .     .     .   -3/4     .     .     . -13/42-57/28 19/14     .
+(9) reference | rank span | dim orbit tangent | dim stabiliser | dim h_r | dim h_r/stab | representatives of h_r mod stabiliser | torus-orbit test (f in span?)
+W_a (a=1/3) | 5 | 6 | 10 | 12 | 2 | ['1*E11', '1*E14'] | {'Lambda': True, 'Lambda^-1': True, '1-kappa Lambda^-1 (3/10)': True, 'Lambda^2': True, 'generic (2,5,5,-3)': True}
+R2: v=(1,2,3,0), u=(0,3,-2,5) | 4 | 6 | 10 | 13 | 3 | ['1*E11', '1*E12 + -3/5*E14 + 1/2*E33 + 1/5*E34', '1*E22 + 1*E33'] | {'Lambda': True, 'Lambda^-1': True, '1-kappa Lambda^-1 (3/10)': True, 'Lambda^2': True, 'generic (2,5,5,-3)': True}
+R5: v=e1, u=(0,2,3,5) | 2 | 6 | 10 | 12 | 2 | ['1*E11', '1*E22 + 3/5*E34'] | {'Lambda': True, 'Lambda^-1': True, '1-kappa Lambda^-1 (3/10)': True, 'Lambda^2': True, 'generic (2,5,5,-3)': True}
+<0_w| limit (0,1,-1,0) (x) u_w | 3 | 6 | 10 | 13 | 3 | ['1*E11', '1*E21 + 1*E31', '1*E22 + 1*E33'] | {'Lambda': True, 'Lambda^-1': True, '1-kappa Lambda^-1 (3/10)': True, 'Lambda^2': True, 'generic (2,5,5,-3)': True}
+R6: v=(0,2,3,0), u=(1,3,-2,4) | 3 | 6 | 10 | 13 | 3 | ['1*E11', '1*E21 + -2/3*E31', '1*E22 + 1*E33'] | {'Lambda': True, 'Lambda^-1': True, '1-kappa Lambda^-1 (3/10)': True, 'Lambda^2': True, 'generic (2,5,5,-3)': True}
+random BPS (not admissible) | 5 | 6 | 10 | 11 | 1 | ['1*E12 + 1/80*E23 + -1/10*E33 + -1/3*E42 + -1/24*E43'] | {'Lambda': False, 'Lambda^-1': True, '1-kappa Lambda^-1 (3/10)': False, 'Lambda^2': False, 'generic (2,5,5,-3)': False}

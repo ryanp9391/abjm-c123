@@ -1,0 +1,327 @@
+%======================================================================
+\section{Conventions, frames and reference states}\label{sec:conv}
+%======================================================================
+
+This section fixes notation for all other sections: evidence tags and standard points (\S\ref{sec:conv-evid}); the
+chain, Lax operator, twists and dictionaries (\S\ref{sec:conv-chain}); the physical and companion frames
+(\S\ref{sec:conv-frames}); the four reference bras (\S\ref{sec:conv-refbras}); and the $GL(4)$ covariance of the transfer
+matrices (\S\ref{sec:conv-cov}).
+
+%----------------------------------------------------------------------
+\subsection{Evidence levels, standard points, data}\label{sec:conv-evid}
+%----------------------------------------------------------------------
+
+\paragraph{Evidence levels.} \ex: rational or symbolic arithmetic in a wolfbook notebook. \hp: arbitrary-precision
+numerics (40--120 digits) in a notebook. \num{10^{-n}}: machine- or fixed-precision numerics with residual $10^{-n}$.
+\npy: python only (\nb{checks/}), not (yet) re-done in a notebook. All new computations are done in wolfbook notebooks
+(\nb{Paul/Mathematica/su4-alternating/*.wb}); the notebook that contains a result is given in square brackets. Part of
+the work of 12--13 October was first done in python while the Wolfram kernel was unavailable (licence expired on the
+evening of 12 October; a shared kernel faulted on the morning of 13 October) and ported afterwards. The state of every
+notebook (stored outputs, partial reruns) is recorded in App.~\ref{sec:index}.
+
+\paragraph{Standard points.} $h=\tfrac12$ throughout.
+\begin{center}
+\small
+\begin{tabular}{@{}p{0.2\textwidth}p{0.72\textwidth}@{}}
+\toprule
+point & values\\
+\midrule
+generic & $\theta=(\tfrac27,-\tfrac35,\tfrac8{11},-\tfrac{11}8\,[,\tfrac5{13},-\tfrac79])$ on sites $1,\dots,4\,[,5,6]$;
+ $z=(\tfrac32,\tfrac54,\tfrac23,\tfrac47)$; twisted vacuum $w=(\tfrac75,\tfrac98,\tfrac37,\tfrac59)$\\[2pt]
+ABJM, pair by pair & $\theta_{A,n}=\theta_{F,n}+2h$ with distinct $\theta_{F,n}$, e.g.\ $\theta_F=(-\tfrac35,-\tfrac{11}8,-\tfrac79,\tfrac56)$;
+ twist with $z_2=z_3$: $z=(\tfrac32,\tfrac54,\tfrac54,\tfrac47)$; $a=\tfrac13$\\[2pt]
+ABJM, homogeneous & $\theta_A=2h=1$, $\theta_F=0$ (spectra and untwisted data; $u_0=\theta_F+h=\tfrac12$)\\[2pt]
+$\varepsilon$-chain (untwisting) & $z=1+\varepsilon\varphi$, $\varphi=(\tfrac9{10},\tfrac7{20},\varphi_3,-\tfrac{11}{10})$ with $\varphi_3=\tfrac7{20}$
+ ($z_2=z_3$: $K_\kappa$, $\varepsilon$-scans) or $\varphi_3=\tfrac35$ ($z_2\ne z_3$: Q-form assembly, companion frame regular);
+ $\kappa=1-c\varepsilon$, $c=\tfrac3{10}$, $a=(\varphi_1-c)/(\varphi_1-\varphi_4)$; $\theta_{F,n}=\varepsilon\theta^0_n$,
+ $\theta^0=(0,\tfrac{37}{100},-\tfrac{13}{25})$, $\theta_{A,n}=\theta_{F,n}+2h$; $\varepsilon=10^{-2},\dots,10^{-5}$
+ ($1/100,\dots,1/1600$ in the \hp\ runs)\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\paragraph{Data}{\raggedright\ (details in App.~\ref{sec:index}). The folder \nb{data/} holds \nb{abjm-hw-states.wxf} (all
+highest-weight cyclic eigenstates at $L=2,3,4$ pairs with energies, LR data and $C_\ell$), \nb{abjm-tau.wxf} and
+\nb{abjm-tau-L4.wxf} (eigenvalue polynomials $\tb_{1,2,3}(u)$), \nb{abjm-Qfunctions.wxf} ($Q_1,Q_{12},Q_{123}$, roots,
+degrees) and \nb{abjm-twoblock-forms.json} (polarisation forms). Each \nb{.wxf} file has a \nb{"description"} key
+documenting its conventions; load with \nb{Import[file,"WXF"]}. The $L=4$ key of \nb{abjm-hw-states.wxf} is about
+$3$\,GB after decompression and must not be imported; the $L=2,3$ states are also stored as \nb{hw\_L2.json} and
+\nb{hw\_L3.json} in the folder \nb{epsexp/} of \nb{checks/session-2026-10-13/}.\par}
+
+%----------------------------------------------------------------------
+\subsection{The chain, Lax operator, twists and dictionaries}\label{sec:conv-chain}
+%----------------------------------------------------------------------
+
+\paragraph{Chain.} $2L$ sites ($L$ pairs), A F A F $\dots$, periodic. An A site carries the $\mathbf4$,
+$\rho_A(E_{ij})=e_{ij}$, and the group acts by $g$. An F site carries the $\bar{\mathbf4}$, $\rho_F(E_{ij})=-e_{ji}$, and the
+group acts by $g^{-T}$. ABJM: $\mathrm{tr}(Y^{A_1}Y^\dagger_{B_1}\cdots)$; $L=2,3,4$ pairs $=4,6,8$ sites, dimensions
+$256,4096,65536$. $P_{ab}=\sum e_{ij}\otimes e_{ji}$ (same-type sites), $K_{ab}=\sum e_{ij}\otimes e_{ij}$ (A--F pair;
+$K=\ket S\bra S$, $S=\sum_ie_i\otimes e_i$). Bras are row vectors and operators act from the right. On a pair,
+$\rho(g)=g\otimes g^{-T}$, so $\bra{v\otimes u}\rho(g)=\bra{vg\otimes ug^{-T}}$ and the bilinear pairing $vu^T$ between an A
+vector and an F vector is invariant.\footnote{The earlier note wrote the same action on column components,
+$v\to g^Tv$ (A), $w\to g^{-1}w$ (F).} A product bra $(v\otimes u)^{\otimes L}$ is called BPS if $vu^T=0$.
+
+\paragraph{Naming (Paul).} A ``fundamental'' site is the one whose SoV layer is built with $t_1^n$: this is the F site
+($\rho_F(E_{ij})=-e_{ji}$, highest-weight vector $e_4$, group acts by $g^{-T}$). An ``anti-fundamental'' site is built with
+$t_n$, $n=0,\dots,3$: this is the A site ($\rho_A(E_{ij})=e_{ij}$, highest-weight vector $e_1$, group acts by $g$).
+The $L=2$ notebook \nb{L2-ffbar-SoV-localisation.wb} uses the opposite names (``f'' $=\rho\,e_{ij}$, ``$\bar{\rm f}$''
+$=\rho\,{-e_{ji}}$); the $L=4$ notebook follows Paul. In terms of Ryan--Volin's labels this is the swap
+$\lambda\leftrightarrow\lambda^*$: $u+h\sum e_{ij}\otimes\rho(E_{ij})$ is RV's $u-\hbar\sum E_{ij}\otimes\pi(E_{ji})$ with
+$\pi=\rho^*$.
+
+\paragraph{Lax, monodromy, fusion.}
+\begin{equation}
+ \cL_s(u)=\sum_{ij}e_{ij}\otimes\big((u-\theta_s)\delta_{ij}+h\rho_s(E_{ij})\big),\qquad
+ \cL_A=u-\theta+hK,\quad \cL_F=u-\theta-hP,
+\end{equation}
+$T=\cL_1\cL_2\cdots\cL_{2L}$ (site 1 leftmost), twist on the right, $T^G=TG$. Quantum minors: rows antisymmetrised, column
+$k$ at $u-(k-1)h$. The transfer matrices are
+\begin{equation}
+ t_a(u)=\sum_{|I|=a}\mathrm{qmin}_{I,I}[T^G](u)=\sum_{I,J}\mathrm{qmin}_{I,J}[T](u)\,\det G_{J,I},\qquad a=0,\dots,4,
+\end{equation}
+with $t_1^G=\sum_{ij}T_{ij}G_{ji}$ and $t_4=\mathrm{qdet}$. Reduced transfer matrices $\tb_a$ have the scalar prefactors
+removed (\S\ref{sec:tm}); $t^G$ without index means $t_1^G$.
+
+\paragraph{Twists.} Companion twist
+\begin{equation}
+ G_c(z)=\begin{pmatrix}c_1&-c_2&c_3&-c_4\\1&0&0&0\\0&1&0&0\\0&0&1&0\end{pmatrix},\qquad c_k=e_k(z),
+\end{equation}
+diagonal (physical) twist $\Lambda=\mathrm{diag}(z)$. With $V$ the Vandermonde matrix with columns
+$v(z_j)=(z_j^3,z_j^2,z_j,1)^T$ one has $G_cV=V\Lambda$, i.e.\ $v(z_j)$ is the right eigenvector of $G_c$ for eigenvalue $z_j$;
+the left eigenvectors are the rows $\tilde u_j$ of $V^{-1}$. We write $\lambda_j=1/\prod_{m\ne j}(z_j-z_m)$ for the leading
+coefficient of the $j$-th Lagrange polynomial, so $(V^{-1})_{j1}=\lambda_j$, and $\gamma:=G^{-T}$. The frame map
+$t^{G_c}R=Rt^\Lambda$ is given in \S\ref{sec:conv-frames}.
+
+\paragraph{Vacua.} On the pair vacuum $e_1\otimes e_4$ (per pair) one has, as bras, $\bra{\vac}T_{ij}(u)=0$ for $i>j$
+(lower triangular) and $\bra{\vac}T_{ii}=V_i\bra{\vac}$, and as kets $T_{ij}\ket{\vac}=0$ for $i<j$ with the same diagonal
+eigenvalues. For pair-periodic $\theta$,
+\begin{equation}
+ V_1=(u-\theta_A+h)^L(u-\theta_F)^L,\quad V_2=V_3=(u-\theta_A)^L(u-\theta_F)^L,\quad V_4=(u-\theta_A)^L(u-\theta_F-h)^L,
+\end{equation}
+and in general $V_i$ is the product of the site factors. The explicit one-pair statement is displayed in
+\S\ref{sec:abjm}. The vacuum eigenvalue of $t^{\Lambda}$ is $\tau_{\rm vac}(u)=\sum_iz_iV_i(u)$. The SoV vacuum $\bra0=e_1\otimes
+e_4\otimes e_1\otimes e_4\cdots$ in the companion frame is the Ryan--Volin Gelfand--Tsetlin vacuum: it is the unique bra
+killed by every strictly lower-triangular $T_{ij}(u)$ of the untwisted monodromy and eigen for the $T_{ii}$, generic and
+ABJM $\theta$ \ex\ [\nb{sov-companion-L4.wb}]. The two meanings of ``vacuum'' (diagonal-frame $\bra{\vac^L}$ and
+companion-frame $\bra0$) are different bras; see \S\ref{sec:conv-refbras}.
+
+\paragraph{Dictionary to Ryan--Volin (arXiv:2002.12341).} RV's Lax is $u-\hbar P^\nu$,
+$P^\nu=\sum E_{ij}\otimes\pi^\nu(E_{ji})$, with $T=\cL_L\cdots\cL_1$ and quantum minors and $B$ as in our conventions.
+\begin{center}
+\small
+\begin{tabular}{@{}p{0.36\textwidth}p{0.56\textwidth}@{}}
+\toprule
+this note & Ryan--Volin\\
+\midrule
+F site: $\cL_F=u-\theta-hP$, $\rho_F(E_{ij})=-e_{ji}$ & $\pi(E_{ij})=e_{ij}$, fundamental, $\nu=(1,0,0,0)$, $\theta^{\rm RV}=\theta_F$\\[2pt]
+A site: $\cL_A=u-\theta+hK$, $\rho_A(E_{ij})=e_{ij}$ & $\pi(E_{ij})=-e_{ji}\simeq\nu=(1,1,1,0)$ with
+ $\pi^{(1,1,1,0)}(E_{ij})=\delta_{ij}-e_{ji}$, hence $\theta^{\rm RV}_A=\theta_A-h$\\[2pt]
+$T=\cL_1\cdots\cL_{2L}$, $T^G=TG$, $G=G_c(z)$ & the same operator; our site $s$ is RV's site $2L+1-s$, $\hbar=h$;
+ $G_c$ is RV's (2.19)\\[2pt]
+$t_a(u)$, $a=0,\dots,4$ & $\mathbb T_{a,1}(u)$\\[2pt]
+$V_1$; $V_2=V_3$; $V_4$ & $\nu_4$; $\nu_2=\nu_3$; $\nu_1$, with $\nu_j(u)=\prod_\alpha(u-\theta_\alpha-\hbar\nu_j^\alpha)$\\[2pt]
+$\bra0=(e_1\otimes e_4)^L$ (companion) & GT vacuum (4.12), $\bra0T_{j1}(u)=\delta_{j1}\nu_n(u)\bra0$ (3.19)\\[2pt]
+ABJM point $\theta_A-\theta_F=2h$ & $\theta^{\rm RV}_A-\theta^{\rm RV}_F=h\in\hbar\mathbb Z$: violates the genericity assumption (2.9)\\
+\bottomrule
+\end{tabular}
+\end{center}
+Quantum minors and $B(u)$ (2.25), and the basis (4.12), agree verbatim with RV; the other equation numbers are counted
+from the arXiv source.\footnote{They may differ by one from the published numbering; only (2.25), (4.12) and (1.2)
+were matched against the published text.} Hence $\pi=-\rho^T$: our A site is RV's dual irrep, our F site RV's
+fundamental. RV1 (arXiv:1810.10996) covers only one rectangular representation on every site and does not apply to
+the alternating chain; RV2 gives the left SoV basis for any irrep per site.
+
+\paragraph{Dictionary to the ABJM note and 2603.} Note (\nb{StructuringABJM.pdf}): $O_2=\mathrm{tr}(Y_1^\dagger Y^4)^L$,
+$O_3=\mathrm{tr}(\tilde Y_1^\dagger\tilde Y^4)^L$, $\tilde Y_1^\dagger=Y_1^\dagger-Y_4^\dagger$, $\tilde Y^4=Y^1+Y^4$;
+(3.6): $C=\cN\big(\bra{Y_1^\dagger Y^4}^{L-M}\otimes\bra{\tilde Y_1^\dagger\tilde Y^4}^{M}\big)\ket\Psi$. On one pair,
+\begin{equation}
+ W_a:=(e_1+ae_4)\otimes(e_4-ae_1)=\bra{\vac}\rho(1+aE_{14}),
+\end{equation}
+{\raggedright so $W_0$ is the O$_2$ pair and $W_{-1}$ the O$_3$ pair. 2603 (Bargheer, Bercini, Lefundes, Ryan, arXiv:2603.26617):
+$\mathfrak{so}(6)$ chain of $\mathbf 6=\wedge^2\mathbf4$ with vacuum $Z=e_1\wedge e_2$, $\hbar=i$ and centred shifts
+(up to gauge $Q^{\rm BBLR}_I(u)\leftrightarrow Q^{\rm RV}_I\big(u+\tfrac\hbar2(|I|-1)\big)$), site 1 leftmost as here; on a
+site in the $\mathbf4$ its Lax is $u-iP$, our F site with $h=i$. Their LR symmetry $\tau_+=\tau_-$ gives $C=0$ unless the state is LR
+symmetric (Sec.~IV, (18)--(20)); O$_2$ is O$_3$ with the first $\ell$ sites rotated by $1-\kappa\,$twist, and
+$C=\cN\,\mathbb W\,\mathbb A/\sqrt{\mathbb B}$ (their (11)--(14)).\par}
+
+%----------------------------------------------------------------------
+\subsection{Frames}\label{sec:conv-frames}
+%----------------------------------------------------------------------
+
+\paragraph{Physical (diagonal) frame.} The twist is $\Lambda=\mathrm{diag}(z)$.
+\emph{The states $\Psi$ in every structure-constant formula of these notes are eigenstates of $t^\Lambda(u)$ in the diagonal
+frame.} The pair word $K_\kappa$ is a word in $t^\Lambda$ transfer matrices; the identity
+$\bra{W_a^L}K_\kappa=(1-\kappa z_1)^2\bra{W_{a'}\otimes W_a^{L-1}}$ and the untwisting limit $z\to1$ are diagonal-frame
+statements (\S\ref{sec:kappa}).
+
+\paragraph{Companion frame (SoV only).} The SoV basis is built with the companion twist $G_c(z)$. The two frames are
+related by
+\begin{equation}
+ t^{G_c(z)}(u)\,R=R\,t^{\Lambda}(u),\qquad R=\bigotimes_{\rm sites}\big(V^{-T}\ \text{on A},\ V\ \text{on F}\big)
+\end{equation}
+\ex\ for $t_{1,2,3}$ on one and two pairs [\nb{even-bridge-Qform.wb} Part 0, \nb{Wa-Fonly-L6.wb}; first found \npy\
+in \nb{checks/chk\_frame.py}, $10^{-15}$]. States and bras are transported as $\ket{\Psi_c}=R\ket{\Psi}$ and
+$\bra{B_c}=\bra BR^{-1}$, so $\braket{B_c}{\Psi_c}=\braket B\Psi$; equivalently $\bra{x_{\rm diag}}=\bra{x_{\rm comp}}R$.
+\emph{Every bra is transported with the $R$ of the twist $z$ of $\Psi$}, including the twisted vacuum $\bra{0_w}$, whose own
+twist is $w$. Eigenvalues and Q-functions are frame independent, so the Q-expressions of \S\ref{sec:qform} (for example
+$P_\kappa(\tau)$) are the same in both frames. The companion image of a pair of diagonal-frame vectors is
+$\bra{v\otimes u}R^{-1}=\bra{vV^T\otimes uV^{-1}}$.
+
+\paragraph{Two cautions.} (i) At coincident twist eigenvalues the Vandermonde matrix $V(z)$ is singular. The pair word
+$K_\kappa$ needs $z_2=z_3$; there the companion frame does not exist, the diagonal-twist chain has a $\mathfrak{gl}(2)$
+symmetry and there is no SoV basis. The two are combined at $z_2-z_3=O(\varepsilon)$ in the untwisting scaling, which
+suffices for the limit (\S\ref{sec:kappa}). (ii) The literal conjugate $V^{-1}G_aV$ is not the companion-frame image of
+$G_a$ (\S\ref{sec:conv-cov}).
+
+\paragraph{Weight selection.} For a bra $\bra{W_a^L}=\bra{\vac^L}e^{aJ}$ with $J=\rho(E_{14})$ summed over sites,
+\begin{equation}
+ \braket{W_a^L}{\Psi}=\frac{a^n}{n!}\bra{\vac^L}J^n\ket\Psi,\qquad n=L-\mu_1,
+\end{equation}
+{\raggedright for $\Psi$ of weight $(\mu_1,0,0,-\mu_1)$, and $\braket{W_a^L}\Psi=0$ for every other weight; the torus gives
+$\braket{W_a^L}\Psi=a^n\braket{W_1^L}\Psi$ (weight counting; confirmed in the $\varepsilon$-scans \npy\
+[\nb{scan\_eps.py} in \nb{checks/session-2026-10-13/epsexp/}]).\par}
+
+%----------------------------------------------------------------------
+\subsection{The four reference bras}\label{sec:conv-refbras}
+%----------------------------------------------------------------------
+
+The reference bras appearing in these notes are
+\begin{itemize}
+\item $\bra{\vac^L}$, the Bethe vacuum of $t^\Lambda$;
+\item $\bra0_{\rm comp}$, the SoV (Gelfand--Tsetlin) vacuum;
+\item $\bra{0_w}$, the twisted vacuum, i.e.\ the vacuum eigenbra of $t^{G_c(w)}$;
+\item $\bra{W_a^L}$, the Borel rotation of the Bethe vacuum used for the ABJM structure constants.
+\end{itemize}
+All four are BPS product states $(v\otimes u)^{\otimes L}$ with $vu^T=0$. Table~\ref{tab:refbras-vec} gives the per-pair
+vectors in both frames, Table~\ref{tab:refbras-prop} the properties. Here $v(x)=(x^3,x^2,x,1)$, $\tilde u_j$ is row $j$ of
+$V^{-1}$ and $\lambda_j=1/\prod_{m\ne j}(z_j-z_m)$. A BPS reference $(v\otimes u)^{\otimes L}$ is \emph{good} if
+$u\Lambda v^T=0$ (the README criterion; in the companion frame it reads $u_cG_cv_c^T=0$, and it equals the obstruction $q(w,z)$ of the
+twisted-vacuum notebooks, $232551/1558000$ at the standard point). Good references localise like $\bra0$.
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.12\textwidth}>{\raggedright\arraybackslash}p{0.42\textwidth}>{\raggedright\arraybackslash}p{0.38\textwidth}@{}}
+\toprule
+bra & diagonal frame (A vector $\otimes$ F vector, per pair) & companion frame\\
+\midrule
+$\bra{\vac^L}$ & $e_1\otimes e_4$ & $v(z_1)\otimes\tilde u_4$\\
+$\bra0_{\rm comp}$ & $(\lambda_1,\lambda_2,\lambda_3,\lambda_4)\otimes(1,1,1,1)$ & $e_1\otimes e_4$\\
+$\bra{0_w}$ & $v_j=\lambda_j\prod_{m\ne j}(w_1-z_m)$, \quad $u_j=\dfrac{\prod_{m\le3}(z_j-w_m)}{\prod_{m\le3}(w_4-w_m)}$ &
+ $v(w_1)\otimes u_w$, $u_w=$ row 4 of $V(w)^{-1}$\\
+$\bra{W_a^L}$ & $(e_1+ae_4)\otimes(e_4-ae_1)$ & $\big(v(z_1)+a\,v(z_4)\big)\otimes(\tilde u_4-a\tilde u_1)$\\
+\bottomrule
+\end{tabular}
+\caption{Reference bras per pair in the two frames. The diagonal-frame image of $\bra0_{\rm comp}$ is exact; $\bra0_{\rm comp}$
+lies in the Borel orbit of $\bra{\vac^L}$ and is finite as $z\to1$ (\S\ref{sec:sov}). The diagonal image of $\bra{0_w}$ exists
+only for $z_2\neq z_3$.}
+\label{tab:refbras-vec}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.1\textwidth}>{\raggedright\arraybackslash}p{0.27\textwidth}>{\raggedright\arraybackslash}p{0.18\textwidth}>{\raggedright\arraybackslash}p{0.35\textwidth}@{}}
+\toprule
+bra & what it is & $u\Lambda v^T$ & overlap with an eigenstate $\Psi$ of $t^\Lambda$\\
+\midrule
+$\bra{\vac^L}$ & Bethe vacuum of $t^\Lambda$, eigenvalue $\tau_{\rm vac}$ & $0$ & $\braket{\vac^L}{\Psi}=0$ for $\Psi\ne\vac$\\
+$\bra0_{\rm comp}$ & RV Gelfand--Tsetlin vacuum; the word basis on it is $z$-independent & $0$ (good) &
+ $\braket0\Psi$ is the SoV normalisation (known); does not admit the five-word $K_\kappa$ (\S\ref{sec:admiss})\\
+$\bra{0_w}$ & vacuum eigenbra of $t^{G_c(w)}$, eigenvalue $\sum_iw_iV_i$; shares the SoV basis with a state of twist $z$ &
+ $-\dfrac{\prod_i(w_1-z_i)}{\prod_{m\le3}(w_4-w_m)}$ &
+ finite Q-sum $\mathbb W_w$ (\S\ref{sec:qform}); admits no $\kappa$-family at $z_2\ne z_3$ (\S\ref{sec:admiss})\\
+$\bra{W_a^L}$ & vacuum eigenbra of $t^{G_a}$ (\S\ref{sec:conv-cov}); never of a companion twist; Q-functions those of $\bra{\vac^L}$ &
+ $a(z_4-z_1)$ &
+ $=(v_1u_4)^{-L}\braket{0_w}\Psi$ for $w=(w_1,z_2,z_3,w_4)$ on weights $(\mu,0,0,-\mu)$, zero otherwise; admits $K_\kappa$ (\S\ref{sec:kappa})\\
+\bottomrule
+\end{tabular}
+\caption{Properties of the four reference bras. $v,u$ are the A and F vectors of the diagonal frame.}
+\label{tab:refbras-prop}
+\end{table}
+
+\paragraph{The overlap identity.} For every $\Psi$ of weight $(\mu,0,0,-\mu)$,
+\begin{equation}
+ \braket{0_w}{\Psi}=(v_1u_4)^L\braket{W_a^L}{\Psi},\qquad
+ a=\frac{v_4}{v_1}=-\frac{(z_1-z_2)(z_1-z_3)(w_1-z_1)}{(z_4-z_2)(z_4-z_3)(w_1-z_4)},
+\end{equation}
+{\raggedright and $\braket{W_a^L}\Psi=0$ on all other weights \ex\ for $L=2$, all eigenstates of the sectors $(2,0,0,-2)$,
+$(1,0,0,-1)$, $(0,0,0,0)$, to 40 digits \hp\ [\nb{even-bridge-Qform.wb} Part~1(b), \nb{Wa-sov-expansion-L4.wb}]; the
+argument is weight counting and holds at any $L$. Take $w_2=z_2$, $w_3=z_3$: then $u_2=u_3=0$, the F sites carry only $e_1$
+and $e_4$, an A site in $e_2$ or $e_3$ would give a positive $2$- or $3$-weight that no F site cancels, so on these weights
+only the A components $v_1,v_4$ contribute and each pair acts as $v_1u_4W_a$, with $vu^T=0$ giving $a=v_4/v_1=-u_1/u_4$. The
+A sites of $\bra{0_w}$ still have $e_2,e_3$ components; this is why the two bras differ although their relevant overlaps
+agree. The Mobius map $a(w_1)$ sends $w_1=z_1$ to $a=0$ (the vacuum) and $w_1=z_4$ to $a=\infty$ (the lowest-weight vacuum
+$e_4\otimes e_1$). In the limit $w_1\to\infty$ one finds $a\to\kappa_0$ with\par}
+\begin{equation}
+ \kappa_0=-\frac{(z_1-z_2)(z_1-z_3)}{(z_4-z_2)(z_4-z_3)},
+\end{equation}
+and the twisted vacuum becomes, in the companion frame, $(e_1\otimes\tilde u)^{\otimes L}$ with
+$\tilde u=e_4^T(G_c-z_2)(G_c-z_3)$ (\S\ref{sec:qform}).
+
+\paragraph{Why $\bra{W_a^L}$ is not a twisted vacuum.} Its eigenvalue is $\tau_{\rm vac}$, since conjugating the twist does
+not change eigenvalues, so its Q-functions are those of $\bra{\vac^L}$. If a twist sharing the companion SoV basis had
+$\bra{W_a^L}$ as an eigenbra, its dual-basis wave functions would be those of $\bra{\vac^L}$ and completeness would force
+$\bra{W_a^L}\propto\bra{\vac^L}$. Consistently, the SoV coefficients of $\bra{W_a^L}$ are dense (all 256 words at $L=2$,
+every power of $a$) \ex\ [\nb{Wa-sov-expansion-L4.wb}], and the $t_1$-twist space of $\bra{W_a}$ at $L=2$ is $11$-dimensional
+and contains no companion matrix $G_c(w)$ for $a\ne0$ \ex\ [\nb{twisted-vacuum-companion-check.wb}]. Its companion-frame image
+is $\bra{W_a^L}R^{-1}=[(v(z_1)+a\,v(z_4))\otimes(\tilde u_4-a\tilde u_1)]^{\otimes L}$ \ex; for $a=0$ this is the companion
+Bethe vacuum $\bra{0_{w=z}}$, not the SoV vacuum.
+
+%----------------------------------------------------------------------
+\subsection{$GL(4)$ covariance and the twist of $\bra{W_a^L}$}\label{sec:conv-cov}
+%----------------------------------------------------------------------
+
+\paragraph{Covariance.} For $g\in GL(4)$ and $k=1,2,3$,
+\begin{equation}
+ \rho(g)\,t^\Lambda_k(u)\,\rho(g)^{-1}=t^{G'}_k(u),\qquad G'=g^{-T}\Lambda g^{T}=(g\Lambda g^{-1})^T,
+\end{equation}
+and more generally $\rho(g)t^G\rho(g)^{-1}=t^{g^{-T}Gg^T}$ with $\rho(g)=g\otimes g^{-T}$ on A--F sites. It follows from the
+invariance of the Lax operator, $\rho(g)\cL_s(u)\rho(g)^{-1}=(g^T\otimes1)\cL_s(u)(g^{-T}\otimes1)$, and was checked exactly
+on one pair (two sites) for a generic upper-triangular $g$, $k=1,2,3$, against the three other candidate twists $g^{-1}\Lambda g$,
+$g\Lambda g^{-1}$, $g^T\Lambda g^{-T}$, which fail \ex\ [\nb{reference-admissibility-Kkappa.wb} \S6; python
+\nb{checks/session-2026-10-13/refmap/covariance.py}]. Hence for every word $X$,
+\begin{equation}
+ \bra{\vac}\rho(g)\,X[t^\Lambda]=\bra{\vac}\,X[t^{G'}]\,\rho(g),
+\end{equation}
+verified exactly for the whole pair operator $K_\kappa$ and seven group elements ($W_a$, torus$\times W_a$, two block-BPS
+classes, a broken class, a generic Borel element, a product) \ex. For $v=e_1g$, $u=e_4g^{-T}$ one has
+$uf(\Lambda)v^T=[f(G')]_{41}$, so the goodness $u\Lambda v^T$ is $G'_{41}$ and the admissibility criterion of
+\S\ref{sec:admiss} is a statement about the conjugated twist $G'$.
+
+\paragraph{The twist $G_a$.} Put
+\begin{equation}
+ G_a=\Lambda+a(z_1-z_4)E_{41}=e^{aE_{41}}\Lambda e^{-aE_{41}}=(g\Lambda g^{-1})^T\big|_{g=e^{-aE_{14}}}\ \ex .
+\end{equation}
+Applying the covariance with $g=e^{aE_{14}}$ to the twist $G_a$ gives $g^{-T}G_ag^{T}=\Lambda$, so
+\begin{equation}
+ \rho(e^{aE_{14}})\,t^{G_a}\,\rho(e^{aE_{14}})^{-1}=t^\Lambda\qquad\text{and}
+\end{equation}
+\begin{equation}
+ \bra{W_a^L}\,t_k^{G_a}(u)=\tau_{{\rm vac},k}(u)\,\bra{W_a^L},\qquad k=1,2,3,
+\end{equation}
+\ex\ for $L=2$, generic $\theta,z$, $a=\tfrac13$, three values of $u$ [\nb{even-bridge-epsilon-expansion.wb}, step 0a].
+The twist seen by the \emph{words} acting on $\bra{W_a}=\bra{\vac}\rho(e^{aE_{14}})$ is $G'=\Lambda+a(z_4-z_1)E_{41}$,
+the opposite sign. The other sign $\Lambda+a(z_4-z_1)E_{41}$ is not an eigenbra twist, $\Lambda$ itself is not, and $\bra{\vac}$
+is not an eigenbra of $t^{G_a}$; the twist $\Lambda+((z_4-z_1)/a)E_{14}$ is an eigenbra twist, but with an eigenvalue different
+from $\tau_{\rm vac}$ (that of the $e_4\otimes e_1$ vacuum) \ex.
+
+\paragraph{The $T_{14}$ identity.} With $T_{14}=\mathrm{tr}(TE_{41})$ the $(1,4)$ element of the monodromy,
+\begin{equation}
+ t^{G_a}(u)=t^\Lambda(u)+a(z_1-z_4)\,T_{14}(u)\qquad(t=t_1,\ 256\times256)\ \ex ,
+\end{equation}
+and therefore, for every eigenstate $\Psi$ of $t^\Lambda$ and every $u$,
+\begin{equation}
+ \big(\tau_{\rm vac}(u)-\tau_\Psi(u)\big)\braket{W_a^L}{\Psi}=a(z_1-z_4)\,\bra{W_a^L}T_{14}(u)\ket\Psi,
+\end{equation}
+verified on all $41$ eigenstates of the sectors $(2,0,0,-2)$, $(1,0,0,-1)$, $(0,0,0,0)$, minimum eigenvalue gap
+$2\cdot10^{-3}$, deviation $<10^{-29}$ at $30$ digits \hp\ [\nb{even-bridge-epsilon-expansion.wb}]. The infinitesimal
+form is $[J,t^\Lambda(u)]=-(z_1-z_4)T_{14}(u)$ and $[J,T_{14}(u)]=0$, checked at finite $\varepsilon$ on random vectors to
+$10^{-16}$ \npy\ [\nb{checks/session-2026-10-13/epsexp/pt.py}]. It makes the whole twist dependence of $\braket{W_a^L}\Psi$ explicit: $a^n(\varphi_1-\varphi_4)^n$ at
+order $\varepsilon^n$ (\S\ref{sec:qform}).
+
+\paragraph{Companion-frame image.} $VG_aV^{-1}=G_c(z)+a(z_1-z_4)\,v(z_4)\otimes\tilde u_1$ \ex: a rank-one perturbation
+of $G_c$, not a companion matrix for $a\ne0$, in agreement with the negative statement above. The literal
+$V^{-1}G_aV$ is not the companion-frame map ($V\Lambda V^{-1}=G_c$ but $V^{-1}\Lambda V\ne G_c$).

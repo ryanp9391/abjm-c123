@@ -1,0 +1,33 @@
+sector (0, 0, 0, 0)  L=2 dim=28  cond(R)=4.7e+01  #(K1=0) = 24
+    Casimir -5.96  K1 = +0.0000+0.0000i   multiplicity 1
+    Casimir -0.00  K1 = +2.0000+0.0000i   multiplicity 1
+    Casimir -0.00  K1 = +10.0000+0.0000i   multiplicity 1
+    Casimir 5.33  K1 = +0.0000+0.0000i   multiplicity 1
+    Casimir 6.22  K1 = -0.0000+0.0000i   multiplicity 1
+    Casimir 8.24  K1 = +0.0000+0.0000i   multiplicity 1
+    Casimir 11.10  K1 = -0.0000+0.0000i   multiplicity 1
+    Casimir 11.37  K1 = +0.0000+0.0000i   multiplicity 1
+    Casimir 11.72  K1 = -0.0000-0.0000i   multiplicity 2
+    Casimir 11.88  K1 = -0.0000+0.0000i   multiplicity 1
+    Casimir 12.00  K1 = +8.0000+0.0000i   multiplicity 2
+    Casimir 12.55  K1 = -0.0000+0.0000i   multiplicity 1
+    Casimir 12.65  K1 = -0.0000-0.0000i   multiplicity 2
+    Casimir 13.03  K1 = -0.0000+0.0000i   multiplicity 2
+    Casimir 13.07  K1 = +0.0000+0.0000i   multiplicity 2
+    Casimir 13.11  K1 = +0.0000+0.0000i   multiplicity 2
+    Casimir 14.70  K1 = -0.0000+0.0000i   multiplicity 1
+    Casimir 14.87  K1 = +0.0000+0.0000i   multiplicity 1
+    Casimir 15.59  K1 = +0.0000+0.0000i   multiplicity 1
+    Casimir 22.02  K1 = +0.0000+0.0000i   multiplicity 1
+    Casimir 28.44  K1 = -0.0000-0.0000i   multiplicity 1
+    Casimir 28.45  K1 = +0.0000+0.0000i   multiplicity 1
+sector (1, 0, 0, -1)  L=2 dim=12  cond(R)=1.0e+00  #(K1=0) = 11
+    Casimir 12.00  K1 = +8.0000+0.0000i   multiplicity 1
+    Casimir 13.07  K1 = +0.0000+0.0000i   multiplicity 1
+    Casimir 14.00  K1 = +0.0000+0.0000i   multiplicity 4
+    Casimir 14.17  K1 = +0.0000+0.0000i   multiplicity 2
+    Casimir 14.29  K1 = -0.0000+0.0000i   multiplicity 1
+    Casimir 14.59  K1 = +0.0000+0.0000i   multiplicity 1
+    Casimir 14.85  K1 = +0.0000+0.0000i   multiplicity 2
+sector (2, 0, 0, -2)  L=2 dim=1  cond(R)=1.0e+00  #(K1=0) = 1
+    Casimir 20.00  K1 = +0.0000+0.0000i   multiplicity 1

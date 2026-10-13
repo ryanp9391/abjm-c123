@@ -1,0 +1,43 @@
+{
+ "cells": [
+  {
+   "kind": 1,
+   "value": "# Is ⟨W_a| a companion-twist eigenbra? (L = 2, A F, exact)\n\nW_a = (e₁+a e₄)⊗(e₄−a e₁) = ⟨vac|ρ(e^{aE₁₄}) (diagonal frame). Frame map t^{G_c}R = R t^Λ, R = V^{−T}⊗V (ket operator), G_c V = V Λ.\nQuestion (2026-10-13): is ⟨W_a| (diagonal frame) or ⟨W_a|R^{−1} (companion frame) an eigenbra of t₁^{G_c(w)} for some w, a?\nt₁^G is linear in G, so the set of G with β t₁^G(u) ∝ β ∀u is a linear space; t₁ alone gives a necessary condition.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "ClearAll[wbH,wbTh,wbZ,wbE,wbL1,wbL2,wbT,wbt1,wbW,wbGc,wbV,wbLam,g,aa,cc,uu];\nwbH=1/2; wbTh={2/7,-3/5}; wbZ={3/2,5/4,2/3,4/7};\nwbE[i_,j_]:=Normal@SparseArray[{{i,j}->1},{4,4}];\nwbL1[u_]:=Table[(u-wbTh[[1]])KroneckerDelta[i,j]IdentityMatrix[16]+wbH KroneckerProduct[wbE[i,j],IdentityMatrix[4]],{i,4},{j,4}];\nwbL2[u_]:=Table[(u-wbTh[[2]])KroneckerDelta[i,j]IdentityMatrix[16]+wbH KroneckerProduct[IdentityMatrix[4],-wbE[j,i]],{i,4},{j,4}];\nwbT[u_]:=wbT[u]=Module[{a=wbL1[u],b=wbL2[u]},Table[Sum[a[[i,k]].b[[k,j]],{k,4}],{i,4},{j,4}]];\nwbt1[G_,u_]:=Sum[wbT[u][[i,j]] G[[j,i]],{i,4},{j,4}];\nwbW[a_]:=Flatten@KroneckerProduct[{1,0,0,a},{-a,0,0,1}];\nwbGc[w_]:=Module[{c=Table[SymmetricPolynomial[k,w],{k,4}]},{{c[[1]],-c[[2]],c[[3]],-c[[4]]},{1,0,0,0},{0,1,0,0},{0,0,1,0}}];\nwbLam=DiagonalMatrix[wbZ]; wbV=Transpose@Table[{x^3,x^2,x,1},{x,wbZ}];\nwbR=KroneckerProduct[Transpose@Inverse@wbV,wbV];\nwbGG=Array[g,{4,4}]; wbGcc={{cc[1],-cc[2],cc[3],-cc[4]},{1,0,0,0},{0,1,0,0},{0,0,1,0}};\n{\"Gc V == V Lam\"->(wbGc[wbZ].wbV==wbV.wbLam), \"t^Gc R == R t^Lam\"->(Expand[wbt1[wbGc[wbZ],uu].wbR-wbR.wbt1[wbLam,uu]]===ConstantArray[0,{16,16}])}",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "(* space of twists G with <W_a| an eigenbra of t1^G, diagonal frame *)\nwbSp[b_]:=Module[{v=b.wbt1[wbGG,uu],ns=NullSpace[{b}],eqs},eqs=DeleteCases[Expand@Flatten[CoefficientList[Expand[v.#],uu]&/@ns],0];wbGG/.First@Quiet@Solve[Thread[eqs==0],Flatten@wbGG]];\nwbSdiag=wbSp[wbW[aa]];\n{MatrixForm[wbSdiag], \"dim\"->Length@Complement[Variables[wbSdiag],{aa}]}",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "(* companion family G_c(c) with c free: eigenbra condition, a also unknown *)\nwbEq[b_]:=Module[{v=b.wbt1[wbGcc,uu],ns=NullSpace[{b}/.aa->Pi]},DeleteCases[Expand@Flatten[CoefficientList[Expand[Together[v.#]],uu]&/@(ns/.Pi->aa)],0]];\nQuiet@{\"diagonal frame\"->Reduce[Thread[wbEq[wbW[aa]]==0],Append[Array[cc,4],aa]], \"companion frame\"->Reduce[Thread[Numerator@Together@wbEq[wbW[aa].Inverse[wbR]]==0],Append[Array[cc,4],aa]], \"e_k(z)\"->Table[SymmetricPolynomial[k,wbZ],{k,4}]}",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "**Result (2026-10-13, exact, t₁ only):** the t₁-twist space of ⟨W_a| is 11-dim: g₂₄ = −g₂₁/a, g₃₄ = −g₃₁/a, g₄₂ = a g₁₂, g₄₃ = a g₁₃, g₄₄ = g₁₁ + a g₁₄ − g₄₁/a. It contains Λ + a(z₁−z₄)E₄₁ (→ Λ as a → 0) and Λ + ((z₄−z₁)/a)E₁₄. It contains NO companion matrix: diagonal frame → False for all a, c; companion frame (⟨W_a|R^{−1}) → only a = 0 (the companion Bethe vacuum, on a t₁-only line through c = e(z)). So ⟨W_a| (a ≠ 0) is the vacuum of a non-companion triangular twist with spectrum z.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  }
+ ],
+ "metadata": {
+  "createdBy": "wolfbook_newNotebook",
+  "createdAt": "2026-10-13T05:38:57.543Z"
+ }
+}

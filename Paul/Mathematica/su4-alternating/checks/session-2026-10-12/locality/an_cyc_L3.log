@@ -1,0 +1,17 @@
+L 6 theta pt 1 cyclic dim 588 loc (basis rows) 6
+<=1 factor (all types)                         nwords     49 rank   17 loc 3 T1:nnnn T2:nnn T3:YYYnn
+<=2 factors (all types)                        nwords   1225 rank  117 loc 4 T1:nnnn T2:nnn T3:YYYYY
+triples built (19600, 588) 16.062675714492798
+<=2 + triples AFF/AAF (task classes)           nwords  15625 rank  400 loc 4 T1:nnnn T2:nnn T3:YYYYY
+<=2 + triples FFF                              nwords   3825 rank  400 loc 4 T1:nnnn T2:nnn T3:YYYYY
+<=2 + triples AAA                              nwords   3825 rank  400 loc 4 T1:nnnn T2:nnn T3:YYYYY
+<=3 (all types)                                nwords  20825 rank  400 loc 4 T1:nnnn T2:nnn T3:YYYYY
+task classes + FFF t1t2t3 (x1)                 nwords  16129 rank  400 loc 4 T1:nnnn T2:nnn T3:YYYYY
+task classes + (x t1(th1))                     nwords  16633 rank  454 loc 4 T1:nnnn T2:nnn T3:YYYYY
+task classes + (x t1(th1)^-1)                  nwords  16633 rank  454 loc 4 T1:nnnn T2:nnn T3:YYYYY
+task classes + all W4                          nwords  17137 rank  506 loc 4 T1:nnnn T2:nnn T3:YYYYY
+<=2 positive + {t1(th1)^-1, t1(th2)^-1} x (1,singles) nwords   1323 rank  117 loc 4 T1:nnnn T2:nnn T3:YYYYY
+<=2 positive + {t1(th1)^-1, t1(th2)^-1} x (<=2) nwords   3675 rank  229 loc 4 T1:nnnn T2:nnn T3:YYYYY
+<=2 positive + all inverses x (1,singles)      nwords   3577 rank  588 loc 6 T1:YYYY T2:YYY T3:YYYYY
+<=3 positive + {t1(th1)^-1,t1(th2)^-1} x (<=2) nwords  23275 rank  400 loc 4 T1:nnnn T2:nnn T3:YYYYY
+<=3 all + all inverses x (1,singles)           nwords  23177 rank  588 loc 6 T1:YYYY T2:YYY T3:YYYYY

@@ -1,0 +1,52 @@
+%======================================================================
+\section{Open problems}\label{sec:open}
+%======================================================================
+
+\paragraph{Structure constants.}
+\begin{enumerate}
+\item \emph{Middle even bridges} $2\le M\le L-2$, first $L=4$, $M=2$. These are NOT covered: the pair $\kappa$-family gives
+  $M\in\{1,L-1,L\}$ at every $L$, hence all even bridges up to $L=3$ only. The $\ell$-pair words are pretwisted (end-growing),
+  and no common-$\kappa$ block exists (\S\ref{sec:kappa}). Old candidates: a second integrable family on the twisted pairs;
+  right-end words combined with another reference; twist-dressed references.
+
+  \emph{New route (untested idea, 13 Oct, after Proposition 1).} The proof of Proposition~1 works pair by pair. So any companion
+  bra whose F sites are $e_4^Tf(G_c)q_p(G_c)$ on pair $p$, with A sites chosen to make each pair BPS, has the overlaps of a
+  multi-block $W$-bra on the sectors $(\mu,0,0,-\mu)$. In particular, rotating the first $M$ pairs of $(e_1\otimes\tilde u)^{\otimes L}$
+  by $g=1-\kappa G_c$ gives
+  \begin{gather*}
+  \Big\langle\big(e_1^T(1-\kappa G_c^T)\otimes\tilde u(1-\kappa G_c)^{-1}\big)^{\otimes M}\otimes(e_1\otimes\tilde u)^{\otimes(L-M)}\Big|\Psi_c\Big\rangle
+  \;\propto\;\braket{W_{a'}^{M}\otimes W_{\kappa_0}^{L-M}}{\Psi},\\
+  a'=\kappa_0\frac{1-\kappa z_4}{1-\kappa z_1}.
+  \end{gather*}
+  The diagonal images are $v_j=\lambda_j(1-\kappa z_j)$ and $u_j=f(z_j)/(1-\kappa z_j)$, so $u_2=u_3=0$ and $v\cdot u=0$. This needs
+  neither the $\kappa$-family nor $z_2=z_3$: on the bare SoV vacuum every site localises (\S\ref{sec:loc}). The open question is
+  the closed form of its SoV coefficients, which involve A-site words on the first $M$ pairs, F-site words everywhere, and
+  exchange and singlet-channel terms; the analogue of Proposition~2 is needed. Test first at $L=2$, $M=1$ against the
+  $\kappa$-family result, then at $L=4$, $M=2$.
+\item \emph{Proof of Proposition~2} (the $B_z$ cluster expansion) for general $L$. This is an identity for the commuting
+  operators $\hat Y_s$, of degenerate-affine-Hecke type. Also needed: the full-chain check at $L=4$, and a determinant or
+  Pfaffian form of $B_z(y)$ and hence of $\bbW$.
+\item \emph{The untwisted limit at $L\ge3$.} The factors are not separately finite there; find the combined scaling and the
+  analogue of $|C|=K_1B_1^2/\sqrt{\bbB_0}$. Also express $\tau_1'(\theta_F)$ through Q-functions.
+\item $z_2\ne z_3$ at finite twist: a sixth localised pair operator, or an argument that $z_2-z_3=O(\epsilon)$ is the natural
+  scheme.
+\item \emph{The polarisation gap.} The note's $W_{-1}$ polarisation is blind to all states with $L+p$ odd and to all $q>0$
+  states (\S\ref{sec:polforms}). The Q-form should be redone for polarisations with nonzero minors. This needs a reference
+  other than $W_a$, and \S\ref{sec:admiss} shows that $W_a$ is the only admissible one for the present $\kappa$-family.
+\item Odd bridges with three fields; mechanism of the parity selection rules; the integrability of $\bra{W_a^L}$ (the note's
+  (4.8)).
+\end{enumerate}
+
+\paragraph{Separation of variables.}
+\begin{enumerate}
+\item The measure of the mixed $\mathbf4/\bar{\mathbf4}$ chain, which would give determinant forms of overlaps and norms.
+\item The homogeneous (fully pair-periodic) ABJM limit of the SoV basis, which needs derivatives up to order 7.
+\item The factor $\tfrac13e^{\mp i\pi/3}$ in the $\bra0$-based limits of the A-family (\S\ref{sec:sov}): observed, not derived.
+\end{enumerate}
+
+\paragraph{Housekeeping.}
+\begin{enumerate}
+\item Rerun the notebooks still unrun or partly run (Appendix~\ref{sec:index}, \nb{notes/rerun-2026-10-13.md}).
+\item Investigate the rerun discrepancy in the pair-word localisation table, where constants of $51/31$ and $71/31$ appear
+  (\S\ref{sec:kappa}).
+\end{enumerate}

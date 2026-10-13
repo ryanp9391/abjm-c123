@@ -1,0 +1,371 @@
+\begingroup\emergencystretch=4em % local: long file names and inline formulas
+%======================================================================
+\section{The pair $\kappa$-family and even bridges}\label{sec:kappa}
+%======================================================================
+
+This section solves the problem that the earlier notes called the ``F-site gap'': a $\Lambda$-rotation of a whole A--F pair
+(A by $D=1-\kappa\Lambda$, F by $D^{-1}\propto\mathrm{adj}\,D$) by a local transfer-matrix word, with a free continuous parameter
+$\kappa$. It exists at the ABJM point of Sec.~\ref{sec:abjm}, for a twist with $z_2=z_3$, on the reference $\bra{W_a^{\otimes L}}$.
+
+\paragraph{Setting.} $h=\tfrac12$; pairwise ABJM inhomogeneities $\theta_{A,n}=\theta_{F,n}+2h$ for every pair $n$ ($\theta_{F,n}$ arbitrary, distinct
+or equal); diagonal twist $\Lambda=\mathrm{diag}(z_1,y,y,z_4)$ with $z_2=z_3=:y$; reference $\bra{W_a^{\otimes L}}$ of \eqref{eq:3pt-W}. For pair~1
+(sites $1,2$) write $\theta_F=\theta_2$, $\theta_A=\theta_1=\theta_F+2h$ and $u_0:=\theta_F+h=\theta_A-h$. $\hat t_k$ is $t_k$ with exactly
+vanishing scalar prefactors $(u-\theta-jh)=0$ dropped. Evidence: exact in \nb{pair-group-rotation.wb} (rerun 2026-10-13: sections 1--6, 8 reproduced, $L=2$ sections 7, 9 partial;
+$L=3$ rows of the untwisting sections skipped as too heavy) and in the python of \nb{checks/session-2026-10-12/pairgroup/}, \nb{checks/session-2026-10-12/lpairs/}.
+
+\subsection{Pair-vacuum pattern and the column-support lemma (2603 App.~K style)}\label{sec:kappa-lemma}
+
+\ex\ [\nb{pair-group-rotation.wb} \S1; python \nb{pairvac\_pattern.py}, \nb{scan\_d.py}]. With $\bra S=\sum_m\bra{e_me_m}$ the A--F singlet and
+$(\cL_A\cL_F)_{jk}$ the $(j,k)$ auxiliary component of the Lax product on one pair (exact, symbolic in $u,\theta_A,\theta_F$),
+\begin{equation}\label{eq:kappa-pattern}
+ \bra{e_1e_4}(\cL_A\cL_F)_{jk}(u)=(u-\theta_A)(u-\theta_F)\delta_{jk}\bra{e_1e_4}-h(u-\theta_A)\delta_{k4}\bra{e_1e_j}+h(u-\theta_F)\delta_{j1}\bra{e_ke_4}-h^2\delta_{j1}\delta_{k4}\bra S .
+\end{equation}
+Seven components vanish identically, $(j,k)\in\{(2,1),(3,1),(4,1),(3,2),(4,2),(4,3),(2,3)\}$, and there are four \emph{bonus} zeros:
+$(2,4),(3,4)$ at $u=\theta_A$ and $(1,2),(1,3)$ at $u=\theta_F$. This is the pattern of $\bra Z\cL_{jk}$ in 2603 (six lower-triangular zeros plus bonus zeros), here on the fused pair.
+
+\paragraph{Lemma (column support).} Let $\mathcal D_k$ be the set of $k$-subsets $I\subset\{1,2,3,4\}$ with $1\notin I$, $4\in I$. The rows $I\in\mathcal D_k$ of the $\wedge^k$ auxiliary space
+are diagonal on \emph{both} vacua $\bra{e_1}$ (A) and $\bra{e_4}$ (F), with $I$-independent eigenvalues, so pairs $2,\dots,L$ in the vacuum are transparent on $\mathcal D_k$. If the Lax product of
+pair~1 at $u_0$ has column support in $\mathcal D_k$, then for \emph{any} twist, hence for any global rotation of $\bra{\vac^{\otimes L}}$ (which intertwines $t^\Lambda$ with $t^{G'}$),
+\begin{align}
+ \bra{\vac^{\otimes L}}t_k(u_0)&=\lambda_k(u_0)\,\bra{\vac_{\rm pair}}t_k^{(1\text{ pair})}(u_0)\otimes\bra{\vac^{\otimes(L-1)}},\\
+ \lambda_k(u)&=\prod_{n\ge2}\Big[\prod_{j=0}^{k-1}(u-\theta_{A,n}-jh)\ (u-\theta_{F,n}-kh)\prod_{j=0}^{k-2}(u-\theta_{F,n}-jh)\Big]
+\end{align}
+(vanishing factors dropped). The F site at $u_0=\theta_F+(k-1)h$ kills all columns without a $4$; the A site at $u_0=\theta_A-h$ kills all columns containing a $1$. Hence
+\begin{itemize}
+\item $k=1$: $t_1(\theta_F)$ localises (F-site condition only; any geometry);
+\item $k=3$: $\hat t_3(\theta_A-h)$ localises (A-site condition only; any geometry);
+\item $k=2$: $t_2(\theta_F+h)$ localises \emph{only if} both conditions hold, i.e.\ \emph{only at $\theta_A-\theta_F=2h$} (scan $d=(\theta_A-\theta_F)/h=-5,\dots,5$ on 4 sites with random twist and random BPS reference, words $t_k(\theta_F+mh)$, $k\le3$, $m=-6,\dots,7$).
+\end{itemize}
+This is why all searches at generic $\theta$ failed (Sec.~\ref{sec:kappa-generic}) and why the ABJM point, already singled out by $[\HMZ,t_a]=0$ (Sec.~\ref{sec:abjm}), is the place where the pair $\kappa$-family lives.
+Every single localising word equals $\lambda_k\times$(the same word on the one-pair chain), exactly [\nb{pairword\_check.py}, Fractions, random rational twist and BPS reference].\footnote{Rerun 2026-10-13 (\nb{pair-group-rotation.wb}, cell~17):
+the python check fitted only the constant for \emph{products}. Four of the nine two-factor words tested, $t_1(\theta_F)t_1(\theta_F+h)$, $t_1(\theta_F)\hat t_3(\theta_F+3h)$, $t_1(\theta_F+2h)\hat t_3(\theta_F+h)$ and $\hat t_3(\theta_F+h)\hat t_3(\theta_F+2h)$, do localise and are
+proportional to the one-pair word, but with constants $\tfrac{51}{31}$ resp.\ $\tfrac{71}{31}$ (ratios $51/31,\,71/31,\,71/31,\,51/31$) times $\prod\lambda_k$, not $\prod\lambda_k$. $K_\kappa$ below is unaffected: its only product word $X_3X_1$ does have constant $\lambda_1\lambda_3$.}
+
+\paragraph{Operator identities at the ABJM point} \ex\ [\nb{even-bridge-lpairs.wb} \S1a; exact mod $P=268435399$, random product bras, $L=2,3$]:
+\begin{equation}
+ t_2(u_0)=t_1(u_0)\,t_1(\theta_F),\qquad t_3(u_0)=0\qquad(u_0=\theta_F+h=\theta_A-h),
+\end{equation}
+the latter after removing the vanishing scalar prefactor ($\hat t_3(u_0)$ is the regular remainder).
+
+\paragraph{The localised algebra on pair~1} \ex\ [\nb{pair-group-rotation.wb}; python \nb{span\_full.py}, \nb{pair\_sym.py}]. All individually localising words (products of length $\le4$ of $t_k(\theta_F+mh)$, $k\le3$, $m=-2,\dots,5$) span, on any reference, exactly
+\begin{equation}\label{eq:kappa-alg}
+ \{\,1,\ X_1=t_1(\theta_F),\ X_2=t_2(\theta_F+h),\ X_3=\hat t_3(\theta_F+h)\ (=\hat t_3(\theta_A-h)),\ X_3X_1\,\}
+\end{equation}
+which is $5$-dimensional at the ABJM point and $4$-dimensional at generic $\theta$ (no $X_2$). The same-point generating functions $\sum_kc_kt_k(u_0)$ localise nothing beyond the individually localising terms.
+On the pair vacuum with a general twist matrix $G$ (pair-1 chain; $S$ the singlet vector)
+\begin{equation}
+ \bra{\vac}X_1=2h^2\,e_1\otimes e_4G-h^2G_{41}\,S,\qquad \bra{\vac}X_3=12h^5\,(e_1\,\mathrm{cof}\,G)\otimes e_4,\qquad X_3X_1\propto\rho_{\rm pair}(G^{-T}),
+\end{equation}
+and $X_2$ is given by the $2\times2$ minors of $G$ with rows $\{2,4\}$, $\{3,4\}$ (no group form). For a diagonal twist the pair-level normalised words
+$\xi_1=X_1/(2h^2)$, $\xi_2=-X_2/(2h^4)$, $\xi_3=X_3/(12h^5)$ have eigenvalues on the charged weight states $e_i\otimes e_j$ ($i\ne j$; A index $i$, F index $j$)
+\begin{equation}\label{eq:kappa-xi}
+ \xi_1\to z_j,\qquad \xi_2\to z_j\,(e_1(z)-z_i-z_j),\qquad \xi_3\to\det\Lambda/z_i,\qquad \xi_3\xi_1\to\det\Lambda\,z_j/z_i ,
+\end{equation}
+whereas $\rho_{\rm pair}(1-\kappa\Lambda)$ needs $(1-\kappa z_i)/(1-\kappa z_j)$ on these states and $1$ on the zero-weight states. For a twist with generic spectrum the rank-one (product) elements of the five-word span are only
+$v(a+bG^{-T})\otimes u$ and $vG^{-T}\otimes u(a+bG)$: there is \emph{no common group rotation of a pair} on any reference with $u\Lambda v^T\neq0$. At $z_2=z_3$ on $W_a$ the span does reach it (next subsection).
+
+\subsection{The exact five-word $K_\kappa$}\label{sec:kappa-word}
+
+\ex\ [\nb{pair-group-rotation.wb}; python \nb{pair\_solve.py}, \nb{word\_verify.py}; pair-level solution symbolic in $z_1,y,z_4,h,a,\kappa$]. With $s=1-\kappa(z_1+z_4)$ and
+$\lambda_1=\lambda_1(\theta_F)$, $\lambda_2=\lambda_2(\theta_F+h)$, $\lambda_3=\lambda_3(\theta_F+h)$ (the products over the other pairs of the lemma),
+\begin{equation}\label{eq:kappa-K}
+ K_\kappa=s^2+\kappa s\Big[\frac{X_1}{h^2\lambda_1}+\frac{X_2}{2h^4y\,\lambda_2}+\frac{X_3}{6h^5y^2\lambda_3}\Big]+\kappa^2\frac{X_3X_1}{24h^7y^2\lambda_1\lambda_3},
+\end{equation}
+and
+\begin{equation}\label{eq:kappa-main}
+ \bra{W_a^{\otimes L}}K_\kappa=(1-\kappa z_1)^2\,\bra{W_{a'}\otimes W_a^{\otimes(L-1)}},\qquad a'=a\,\frac{1-\kappa z_4}{1-\kappa z_1}.
+\end{equation}
+Equivalently $K_\kappa=(1-\kappa z_1)(1-\kappa z_4)\rho_{\rm pair}(1-\kappa\Lambda)$ on $W$-pairs, cf.\ \eqref{eq:3pt-rot}, \eqref{eq:3pt-T}. Exact at $L=2,3$ for $a\in\{\tfrac13,-1\}$ and
+$\kappa\in\{\tfrac3{10},-\tfrac75,1/z_4\}$ (the last has $a'=0$). In pair-level normalisation (all $\lambda_k=1$)
+\begin{equation}
+ K=s^2+\kappa s\big(2\xi_1-\xi_2/y+2\xi_3/y^2\big)+\kappa^2\xi_3\xi_1/y^2 ,
+\end{equation}
+with coefficients $(s^2,\ \kappa s/h^2,\ \kappa s/(2h^4y),\ \kappa s/(6h^5y^2),\ \kappa^2/(24h^7y^2))$ on $(1,X_1,X_2,X_3,X_3X_1)$; at $\kappa=3/10$, $z=(3/2,5/4,5/4,4/7)$ these are
+$(2809/19600,\,159/350,\,636/875,\,1696/4375,\,192/625)$, identical to the Wolfram calibration cell. The word is \emph{unique} (the linear system for the five coefficients has a unique solution), independent of $a$, and local
+(the pair-level coefficients depend on $L$ only through $\lambda_k$).
+
+\paragraph{Structure of $K_\kappa$} \ex\ [\nb{even-bridge-epsilon-expansion.wb}, $L=2$; python for $L=3$]. Write, with the eigenvalues $\tau_F=\tau_1(\theta_F)$, $\tau_2(u_0)=x\tau_F$, $\hat\tau_3(u_0)$ of the words,
+\begin{equation}\label{eq:kappa-ABC}
+ \mathsf A=\frac{\tau_F}{h^2\lambda_1},\qquad \mathsf B=\frac{\tau_2(u_0)}{2h^4y\,\lambda_2},\qquad \mathsf C=\frac{\hat\tau_3(u_0)}{6h^5y^2\lambda_3},\qquad
+ K_\kappa(\tau)=s^2+\kappa s(\mathsf A+\mathsf B+\mathsf C)+\tfrac14\kappa^2\,\mathsf A\mathsf C .
+\end{equation}
+At $\kappa_\star=1/(z_1+z_4)$ ($s=0$) $K_\kappa\propto X_3X_1$, the fixed twist rotation $W_a\to W_{ar}$, $r=z_1/z_4$. At the untwisted point ($\kappa=1$, $y=1$, $s=-1$) one finds $\mathsf A\mathsf C=4$ on all $6$ ($L=2$) and $26$ ($L=3$, python) HW states
+($\mathsf A=2e^{i\vartheta}$, $\mathsf C=2e^{-i\vartheta}$). Explanation (exact at $L=2$): $\hat X_3X_1=24h^7\lambda_1\lambda_3\,S=\tfrac9{256}\,S$ with $S$ the one-pair translation (the swap of the two pairs at $L=2$), so $\mathsf A\mathsf C=4$ on translation-invariant states;
+this is the shift test $U\propto S$ of Sec.~\ref{sec:abjm}. Therefore
+\begin{equation}
+ K_1(\tau)=2-\mathsf A-\mathsf B-\mathsf C=2-4\cos\vartheta-\mathsf B .
+\end{equation}
+$K_1$ vanishes on the vacuum ($\mathsf A=\mathsf C=2$, $\mathsf B=-2$) and on $[L-1,0,L-1]$ ($\mathsf A+\mathsf B+\mathsf C=2$), and is non-zero on other irreps: $L=2$: $10$ and $2$ on the two singlets, $8$ on the zero-weight states of $[0,2,0]$. The characteristic
+polynomials of the untwisted $K_1$ operator at $L=2$ in the sectors $(2,0,0,-2)$, $(1,0,0,-1)$, $(0,0,0,0)$ are $-x$, $x^{11}(x-8)$, $x^{24}(x-2)(x-8)^2(x-10)$ \ex.\footnote{The statement ``$K_{\kappa=1}(\tau)=0$ for all non-vacuum states'' made earlier on 2026-10-13 is false:
+$K_1$ vanishes exactly on the vacuum tower and $[L-1,0,L-1]$ (i.e.\ $n\le1$, with $n=L-\mu_1$ as in Sec.~\ref{sec:odd-ff}); non-cyclic states can have accidental zeros ($L=2$: $[2,1,0]$, $[0,1,2]$).}
+
+\subsection{Why $z_2=z_3$ is needed}\label{sec:kappa-z2z3}
+
+\ex\ [\nb{pair-group-rotation.wb} \S4; python \nb{negcontrols.py}, \nb{combo\_search.py}, \nb{combo\_L3.py}; exact]. The test on $W_a^{\otimes2}$:
+\begin{center}
+\begin{tabular}{llcc}
+\toprule
+point & twist & rank of 5-word span & span + target\\
+\midrule
+ABJM & $z_2\ne z_3$ & 5 & 6 (fails)\\
+generic $\theta$ & $z_2=z_3$ & 4 & 5 (fails)\\
+ABJM & $z_2=z_3=y$ & 5 & 5 (\textbf{works})\\
+\bottomrule
+\end{tabular}
+\end{center}
+\emph{Mechanism.} At $z_2\ne z_3$ the obstruction lies in the zero-weight directions: $X_1$ has a zero-weight component $\propto E_{22}+E_{33}$ and $X_2$ one $\propto z_3E_{22}+z_2E_{33}$, so the leftover is spanned by these two
+(6 directions needed against 5 operators). The cyclic space of $W_a$ on one pair is 6-dimensional (2 weight states plus 4 zero-weight eigenstates) while the algebra is 5-dimensional; at $z_2=z_3$ the zero-weight eigenstate odd under $2\leftrightarrow3$ decouples, the cyclic space becomes 5-dimensional and equals the algebra.
+On a generic BPS reference at $z_2=z_3$ the same word gives a pair state of rank~2 (entangled, traceless), $3.5\%$ away from the rotation $d_1d_4\rho(D)$.
+Non-localising combinations: at $L=2$ universal combinations of 253 words reach $W_{a'}\otimes W_a$ even at $z_2\ne z_3$ and generic $\theta$ (the two-pair algebra is too rich: meaningless); at $L=3$, ABJM with $z_2\ne z_3$: rank~5, target residual $2.3\cdot10^{-2}$ (fails);
+generic $\theta$ with $z_2\ne z_3$: rank~4, fails; ABJM with $z_2=z_3$ reaches; generic $\theta$ with $z_2=z_3$ reaches but the $L^1$-sparsest combination has 80 words with coefficients $10^{-3}\ldots10^{7}$ (no structure; $L$-universality untested) \npy.
+
+\paragraph{Finite twist versus the limit} \npy\ [\nb{task3b.py}, \nb{task3c.py}]. At finite generic twist with $d=z_2-z_3\ne0$ the relative residual of the best word is linear in $d$:
+$5.25\cdot10^{-3}$, $5.25\cdot10^{-4}$, $5.25\cdot10^{-5}$, $5.25\cdot10^{-6}$ for $d=10^{-1}$, $10^{-2}$, $10^{-3}$, $10^{-4}$ ($L=3$, $\kappa=\tfrac3{10}$), equal to the least-squares optimum over all five coefficients (the symmetric choice $y\to(z_2+z_3)/2$, $y^2\to z_2z_3$ in the $X_2$ term is the optimum; $y=z_2$ is six times worse): $z_2=z_3$ is a genuine restriction at finite twist.
+In the untwisting limit, however, only $z_2-z_3=O(\epsilon)$ is needed: for $z_2-z_3=\tfrac12\epsilon^q$ with $q=1,2,3$ (so $q=1$ has $\varphi_2\ne\varphi_3$) the finite-twist identity is violated by $|{\rm RHS}-{\rm LHS}|\approx0.1\,(z_2-z_3)^2/\epsilon$ (e.g.\ state $\#4$, $[2,0,2]$: $2.6\cdot10^{-4}$, $2.7\cdot10^{-5}$, $2.7\cdot10^{-6}$ for $q=1$), and the \emph{limits are unchanged}
+(identical to the $z_2=z_3$ runs). A separation $z_2-z_3\gg\sqrt\epsilon$ would spoil it.
+\emph{Caveat} (\nb{even-bridge-sov-formula.wb}): at exactly $z_2=z_3$ the companion frame is singular and the diagonal-twist chain has a $\mathfrak{gl}(2)$ symmetry, so there is no SoV basis; the $K_\kappa$ route has to be combined with SoV at $z_2-z_3=O(\epsilon)$, which suffices for the limit (Sec.~\ref{sec:qform}).
+
+\subsection{The one-pair even bridge and its untwisting limit}\label{sec:kappa-untw}
+
+\ex\ [\nb{pair-group-rotation.wb}, \nb{even-bridge-lpairs.wb}; operator identity; at $L=3$ on all 26 HW states \num{10^{-6}}, limited by cancellation]. Since \eqref{eq:kappa-main} is an operator identity, for any eigenstate $\Psi$ of $t^\Lambda$ with $z_2=z_3$
+\begin{equation}\label{eq:kappa-ev}
+ \braket{W_{a'}\otimes W_a^{\otimes(L-1)}}{\Psi}=\frac{K_\kappa(\tau_\Psi)}{(1-\kappa z_1)^2}\,\braket{W_a^{\otimes L}}{\Psi},\qquad K_\kappa(\tau)=\text{\eqref{eq:kappa-ABC}}.
+\end{equation}
+At $\kappa=1/z_4$ (vacuum pair, $a'=0$), with $\Sigma=\mathsf A+\mathsf B+\mathsf C$ and $\Pi=\tfrac14\mathsf A\mathsf C$ the eigenvalues of $2\xi_1-\xi_2/y+2\xi_3/y^2$ and $\xi_3\xi_1/y^2$,
+\begin{equation}
+ \braket{\vac\otimes W_a^{\otimes(L-1)}}{\Psi}=\frac{z_1^2-z_1\Sigma+\Pi}{(z_1-z_4)^2}\,\braket{W_a^{\otimes L}}{\Psi}.
+\end{equation}
+
+\paragraph{Untwisting recipe} \num{O(\epsilon)}\ [\nb{even-bridge-lpairs.wb} \S2, rerun 2026-10-13; python \nb{untwist.py}, \nb{task2.py}]. $z=1+\epsilon\varphi$ with $\varphi_2=\varphi_3$ (standard $\varphi=(0.9,0.35,0.35,-1.1)$),
+$\theta_{F,n}=\epsilon\theta^0_n$ ($\theta^0=(0,0.37,-0.52)$), $\theta_A=\theta_F+2h$; $\Psi_\epsilon$ is the twisted eigenvector in the weight sector connected to the untwisted HW state $\Psi_0$ (all non-degenerate, overlap $\to1$).
+The right-hand side of \eqref{eq:kappa-ev} is a $0\cdot\infty$ product: $K_\kappa=O(1)$ or smaller, $\braket{W_a^{\otimes L}}{\Psi_\epsilon}=O(\epsilon^n)$ and $(1-\kappa z_1)^2=O(\epsilon^2)$ (details below).
+\begin{enumerate}
+\item[(i)] $\kappa=1/z_4$, $a=-1$: $\to\braket{\vac\otimes W_{-1}^{\otimes(L-1)}}{\Psi_0}$ ($M=L-1$). $L=2$: singlets $-1/\sqrt{40}$, $1/\sqrt{24}$ (errors $1.6,2.0\cdot10^{-3}$ at $\epsilon=10^{-2}$, decreasing linearly), $[1,0,1]$: $0$, vacuum: $1$.
+\item[(ii)] $\kappa\to1$ with $a'-a\to-1$: $\kappa=1/(z_1-a(z_1-z_4))$ with $a=\tfrac13$ (then $a'-a=-1$ exactly), or the linear prescription $\kappa=1-c\epsilon$, $a=(\varphi_1-c)/(\varphi_1-\varphi_4)$, for which
+$a'-a=a\kappa(z_1-z_4)/(1-\kappa z_1)\to a(\varphi_1-\varphi_4)/(c-\varphi_1)=-1$. The finite HW shift $e^{-aJ}$ gives
+$\braket{W_{a'}\otimes W_a^{\otimes(L-1)}}{\Psi_0}=\braket{W_{-1}\otimes\vac^{\otimes(L-1)}}{\Psi_0}=\braket{\vac^{\otimes(L-1)}\otimes W_{-1}}{\Psi_0}$ (cyclicity), i.e.\ $M=1$.
+\end{enumerate}
+In (ii) the shift parameter $a$ stays \emph{finite}, which is exactly what the highest-weight trick of Sec.~\ref{sec:3pt-hw} lacked ($b\to\infty$). The limits are independent of direction and of $c$: for $\varphi=(.9,.35,.35,-1.1)$, $(-.7,1.3,1.3,.4)$ and $(1.5,-.6,-.6,.2)$ with
+$c=0.3$ and $c=2.0$, states $0,4,16,17,18,20,22,25$, all six runs converge as $O(\epsilon)$ to the same values (e.g.\ state~16, target $-0.171126$: errors $3.4,19,3.4,11,1.8,32\cdot10^{-5}$ at $\epsilon=10^{-4}$). $\kappa=1/z_4$ is the member $c=\varphi_4$ ($a=1$, $a'=0$).
+
+\paragraph{Families at $L=3$.} \num{O(\epsilon)}\ [\nb{even-bridge-lpairs.wb} \S2]. All 26 HW states reproduced:
+\begin{center}\small
+\begin{tabular}{@{}l>{\raggedright\arraybackslash}p{3.4cm}>{\raggedright\arraybackslash}p{2.4cm}>{\raggedright\arraybackslash}p{1.9cm}>{\raggedright\arraybackslash}p{5.2cm}@{}}
+\toprule
+family & $\kappa$ & $a$ & $a'-a$ & limit (after HW shift)\\
+\midrule
+F1 & $1/(z_1-a(z_1-z_4))$ & $\tfrac13$ & $-1$ & $\braket{W_{-1}\otimes\vac^{\otimes2}}{\Psi_0}=C_4$ ($M=1$)\\
+F2 & $1/(z_1+a(z_1-z_4))$ & $\tfrac13$ & $+1$ (shift by $-a'$) & $\braket{\vac\otimes W_{-1}^{\otimes2}}{\Psi_0}=C_2$ ($M=2$)\\
+F3 & $1/z_4$ & $-1$ & $+1$ & $C_2$ ($M=2$)\\
+F4 & $1/z_4$ & $+1$ (shift by $-1$) & $-1$ & $C_4$ ($M=1$)\\
+G & global $\rho(1-\kappa\Lambda)$ on all pairs & --- & --- & $C_0$ ($M=3$); weight factor $\big[\tfrac{1-\kappa z_4}{1-\kappa z_1}\big]^3\prod_i(1-\kappa z_i)^{\mu_i}$\\
+\bottomrule
+\end{tabular}
+\end{center}
+(here $C_\ell$ is the data of Sec.~\ref{sec:C}, $\ell=2(L-M)$ O$_2$ sites). All converge as $O(\epsilon)$ (on state~16 the errors at $\epsilon=10^{-2},10^{-3},10^{-4}$ are $(1.5\text{--}6.0)\cdot10^{-3}$, $(1.5\text{--}6.0)\cdot10^{-4}$, $(1.5\text{--}6.1)\cdot10^{-5}$ for F1--F4, and $3.3\cdot10^{-5},3.3\cdot10^{-7},3.3\cdot10^{-9}$ for G, whose target is $0$).\footnote{In the table of section~2 of
+\nb{even-bridge-lpairs.wb} the columns labelled F1 and F2 are swapped relative to the family definitions of its text (python \nb{task2.py} uses the opposite sign of $\kappa$ for ``F1''); the notebook's F1/F2 columns equal the python F2/F1 columns. Both families converge to the same limit because $C_2=C_4$ on these states, so no
+limit changes (rerun 2026-10-13).} The non-zero targets at $L=3$ are the vacuum ($1$) and the six $[1,0,1]$ states, $C_2=C_4=-0.171126$, $-0.027138$, $-0.035872\mp0.028637i$, $0.129924\mp0.081713i$; the other 19 states have target $0$, reproduced to $O(\epsilon)$.\footnote{The earlier
+consolidated report (\nb{pair-group-rotation} python, 2026-10-12) lists $-0.153484$ ($\times2$) in place of the last pair; $|0.129924\mp0.081713i|=0.153484$, so this is the phase convention of the degenerate pair.}
+
+\paragraph{Coverage.} For HW $\Psi_0$, $C_M=(-1)^{L+\mu_4}C_{L-M}$ (HW shift by $+1$ followed by $\rho(\mathrm{diag}(1,1,1,-1))$). The one-pair word therefore gives $M=1$ and $M=L-1$ at every $L$, and the global rotation $M=L$; at $L=3$ these are all
+even bridges. \textbf{The first case not covered is $L=4$, $M=2$.} It needs a second integrable family or a twist-dressed reference (Sec.~\ref{sec:open}).
+
+\paragraph{Orders in $\epsilon$ (which states contribute)} \num{10^{-6}}\ [\nb{even-bridge-epsilon-expansion.wb}; python \nb{scan\_eps.py}]. With $n=L-\mu_1$ for weight $(\mu_1,0,0,-\mu_1)$ one has $w:=\braket{W_a^{\otimes L}}{\Psi_\epsilon}=O(\epsilon^n)$ and $w\equiv0$ for every other weight,
+$K=O(\epsilon^2)$ for $n\le1$ (forced by finiteness of the left side; $K_1=0$) and $K=O(1)$ for $n\ge2$. Hence the limit is $1$ for the vacuum, $0$ for $n=1$ and for $n=3$ ($w=O(\epsilon^3)$ against $(1-\kappa z_1)^2=O(\epsilon^2)$), and
+for $n=2$ (the singlets and $[1,0,1]$ at $L=2,3$, i.e.\ $[L-2,0,L-2]$)
+\begin{equation}\label{eq:kappa-C1}
+ C_{M=1}(\Psi_0)=K_1(\tau_{\Psi_0})\,\frac{\omega_2}{2(\varphi_1-\varphi_4)^2},\qquad \omega_2=\lim\epsilon^{-2}\braket{\vac}{J^2\,\Psi_\epsilon}
+\end{equation}
+(Richardson to $10^{-7}$ on the two $L=2$ singlets and six $L=3$ $[1,0,1]$ states; $\omega_2$ is bridge independent). Using the exact handle \eqref{eq:odd-T14} with $[J,T_{14}]=0$ and $J\Psi_1=(\varphi_1-\varphi_4)(M_0-\lambda_0)^{-1}T_{14}(u_1)\Psi_0$ (first-order perturbation theory),
+\begin{equation}\label{eq:kappa-omega2}
+ \omega_2=2(\varphi_1-\varphi_4)^2\,\frac{\bra{\vac}T_{14}(u)\,\big(t_1(u_1)-\tau_{\Psi_0}(u_1)\big)^{-1}T_{14}(u_1)\ket{\Psi_0}}{\tau_{\rm vac}(u)-\tau_{\Psi_0}(u)}
+\end{equation}
+(untwisted operators, any $u,u_1$; the resolvent acts on the weight sector of $J\Psi_0$, dimension $12$ at $L=2$, $24$ at $L=3$). \ex\ [\nb{even-bridge-epsilon-expansion.wb}, cells (4), (5)]: at $L=2$ this gives the singlets exactly, $C_{M=1}=-1/\sqrt{40},\,1/\sqrt{24}$, equal to the direct overlap $\braket{W_{-1}\otimes\vac}{\Psi_0}$ and independent of $(u,u_1)$;
+at $L=3$ the six $[1,0,1]$ states agree with the data to $8\cdot10^{-15}$ (machine precision). Only the HW states of $[L-1,0,L-1]$ enter the resolvent (4 at $L=2$, 9 at $L=3$), and $K_1$ vanishes on all of them. The member $\kappa=1/z_4$ gives the same product up to the sign of the symmetry above, so it is no independent handle on $\omega_2$.
+
+\subsection{The $\ell$-pair generalisation is pretwisted}\label{sec:kappa-lpairs}
+
+\ex\ (exact mod $P$) [\nb{even-bridge-lpairs.wb} \S1b--1e; python \nb{task1b.py}--\nb{task1k.py}]. At $L=2,3,4$ and every pair $p$:
+\begin{itemize}
+\item The pair-$p$ word $K^{(p)}$ (the $X$'s at pair $p$, $\lambda$'s over $n\ne p$) does \emph{not} localise on pair $p$ for $p\ge2$: every pair-$p$ word changes pairs $1,\dots,p$ (block localisation, as 2603's \texttt{localized}). Naive products $\prod_{p\le\ell}K^{(p)}$ fail ($\ell=2$ at $L=2,3$; $\ell=3$ at $L=3$).
+\item All \emph{multilinear} monomials $\prod_pw_p$, $w_p\in\{1,X_1,X_2,X_3,X_3X_1\}^{(p)}$, block-localise, $\bra{W_a^{\otimes3}}m=\lambda_m(\bra{W_a^{\otimes2}}m\ \text{on the 2-pair chain})\otimes\bra{W_a}$; same-pair squares ($X_1^2,X_1X_2,X_2^2,X_2X_3,X_3^2$) do not.
+\item \emph{The target is not reachable:} $\bra{W_{a'}^{\otimes\ell}\otimes W_a^{\otimes(L-\ell)}}$ is not in the span of the $5^\ell$ multilinear monomials (rank $25\to26$ at $(L,\ell)=(2,2),(3,2),(4,2)$; $125\to126$ at $(3,3)$; $\kappa=\tfrac3{10}$ and $1/z_4$), nor of the monomials of per-pair degree $\le2$ (100, rank 100); per-pair degree~3 (400 monomials) spans the whole $285$-dimensional cyclic module (trivially, non-locally).
+\item The W-type product states in the two-block span form the 5-dimensional space $\mathrm{span}\{u_i\}\otimes W_a+W_{ar}\otimes\mathrm{span}\{u_j\}$, $r=z_1/z_4$ ($u_0=e_1e_4$, $u_1=e_4e_4-e_1e_1$, $u_2=-e_4e_1$, $W_b=u_0+bu_1+b^2u_2$): pair~1 rotated freely with pair~2 untouched, \emph{or} pair~2 rotated freely with pair~1 twisted by the \emph{fixed} $\Lambda^{-1}$ ($a\to ar$). No $W_b\otimes W_c$ with both $b,c\ne a,ar$.
+\end{itemize}
+The structure is \emph{pretwisted}:
+\begin{equation}\label{eq:kappa-pretw}
+ \bra{W_{ar}^{\otimes(p-1)}\otimes W_a^{\otimes(L-p+1)}}K^{(p)}_\kappa=(1-\kappa z_1)^2\,\bra{W_{ar}^{\otimes(p-1)}\otimes W_{a'}\otimes W_a^{\otimes(L-p)}}\qquad(L=3,4,\ \text{all }p),
+\end{equation}
+and $(X_3X_1)^{(p)}=K^{(p)}$ at $\kappa_\star=1/(z_1+z_4)$ ($s=0$):
+\begin{equation}
+ \bra{\cdots}(X_3X_1)^{(p)}=24h^7y^2\lambda_1\lambda_3z_4^2\ \bra{\cdots W_{ar}\ \text{at pair }p\ \cdots}.
+\end{equation}
+The chain word $(X_3X_1)^{(1)}\cdots(X_3X_1)^{(p-1)}K^{(p)}$ on
+$\bra{W_a^{\otimes L}}$ equals $c\,(1-\kappa z_1)^2\bra{W_{ar}^{\otimes(p-1)}\otimes W_{a'}\otimes W_a^{\otimes(L-p)}}$. Consequently $\prod_pK^{(p)}_{\kappa_p}$ rotates correctly iff $\kappa_1=\dots=\kappa_{\ell-1}=\kappa_\star$: the alternating-chain analogue of 2603's block localisation is the
+\emph{end-growing chain} (fixed $\Lambda^{-1}$ on the pairs left of the free one), \emph{not} a common-$\kappa$ block. Right-end words $Y_1=t_1(\theta_{A,L})$, $Y_2=t_2(\theta_{A,L})$, $Y_3=\hat t_3(\theta_{A,L}+h)$ localise on pair $L$ and $\{1,Y_1,Y_2,Y_3,Y_1Y_3\}$ rotates it freely; left $\times$ right do not combine
+(first and last pair cannot be rotated together). For $\ell=L$ the global $\rho(1-\kappa\Lambda)$ is available, with eigenvalue $[(1-\kappa z_4)/(1-\kappa z_1)]^L\prod_i(1-\kappa z_i)^{\mu_i}$. At $L=4$, $\ell=2$ the target $\bra{W_{a'}^{\otimes2}\otimes W_a^{\otimes2}}$ is not in the 25 multilinear monomials (rank 25).
+
+\subsection{Locality brute force at generic $\theta$ and $z$}\label{sec:kappa-generic}
+
+\npy\ (exact modulo $P$ and with Fractions) [\nb{pair-rotation-locality-L3.wb} (not rerun), \nb{checks/session-2026-10-12/locality/}]. Diagonal frame, reference $W_a^{\otimes L}$, generic $\theta$ and generic $z$; words on pair~1 built from the $48$ non-vanishing factors $t_a(\theta_s+mh)$, $s\in\{1,2\}$, $m=-4,\dots,4$, products of $\le4$ factors. The localised subspace has dimension $6$ at $L=2$ and $3$.
+Targets $T_1=W_{a'}\otimes W_a^{\otimes(L-1)}$ and $T_2$ (the common rotation) lie in the span with $\le2$ factors at $L=2$ but only with $\ge4$ factors at $L=3$ (rank $563$ of $588$), densely (no sparse solution: OMP, $L^1$ and exhaustive $\le5$-word searches all fail at $L=2$); the needed word length grows $\sim2(L-1)$.
+\emph{Obstruction:} $T_1,T_2\in\mathrm{span}\{\psi_0,\psi_0t_3(\theta_1-h),\psi_0t_3(\theta_1-h)t_1(\theta_2),\psi_0t_1(\theta_2)\}\oplus\mathbb C\,(S\otimes W_a^{\otimes(L-1)})$, where $\psi_0=\bra{W_a^{\otimes L}}$ and the isolated pair singlet $S\otimes w_0$ is not in the word span; the coefficients are identical at $L=2,3$:
+$\psi_0$-coefficient $9(8a'-7)^2/169$, singlet coefficient $35(3a'-1)(8a'-7)/806$. Local universal identities confirmed: $c_1$, $c_{12}$ of Sec.~\ref{sec:odd-chain}, $c_3$ for $t_3(\theta_1-h)\to\rho_1(\Lambda^{-1})$,
+\begin{equation}
+ c_3=-\tfrac34\det\Lambda\prod_F(\theta_{1s}-h)(\theta_{1s}-2h)(\theta_{1s}-4h)\prod_{A,\,s\ge3}(\theta_{1s}-h)(\theta_{1s}-2h)(\theta_{1s}-3h),
+\end{equation}
+and $\psi_0t_1(\theta_2)=\alpha[\psi_0\rho_2(\Lambda)+(\sigma/\alpha)S\otimes w_0]$ with $\sigma/\alpha=ha(z_1-z_4)/\theta_{12}$ ($L$-independent). Calibration (i) holds only for $\psi_0=W_a^{\otimes L}$.
+So the even bridge is \emph{not} locally reachable at generic $\theta$ and $z$, consistent with Secs.~\ref{sec:kappa-lemma}--\ref{sec:kappa-z2z3}: the few-word solution needs the ABJM point \emph{and} $z_2=z_3$.
+
+\subsection{Q-forms of $\tau_F$, $x$ and $\hat\tau_3(u_0)$}\label{sec:kappa-qform}
+
+\num{10^{-8}}\ [\nb{even-bridge-lpairs.wb} (Q-form cell, rerun 2026-10-13; $0/0$ guard added for three exactly vanishing rows); python \nb{qf.py}, \nb{qdict.py}, \nb{task4a.py}--\nb{task4d.py}]. Conventions of the SoV dictionary (Sec.~\ref{sec:sov}): Baxter equation $\sum_{a=0}^4(-1)^a\tau_a(u)Q(u-ah)=0$,
+$Q_i=z_i^{u/h}\Phi(u)q_i(u)$ with $q_i$ monic polynomials, $\Phi(u)=V_4(u)\Phi(u-h)$, $V_4(u)=\prod_A(u-\theta_A)\prod_F(u-\theta_F-h)$; $u_0=\theta_F+h=\theta_A-h$ (pair~1); ``rest'' denotes the product over the \emph{other} pairs only;
+$F_3(u)=\prod_F(u-\theta_F)(u-\theta_F-h)$; for a triple $I$ of Q's, $P_I(u)=\det[z_i^{2-s}q_i(u-sh)]_{i\in I,\,s=0,1,2}$, $q_I=P_I/F_3$ (reduced Casoratian $=$ dual Q, a polynomial), $Z_I=\prod_{i\in I}z_i$. Then
+\begin{align}
+ \tau_F&=\tau_1(\theta_F)=\frac{Q_j(\theta_F)}{Q_j(\theta_F-h)}=z_jV_4(\theta_F)\frac{q_j(\theta_F)}{q_j(\theta_F-h)}\qquad(\text{any }j),\\
+ x&=\tau_1(u_0)=\frac{V_4^{\rm rest}(u_0)}{F_3^{\rm rest}(\theta_F)}\,Z_I^4\,\frac{\det\big[z_i^{-1}q_i(\theta_F+h),\,z_i^{-3}q_i(\theta_F-h),\,z_i^{-4}q_i(\theta_F-2h)\big]_{i\in I}}{q_I(\theta_F)},\\
+ \hat\tau_3(u_0)&=h\,V_4^{\rm rest}(u_0)\,V_4(\theta_F)V_4(\theta_F-h)\,Z_I\,\frac{F_3^{\rm rest}(u_0)}{F_3^{\rm rest}(\theta_F)}\,\frac{q_I(\theta_F+h)}{q_I(\theta_F)}\qquad(\text{any triple }I),
+\end{align}
+and $\tau_2(u_0)=x\,\tau_F$ (the operator identity above). So $X_1$ is a single-Q ratio (F site), $X_3$ a single \emph{dual}-Q ratio $q_I(\theta_F+h)/q_I(\theta_F)$ (A site), and $X_2=xX_1$ with $x$ a gapped Casoratian divided by a reduced Casoratian.
+Derived as the $\delta\to0$ limit ($\theta_A=\theta_F+2h+\delta$) of the generic A-site Cramer formulas $\tau_a(\theta_A-h)=D_a/D_0$, the zeros of $D_0$ and of $V_4(\theta_A-h)$ being vacuum factors that cancel explicitly.
+Checks: $L=2$, all 256 states $\times$ 4 triples, maximal relative deviation $5.6\cdot10^{-12}$ ($\tau_F$), $3.3\cdot10^{-8}$ ($x,\tau_2,\hat\tau_3$); $L=3$, sector $(2,0,0,-2)$ (24 states) $10^{-6}$, sector $(2,1,-1,-2)$ (9 states) $2\cdot10^{-8}$ (float64, Baxter-conditioning limited); continuity: at $\delta=10^{-2},10^{-3},10^{-4}$, $\tau_1(\theta_A-h)\to x$ and $\tau_3(\theta_A-h)/\delta\to\hat\tau_3(u_0)$ linearly in $\delta$.
+Finally $K(\kappa)=1-\kappa(2S-\Sigma)+\kappa^2(S^2-S\Sigma+\Pi)$, $S=z_1+z_4$, does \emph{not} factor into rational linear factors in $\kappa$: at $L=2$, $z_2=z_3$, $53$ of the 256 states with real eigenvalues have complex roots.
+
+%======================================================================
+\section{Which references admit a pair $\kappa$-family}\label{sec:admiss}
+%======================================================================
+
+\ex\ [\nb{reference-admissibility-Kkappa.wb}, all sections run in the Wolfram kernel; exact python fallback in \nb{checks/session-2026-10-13/refmap/} agrees on every output (rows, ranks, coefficients, residuals, $L=3$ mod $p$, covariance, Lie algebra, generic-$z$ patterns); \nb{agent-2026-10-13-reference-map.md}].
+The five-word $K_\kappa$ of Sec.~\ref{sec:kappa-word} was derived on $W_a$. Here every product reference $(v\otimes u)^{\otimes L}$, $v\cdot u=0$ (same pair everywhere), at the ABJM point is tested.
+\emph{Admissible} means: for all $\kappa$ tested ($\tfrac3{10}$, $-\tfrac75$, $1/z_4$) the polynomially normalised rotation
+$T_\kappa=[v(1-\kappa\Lambda)]\otimes[u\,\mathrm{adj}(1-\kappa\Lambda)]$ of \eqref{eq:3pt-T} lies in the span of the five localised words acting on the reference. On the chain every localising word equals $\lambda_w\times$ the same word on the one-pair chain
+(re-verified at $L=2$ and at $L=3$ (6 sites, 4096-dim) mod $p$ for every reference that passes and for the negative controls), so admissibility is a pair-level statement; for $W_a$ the pair-level coefficients are those of $K_\kappa$ ($K_\kappa=T_\kappa/(1-\kappa y)^2$ there).
+
+\subsection{The admissible set at $z_2=z_3$}\label{sec:admiss-set}
+
+The centraliser of $\Lambda$ is $GL(1)\times GL(2)\times GL(1)$ (acting $v\to vk$, $u\to uk^{-T}$; it commutes with all $t_a$ and with $1-\kappa\Lambda$), so every $v$ is Levi-equivalent to one of seven representatives, with $u$ kept symbolic. Write $p=(v_2,v_3)$, $q=(u_2,u_3)$.
+Quantifier elimination (symbolic \texttt{Reduce}, Wolfram cell 13; $u_2'=0$ is the Levi-coordinate form of $p\cdot q=0$) gives:
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+Levi class of $v$ & admissible iff\\
+\midrule
+$(1,1,0,1)$ ($v_1,p,v_4\ne0$) & $u_2'=0$ and $u_4=0$ ($\Rightarrow u_1=0$): $u=(0,p^\perp,0)$\\
+$(1,1,0,0)$ ($v_4=0$) & $u_2'=0$ ($\Leftrightarrow p\cdot q=0$, then $u_1=0$): $u=(0,q,u_4)$, $q\perp p$\\
+$(0,1,0,1)$ & $u_4=0$ ($\Rightarrow p\cdot q=0$)\\
+$(1,0,0,1)$ ($p=0$) & $q=0$ \textbf{or} $u_4=0$\\
+$(1,0,0,0)$, $(0,1,0,0)$, $(0,0,0,1)$ & always ($u_1=0$, resp.\ $p\cdot q=0$, resp.\ $u_4=0$ forced)\\
+\bottomrule
+\end{tabular}
+\end{center}
+Collecting, $\mathcal A=\mathcal A_{\rm block}\cup\mathcal A_W$ with
+\begin{equation}\label{eq:admiss-set}
+ \mathcal A_{\rm block}=\{v_1u_1=0,\ v_4u_4=0,\ p\cdot q=0\},\qquad \mathcal A_W=\{p=0=q\},
+\end{equation}
+i.e.\ either $v,u$ are BPS in every spectral block of $\Lambda$ ($v|_C\cdot u|_C=0$ for $C=\{1\},\{2,3\},\{4\}$; equivalently $u f(\Lambda)v^T=0$ for \emph{every} function $f$), or both are supported on the indices $\{1,4\}$ (the torus images of $W_a$, where $v_1u_1=-v_4u_4\ne0$ is allowed).
+Inside the Borel orbit ($v_1u_4\ne0$): $\mathcal A\cap\mathrm{Borel}=(C)\cup(B)$ with $(C)=\{v_4=0,\ u_1=0,\ p\cdot q=0\}$, i.e.\ $v=(1,p,0)$, $u=(0,q,u_4)$, and $(B)=\{p=q=0\}$, i.e.\ $W_a$ up to torus. $(C)$ contains $(A)=\{v=e_1,\ u=(0,q,u_4)\}$ and the non-frozen references $v=(1,p,0)$:
+the vacuum rotated by $g=\exp(p\cdot E_{1,(23)})\exp(c\cdot E_{(23),4})$ with $p\cdot c=0$ (the ``$E_{12}/E_{34}$-type'' good rotations of the README); they are \emph{good} ($u\Lambda v^T=0$), whereas $W_a$ is not ($u\Lambda v^T=(z_1-z_4)v_1u_1\ne0$). Block-BPS $\subset$ good, the converse fails.
+Named subfamilies [Wolfram \S5c and python, identical]: $v=(1,0,0,v_4)$ with generic $u$: only $q=0$ ($W$); $v$ generic, $u=(-v_4,0,0,1)$: fails; the $\mathfrak{gl}(2)$-symmetric $(1,v_2,v_2,v_4)\otimes(u_1,u_2,u_2,1)$ fails unless $v_4=u_1=0$ and $v_2u_2=0$;
+only $v_2,v_3\ne0$ (any $u$ with $p\cdot q=0$) and only $u_2,u_3\ne0$ are always admissible. Exhaustive and random confirmation \npy\ [\nb{smallint.py}, \nb{scan.py}]: $8946$ pairs $(v,u)\in\{-1,0,1,2\}^8$ with $v\cdot u=0$ ($2690$ admissible, $0$ mismatches with \eqref{eq:admiss-set}), plus $39$ blockwise, $20$ $W$-type and $137$ random-zero-pattern samples.
+
+\paragraph{Charged-sector structure} \ex. The words commute with the Cartan torus; on the 12 charged states $e_a\otimes e_b$ ($a\ne b$) their eigenvalues are \eqref{eq:kappa-xi}. On a reference with charged support $S=\{(a,b):a\ne b,\ v_au_b\ne0\}$ the five words act through the $|S|\times5$ evaluation matrix, and a $\kappa$-family needs every $\kappa$-component to lie in the span, i.e.\ rank $|S|$ together with a compatible zero-weight sector. At generic $z$ a generic reference has $|S|=12$: impossible.
+
+\paragraph{Formulation through $G'$} \ex\ [\nb{covariance.py}]. $\rho(g)\,t_k^\Lambda\,\rho(g)^{-1}=t_k^{G'}$ ($k=1,2,3$) with
+\begin{equation}
+ G'=g^{-T}\Lambda g^T=(g\Lambda g^{-1})^T
+\end{equation}
+(the other three candidates fail), hence $\bra{\vac}\rho(g)X[t^\Lambda]=\bra{\vac}X[t^{G'}]\rho(g)$ for every word, checked for the whole $K_\kappa$ and seven $g$. For upper-triangular $g$, $G'$ is lower triangular with spectrum $z$, and $\bra{\vac^{\otimes L}}$ is its vacuum eigenbra
+(for $W_a$: $G'=\Lambda+cE_{41}$, $c\propto a(z_1-z_4)$, as in Sec.~\ref{sec:odd-ff}). With $v=e_1g$, $u=e_4g^{-T}$ one has $u f(\Lambda)v^T=[f(G')]_{41}$ (the column $[G'^n]_{41}$ vanishes exactly on the block-admissible rows), so
+\begin{equation}\label{eq:admiss-G}
+ \text{admissible}\iff\ \text{(i) }[G'^n]_{41}=0\ \ (n=1,2,3)\quad\text{or}\quad\text{(ii) }G'\ \text{is (Levi/torus-conjugate to) }\Lambda+cE_{41},
+\end{equation}
+(i) being $e_4f(G')e_1^T=0$ for all polynomials $f$ (for lower-triangular $G'$: $G'_{41}=0$, $G'_{42}G'_{21}+G'_{43}G'_{31}=0$, \dots), (ii) exactly one non-zero off-diagonal entry, at $(4,1)$. Rows tested: R5 ($v=e_1$, $u=(0,2,3,5)$; $G'$ off-diagonal at $(4,2),(4,3)$ only) and R2 ($v=(1,2,3,0)$, $u=(0,3,-2,5)$;
+$G'$ at $(2,1),(3,1),(4,2),(4,3)$ with $G'_{42}G'_{21}+G'_{43}G'_{31}=0$) satisfy (i); $W_a$ and torus$\times W_a$ satisfy (ii); a broken R2 with $(G'^2)_{41}=-4845/784\ne0$, a generic Borel element and $W_a\times$R2 fail both.
+
+\paragraph{The operators are class dependent} \ex. The five-word $K_\kappa$ with the $W_a$ coefficients acts as the rotation only on $\mathcal A_W$; it fails on $\bra0_{\rm comp}$, on R5, R6, R2 and at generic $z$. This refines the earlier statement ``$K_\kappa$ fails on $\bra0_{\rm comp}$'': the \emph{five-word} $K_\kappa$ is specific to the $W$ class, while block-BPS references do admit
+\emph{other} class-dependent words (next subsections) but have vanishing cross pairings (Sec.~\ref{sec:admiss-cross}). Symbolic solutions of $T_\kappa\in\mathrm{span}$: for the A-frozen class $(0,1,-1,0)\otimes(u_1,u_2,u_2,u_4)$ the coefficients $(c_1,\dots,c_5)$ of $(1,X_1,X_2,X_3,X_3X_1)$ are
+$c_3=8\kappa^2$ (fixed), $c_1=1-\kappa e_1'+\kappa^2e_2'-\tfrac38c_4\,yz_1z_4$, $c_2=2\kappa-\tfrac38c_5\,yz_1z_4$, with $c_4,c_5$ free and the result $u$-independent; for the class $(v=e_1,\ u=(0,u_2,u_3,u_4))$ there are three free coefficients; for $(1,1,0,0)\otimes(0,0,u_3,u_4)$ one free coefficient, the others \emph{rational} in $\kappa$ with a pole at $\kappa=1/y$ (unlike the polynomial $K_\kappa$).
+
+\subsection{At $z_2\ne z_3$: no family}\label{sec:admiss-generic}
+
+\ex\ [\nb{reference-admissibility-Kkappa.wb}; python \nb{genericz.py}, \nb{obstruction.py}, \nb{twloci\_generic.py}]. At generic $z$ enumerating all zero patterns with generic values, the admissible patterns are exactly those with \emph{disjoint supports of $v$ and $u$} (50 of 117); in the small-integer scan all $1890$ blockwise candidates ($v_ju_j=0\ \forall j$) are admissible and no non-blockwise reference is. $W_a$ and all $W$-type references fail.
+\paragraph{No family on the twisted vacuum $\bra{0_w}$ at $z_2\ne z_3$.} The twisted vacuum $\bra{0_w}$ (the vacuum eigenbra of $t^{G_c(w)}$, Sec.~\ref{sec:qform}), tested consistently with words and reference at the same generic $z=(3/2,5/4,2/3,4/7)$, $w=(7/5,9/8,3/7,5/9)$:
+the five-word span has rank 5, the 13 $\kappa$-components $D$, $B_{ab}$ have rank 13, and $\dim(\mathrm{span}\cap\mathrm{span}\{\kappa\text{-components}\})=2$, so \emph{11 of the 13 needed directions are missing}; the charged support is $|S|=12$ (a $12\times5$ evaluation matrix of rank 5) and $\mathrm{rank}(\mathrm{span}+T_\kappa)=6$ at all three $\kappa$.
+A family exists iff $w_1\in\{z_1,\dots,z_4\}$ (then $v=e_a$ is frozen and $\pi_j=v_ju_j=0$ for all $j$); generic $w$, and $w_2,w_3\in\{z\}$, do not. A sixth localised operator cannot help: the missing space has dimension 11 and the localised algebra on pair~1 at the ABJM point is 5-dimensional (words of length $\le4$, Sec.~\ref{sec:kappa-lemma}).
+Near $z_2=z_3$ ($z_2-z_3=\epsilon\Delta\varphi$, $z=1+\epsilon\varphi$, $w=1+\epsilon\omega$, $\kappa=1-c\epsilon$, $\varphi=(\tfrac9{10},\tfrac7{20},\tfrac7{20}+\Delta\varphi,-\tfrac{11}{10})$, $\omega=(\tfrac7{10},-\tfrac3{10},\tfrac15,\tfrac12)$, $c=\tfrac45$) the relative best-fit residual of $T_\kappa$ in the span is, at $\epsilon=10^{-4}$ (exact least squares printed as floats, equal to the 80-digit Wolfram result where run):
+\begin{center}
+\begin{tabular}{lcccc}
+\toprule
+$\Delta\varphi$ & twisted vac., all comps & twisted vac., charged comps & $W_a$, all & $W_a$, charged\\
+\midrule
+0.01 & 0.0574 & 0.0271 & 0.0115 & 0\\
+0.1 & 0.343 & 0.161 & 0.114 & 0\\
+0.5 & 0.451 & 0.307 & 0.494 & 0\\
+\bottomrule
+\end{tabular}
+\end{center}
+(for $\Delta\varphi\le0.1$ the values at $\epsilon=10^{-2},10^{-3}$ agree within $1\%$). Both residuals are \emph{linear in $\Delta\varphi$ at small $\Delta\varphi$ and independent of $\epsilon$}: there is no healing in the untwisting scaling. For $W_a$ the leftover is purely in the zero-weight sector ($E_{22},E_{33}$ directions, harmless for the physical overlaps as observed in Sec.~\ref{sec:kappa-z2z3}); for the twisted vacuum it contains \emph{charged} components (relative $\sim0.16$ at $\Delta\varphi=0.1$), and there is no reason for these to be suppressed (the physical test of the charged leftover was not done).
+Quantitatively the block-BPS violation is $v_1u_1/(v_2u_2)$, $v_4u_4/(v_2u_2)=O(\Delta\varphi)$ because $\hat v_2=-\hat v_3\sim1/\Delta\varphi$.
+Hence changing the reference to $\bra{0_w}$ (the 2603 route) does not reproduce the 2603 structure at the ABJM point: at $z_2=z_3$ it collapses to an A-frozen reference, at $z_2\ne z_3$ the five words cannot rotate it. This route is superseded by the overlap identity of Sec.~\ref{sec:qform}, where $\bra{0_w}$ enters only through the overlaps
+$\braket{0_w}{\Psi}=(v_1u_4)^L\braket{W_a^{\otimes L}}{\Psi}$.
+
+\subsection{The A-frozen twisted-vacuum limit}\label{sec:admiss-frozen}
+
+\ex\ [\nb{reference-admissibility-Kkappa.wb}; chain $L=2,3$ mod $p$, python \nb{r6\_l3.py}]. At $z_2=z_3$ the diagonal-frame image of $\bra{0_w}$ degenerates (it exists only for $z_2\ne z_3$; at $z_2=z_3$ it is the rescaled limit $v=(c/\delta)(0,-1,1,0)+O(1)$, whose $O(1)$ part is lost): $v\to(0,1,-1,0)$, a \emph{frozen} A site on the $\mathfrak{gl}(2)$-odd direction, projectively independent of $w$, with $u=u_w$ generic.
+On this limit reference a common pair rotation exists, but it is an F-site rotation only: the A site is an eigenvector of $\Lambda$, so ``rotation'' means $u\to u(1-\kappa\Lambda)^{-1}$, $v\to v\cdot\mathrm{const}$. Choosing $c_4=c_5=0$ above, with $e_1'=z_1+y+z_4$, $e_2'=yz_1+yz_4+z_1z_4$,
+\begin{equation}\label{eq:admiss-KF}
+ K^F_\kappa=\big[1-\kappa e_1'+\kappa^2e_2'\big]+2\kappa X_1+8\kappa^2X_2\qquad(h=\tfrac12;\ \text{general }h:\ \tfrac{\kappa}{2h^2}X_1+\tfrac{\kappa^2}{2h^4}X_2)
+\end{equation}
+at pair level (chain level: $c_1+(2\kappa/\lambda_1)X_1+(8\kappa^2/\lambda_2)X_2$; $X_3$, $X_3X_1$ are not needed). It is the one-site analogue of 2603's word $1-\kappa t_++\kappa^2t_0$. On an F index $b$ it acts as
+$\prod_{j\in\{1,y,4\}}(1-\kappa z_j)/(1-\kappa z_b)=1-\kappa(e_1'-z_b)+\kappa^2(e_2'-z_b(e_1'-z_b))$; its eigenvalue on a state is $P^F_\kappa(\tau)=1-\kappa(e_1'-\xi_1)+\kappa^2(e_2'-\xi_2)$ with $\xi_1=\tau_{X_1}/2h^2$, $\xi_2=-\tau_{X_2}/2h^4$,
+a Q-form via $x$, $\tau_F$ of Sec.~\ref{sec:kappa-qform} ($c_3=c_4=0$ in $P_K=c_0+c_1\tau_F+c_2x\tau_F+c_3y+c_4y\tau_F$ of \nb{even-bridge-sov-formula.wb}). Verified on the chain at $L=2,3$ (mod $p$), on the twisted-vacuum limit, the companion-vacuum limit and a generic $(u_1,u_2,u_2,u_4)$ for $\kappa\in\{\tfrac3{10},-\tfrac75,\tfrac74,\tfrac29\}$.
+The twisted vacuum is also admissible at its loci $w_1=z_1$, $w_1=z_4$, $w_2=w_3$, $w_4=z_4$ and combinations (rank of the span $1,2$ or $3$); every ``yes'' among the twisted-vacuum rows has a frozen A site.
+
+\subsection{Cross pairings: why $W_a$ is the only useful reference}\label{sec:admiss-cross}
+
+\ex\ [\nb{reference-admissibility-Kkappa.wb}; two-block Borel invariants of Sec.~\ref{sec:polforms}]. The cross-block pairings that make a two-block polarisation sensitive to the $s>0$ states are, for the blocks $(v,u)$ and $(vD,uD^{-1})$ with $D=\mathrm{diag}(c-\varphi_j)$ and $\pi_C=v|_C\cdot u|_C$,
+\begin{equation}
+ p_{23}=\sum_C\frac{\pi_C}{c-\varphi_C},\qquad p_{32}=\sum_C\pi_C\,(c-\varphi_C).
+\end{equation}
+Every admissible reference except the $W$-type has all $\pi_C=0$, hence $p_{23}\equiv p_{32}\equiv0$; $W_a$ is admissible exactly because $\pi_1=-\pi_4\ne0$ is allowed at $z_2=z_3$. So ``cross pairing $\ne0$'' and ``$K$-admissible'' are compatible only for the $W$-type family.
+For the A-frozen polarisation $a_2=a_3=0$, $m_v=0$, $p_{23}=p_{32}=0$ and only $d_2,d_3,m_u$ survive; with the structure of Sec.~\ref{sec:polforms} ($F$ polynomial in $a_2,a_3,d_2,d_3,m_v,m_u,p_{23},p_{32}$ with $e_8+e_9=s$) it can only see the $e_8=e_9=0$ monomials: \emph{it is not the generic two-block polarisation} the 2603-type construction was meant to produce
+(inference from the polarisation forms, not recomputed). For the non-frozen admissible family $(C)$: $a_2=1$, $d_2=u_4$, $m_v=p_2(\varphi_1-\varphi_2)$, $m_u\ne0$, but again $p_{23}=p_{32}=0$. If an A-frozen polarisation is acceptable, the usable word is $K^F_\kappa$ of \eqref{eq:admiss-KF}.
+Open: the Q-form of $\braket{0_w}{\Psi}$ is not connected to any admissible $K$; a $z_2\ne z_3$ generalisation of $K_\kappa$ needs at least $11$ additional localised operators (none known).
+
+\subsection{Lie algebra of pair-1 rotations inside the span}\label{sec:admiss-lie}
+
+\ex\ [\nb{covariance.py} \S9]. $\mathfrak h_r=\{X\in\mathfrak{gl}_4:\ r\rho(X)\in\text{span of the five words}\}$; the stabiliser has dimension 10 and the orbit tangent dimension is 6 for every reference below.
+\begin{center}\small
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{4.4cm}c>{\raggedright\arraybackslash}p{2.0cm}>{\raggedright\arraybackslash}p{5.4cm}@{}}
+\toprule
+reference & rank of span & $\dim\mathfrak h_r/\mathrm{stab}$ & representatives mod stabiliser\\
+\midrule
+$W_a$ ($a=\tfrac13$) & 5 & 2 & $E_{11}$, $E_{14}$ (torus and the $a$-shift)\\
+R2: $v=(1,2,3,0)$, $u=(0,3,-2,5)$ & 4 & 3 & $E_{11}$, $E_{12}-\tfrac35E_{14}+\tfrac12E_{33}+\tfrac15E_{34}$, $E_{22}+E_{33}$\\
+R5: $v=e_1$, $u=(0,2,3,5)$ & 2 & 2 & $E_{11}$, $E_{22}+\tfrac35E_{34}$\\
+twisted-vac.\ limit $(0,1,-1,0)\otimes u_w$ & 3 & 3 & $E_{11}$, $E_{21}+E_{31}$ (F-site mixing $u_1\to e_2+e_3$), $E_{22}+E_{33}$\\
+R6: $(0,2,3,0)\otimes(1,3,-2,4)$ & 3 & 3 & $E_{11}$, $E_{21}-\tfrac23E_{31}$, $E_{22}+E_{33}$\\
+random BPS (not admissible) & 5 & 1 & one mixed element\\
+\bottomrule
+\end{tabular}
+\end{center}
+For \emph{every} admissible reference the whole torus orbit $\{[vf(\Lambda)]\otimes[uf(\Lambda)^{-1}]\}$ for $f=\Lambda,\Lambda^{-1},1-\kappa\Lambda^{-1},\Lambda^2$ and generic diagonal ($f_2=f_3$) lies in the span; for the non-admissible random BPS only $f=\Lambda^{-1}$ does (the single word $X_3X_1\sim\rho(\Lambda^{-1})$). On $W_a$ the 5-dimensional span is ``$r$, $\partial_t$(torus), $\partial_a$ ($E_{14}$) plus two non-group directions''; on the A-frozen class it is the full torus-orbit span plus the mixing $E_{21}+E_{31}$.
+
+\subsection{Untwisting of a rotated pair: $D=\mathrm{diag}(c-\varphi_j)$}\label{sec:admiss-untw}
+
+\ex\ [python \nb{untw.py}; exact]. With $z=1+\epsilon\varphi$, $w=1+\epsilon\omega$, $\kappa=1-c\epsilon$ one has $1-\kappa z_j=\epsilon(c-\varphi_j)+O(\epsilon^2)$, so the rotation in the limit is $D=\mathrm{diag}(c-\varphi_j)$, \emph{not} $c+\varphi_j$
+(the latter corresponds to $\kappa=1+c\epsilon$ or $\varphi\to-\varphi$). For $\varphi=(\tfrac9{10},\tfrac7{20},\tfrac7{10},-\tfrac{11}{10})$ ($\varphi_2\ne\varphi_3$), $\omega=(\tfrac7{10},-\tfrac3{10},\tfrac15,\tfrac12)$, $c=\tfrac45$ the deviation of the limit of $T_\kappa$ from
+$(\hat vD)\otimes(\hat uD^{-1})$, with $\hat v_j=\prod_{m\ne j}(\omega_1-\varphi_m)/(\varphi_j-\varphi_m)$ and $\hat u_j=\prod_{m\le3}(\varphi_j-\omega_m)$, is
+\begin{center}
+\begin{tabular}{lcccc}
+\toprule
+$\epsilon$ & $10^{-2}$ & $10^{-3}$ & $10^{-4}$ & $10^{-5}$\\
+\midrule
+$D=c-\varphi$ & $3.0\cdot10^{-2}$ & $3.0\cdot10^{-3}$ & $2.9\cdot10^{-4}$ & $2.9\cdot10^{-5}$\ ($\propto\epsilon$)\\
+$D=c+\varphi$ & $1.0$ & $0.98$ & $0.98$ & $0.98$ (wrong)\\
+\bottomrule
+\end{tabular}
+\end{center}
+At $\varphi_2=\varphi_3$ ($=\tfrac7{20}$) with the limit reference $(0,1,-1,0)\otimes u_w$ the same formula collapses to $(0,1,-1,0)\otimes(\hat u_j/(c-\varphi_j))$ (deviation $3.0\cdot10^{-2},\dots,3.0\cdot10^{-5}$): the A site is frozen and $p_{23}=p_{32}=m_v=a_2=a_3=0$. The normalised $\hat v$ as $\varphi_3\to\varphi_2$ ($d=0.1,0.01,0.001$) tends to $(0,-1,1,0)/\sqrt2$.
+\endgroup

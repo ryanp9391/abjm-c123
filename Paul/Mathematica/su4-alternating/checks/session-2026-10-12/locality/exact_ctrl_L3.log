@@ -1,0 +1,5 @@
+calibration  psi0 = c1 psi0 rho1(Lam^-1) t1(th1): True time 4.918607473373413
+c12 exact -98037632/35049375  conj formula -98037632/35049375  equal: True
+t3(th1-h) psi0 = psi0 rho1(diag(mu_i)): mu = [(Fraction(-19210182212077225, 45294623322254265344), True), None, None, (Fraction(-57630546636231675, 51765283796862017536), True)]
+ mu4/mu1 = 21/8  z1/z4 = 21/8  z4/z1 = 8/21
+time 14.802127599716187

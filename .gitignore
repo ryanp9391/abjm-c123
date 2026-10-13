@@ -1,3 +1,16 @@
 
 # wolfbook render logs
 **/img/**/*.log
+**/img/**/ai_deleted_cells.md
+
+# regenerable python caches (check scripts)
+__pycache__/
+*.pyc
+*.pkl
+*.npz
+
+# LaTeX build artefacts
+*.aux
+*.out
+*.toc
+*.synctex.gz

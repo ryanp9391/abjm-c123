@@ -1,0 +1,316 @@
+{
+ "cells": [
+  {
+   "kind": 1,
+   "value": "# One A–F pair: SoV expansion of a general product bra and its determinant form (2026-10-12)\n\n**STATUS — code cells NOT run.** The shared Wolfram kernel died (extension host out of memory) and the Wolfram Engine licence has expired, so nothing in this notebook was evaluated. Every result was computed in **python/sympy** in the session scratchpad `C:\\Users\\pryan\\AppData\\Local\\Temp\\claude\\c--Users-pryan-git-projects-abjm-c123\\794786d6-48ea-4307-bf67-7108309c1c97\\scratchpad\\onepair\\` (scripts named under each result; that directory is temporary). The Wolfram cells port the same computations so the notebook can be rerun after the licence is renewed. Each code cell is followed by a markdown cell with the python result. Syntax was checked offline only, so expect small fixes on the first run. All symbols carry the prefix `op`; no `ClearAll`.\n\n**Evidence tags:** [exact-sym] = exact symbolic in θ, h, c_k; [exact] = exact rationals at P1 (the 4 zero-weight states exactly in the number field Q[λ]/m(λ)); [mod p] = exact rational problem done mod 2³¹−1 and 10⁹+7 (ranks); [num] = mpmath, 50 digits.\n\n**Conventions** (README of this folder): chain A F, site 1 = A (ρ(E_ij) = e_ij), site 2 = F (ρ(E_ij) = −e_ji). Lax ℒ_s(u) = Σ e_ij ⊗ ((u−θ_s)δ_ij + hρ_s(E_ij)), T = ℒ₁ℒ₂ (site 1 leftmost), T^G = T·G_c(z), G_c = {{c₁,−c₂,c₃,−c₄},{1,0,0,0},{0,1,0,0},{0,0,1,0}}, c_k = e_k(z). Quantum minors have their rows antisymmetrised, with column k at u−(k−1)h, and t_a = Σ_{|I|=a} qmin_{I,I}. Bras are rows: ψ·M. The group acts as A: v → vg, F: u → u g^{−T}. **θ ≡ θ₁₂ = θ₁ − θ₂.** SoV basis ⟨a,k| = ⟨0|t_a(θ₁−h) t₁(θ₂)^k, ⟨0| = e₁⊗e₄, a,k = 0..3. Product-basis bras e_ij := e_i⊗e_j. Point **P1:** h = 1/2, θ = (2/7, −3/5), z = (3/2, 5/4, 2/3, 4/7). For two pairs: θ₃, θ₄ = 8/11, −11/8.\n\nQ-functions: RV Γ-gauge Q_j(u) = Γ(u) z_j^{u/h} q_j(u), Γ(u+h) = V₄(u)Γ(u), V₄(u) = (u−θ₁)(u−θ₂−h), with the zero-free branch at the needed points. Polynomial-twisted gauge Q̃_j(u) = z_j^{u/h} q_j(u). Columns x_b = θ₁ − bh (b = 0..3).",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 1. Setup: symbolic one-pair chain, vanishing of t_a at the special points, qKZ forms\n\n`opTG2[u, th, h, G]` is the twisted monodromy, a 4×4 table of 16×16 matrices (bra action ψ.M, ket action M.ψ). `opT2[a, u, th, h, G]` is t_a(u). Checks: t_{2,3,4}(θ₂) = 0 and t₄(θ₁−h) = 0 as operators. These are the zeros that collapse the Baxter equation and give the dictionary. Also checked: the qKZ forms of t₁ at θ₁ and θ₂.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "(* One A-F pair, symbolic. Prefix op. Bras are rows: an operator M acts on a bra as psi . M (on a ket as M . psi). *)\nopE[i_, j_] := Table[KroneckerDelta[a, i] KroneckerDelta[b, j], {a, 4}, {b, 4}];\nopId4 = IdentityMatrix[4]; opId16 = IdentityMatrix[16];\nopRho2[1, i_, j_] := KroneckerProduct[opE[i, j], opId4];   (* site 1 = A: rho(E_ij) = e_ij *)\nopRho2[2, i_, j_] := KroneckerProduct[opId4, -opE[j, i]];  (* site 2 = F: rho(E_ij) = -e_ji *)\nopGc[c_List] := {{c[[1]], -c[[2]], c[[3]], -c[[4]]}, {1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}};\nopEsym[z_List] := Table[SymmetricPolynomial[k, z], {k, 4}];\n(* twisted monodromy T^G = L_A L_F G (site 1 leftmost) as a 4x4 table of 16x16 matrices *)\nopTG2[u_, th_List, h_, G_] := opTG2[u, th, h, G] = Module[{LA, LF, T},\n   LA = Table[(u - th[[1]]) KroneckerDelta[i, j] opId16 + h opRho2[1, i, j], {i, 4}, {j, 4}];\n   LF = Table[(u - th[[2]]) KroneckerDelta[i, j] opId16 + h opRho2[2, i, j], {i, 4}, {j, 4}];\n   T = Table[Sum[LA[[i, k]] . LF[[k, j]], {k, 4}], {i, 4}, {j, 4}];\n   Expand[Table[Sum[T[[i, l]] G[[l, j]], {l, 4}], {i, 4}, {j, 4}]]];\n(* quantum minor: rows antisymmetrised, column k at u - (k-1) h; t_a = sum of principal minors *)\nopQmin2[rr_List, cc_List, u_, th_List, h_, G_] := Sum[Signature[s] (Dot @@ Table[opTG2[u - (k - 1) h, th, h, G][[rr[[s[[k]]]], cc[[k]]]], {k, Length[cc]}]), {s, Permutations[Range[Length[cc]]]}];\nopT2[a_, u_, th_List, h_, G_] := opT2[a, u, th, h, G] = If[a == 0, opId16, Expand[Sum[opQmin2[rr, rr, u, th, h, G], {rr, Subsets[Range[4], {a}]}]]];\nopZeroQ[m_] := Union[Flatten[Expand[m]]] === {0};\nopThs = {opTh1, opTh2}; opGs = opGc[{opc1, opc2, opc3, opc4}];\nopK = Sum[KroneckerProduct[opE[i, j], opE[i, j]], {i, 4}, {j, 4}];\nopChecks = <||>;\nopChecks[\"t2, t3, t4 vanish at u = theta2 (operators, symbolic)\"] = AllTrue[{2, 3, 4}, opZeroQ[opT2[#, opTh2, opThs, opH, opGs]] &];\nopChecks[\"t4 vanishes at u = theta1 - h (operator, symbolic)\"] = opZeroQ[opT2[4, opTh1 - opH, opThs, opH, opGs]];\nopChecks[\"qKZ: t1(theta1) = h rho1(G^T).(theta12 - h K)\"] = opZeroQ[opT2[1, opTh1, opThs, opH, opGs] - opH KroneckerProduct[Transpose[opGs], opId4] . ((opTh1 - opTh2) opId16 - opH opK)];\nopChecks[\"qKZ: t1(theta2) = h rho2(G).(theta12 - h K)\"] = opZeroQ[opT2[1, opTh2, opThs, opH, opGs] - opH KroneckerProduct[opId4, opGs] . ((opTh1 - opTh2) opId16 - opH opK)];\nGrid[Join[{{\"check\", \"result\"}}, KeyValueMap[List, opChecks]], Frame -> All, Alignment -> Left]",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "**Result (python `vanish.py`, [exact-sym] in θ₁, θ₂, h, c₁..c₄):** t₂(θ₂) = t₃(θ₂) = t₄(θ₂) = 0 and t₄(θ₁−h) = 0 as 16×16 operators: **True** (all four). qKZ: t₁(θ₁) = h ρ₁(Gᵀ)·(θ₁₂ − hK) and t₁(θ₂) = h ρ₂(G)·(θ₁₂ − hK) as bra-action matrices in this order: **True**. The reversed order (θ₁₂ − hK)·ρ is False.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 2. SoV basis ⟨a,k| = ⟨0|t_a(θ₁−h) t₁(θ₂)^k, symbolic, and its grading\n\nThe 16 covectors are built with a symbolic twist (c₁..c₄). The cell tests that they are twist-free, that they depend on θ only through θ₁₂, and that each one is homogeneous. The grading is grade(e_i⊗e_j) = i − j + 3. It comes from the nilpotent limit c → 0 of the companion twist: the basis is z-independent, so it equals its graded nilpotent-twist value.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "opVac2 = Flatten[Outer[Times, {1, 0, 0, 0}, {0, 0, 0, 1}]];   (* e1 (x) e4 *)\nopT1F = opT2[1, opTh2, opThs, opH, opGs];\nopW = Flatten[Table[Expand[Fold[#1 . opT1F &, opVac2 . opT2[a, opTh1 - opH, opThs, opH, opGs], Range[k]]], {a, 0, 3}, {k, 0, 3}], 1];\nopWth = Factor[opW /. opTh1 -> opTh2 + opTheta];   (* opTheta = theta12 *)\nopGradePB = Flatten[Table[i - j + 3, {i, 4}, {j, 4}]];\nopPBname = Flatten[Table[\"e\" <> ToString[i] <> ToString[j], {i, 4}, {j, 4}]];\nopChecks2 = <||>;\nopChecks2[\"W free of the twist c_k (exactly z-independent)\"] = FreeQ[opW, opc1 | opc2 | opc3 | opc4];\nopChecks2[\"W depends on theta1, theta2 only via theta12\"] = FreeQ[opWth, opTh2];\nopChecks2[\"rank W\"] = MatrixRank[opWth];\nopChecks2[\"<a,k| homogeneous of grade a + k, grade(e_i (x) e_j) = i - j + 3\"] = AllTrue[Range[16], Function[n, Union[Pick[opGradePB, Map[# =!= 0 &, opWth[[n]]]]] === {Total[QuotientRemainder[n - 1, 4]]}]];\nopShowVec[vec_] := Row[Riffle[Map[Row[{\"(\", Factor[#[[1]]], \") \", #[[2]]}] &, Select[Transpose[{vec, opPBname}], #[[1]] =!= 0 &]], \" + \"]];\nColumn[{Grid[Join[{{\"check\", \"result\"}}, KeyValueMap[List, opChecks2]], Frame -> All, Alignment -> Left],\n  Grid[Prepend[Table[{Row[{\"<\", Quotient[n - 1, 4], \",\", Mod[n - 1, 4], \"|\"}], opShowVec[opWth[[n]]]}, {n, 16}], {\"word\", \"components in e_ij = e_i (x) e_j (theta = theta12)\"}], Frame -> All, Alignment -> Left]}]",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "**Result (python `step1.py`, `step1b.py`, [exact-sym]):** W contains no c_k (**exactly z-independent**), depends only on θ = θ₁₂, has rank 16, and **every ⟨a,k| is homogeneous of grade a+k**. So W is block-diagonal, with blocks of size 1,2,3,4,3,2,1 for grades 0..6. Pivot of ⟨a,k|: e_{a+1,4−k}.\n\n| word | covector |\n|---|---|\n| ⟨0,0\\| | e14 |\n| ⟨0,1\\| | hθ e13 |\n| ⟨0,2\\| | h²θ² e12 |\n| ⟨0,3\\| | h³θ²[(θ−h) e11 − h(e22+e33+e44)] |\n| ⟨1,0\\| | h[h e13 + (θ−h) e24] |\n| ⟨1,1\\| | h²θ[h e12 + (θ−h) e23] |\n| ⟨1,2\\| | h³θ²[(θ−2h) e22 − h(e33+e44)] |\n| ⟨1,3\\| | h⁴θ³[(θ−2h) e21 − h(e32+e43)] |\n| ⟨2,0\\| | 2h²(h−θ)[(2h−θ) e34 − h(e12+e23)] |\n| ⟨2,1\\| | 2h³θ(h−θ)[(3h−θ) e33 + h e44] |\n| ⟨2,2\\| | 2h⁴θ²(h−θ)[(3h−θ) e32 + h e43] |\n| ⟨2,3\\| | 2h⁵θ³(h−θ)[(3h−θ) e31 + h e42] |\n| ⟨3,k\\| | −6h^{3+k}θ^k(h−θ)(2h−θ)(4h−θ) e4,4−k (k = 0..3) |",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 3. Closed-form coefficients c_ak(v,u) of a general product bra\n\n⟨v⊗u| = Σ_{a,k} c_ak(v,u) ⟨a,k|. Each c_ak is bilinear in (v,u) and contains only the products v_i u_j with i − j + 3 = a + k (the grading).",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "opv = {opv1, opv2, opv3, opv4}; opu = {opu1, opu2, opu3, opu4};\nopWinv = Together[Inverse[opWth]];\nopCoef = Factor[Flatten[Outer[Times, opv, opu]] . opWinv];   (* <v (x) u| = sum_ak c_ak <a,k| ; index 4 a + k + 1 *)\nopc[a_, k_] := opCoef[[4 a + k + 1]];\nopChecks2[\"reconstruction: sum_ak c_ak <a,k| = v (x) u\"] = opZeroQ[Together[opCoef . opWth - Flatten[Outer[Times, opv, opu]]]];\nGrid[Prepend[Flatten[Table[{Row[{\"c(\", a, \",\", k, \")\"}], opc[a, k]}, {a, 0, 3}, {k, 0, 3}], 1], {\"label (a,k)\", \"c_ak(v, u), theta = theta12\"}], Frame -> All, Alignment -> Left]",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "**Result (python `step1c.py`, [exact-sym]; reconstruction check True), θ = θ₁₂:**\n\n| (a,k) | c_ak(v,u) |\n|---|---|\n| (0,0) | v₁u₄ |\n| (0,1) | [(h−θ)v₁u₃ + h v₂u₄] / (hθ(h−θ)) |\n| (0,2) | [(h−θ)v₁u₂ + h(v₂u₃ + v₃u₄)] / (h²θ²(h−θ)) |\n| (0,3) | −v₁u₁ / (h³θ²(h−θ)) |\n| (1,0) | −v₂u₄ / (h(h−θ)) |\n| (1,1) | −[(2h−θ)v₂u₃ + h v₃u₄] / (h²θ(h−θ)(2h−θ)) |\n| (1,2) | [h v₁u₁ + (θ−h)v₂u₂] / (h³θ²(h−θ)(2h−θ)) |\n| (1,3) | −v₂u₁ / (h⁴θ³(2h−θ)) |\n| (2,0) | v₃u₄ / (2h²(h−θ)(2h−θ)) |\n| (2,1) | −[h(v₁u₁+v₂u₂) + (θ−2h)v₃u₃] / (2h³θ(h−θ)(2h−θ)(3h−θ)) |\n| (2,2) | −[h v₂u₁ + (θ−2h)v₃u₂] / (2h⁴θ²(h−θ)(2h−θ)(3h−θ)) |\n| (2,3) | v₃u₁ / (2h⁵θ³(h−θ)(3h−θ)) |\n| (3,0) | [h(v₁u₁+v₂u₂+v₃u₃) + (θ−3h)v₄u₄] / (6h³(h−θ)(2h−θ)(3h−θ)(4h−θ)) |\n| (3,1) | [h(v₂u₁+v₃u₂) + (θ−3h)v₄u₃] / (6h⁴θ(h−θ)(2h−θ)(3h−θ)(4h−θ)) |\n| (3,2) | [h v₃u₁ + (θ−3h)v₄u₂] / (6h⁵θ²(h−θ)(2h−θ)(3h−θ)(4h−θ)) |\n| (3,3) | −v₄u₁ / (6h⁶θ³(h−θ)(2h−θ)(4h−θ)) |\n\nAll coefficients are z-independent, depend only on θ₁₂ and h, and live on one anti-diagonal i − j = a + k − 3. The pairing v·u enters only through grade 3, in c₀₃, c₁₂, c₂₁ and c₃₀.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 4. Weight row of the determinant: closed form\n\nThe exact formula (verified in §9) is\n\n$$\\langle v\\otimes u|\\Psi\\rangle=\\langle0|\\Psi\\rangle\\,\\frac{\\det\\begin{pmatrix}w_0&w_1&w_2&w_3\\\\Q_1(x_b)\\\\Q_2(x_b)\\\\Q_3(x_b)\\end{pmatrix}}{Q_{123}(\\theta_1-h)},\\quad w_b=(-1)^b\\sum_k c_{bk}(v,u)\\,r^k,\\quad r=\\tau_1(\\theta_2)=\\frac{Q_j(\\theta_2+h)}{Q_j(\\theta_2)}\\ (\\forall j),$$\n\nwith x_b = θ₁−bh, Q's in Γ-gauge, and the weight row FIRST. This is Laplace expansion: Σ_b(−1)^b w_b D_b = det[w; Q₁; Q₂; Q₃], with τ_b(θ₁−h) = D_b/D₀.\n\nWrite R := r/(hθ₁₂). Then N_b w_b = Num_b is a cubic in R with\n- N_b = b! h^b ∏_{m=1}^{b+1}(mh−θ₁₂) = (h−θ₁₂) Γ(θ₁)/Γ(θ₁−bh). **This is exactly the Γ-gauge factor of column b.**\n- Num_b = u(R)[(bh−θ)v_{b+1} + h Σ_{i>b} v_i R^{i−b−1}] − h R^{3−b} 𝒮(R)  (\"S form\"),\n- or equivalently Num_b = u(R)[(bh−θ)v_{b+1} − h Σ_{i≤b} v_i R^{i−1−b}] + h R^{−b} 𝒯(R)  (\"T form\"),\n\nwhere u(R) = Σ_j u_j R^{4−j} = u·(R³,R²,R,1), 𝒮(R) = Σ_{i≥j} v_i u_j R^{i−j} (contains v·u), and 𝒯(R) = Σ_{i<j} v_i u_j R^{3+i−j}. Note 𝒯 + R³𝒮 = u(R)·Σ_i v_i R^{i−1}.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "opuR = opu . {opR^3, opR^2, opR, 1};\nopSup = Sum[If[i >= j, opv[[i]] opu[[j]] opR^(i - j), 0], {i, 4}, {j, 4}];\nopTlow = Sum[If[i < j, opv[[i]] opu[[j]] opR^(3 + i - j), 0], {i, 4}, {j, 4}];\nopNb[b_] := b! opH^b Product[m opH - opTheta, {m, 1, b + 1}];\nopWrow[b_] := (-1)^b Sum[opc[b, k] (opH opTheta opR)^k, {k, 0, 3}];\nopNum[b_] := opuR ((b opH - opTheta) opv[[b + 1]] + opH Sum[opv[[i]] opR^(i - b - 1), {i, b + 1, 4}]) - opH opR^(3 - b) opSup;\nopNumP[b_] := opuR ((b opH - opTheta) opv[[b + 1]] - opH Sum[opv[[i]] opR^(i - 1 - b), {i, 1, b}]) + opH opR^(-b) opTlow;\nGrid[Prepend[Table[{b, Together[opWrow[b] - opNum[b]/opNb[b]] === 0, Together[opWrow[b] - opNumP[b]/opNb[b]] === 0}, {b, 0, 3}], {\"b\", \"w_b = Num_b/N_b (S form)\", \"w_b = Num'_b/N_b (T form)\"}], Frame -> All]",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "**Result (python `wclosed.py`, [exact-sym]):** both closed forms hold identically for b = 0..3: **True, True**.\n\nConsequence: in the polynomial-twisted gauge Q̃_j(u) = z_j^{u/h} q_j(u) the Γ factors cancel against N_b, and R = Q̃_j(θ₂+h)/Q̃_j(θ₂) for every j. So\n\n$$\\frac{\\langle v\\otimes u|\\Psi\\rangle}{\\langle0|\\Psi\\rangle}=\\frac{\\det[\\,\\mathrm{Num}_b(v,u;R);\\ \\tilde Q_1(x_b);\\ \\tilde Q_2(x_b);\\ \\tilde Q_3(x_b)\\,]}{(h-\\theta_{12})\\,\\tilde Q_{123}(\\theta_1-h)}.$$",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 5. Sparsity: BPS pairs, one-site rotations, twist-adapted pairs\n\nBecause of the grading, c_ak(v,u) ≠ 0 needs some v_i u_j ≠ 0 with i − j + 3 = a + k. Twist-adapted pairs are v = e₁ p(Gᵀ), u = e₄ q(G). Then v has support {1..deg p + 1} and u has support {4 − deg q..4}, so only grades ≤ deg p + deg q occur. (Every v and every u is twist-adapted for some p, q of degree ≤ 3, since e₁ and e₄ are cyclic.) The pairing is v·u = [(pq)(G)]₄₁, which is the degree-3 coefficient of pq reduced mod the characteristic polynomial. So pairs with deg p + deg q ≤ 2 are automatically BPS.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "opSupport[vv_, uu_] := Select[Flatten[Table[{a, k, Factor[opc[a, k] /. Thread[opv -> vv] /. Thread[opu -> uu]]}, {a, 0, 3}, {k, 0, 3}], 1], #[[3]] =!= 0 &];\nope1 = {1, 0, 0, 0}; ope4 = {0, 0, 0, 1};\nopCases = {{\"A only, generic v; u = e4\", opv, ope4}, {\"F only, generic u; v = e1\", ope1, opu},\n   {\"A only, deg 1: v = e1(alpha + beta G^T), u = e4\", ope1 . (opAl opId4 + opBe Transpose[opGs]), ope4},\n   {\"F only, deg 1: v = e1, u = e4(gamma + delta G)\", ope1, ope4 . (opGa opId4 + opDe opGs)},\n   {\"both deg 1 (automatically BPS)\", ope1 . (opAl opId4 + opBe Transpose[opGs]), ope4 . (opGa opId4 + opDe opGs)}};\nopSparsity = Map[Function[cs, With[{sp = opSupport[cs[[2]], cs[[3]]]}, {cs[[1]], Length[sp], Column[Map[Row[{\"(\", #[[1]], \",\", #[[2]], \"): \", #[[3]]}] &, sp]]}]], opCases];\nColumn[{Grid[Prepend[opSparsity, {\"bra\", \"# words\", \"nonzero c_ak\"}], Frame -> All, Alignment -> Left],\n  Row[{\"BPS (u4 eliminated by v.u = 0): c(3,0) = \", Factor[opc[3, 0] /. opu4 -> -(opv1 opu1 + opv2 opu2 + opv3 opu3)/opv4]}]}]",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "**Result (python `sparsity.py`, [exact-sym]):**\n\n| bra | # words | nonzero c_ak |\n|---|---|---|\n| A only, generic v, u = e₄ | 7 | (0,0) v₁; (0,1) v₂/(θ(h−θ)); (0,2) v₃/(hθ²(h−θ)); (1,0) −v₂/(h(h−θ)); (1,1) −v₃/(hθ(h−θ)(2h−θ)); (2,0) v₃/(2h²(h−θ)(2h−θ)); (3,0) −v₄/(6h³(h−θ)(2h−θ)(4h−θ)) |\n| F only, generic u, v = e₁ | 7 | (0,0) u₄; (0,1) u₃/(hθ); (0,2) u₂/(h²θ²); (0,3) −u₁/(h³θ²(h−θ)); (1,2) u₁/(h²θ²(h−θ)(2h−θ)); (2,1) −u₁/(2h²θ(h−θ)(2h−θ)(3h−θ)); (3,0) u₁/(6h²(h−θ)(2h−θ)(3h−θ)(4h−θ)) |\n| A only, deg 1, v = e₁(α+βGᵀ) | 3 | (0,0) α+βc₁; (0,1) β/(θ(h−θ)); (1,0) −β/(h(h−θ)) |\n| F only, deg 1, u = e₄(γ+δG) | 2 | (0,0) γ; (0,1) δ/(hθ) |\n| both deg 1 (BPS) | 5 | (0,0) γ(α+βc₁); (0,1) [(α+βc₁)δ(h−θ) + βγh]/(hθ(h−θ)); (0,2) βδ/(hθ²(h−θ)); (1,0) −βγ/(h(h−θ)); (1,1) −βδ/(h²θ(h−θ)) |\n\nBPS: a generic BPS pair still needs all 16 words, because v·u = 0 removes no single product v_i u_j. The only simplification is in grade 3: c₃₀ = (v₁u₁+v₂u₂+v₃u₃)/(6h³(h−θ)(2h−θ)(3h−θ)) = −v₄u₄/(6h³(h−θ)(2h−θ)(3h−θ)), so the (4h−θ) pole drops out. Note that rotating only the A site already needs F-site words: e₂⊗e₄ = combination of ⟨1,0| and ⟨0,1|.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 6. Eigenstates at P1\n\nThe twisted chain is conjugate to the diagonal-twist chain. The 12 product eigenkets are P_ab = p_a ⊗ V_b (a ≠ b). Here p_a is the coefficient vector of ∏_{m≠a}(y − z_m), the eigenvector of Gᵀ with eigenvalue z_a. V_b = (z_b³, z_b², z_b, 1) is the eigenvector of G with eigenvalue z_b. The 4 zero-weight eigenkets lie in span{p_i⊗V_i}. On that span t₁(u) = f(u)·1 + C with a constant 4×4 matrix C, whose characteristic polynomial is an irreducible quartic. The eigenvalue polynomials τ_a(U) are read off component 4 (= ⟨0|Ψ⟩ ≠ 0).",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "opHN = 1/2; opThN = {2/7, -3/5}; opzN = {3/2, 5/4, 2/3, 4/7}; opGN = opGc[opEsym[opzN]];\nopThetaN = opThN[[1]] - opThN[[2]];\nopTU = Table[opT2[a, opU, opThN, opHN, opGN], {a, 1, 4}];   (* t_a(U), polynomial in opU *)\nopPv[a_] := Reverse[CoefficientList[Product[opx - opzN[[m]], {m, Complement[Range[4], {a}]}], opx]];\nopVv[z_] := {z^3, z^2, z, 1};\nopPairs = Select[Tuples[Range[4], 2], #[[1]] != #[[2]] &];\nopKetsP = Map[Flatten[Outer[Times, opPv[#[[1]]], opVv[opzN[[#[[2]]]]]]] &, opPairs];\nopBz = Transpose[Table[Flatten[Outer[Times, opPv[i], opVv[opzN[[i]]]]], {i, 4}]];   (* 16 x 4 *)\nopCz = LinearSolve[Transpose[opBz] . opBz, Transpose[opBz] . (opTU[[1]] /. opU -> 0) . opBz];\nopMinPoly = Factor[CharacteristicPolynomial[opCz, opLam]];\nopKetsM = Map[opBz . # &, Eigenvectors[N[opCz, 80]]];   (* 4 zero-weight states, 80 digits *)\nopKets = Join[opKetsP, opKetsM];\nopLabels = Join[Map[\"P\" <> ToString[#[[1]]] <> ToString[#[[2]]] &, opPairs], {\"M1\", \"M2\", \"M3\", \"M4\"}];\nopTauPoly[ket_] := Prepend[Table[Expand[(opTU[[a]] . ket)[[4]]/ket[[4]]], {a, 1, 4}], 1];\nopTaus = Map[opTauPoly, opKets];   (* {1, tau1(U), tau2(U), tau3(U), tau4(U)} per state *)\nopEigDev = Table[With[{M = opTU[[1]] /. opU -> 3/11, ket = opKets[[n]]}, Max[Abs[N[M . ket - (opTaus[[n, 2]] /. opU -> 3/11) ket, 40]]]], {n, 16}];\nColumn[{Row[{\"char. polynomial of the zero-weight block: \", opMinPoly, \";  irreducible over Q: \", IrreduciblePolynomialQ[Numerator[Together[opMinPoly]]]}],\n  Grid[Prepend[Transpose[{opLabels, opEigDev, Map[Factor, opTaus[[;; 12, 2]]]}], {\"state\", \"|t1 psi - tau1 psi| at U = 3/11\", \"tau1(U)\"}], Frame -> All]}]",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "**Result (python `step2.py`, `step2c.py`, `exact_all.py`):** the 12 product kets are exact eigenkets of t₁..t₄ [exact]. Zero-weight block: t₁(U)|_span = f(U)·1 + C, with characteristic polynomial (monic) λ⁴ + 1521λ³/3920 − 338753λ²/1097600 + 4389029λ/184396800 + 37887/70246400, **irreducible over Q**. Its 4 real roots give the 4 zero-weight eigenkets M1..M4. In python these are treated exactly in Q[λ]/m(λ) (`exact_all.py`) and numerically at 50 digits (`states.py`). Example eigenvalues: τ₁(U) = (23450U² + 8105U − 324)/5880 for P12, …; the U² coefficient 3.98810 is common to all states. τ₄(U) is the same for all states (quantum determinant).",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 7. Q-functions from the polynomial Baxter equation\n\nWith Q_j = Γ z_j^{u/h} q_j and Γ(u+h) = V₄(u)Γ(u), the Baxter equation Σ_a(−1)^a t_a(u) Q(u+h−ah) = 0 becomes\n\nΣ_{a=0}^{4} (−1)^a τ_a(u) z_j^{4−a} q_j(u+h−ah) ∏_{b=a}^{3} V₄(u−bh) = 0,\n\nwith V₄(u) = (u−θ₁)(u−θ₂−h). The cell solves for q_j of degree ≤ 2 for each state and each j = 1..4 (the twist label).",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "opV4N[x_] := (x - opThN[[1]]) (x - opThN[[2]] - opHN);\nopQsolve[taus_List, zj_] := Module[{q0, q1, q2, eq, mat, vec},\n   eq = Expand[Sum[(-1)^a taus[[a + 1]] zj^(4 - a) ((q0 + q1 opx + q2 opx^2) /. opx -> opU + opHN - a opHN) Product[opV4N[opU - b opHN], {b, a, 3}], {a, 0, 4}]];\n   mat = Normal[Last[CoefficientArrays[CoefficientList[eq, opU], {q0, q1, q2}]]];\n   vec = If[Precision[mat] === Infinity, First[NullSpace[mat]], Chop[SingularValueDecomposition[mat][[3]][[All, -1]], 10^-50]];\n   Expand[vec . {1, opx, opx^2}]];\nopQs = Table[opQsolve[opTaus[[n]], opzN[[j]]], {n, 16}, {j, 4}];   (* q_j(opx) per state, unnormalised *)\nopDegs = Map[Exponent[#, opx] &, opQs, {2}];\nGrid[Prepend[Transpose[{opLabels, opDegs}], {\"state\", \"deg(q1, q2, q3, q4)\"}], Frame -> All]",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "**Result (python `step2b.py`, `qfun.py`, `exact_all.py`):** each j gives a 1-dimensional solution space [exact]. Degrees:\n\n- product state P_ab: **deg q_a = 2, deg q_b = 0, the other two have degree 1** (P12: (2,0,1,1), P13: (2,1,0,1), P14: (2,1,1,0), P21: (0,2,1,1), P23: (1,2,0,1), P24: (1,2,1,0), P31: (0,1,2,1), P32: (1,0,2,1), P34: (1,1,2,0), P41: (0,1,1,2), P42: (1,0,1,2), P43: (1,1,0,2));\n- zero-weight states M1..M4: **(1,1,1,1)**.\n\nThe total degree is 4 in every case. Roots are generic, not on the lattices θ + hZ. This confirms that the Q's in RV's Γ[V₄]-gauge are polynomials (times z^{u/h}); \"degree ≤ 1\" is too small for the 12 product states.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 8. Dictionary checks on all 16 states\n\nQ values in Γ-gauge, with the state-independent factors Γ(θ₁−3h) z_j^{θ₁/h} (A lattice) and Γ(θ₂) z_j^{θ₂/h} (F lattice) stripped off. That leaves Q_j(θ₁−bh) → g_A(b) z_j^{−b} q_j(θ₁−bh), g_A(b) = ∏_{l=b+1}^{3} V₄(θ₁−lh), and Q_j(θ₂+mh) → V₄(θ₂)^m z_j^m q_j(θ₂+mh), m = 0, 1. Checks:\n- (i) r = τ₁(θ₂) = Q_j(θ₂+h)/Q_j(θ₂) for every j;\n- (ii) τ_a(θ₁−h) = D_a/D₀ with D_a = det_{i∈triple; b≠a} Q_i(x_b), for **all four** triples of Q's;\n- (iii) the 4×4 Casoratian Q₁₂₃₄(θ₁) = det[Q_i(x_b)]_{i,b} vanishes (rank 3), equivalent to t₄(θ₁−h) = 0.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "opgA[b_] := Product[opV4N[opThN[[1]] - l opHN], {l, b + 1, 3}];\nopQA[n_, j_, b_] := opgA[b] opzN[[j]]^(-b) (opQs[[n, j]] /. opx -> opThN[[1]] - b opHN);\nopQF[n_, j_, m_] := If[m == 1, opV4N[opThN[[2]]], 1] opzN[[j]]^m (opQs[[n, j]] /. opx -> opThN[[2]] + m opHN);\nopRel[x_, y_] := If[Precision[{x, y}] === Infinity, If[Together[x - y] === 0, 0, Infinity], Abs[x - y]/Max[Abs[x], Abs[y], 10^-100]];\nopTauAt[n_, a_, x_] := opTaus[[n, a + 1]] /. opU -> x;\nopDict = Table[Module[{r = opTauAt[n, 1, opThN[[2]]], devR, devTau, mat4},\n    devR = Max[Table[opRel[opQF[n, j, 1], r opQF[n, j, 0]], {j, 4}]];\n    devTau = Max[Flatten[Table[With[{dd = Table[Det[Table[opQA[n, i, b], {i, trip}, {b, Complement[Range[0, 3], {a}]}]], {a, 0, 3}]},\n         Table[opRel[dd[[a + 1]], opTauAt[n, a, opThN[[1]] - opHN] dd[[1]]], {a, 0, 3}]], {trip, Subsets[Range[4], {3}]}]]];\n    mat4 = Table[opQA[n, i, b], {i, 4}, {b, 0, 3}];\n    {opLabels[[n]], N[devR, 3], N[devTau, 3], N[Abs[Det[mat4]]/Max[Abs[Flatten[mat4]]]^4, 3]}], {n, 16}];\nGrid[Prepend[opDict, {\"state\", \"r = Q_j(th2+h)/Q_j(th2), all j (rel dev)\", \"tau_a(th1-h) = D_a/D_0, all 4 triples (rel dev)\", \"|Q1234(th1)| / max|Q|^4\"}], Frame -> All]",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "**Result (python `exact_all.py` [exact, all 16 states; the 4 zero-weight states at once in Q[λ]/m(λ)], cross-checked by `verify1.py` [num, 50 digits]):** all True / zero exactly:\n- (i) r = Q_j(θ₂+h)/Q_j(θ₂) holds **for all four j** (16/16 states). Numeric max rel dev 1.2e−49.\n- (ii) τ_a(θ₁−h) = D_a/D₀ holds **for every triple** of the four Q's: {1,2,3}, {1,2,4}, {1,3,4}, {2,3,4} (16/16). Numeric max rel dev 1.4e−46. D₀ = Q₁₂₃(θ₁−h), D₃ = Q₁₂₃(θ₁).\n- (iii) Q₁₂₃₄(θ₁) = 0 exactly (16/16).\n- Also t₂(θ₂) = t₃(θ₂) = t₄(θ₂) = t₄(θ₁−h) = 0 on every state (§1 at operator level).\n\nThe dictionary of `notes/rv-sov-dictionary.md` §2, §6 is **independently validated** at L = 2, including the \"any j\" statement for the F site and its analogue \"any triple\" for the A site.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 9. The determinant formula on all 16 states, and its product/singlet decomposition\n\nThe cell tests, for 3 random rational (v,u) per state, that ⟨v⊗u|Ψ⟩/⟨0|Ψ⟩ equals:\n- **(A) Γ-gauge:** det[w; Q₁; Q₂; Q₃](x_b)/Q₁₂₃(θ₁−h), w_b = (−1)^b Σ_k c_bk r^k;\n- **(B) polynomial-twisted gauge, decomposed:** [u(R)·det[ν′(v,R); Q̃₁; Q̃₂; Q̃₃] + h 𝒯(R)·det[R^{−b}; Q̃₁; Q̃₂; Q̃₃]] / ((h−θ₁₂) Q̃₁₂₃(θ₁−h)), where ν′_b = (bh−θ)v_{b+1} − hΣ_{i≤b} v_i R^{i−1−b} and R = r/(hθ₁₂).\n\nThe second determinant is the **4×4 Casoratian of the four functions R^{u/h}, Q̃₁, Q̃₂, Q̃₃** on the A lattice (up to R^{θ₁/h}). Equivalently it is Q̃₁₂₃(θ₁−h)·R^{−3}χ_A(R), where χ_A(y) = Σ_b(−1)^b τ̃_b y^{3−b} and τ̃_b = D̃_b/D̃₀ are the A-site Baxter coefficients.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "opCoefN = opCoef /. {opTheta -> opThetaN, opH -> opHN};\nSeedRandom[2];\nopDetCheck = Table[Module[{v = RandomInteger[{-9, 9}, 4]/RandomInteger[{1, 7}, 4], u = RandomInteger[{-9, 9}, 4]/RandomInteger[{1, 7}, 4], cn, r, R, w, lhs, rhs, Qrows, Qt123, nup, cas, uR, Tl, rhs2},\n     cn = opCoefN /. Thread[opv -> v] /. Thread[opu -> u];\n     r = opTauAt[n, 1, opThN[[2]]];\n     lhs = Flatten[Outer[Times, v, u]] . opKets[[n]]/opKets[[n, 4]];\n     w = Table[(-1)^b Sum[cn[[4 b + k + 1]] r^k, {k, 0, 3}], {b, 0, 3}];\n     rhs = Det[Prepend[Table[opQA[n, i, b], {i, 3}, {b, 0, 3}], w]]/Det[Table[opQA[n, i, b], {i, 3}, {b, 1, 3}]];\n     R = r/(opHN opThetaN);\n     Qrows = Table[opzN[[i]]^(-b) (opQs[[n, i]] /. opx -> opThN[[1]] - b opHN), {i, 3}, {b, 0, 3}];   (* Q~ stripped of z^(theta1/h) *)\n     Qt123 = Det[Qrows[[All, 2 ;; 4]]];\n     uR = u . {R^3, R^2, R, 1};\n     Tl = Sum[If[i < j, v[[i]] u[[j]] R^(3 + i - j), 0], {i, 4}, {j, 4}];\n     nup = Table[(b opHN - opThetaN) v[[b + 1]] - opHN Sum[v[[i]] R^(i - 1 - b), {i, 1, b}], {b, 0, 3}];\n     cas = Det[Prepend[Qrows, Table[R^(-b), {b, 0, 3}]]];\n     rhs2 = (uR Det[Prepend[Qrows, nup]] + opHN Tl cas)/((opHN - opThetaN) Qt123);\n     {opRel[lhs, rhs], opRel[lhs, rhs2], If[Precision[cas] === Infinity, cas === 0, N[cas/Qt123, 6]]}], {n, 16}, {trial, 3}];\nGrid[Prepend[Table[{opLabels[[n]], N[Max[opDetCheck[[n, All, 1]]], 3], N[Max[opDetCheck[[n, All, 2]]], 3], opDetCheck[[n, 1, 3]]}, {n, 16}], {\"state\", \"(A) Gamma-gauge det: max rel dev\", \"(B) decomposition: max rel dev\", \"R-Casoratian / Q~123 (= R^-3 chi_A(R)); True = exactly 0\"}], Frame -> All]",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "**Result (python `exact_all.py` [exact, 16/16 states, 3 random rational (v,u) each; zero-weight states in Q[λ]/m(λ)], `verify2.py`, `verify3.py` [num 50 digits, max rel dev 1.0e−46 and 4.8e−47]):**\n- **(A) holds exactly on all 16 states.** With the RV vacuum normalisation ⟨0|Ψ⟩ = Q₁Q₁₂Q₁₂₃(θ₂)·Q₁(θ₁)Q₁₂(θ₁)Q₁₂₃(θ₁−h), the factor Q₁₂₃(θ₁−h) cancels:\n\n  **⟨v⊗u|Ψ⟩ = Q₁Q₁₂Q₁₂₃(θ₂) · Q₁(θ₁)Q₁₂(θ₁) · det[ w_b ; Q₁(x_b) ; Q₂(x_b) ; Q₃(x_b) ]_{b=0..3}**, with x_b = θ₁−bh and w_b = (−1)^b Σ_k c_bk(v,u) r^k. There is no extra constant.\n- **(B) holds exactly on all 16 states.** It is the same identity rewritten in the gauge Q̃ = z^{u/h}q.\n- **R-Casoratian:** exactly 0 on all 12 product states (there R = z_b and deg q_b = 0, so R^{u/h} ∝ Q̃_b; for b = 4 the 4×4 Casoratian is Q̃₁₂₃₄(θ₁) = 0). Nonzero on the zero-weight states (R^{−3}χ_A(R) = −8.5394, 0.0019078, −0.018615, 0.0069094 for M1..M4). So on product states **⟨v⊗u|Ψ⟩/⟨0|Ψ⟩ = u(R) × det[ν′(v,R); Q̃₁; Q̃₂; Q̃₃]/((h−θ₁₂)Q̃₁₂₃(θ₁−h))**: an F-site polynomial times an A-site 4×4 determinant, reproducing (v·p_a)(u·V_b). The singlet-mixed states pick up the extra term h𝒯(R)·Cas[R^{u/h}, Q̃₁, Q̃₂, Q̃₃].\n\n**Absorbing r into Q's.** The weight row is a cubic in r = Q_j(θ₂+h)/Q_j(θ₂) (all j). Only the two F points θ₂, θ₂+h are constrained (Q(θ₂+h) = rQ(θ₂); in Γ-gauge Q(θ₂+2h) = 0 and Q₁₂₃(θ₂+h) = 0). A determinant over the four Q's with F columns at θ₂, θ₂+h can therefore only be linear in r: replacing a column by Q(θ₂) gives E_b = det[Q(x_{b′≠b}), Q(θ₂)] = τ_b E₀, and Q(θ₂+h) gives rE_b. **No single 4×4 determinant of Q-values reproduces a general bra.** What works exactly:\n- (a) the 4×4 det with the polynomial weight row (A, B);\n- (b) the SoV sum Σ_{k=0}^{3} F_k · det[(−1)^b c_bk; Q₁; Q₂; Q₃], where F_k/F₀ = r^k are RV's F-site Slater products (columns θ₂ + h[n≤k], θ₂−h, θ₂−2h);\n- (c) the decomposition (B), \"polynomial × det + polynomial × Casoratian of four functions\". This reduces to polynomial × det on the 12 product states.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 10. The ⟨0|Ψ⟩ formula: a normalisation convention, not a testable identity\n\n⟨0|Ψ⟩ alone depends on the normalisation of the ket. The RV formula ⟨0|Ψ⟩ = Q₁Q₁₂Q₁₂₃(θ₂)Q₁(θ₁)Q₁₂(θ₁)Q₁₂₃(θ₁−h) scales like λ₁⁶λ₂⁴λ₃² under Q_j → λ_jQ_j. It is RV's (5.20) with ⟨Ω_σ|Ψ⟩ = 1, which is a statement about operator-normalised Q's. The cell compares it with the canonical z-polynomial kets p_a⊗V_b (⟨0|Ψ⟩ = 1) and monic q_j.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "opMonic[p_] := Expand[p/Coefficient[p, opx, Exponent[p, opx]]];\nopQtN[n_, j_, x_] := N[opzN[[j]]^(x/opHN), 40] (opMonic[opQs[[n, j]]] /. opx -> x);\nopQ12N[n_, x_] := opQtN[n, 1, x] opQtN[n, 2, x - opHN] - opQtN[n, 2, x] opQtN[n, 1, x - opHN];\nopQ123N[n_, x_] := Det[Table[opQtN[n, i, x - (k - 1) opHN], {i, 3}, {k, 3}]];\nopVacForm = Table[With[{t1 = opThN[[1]], t2 = opThN[[2]]}, opQtN[n, 1, t2] opQ12N[n, t2] opQ123N[n, t2] opQtN[n, 1, t1] opQ12N[n, t1] opQ123N[n, t1 - opHN]], {n, 12}];\nGrid[Prepend[Table[{opLabels[[n]], opKets[[n, 4]], N[opKets[[n, 4]]/opVacForm[[n]], 10]}, {n, 12}], {\"state\", \"<0|Psi> for p_a (x) V_b\", \"<0|Psi> / RV product (monic q, Q~ gauge)\"}], Frame -> All]",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "**Result (python `vacnorm.py`, [num]):** the ratio depends on the state: P12 −12323.39, P13 −605469.5, P14 8879886, P21 −1686589, P23 −3.354e7, P24 385373.0, P31 −278237.8, P32 −43866.31, P34 48704.57, P41 −3784034, P42 −596581.9, P43 −1.375e8. With monic q's and canonical kets there is no state-independent constant. **Without a Q-operator normalisation the formula fixes the ket normalisation** (RV's ⟨Ω_σ|Ψ⟩ = 1); it cannot be tested independently. Everything normalisation-independent is verified exactly: all ratios ⟨a,k|Ψ⟩/⟨0|Ψ⟩, the dictionary, and ⟨v⊗u|Ψ⟩/⟨0|Ψ⟩. Its frozen factors are consistent with RV (5.20): A site Q₁(x₁₁ = θ_A), Q₁₂(θ_A, θ_A−h), Q₁₂₃(θ_A−h,…); F site Q₁(θ_F)Q₁₂(θ_F)Q₁₂₃(θ_F). A real test needs the dual (ket) SoV basis and its measure, so that one can form ⟨0|Ψ⟩⟨Ψ|0′⟩/⟨Ψ|Ψ⟩ (open, dictionary note §4).",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 11. Global rotations: the twist torus is a polynomial in the SoV words\n\n⟨vac|ρ(g) = (e₁g)⊗(e₄g^{−T}) is always a BPS pair. For X in the torus C[Gᵀ] (ρ(X) = X⊗X^{−T} commutes with all t_a, spectrum simple) we have ρ(X) ∈ Bethe algebra. The 16 words t_a(θ₁−h)t₁(θ₂)^k are independent (they are independent on ⟨0|), so **ρ(X) = Σ_ak c_ak(e₁X, e₄X^{−T}) t_a(θ₁−h) t₁(θ₂)^k as operators**. Hence:\n- c(gX) = c(g) ⋆ c(X) (product in the Bethe algebra), and the overlap gets multiplied by the character χ_X(Ψ): **det[w(gX); Q]/Q₁₂₃ = det[w(g); Q]/Q₁₂₃ · χ_X**.\n- χ_X = f(z_a)/f(z_b) on P_ab (X = f(Gᵀ); z_b = R, z_a = τ₁(θ₁)/(hθ₁₂)) and χ_X = 1 on the zero-weight states.\n- Left multiplication g → Xg is not covariant (ρ(X) acts first, on ⟨0|, and does not commute with ρ(g)).\n\nExplicitly, for X = 1 − κGᵀ: v = e₁X = (1−κc₁, −κ, 0, 0) and u(R) = e₄(1−κG)^{−1}·(R³,R²,R,1) = (1 − χ_G(R)/χ_G(1/κ))/(1 − κR), the cubic interpolant of 1/(1−κy) on the twist eigenvalues (χ_G = characteristic polynomial of G).",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "opk = 2/9; opX = opId4 - opk Transpose[opGN];\nopRhoX = KroneckerProduct[opX, Transpose[Inverse[opX]]];\nopWordOps = Flatten[Table[opT2[a, opThN[[1]] - opHN, opThN, opHN, opGN] . MatrixPower[opT2[1, opThN[[2]], opThN, opHN, opGN], k], {a, 0, 3}, {k, 0, 3}], 1];\nopcX = opCoefN /. Thread[opv -> opX[[1]]] /. Thread[opu -> Transpose[Inverse[opX]][[4]]];\nopChiG[y_] := y^4 - opc1 y^3 + opc2 y^2 - opc3 y + opc4;\nopChar = Table[(opVac2 . opRhoX . opKets[[n]])/opKets[[n, 4]], {n, 16}];\nopCharPred = Join[Map[(1 - opk opzN[[#[[1]]]])/(1 - opk opzN[[#[[2]]]]) &, opPairs], {1, 1, 1, 1}];\nGrid[{{\"rho(X) = sum_ak c_ak(X) t_a(th1-h) t1(th2)^k (operator identity, X = 1 - 2/9 G^T)\", opZeroQ[opcX . opWordOps - opRhoX]},\n  {\"#nonzero c_ak(X)\", Count[opcX, x_ /; x =!= 0]},\n  {\"<vac|rho(X)|Psi>/<0|Psi> = (1 - k z_a)/(1 - k z_b) on P_ab, 1 on M (max rel dev)\", N[Max[MapThread[opRel, {opChar, opCharPred}]], 3]},\n  {\"u(R) = (1 - chi_G(R)/chi_G(1/k))/(1 - k R) for u = e4 (1 - k G)^-1 (symbolic)\", Together[({0, 0, 0, 1} . Inverse[opId4 - opkS opGs]) . {opR^3, opR^2, opR, 1} - (1 - opChiG[opR]/opChiG[1/opkS])/(1 - opkS opR)] === 0}}, Frame -> All, Alignment -> Left]",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "**Result (python `torus.py` [exact], `torus_uR.py` [exact-sym]):** the operator identity ρ(X) = Σ c_ak(X) t_a(θ₁−h)t₁(θ₂)^k holds **exactly** for X = 1 − (2/9)Gᵀ (10 nonzero c_ak) and for X = 2 − Gᵀ + 3Gᵀ² (14 nonzero). It commutes with all t's. The u(R) interpolation formula holds symbolically. The characters follow: f(z_a)/f(z_b) on P_ab, 1 on zero-weight states. So under right multiplication by the torus the weight row transforms by Bethe-algebra multiplication, and the overlap is multiplied by a ratio of twist eigenvalues. For general g the SoV coefficients of e₁g⊗e₄g^{−T} are dense (16 words), and nothing simpler than (A)/(B) applies.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 12. Two pairs A F A F (256): the SoV words at P1\n\n⟨a₁,k₂,a₃,k₄| = ⟨0|t_{a₁}(θ₁−h) t₁(θ₂)^{k₂} t_{a₃}(θ₃−h) t₁(θ₄)^{k₄}, with θ = (2/7, −3/5, 8/11, −11/8). These are generic, so the words are the RV B-eigenbasis (`sov-companion-L4.wb`). The construction acts with transfer matrices on bras (sparse 256-dim twisted monodromy), exactly in rationals.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "opSiteOp[L_, s_, M_] := KroneckerProduct @@ Table[SparseArray[If[t == s, M, IdentityMatrix[4]]], {t, L}];\nopTGL[u_, types_List, th_List, h_, G_] := opTGL[u, types, th, h, G] = Module[{L = Length[types], lax, T, idL},\n   idL = SparseArray[Table[{n, n} -> 1, {n, 4^L}], {4^L, 4^L}];\n   lax[s_] := Table[(u - th[[s]]) KroneckerDelta[i, j] idL + h opSiteOp[L, s, If[types[[s]] === \"A\", opE[i, j], -opE[j, i]]], {i, 4}, {j, 4}];\n   T = lax[1];\n   Do[With[{Ls = lax[s]}, T = Table[Sum[T[[i, k]] . Ls[[k, j]], {k, 4}], {i, 4}, {j, 4}]], {s, 2, L}];\n   Table[Sum[T[[i, l]] G[[l, j]], {l, 4}], {i, 4}, {j, 4}]];\n(* bra action of quantum minors / transfer matrices; sys = {types, th, h, G} *)\nopBraQmin[psi_, rr_List, cc_List, u_, sys_List] := Sum[Signature[s] Fold[#1 . (opTGL[u - (#2 - 1) sys[[3]], Sequence @@ sys][[rr[[s[[#2]]]], cc[[#2]]]]) &, psi, Range[Length[cc]]], {s, Permutations[Range[Length[cc]]]}];\nopBraT[psi_, a_, u_, sys_List] := If[a == 0, psi, Sum[opBraQmin[psi, rr, rr, u, sys], {rr, Subsets[Range[4], {a}]}]];\nopWordsL4[sys_List] := Module[{res = <||>, b1, b3, th = sys[[2]], hh = sys[[3]], vac},\n   vac = Flatten[Outer[Times, {1, 0, 0, 0}, {0, 0, 0, 1}, {1, 0, 0, 0}, {0, 0, 0, 1}]];\n   Do[b1 = opBraT[vac, a1, th[[1]] - hh, sys];\n    Do[Do[b3 = opBraT[b1, a3, th[[3]] - hh, sys];\n       Do[res[{a1, k2, a3, k4}] = b3; b3 = opBraT[b3, 1, th[[4]], sys], {k4, 0, 3}], {a3, 0, 3}];\n     b1 = opBraT[b1, 1, th[[2]], sys], {k2, 0, 3}], {a1, 0, 3}];\n   res];\nopSys4 = {{\"A\", \"F\", \"A\", \"F\"}, {2/7, -3/5, 8/11, -11/8}, 1/2, opGN};\nopLabs4 = Tuples[Range[0, 3], 4];   (* (a1, k2, a3, k4), lexicographic *)\nopWd4 = opWordsL4[opSys4];\nopW4 = SparseArray[Map[Normal, Map[opWd4, opLabs4]]];\nopWd4b = opWordsL4[{opSys4[[1]], opSys4[[2]], 1/2, opGc[opEsym[{7/3, -2/5, 5/4, 3}]]}];\nopGrade4 = Flatten[Table[(i1 - j1 + 3) + (i2 - j2 + 3), {i1, 4}, {j1, 4}, {i2, 4}, {j2, 4}]];\nGrid[{{\"rank W4\", MatrixRank[opW4]},\n  {\"z-independent (second twist z' = (7/3,-2/5,5/4,3))\", Normal[opW4] === Map[Normal, Map[opWd4b, opLabs4]]},\n  {\"each word has total grade a1+k2+a3+k4\", AllTrue[Range[256], Function[n, Union[Pick[opGrade4, Map[# =!= 0 &, Normal[opW4[[n]]]]]] === {Total[opLabs4[[n]]]}]]},\n  {\"# words that are pair1 x pair2 product bras (rank 1 as 16x16)\", Count[Range[256], n_ /; MatrixRank[Partition[Normal[opW4[[n]]], 16]] == 1]}}, Frame -> All, Alignment -> Left]",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "**Result (python `twopair_basis.py`, `twopair_wordrank.py` [mod p, two primes]):** rank 256, **exactly z-independent** (identical for z and z′), each word homogeneous of total grade a₁+k₂+a₃+k₄ (sum of the two pair gradings). Only 19 of the 256 words are product bras pair 1 ⊗ pair 2. Even ⟨0|t₁(θ₄) = h²θ₁₄θ₃₄ e₁₃₁₄ + hθ₁₄θ₂₄θ₃₄ e₁₄₁₃ spreads over both F sites (§14). Of the pair-1 words (a₁,k₂,0,0) only ⟨0| equals ⟨local 2-site word|⊗⟨0₃₄|; the others act on sites 3, 4 as well.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 13. Two pairs: does the SoV expansion of a product of two pair bras factorise?\n\nFor ⟨v₁⊗u₁⊗v₂⊗u₂| = Σ_x c_x ⟨x|, arrange c as a 16×16 matrix C[(a₁,k₂),(a₃,k₄)]. Factorisation c = c⁽¹⁾(v₁,u₁)·c⁽²⁾(v₂,u₂) means rank C = 1. A stronger, normalisation-independent test asks whether each coefficient function c_x is pair-separable, i.e. whether the 16×16 bilinear form (W⁻¹ column, rows (i₁j₁), columns (i₂j₂)) has rank 1. Any B-eigenbasis is a rescaling ⟨x| → λ_x⟨x| of these words (simple B spectrum), so factorisation in some SoV normalisation requires all 256 forms to have rank 1.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "opW4inv = Inverse[opW4];\nopC4[v1_, u1_, v2_, u2_] := Partition[Normal[Flatten[Outer[Times, v1, u1, v2, u2]] . opW4inv], 16];\nopAdA[deg_] := {1, 0, 0, 0} . Sum[RandomInteger[{1, 50}] MatrixPower[Transpose[opGN], m], {m, 0, deg}];\nopAdF[deg_] := {0, 0, 0, 1} . Sum[RandomInteger[{1, 50}] MatrixPower[opGN, m], {m, 0, deg}];\nopBPS[v_, u_] := Append[Most[u], -(Most[v] . Most[u])/Last[v]];\nSeedRandom[3]; opRv := RandomInteger[{-30, 30}, 4];\nopE1 = {1, 0, 0, 0}; opE4v = {0, 0, 0, 1};\nopTests = {{\"generic\", {opRv, opRv, opRv, opRv}}, {\"generic BPS both\", Module[{a = opRv, b = opRv, c = opRv, d = opRv}, {a, opBPS[a, b], c, opBPS[c, d]}]},\n   {\"pair 1 = vac, pair 2 generic\", {opE1, opE4v, opRv, opRv}}, {\"pair 1 generic, pair 2 = vac\", {opRv, opRv, opE1, opE4v}},\n   {\"adapted (1,0) | vac\", {opAdA[1], opAdF[0], opE1, opE4v}}, {\"adapted (0,1) | vac\", {opAdA[0], opAdF[1], opE1, opE4v}},\n   {\"adapted (1,1) | vac\", {opAdA[1], opAdF[1], opE1, opE4v}}, {\"vac | adapted (1,0)\", {opE1, opE4v, opAdA[1], opAdF[0]}},\n   {\"vac | adapted (0,1)\", {opE1, opE4v, opAdA[0], opAdF[1]}}, {\"vac | adapted (1,1)\", {opE1, opE4v, opAdA[1], opAdF[1]}},\n   {\"(0,1) | (0,1)\", {opAdA[0], opAdF[1], opAdA[0], opAdF[1]}}, {\"(1,0) | (1,0)\", {opAdA[1], opAdF[0], opAdA[1], opAdF[0]}},\n   {\"(1,1) | (1,1)\", {opAdA[1], opAdF[1], opAdA[1], opAdF[1]}}, {\"(2,2) | (2,2)\", {opAdA[2], opAdF[2], opAdA[2], opAdF[2]}}};\nopTestRows = Map[Function[t, With[{cm = opC4 @@ t[[2]]}, {t[[1]], MatrixRank[cm], Count[Flatten[cm], x_ /; x =!= 0]}]], opTests];\nopFormRanks = Tally[Table[MatrixRank[Partition[Normal[opW4inv[[All, n]]], 16]], {n, 256}]];\nColumn[{Grid[Prepend[opTestRows, {\"bra (pair 1 | pair 2)\", \"rank C[(a1,k2),(a3,k4)]\", \"# nonzero c_x\"}], Frame -> All, Alignment -> Left],\n  Row[{\"ranks of the 256 coefficient bilinear forms (rank, multiplicity): \", Sort[opFormRanks]}]}]",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "**Result (python `twopair_fact.py`, `twopair_adapted.py`, `twopair_Mx.py`, `twopair_prime2.py` [mod p, primes 2³¹−1 and 10⁹+7, identical]): NO factorisation.**\n\n| bra (pair 1 \\| pair 2) | rank C | # words |\n|---|---|---|\n| generic | **16** | 256 |\n| generic BPS both | 16 | 256 |\n| pair 1 = vac, pair 2 generic | 16 | 130 |\n| pair 1 generic, pair 2 = vac | 3 | 36 (only (a₃,k₄) ∈ {00, 01, 02}) |\n| adapted deg (p,q) = (1,0) \\| vac | 2 | 4 |\n| (0,1) \\| vac | **1** | 2 |\n| (1,1) \\| vac | 2 | 7 |\n| vac \\| (1,0) | 2 | 5 |\n| vac \\| (0,1) | 2 | 3: (0000), (0001), (0100) |\n| vac \\| (1,1) | 4 | 12 |\n| (0,1) \\| (0,1) (F-only) | 2 | 4 |\n| (1,0) \\| (1,0) (A-only) | 4 | 13 |\n| (1,1) \\| (1,1) | 7 | 37 |\n| (2,2) \\| (2,2) | 12 | 147 |\n\nThe 256 coefficient functions as pair1×pair2 bilinear forms have ranks {1:19, 2:44, 3:43, 4:48, 5:12, 6:32, 7:4, 8:11, 9:19, 10:4, 11:1, 12:16, 16:3}. Only 19 are separable, so **no normalisation of the SoV basis (no choice of B-eigenbasis, no ordering of the commuting words) can make the two-pair overlap a product of one-pair determinants**. Ordering is irrelevant anyway because all words commute. The dual basis of the words (kets |x̂⟩ with ⟨x|ŷ⟩ = δ) is not pair-local either: it has the same 19 product kets.\n\n**Character of the mixing.** The relation to the tensor product of the two local 2-site SoV bases, ⟨x|₄ = Σ_y T_xy ⟨y₁₂|⊗⟨y₃₄|, conserves the total grade and has a nonzero diagonal. It has 2590 nonzeros and is **not triangular** in the pair labels: pair-1 grade shifts run from −4 to +6, in both directions (`twopair_transfer.py`). The mixing is asymmetric. Rotating pair 2 feeds into all pair-1 labels (rank 16). Rotating pair 1 leaks only into k₄ ≤ 2, never into a₃ (rank 3). Its mildest form is the same-type exchange, F₂–F₄ through R = θ − hP (§14): already one F-site rotation on pair 2 needs the pair-1 word t₁(θ₂).",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 14. Two pairs, F-only rotations: the exchange term in closed form (symbolic)\n\nThe two pair bras are ⟨e₁⊗u₂⊗e₁⊗u₄| with u_s = γ_s e₄ + δ_s e₃ = e₄(γ_s + δ_s G). The required words are ⟨0|, ⟨0|t₁(θ₂), ⟨0|t₁(θ₄) and ⟨0|t₁(θ₂)t₁(θ₄), all symbolic in θ₁..θ₄, h, c_k.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "opSysS = {{\"A\", \"F\", \"A\", \"F\"}, {opS1, opS2, opS3, opS4}, opH, opGs};\nopVac4 = Flatten[Outer[Times, {1, 0, 0, 0}, {0, 0, 0, 1}, {1, 0, 0, 0}, {0, 0, 0, 1}]];\nopw10 = Expand[Normal[opBraT[opVac4, 1, opS2, opSysS]]];\nopw01 = Expand[Normal[opBraT[opVac4, 1, opS4, opSysS]]];\nopw11 = Expand[Normal[opBraT[opw10, 1, opS4, opSysS]]];\nopName4 = Flatten[Table[\"e\" <> ToString[i1] <> ToString[j1] <> ToString[i2] <> ToString[j2], {i1, 4}, {j1, 4}, {i2, 4}, {j2, 4}]];\nopShow4[vec_] := Row[Riffle[Map[Row[{\"(\", Factor[#[[1]]], \") \", #[[2]]}] &, Select[Transpose[{vec, opName4}], #[[1]] =!= 0 &]], \" + \"]];\nopBraF = Flatten[Outer[Times, {1, 0, 0, 0}, {0, 0, opD2, opG2}, {1, 0, 0, 0}, {0, 0, opD4, opG4}]];\nopXsol = First[Solve[Thread[opx00 opVac4 + opx10 opw10 + opx01 opw01 + opx11 opw11 == opBraF], {opx00, opx10, opx01, opx11}]];\nopY2 = opH (opS1 - opS2) (opS2 - opS3) (opS2 - opS4 - opH);\nopY24 = opH^2 (opS1 - opS2) (opS1 - opS4) (opS2 - opS3) (opS3 - opS4) (opS2 - opS4 - opH) (opS2 - opS4 + opH);\nopPred = {opx00 -> opG2 opG4, opx10 -> (opD2 opG4 - opH opG2 opD4/(opS2 - opS4))/opY2, opx01 -> opG2 opD4/(opH (opS1 - opS4) (opS2 - opS4) (opS3 - opS4)), opx11 -> opD2 opD4/opY24};\nGrid[{{\"<0| t1(theta2)\", opShow4[opw10]}, {\"<0| t1(theta4)\", opShow4[opw01]}, {\"<0| t1(theta2) t1(theta4)\", opShow4[opw11]},\n  {\"coefficients = predicted closed form\", AllTrue[{opx00, opx10, opx01, opx11}, Together[(# /. opXsol) - (# /. opPred)] === 0 &]}}, Frame -> All, Alignment -> Left]",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "**Result (python `fonly.py`, [exact-sym]):** with θ_ij = θ_i − θ_j:\n- ⟨0|t₁(θ₂) = Y₂ e₁₃₁₄, Y₂ = hθ₁₂θ₂₃(θ₂₄−h) (local);\n- ⟨0|t₁(θ₄) = hθ₁₄θ₃₄[h e₁₃₁₄ + θ₂₄ e₁₄₁₃] (**exchange onto F site 2**);\n- ⟨0|t₁(θ₂)t₁(θ₄) = Y₂₄ e₁₃₁₃, Y₂₄ = h²θ₁₂θ₁₄θ₂₃θ₃₄(θ₂₄−h)(θ₂₄+h).\n\nThe coefficients match the closed form (True). With ρ₂ := τ₁(θ₂)/Y₂ and ρ₄ := τ₁(θ₄)/(hθ₁₄θ₂₄θ₃₄):\n\n**⟨e₁⊗u₂⊗e₁⊗u₄|Ψ⟩/⟨0|Ψ⟩ = (γ₂+δ₂ρ₂)(γ₄+δ₄ρ₄) − hγ₂δ₄ρ₂/θ₂₄ − hδ₂δ₄ρ₂ρ₄/(θ₂₄+h)**\n\nThis is a product plus an F–F exchange term of order h/θ₂₄, which is why the rank is 2. It is the F-site analogue of the {1,3} A-site exchange formula in the README.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## Summary\n\n**Computed in python/sympy (kernel unavailable); Wolfram cells above are unrun ports.**\n\n1. **SoV basis and coefficients [exact-sym].** ⟨a,k| = ⟨0|t_a(θ₁−h)t₁(θ₂)^k is z-independent, depends only on θ₁₂, and is graded: ⟨a,k| has grade a+k, with grade(e_i⊗e_j) = i−j+3, so W is block-diagonal 1,2,3,4,3,2,1. A product bra ⟨v⊗u| = Σ c_ak ⟨a,k| has the closed-form coefficients of §3: bilinear, each on one anti-diagonal i−j = a+k−3; v·u enters only in grade 3. Sparsity: one-site rotations need 7 words, degree-1 twist-adapted pairs need 3 (A), 2 (F) or 5 (both); a generic BPS pair needs all 16.\n2. **Q-functions [exact].** Twisted-polynomial × Γ[V₄] gauge works. P_ab: deg q = (a: 2, b: 0, others 1); zero-weight: (1,1,1,1). Dictionary validated exactly on all 16 states: r = τ₁(θ₂) = Q_j(θ₂+h)/Q_j(θ₂) for every j; τ_a(θ₁−h) = D_a/Q₁₂₃(θ₁−h) for every triple of Q's; Q₁₂₃₄(θ₁) = 0; t_{2,3,4}(θ₂) = t₄(θ₁−h) = 0 as operators. The ⟨0|Ψ⟩ formula is a ket-normalisation convention (state-dependent ratio for canonical kets, §10).\n3. **Determinant form [exact, 16/16 states].** ⟨v⊗u|Ψ⟩ = ⟨0|Ψ⟩·det[w; Q₁; Q₂; Q₃](x_b)/Q₁₂₃(θ₁−h), x_b = θ₁−bh, w_b = (−1)^bΣ_k c_bk r^k, with the weight row first. In RV normalisation this is Q₁Q₁₂Q₁₂₃(θ₂)Q₁Q₁₂(θ₁)·det[…]. In the gauge Q̃ = z^{u/h}q the column factors N_b = (h−θ)Γ(θ₁)/Γ(θ₁−bh) cancel and the row has the closed form Num_b(v,u;R) of §4, R = Q̃_j(θ₂+h)/Q̃_j(θ₂). Decomposition: overlap = [u(R)·det[ν′(v,R); Q̃₁₂₃] + h𝒯(R)·Cas(R^{u/h}, Q̃₁, Q̃₂, Q̃₃)]/((h−θ)Q̃₁₂₃(θ₁−h)). The four-function Casoratian vanishes exactly on the 12 product states (R = z_b, q_b constant), where the overlap is the F polynomial u(R) times an A-site 4×4 determinant. No single determinant of Q-values alone exists (only linear in r is reachable from the F points).\n4. **Global rotations [exact].** Torus rotations ρ(X), X ∈ C[Gᵀ], are polynomials in the 16 SoV words (operator identity). The coefficients transform under g → gX by Bethe-algebra multiplication, and the overlap gets the character f(z_a)/f(z_b) (1 on zero-weight states). There is no covariance under left multiplication.\n5. **Two pairs [mod p, two primes].** **No factorisation**: generic rank 16; only 19/256 coefficient functions are pair-separable, so no SoV normalisation helps. The mixing conserves total grade but is not triangular; it is asymmetric (pair 2 → pair 1 strong) and starts with same-type exchange. F-only degree-1 pairs give product − h(…)/θ₂₄ exchange terms (§14, closed form, rank 2).\n\nOpen: the dual (ket) SoV basis and measure for A/F chains (needed for a determinant of the GLMR/BBLR type and to test the ⟨0|Ψ⟩ normalisation); the ABJM point θ_A − θ_F = 2h (not studied here).",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  }
+ ],
+ "metadata": {
+  "createdBy": "wolfbook_newNotebook",
+  "createdAt": "2026-10-12T17:57:35.172Z"
+ }
+}

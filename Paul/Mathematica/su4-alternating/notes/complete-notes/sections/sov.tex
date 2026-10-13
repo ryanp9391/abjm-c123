@@ -1,0 +1,333 @@
+\section{Separation of variables for the alternating chain}\label{sec:sov}
+\providecommand{\sovT}{\tilde\tau}
+\providecommand{\sovL}{\Psi^{\mathrm L}}
+
+Four sites A\,F\,A\,F ($L=2$ pairs; $L$ is written only for formulas valid at any number of pairs): $\theta_1,\theta_3$ on the A sites,
+$\theta_2,\theta_4$ on the F sites, companion twist $G=G_c(z)$, generic $\theta,z$ and finite twist, except where the ABJM point is named
+(\S\ref{sec:sov-abjm}). F sites are built with $t_1^n$, A sites with $t_a$ (naming of \S\ref{sec:conv}); $\tau_a(u)$ is the eigenvalue of
+$t_a(u)$ on the state under discussion.
+
+%======================================================================
+\subsection{Basis at four sites}\label{sec:sov-basis}
+%======================================================================
+
+[\nb{sov-companion-L4.wb}, \nb{sov-Q-dictionary-L4.wb}]
+
+\paragraph{Words.}
+\begin{equation}\label{eq:sov-words}
+ \bra{a_1,k_2,a_3,k_4}=\bra0\,t_{a_1}(\theta_1-h)\,t_1(\theta_2)^{k_2}\,t_{a_3}(\theta_3-h)\,t_1(\theta_4)^{k_4},\qquad a_i,k_i\in\{0,1,2,3\},
+\end{equation}
+rank 256 \ex. Their expansion in the companion-frame product basis is exactly $z$-independent and block diagonal in the charge
+$|x|=a_1+k_2+a_3+k_4$ (equal to $\sum_{A}(i-1)+\sum_{F}(4-j)$ on the product vector with $e_i$ on A sites, $e_j$ on F sites); the 13 blocks have sizes
+1, 4, 10, 20, 31, 40, 44, 40, 31, 20, 10, 4, 1 \ex. For an eigenstate $\Psi$ of the twisted transfer matrices, with $x=(a_1,k_2,a_3,k_4)$,
+\begin{equation}\label{eq:sov-wavefn}
+ \braket{x}{\Psi}=\tau_x(\Psi)\,\braket0\Psi,\qquad
+ \tau_x=\tau_{a_1}(\theta_1-h)\,\tau_1(\theta_2)^{k_2}\,\tau_{a_3}(\theta_3-h)\,\tau_1(\theta_4)^{k_4}.
+\end{equation}
+
+\paragraph{SoV vacuum.} RV's $\bra0$ (RV2 (4.12)) is the lowest-weight Gelfand--Tsetlin (GT) vacuum: (3.19), $\bra0T_{j1}=\delta_{j1}\nu\bra0$, applied recursively through the embeddings, means that
+$\bra0$ is killed by every $T_{ij}(u)$ with $i>j$ of the untwisted monodromy and is an eigenbra of the $T_{ii}$. (3.19) alone leaves a 15-dimensional space; the full condition has a unique
+solution, our $\bra0=(e_1\otimes e_4)^{\otimes2}$ in the companion frame \ex\ (generic and ABJM $\theta$).
+
+\paragraph{$B$-operator.} RV2 (2.25), untwisted $T$ (qmin: quantum minors of \S\ref{sec:conv}):
+\begin{multline}
+ B(u)=\sum_{k_1\in\{1,2,3\}}\ \sum_{K_2\subset\{1,2,3\},\,|K_2|=2}T_{k_1,1}(u)\,\mathrm{qmin}_{K_2;(1,k_1+1)}(u+h)\\
+ \times\mathrm{qmin}_{(1,2,3);(1,K_2+1)}(u+2h).
+\end{multline}
+$[B(u),B(v)]=0$ and at generic $\theta$ all 256 words are $B$-eigenbras \ex: a genuine SoV basis, equal to RV's up to normalisation (\S\ref{sec:sov-dict}).
+
+\paragraph{BPS expansions} (generic $\theta$; number of nonzero coefficients among the 256; unchanged for the shifted word bases used before the regularisation of
+\S\ref{sec:sov-abjm}) \ex:
+\begin{center}
+\begin{tabular}{lc@{\qquad}lc}
+\toprule
+BPS state $v\otimes w\otimes v\otimes w$ & $\#\{c_x\ne0\}$ & BPS state & $\#\{c_x\ne0\}$\\
+\midrule
+vacuum & 1 & A only: $\exp(\kappa E_{12})$ & 13\\
+F only: $v=e_1$, $w\in e_1^\perp$ general & 9 & A only: $w=e_4$, $v\in e_4^\perp$ general & 56\\
+F only: $\exp(\kappa E_{34})$ & 4 & $SU(2)\times SU(2)$ sector & 37\\
+F only: $\exp(\kappa E_{24})$ & 5 & torus $\mathbb C[G_c^T]$ & 134--236\\
+ & & generic & 256\\
+\bottomrule
+\end{tabular}
+\end{center}
+The 9 F-only words are $a_1=a_3=0$, $k\le2$; the 13 A-only words have $a\le2$, $k\le1$. $\exp(\kappa E_{34})$ is the $\{2,4\}$ common rotation of \S\ref{sec:loc} (not a product state: F--F exchange term), $\exp(\kappa E_{12})$ the $\{1,3\}$ one.
+
+\paragraph{Localisation on sites 1,2} \ex. Of the 16 site-1,2 words exactly $\{1,t_3(\theta_1-h)\}\times\{1,t_1(\theta_2)\}$ leave sites 3,4 at the vacuum, and the constants factorise,
+\begin{equation}
+ \bra0\big(1+\alpha\,t_3(\theta_1-h)\big)\big(1+\beta\,t_1(\theta_2)\big)=(e_1+\alpha k_3e_4)\otimes(e_4+\beta k_1e_3)\otimes e_1\otimes e_4,
+\end{equation}
+$k_1=-2263/14000$, $k_3=-21489/120736$ at the standard point. The localised span is five-dimensional; its fifth element (a combination of $t_1(\theta_2)^2$ and $t_1(\theta_1-h)t_1(\theta_2)$) is entangled and adds no product states.
+
+\paragraph{Localisation on sites 1,2,3} \ex. Localised single words $\{1,t_3(\theta_1-h)\}\times\{1,t_1(\theta_2)\}\times\{1,t_3(\theta_3-h)\}$, span 15-dimensional.
+Product states: (A) $(e_1+ae_4)\otimes(e_4+ce_3)\otimes e_1\otimes e_4$; (B) $(e_1+ae_4)\otimes e_3\otimes(e_1+be_4)\otimes e_4$ for arbitrary $a,b$ (words $\bra0t_1(\theta_2)\times$
+degree $\le1$ in $t_3(\theta_1-h)$, $t_3(\theta_3-h)$, with an exchange correction). The generic three-site state $(e_1+ae_4)\otimes(e_4+ce_3)\otimes(e_1+be_4)$ is not
+localisable: there is no three-parameter extension.
+
+%======================================================================
+\subsection{Dictionary to Q-functions}\label{sec:sov-dict}
+%======================================================================
+
+[\nb{sov-Q-dictionary-L4.wb}; \nb{notes/rv-sov-dictionary.md}] \hp\ unless stated.
+
+\paragraph{Baxter equation and gauge.} With $\tau_0=1$, $\tau_4=\det G\cdot\mathrm{qdet}$, the four solutions $Q_1,\dots,Q_4$ obey
+\begin{equation}\label{eq:sov-baxter}
+ \sum_{a=0}^{4}(-1)^a\,\tau_a(u)\,Q(u-ah)=0 .
+\end{equation}
+On the vacuum $Q_i=z_i^{u/h}\,\Phi(u)\,q_i(u)$ with $\Phi(u)=V_4(u)\Phi(u-h)$ (RV's Gamma gauge), $V_4=\prod_A(u-\theta_A)\prod_F(u-\theta_F-h)$; for a general
+eigenstate the $q_i$ are polynomials (degrees in \S\ref{sec:states}).%
+\footnote{Eq.~\eqref{eq:sov-baxter} is the Baxter equation of \S\ref{sec:states} for the full $Q$'s (the polynomial-gauge equation there has the extra factors
+$\prod V_4$ and arguments $u+h-ah$). RV's $Q^{\rm RV}$ obeys \eqref{eq:sov-baxter} with $Q^{\rm RV}(u)=Q(u-h)$; \nb{rv-sov-dictionary.md} and
+\nb{sov-onepair-determinant.wb} use that labelling, in which every argument below is shifted by $+h$. All formulas here are in the labelling of \eqref{eq:sov-baxter}.}
+Casoratians: $Q_{123}(u)=\det_{i,j\le3}Q_i(u-(j-1)h)$ (the polynomial $Q_{123}$ of \S\ref{sec:states} is this divided by its vacuum value).
+
+\paragraph{Wave functions of the word basis.} The eigenvalues in \eqref{eq:sov-wavefn} are Q-data, verified to $10^{-42}$ on all 256 four-site states for every $j$ and every triple $I$
+(and exactly on the 16 states of one pair):
+\begin{align}
+ \text{F sites ($s=2,4$):}\quad&\tau_1(\theta_s)=\frac{Q_j(\theta_s)}{Q_j(\theta_s-h)}\quad(\text{any }j),\label{eq:sov-dictF}\\
+ \text{A sites ($s=1,3$):}\quad&\tau_a(\theta_s-h)=\frac{D_a(\theta_s)}{D_0(\theta_s)},\quad
+ D_a(\theta)=\det_{i\in I,\ j\in\{1,2,3,4\}\setminus\{a+1\}}Q_i(\theta-jh)\quad(\text{any triple }I).\label{eq:sov-dictA}
+\end{align}
+They are \eqref{eq:sov-baxter} at special points: at $u=\theta_F$ the terms $a\ge2$ drop since $\tau_{a\ge2}(\theta_F)=0$; at $u=\theta_A-h$ the term $a=4$ drops since
+$\tau_4(\theta_A-h)=0$, and Cramer's rule on three of the four $Q_i$ gives $\tau_{1,2,3}$. Here $D_0=Q_{123}(\theta-2h)$ and
+$\tau_3(\theta_A-h)=Q_{123}(\theta_A-h)/Q_{123}(\theta_A-2h)$ is a single dual-$Q$ ratio, whereas $\tau_1,\tau_2$ are \emph{gapped} Casoratians (columns
+$\theta_A-\{1,3,4\}h$ and $\theta_A-\{1,2,4\}h$ over $D_0$) with no single-$Q$ form.
+
+\paragraph{Separated variables, normalisation.} The words equal RV2's unnormalised basis (4.12)=(5.18) and
+$B$ acts diagonally with a degree-six polynomial per site, $\bra xB(u)=\prod_sb_s(u)\bra x$. The three dynamical roots of $b_s$ (the others are frozen) are: $\theta_F$ ($3-k$ times) and $\theta_F+h$ ($k$ times) at F sites;
+$\theta_A-bh$, $b\in\{0,1,2,3\}\setminus\{a\}$, at A sites. RV2's product of $3\times3$ minors (5.20) in these variables (on $Q^{\rm RV}$) reproduces
+\eqref{eq:sov-wavefn}. In RV's normalisation the dictionary needs no $x$-dependent constant, $N_x=1$, in the Gamma gauge (RV2 (5.9), (5.21)); in terms of the polynomials $q_i$ it carries
+$N_x=\prod_{F}V_4(\theta_F)^{k}\prod_A\prod_{b\le a}V_4(\theta_A-bh)$. $\braket0\Psi$ itself is fixed by RV's $\langle\Omega_\sigma|\Psi\rangle=1$ and cannot be tested without a dual basis (next subsection).
+
+%======================================================================
+\subsection{Dual ket basis, Gram matrix and measure}\label{sec:sov-dual}
+%======================================================================
+
+[\nb{sov-Q-dictionary-L4.wb}, \nb{Wa-sov-expansion-L4.wb}, \nb{abjm-sov-norm-L4.wb}]
+
+\paragraph{Dual basis.} On the ket vacuum $\ket{\bar0}=e_4\otimes e_1\otimes e_4\otimes e_1$ the mirror construction uses $t_1(\theta_A)^m$ on A sites and $t_n(\theta_F+nh)$ on F sites,
+\begin{equation}\label{eq:sov-ketwords}
+ \ket y=\prod_{s\in A}t_1(\theta_s)^{m_s}\prod_{s\in F}t_{n_s}(\theta_s+n_sh)\ket{\bar0},\qquad m_s,n_s\in\{0,1,2,3\},
+\end{equation}
+and $\braket{\sovL}{y}=\sovT_y(\Psi)\braket{\sovL}{\bar0}$, where $\bra{\sovL}$ is the left eigenvector of the transfer matrices and
+$\sovT_y=\prod_A\tau_1(\theta_s)^{m_s}\prod_F\tau_{n_s}(\theta_s+n_sh)$. The ket wave functions mirror the bra ones: powers of one dual $Q$ on A sites, a $3\times3$
+determinant of three dual $Q$'s on F sites \ex\ (checked on twisted vacua, \S\ref{sec:sov-Wa}).
+
+\paragraph{Gram matrix and measure.} $\mathrm{Gram}_{xy}=\braket xy$ is nonzero only if $|x|+|y|=12$ (charge conservation), is triangular, and has 1456 nonzero entries \ex.
+It is \emph{not} diagonal: there is no diagonal measure for the mixed $\mathbf4/\bar{\mathbf4}$ chain (GLMR/GLMRV and 2603 have dual bases and measures only for symmetric/fundamental representations and the $\mathbf 6$). With $M=\mathrm{Gram}^{-1}$ (again 1456 nonzero entries, $M_{yx}\ne0$ only for $|x|+|y|=12$)
+completeness reads $1=\sum_{x,y}\ket yM_{yx}\bra x$ \ex, and for every eigenstate, with $\braket0\Psi\ne0$ on all 256 states,
+\begin{equation}\label{eq:sov-norm}
+ \frac1{\cN(\Psi)}=\frac{\braket{\sovL}{\Psi}}{\braket0\Psi\braket{\sovL}{\bar0}}=\sum_{x,y}\sovT_y(\Psi)\,M_{yx}\,\tau_x(\Psi),\qquad\cN(\mathrm{vac})=(\lambda_1\lambda_4)^L .
+\end{equation}
+This defines the SoV norm $\bbB=1/\cN$, the $\mathbb B$ of 2603's $C=\cN\,\bbW\bbA/\sqrt{\bbB}$ with $\bbW\equiv1$. The $12\times12$ GLMR-type determinant for $1/\cN$ suggested by the dictionary
+(F sites: single $Q$ on the bra side and a Slater determinant of dual $Q$'s on the ket side; A sites: the mirror) does \emph{not} fit \eqref{eq:sov-norm}; no determinant form is known.
+
+\paragraph{Finite-twist norm statements.} (The norm $\bbB$ is known to Paul; the following, from agent E, are cross-checks of the Q-assembly, not a derivation of it.) Let
+$\lambda_j=\prod_{m\ne j}(z_j-z_m)^{-1}$, $\lambda=(\lambda_1,\dots,\lambda_4)$, $\mathbf1=(1,1,1,1)$, and let $\mu$ be the torus weight of $\Psi$ ($\mu_j$ = number of A sites in state $e_j$ minus number of
+F sites in state $e_j$). In the diagonal frame $\bra0=\lambda\otimes\mathbf1\otimes\lambda\otimes\mathbf1$, $\ket{\bar0}=\mathbf1\otimes\lambda\otimes\mathbf1\otimes\lambda$.
+\begin{enumerate}
+\item[(E1)] $\braket0\Psi=\lambda^{\mu}\,\langle\bar0^T|\Psi\rangle$, $\lambda^\mu=\prod_j\lambda_j^{\mu_j}$, for every state of weight $\mu$ (weight counting) \ex; checked to $10^{-59}$ on all 256 states.
+\item[(E2)] $\cN(\Psi)=1/\sum\sovT M\tau$ as in \eqref{eq:sov-norm}, on all 256 states at generic $\theta,z$ \hp\ (relative error $<10^{-47}$).
+\item[(E3)] There is \emph{no} exact finite-twist Euclidean identity $|\braket0\Psi|^2=\lambda^\mu\cN\|\Psi\|^2$. In the diagonal frame with real $\Psi$,
+ $|\braket0\Psi|^2=H\lambda^{\mu}\cN\|\Psi\|^2$ with $H=\langle\Psi^T|\bar0\rangle\braket{\sovL}{\Psi}/(\braket{\sovL}{\bar0}\,\Psi^T\Psi)\ne1$: the right eigenvectors of $t^\Lambda$ are not orthogonal and
+ $\sovL$ is proportional neither to $\Psi^T$ nor to $\Psi^\dagger$ (cosines $0.37$--$1$ at the standard point) \hp.
+ $H=1+O(\varepsilon)$ along the untwisting chain $z=1+\varepsilon\phi$ (pair-by-pair $\theta$); for the two even-bridge singlets $H-1=\tfrac E2(\theta_{F2}-\theta_{F1})+O(\varepsilon^2)$, $E=20,4$.
+ Exactly, with $\sovL_*$ normalised by $\braket{\sovL_*}{\bar0}=\langle\bar0^T|\Psi\rangle$: $\braket0\Psi^2/\braket{\sovL_*}{\Psi}=\lambda^\mu/\sum\sovT M\tau$ \hp.
+\end{enumerate}
+
+%======================================================================
+\subsection{One pair exactly}\label{sec:sov-onepair}
+%======================================================================
+
+[\nb{sov-onepair-determinant.wb}, python \nb{checks/session-2026-10-12/onepair/}] Two-site chain A\,F, all 16 states, words $\bra{a,k}=\bra0t_a(\theta_1-h)t_1(\theta_2)^k$,
+$a,k\in\{0,\dots,3\}$, $\theta:=\theta_{12}$.
+
+\paragraph{Coefficients.} For any $v\otimes u$, $\bra{v\otimes u}=\sum_{a,k}c_{ak}(v,u)\bra{a,k}$ with $c_{ak}$ bilinear, $z$-independent, depending on $\theta,h$ only, and supported on the
+antidiagonal $i-j=a+k-3$ (grade of $e_i\otimes e_j$ is $i-j+3$; block sizes 1, 2, 3, 4, 3, 2, 1) \ex:
+\begin{equation}
+ c_{00}=v_1u_4,\quad c_{01}=\frac{(h-\theta)v_1u_3+hv_2u_4}{h\theta(h-\theta)},\quad
+ c_{33}=-\frac{v_4u_1}{6h^6\theta^3(h-\theta)(2h-\theta)(4h-\theta)}.
+\end{equation}
+Numbers of nonzero $c_{ak}$ \ex: generic BPS pair 16; one site generic, the other at its vacuum vector 7; A site twist-adapted of degree one
+($v=e_1(\alpha+\beta G^T)$, $u=e_4$) 3; F site degree one ($v=e_1$, $u=e_4(\gamma+\delta G)$) 2; both 5.
+
+\paragraph{Determinant formula} \ex\ (16 of 16 states, three random rational $(v,u)$ each; \hp\ $10^{-46}$). With $x_b=\theta_1-(b+1)h$, $D_0=Q_{123}(\theta_1-2h)$,
+\begin{multline}\label{eq:sov-det}
+ \frac{\braket{v\otimes u}{\Psi}}{\braket0\Psi}=\sum_{a,k}c_{ak}(v,u)\,\tau_a(\theta_1-h)\,\tau_1(\theta_2)^k=
+ \frac{\det\big[\,w_b\,;\ Q_1(x_b)\,;\ Q_2(x_b)\,;\ Q_3(x_b)\,\big]_{b=0}^{3}}{D_0},\\
+ w_b=(-1)^b\sum_{k=0}^3c_{bk}(v,u)\,r^k,
+\end{multline}
+with $r=\tau_1(\theta_2)=Q_j(\theta_2)/Q_j(\theta_2-h)$ for all $j$; the $4\times4$ matrix has the weight row $(w_0,\dots,w_3)$ first and then the three rows $Q_i(x_b)$. This is the Laplace
+expansion $\sum_b(-1)^bw_bD_b$ combined with $\tau_b(\theta_1-h)=D_b/D_0$.\footnote{In the labelling of \nb{sov-onepair-determinant.wb}: $x_b=\theta_1-bh$, denominator $Q_{123}(\theta_1-h)$, $r=Q_j(\theta_2+h)/Q_j(\theta_2)$.}
+
+\paragraph{Weight row, closed form} \ex. With $R=r/(h\theta)$, $w_b=\mathrm{Num}_b/N_b$, $N_b=b!\,h^b\prod_{m=1}^{b+1}(mh-\theta)$ (the Gamma-gauge factor of column $b$),
+\begin{align}
+ \mathrm{Num}_b&=u(R)\Big[(bh-\theta)v_{b+1}+h\sum_{i>b}v_iR^{i-b-1}\Big]-hR^{3-b}\,\mathcal S(R),\\
+ u(R)&=\sum_ju_jR^{4-j},\qquad\mathcal S(R)=\sum_{i\ge j}v_iu_jR^{i-j}.\nonumber
+\end{align}
+Equivalently, with $\mathcal T(R)=\sum_{i<j}v_iu_jR^{3+i-j}$, the overlap is $u(R)$ times an A-site $4\times4$ determinant plus $h\,\mathcal T(R)$ times the Casoratian of the four functions
+$R^{u/h},\tilde Q_1,\tilde Q_2,\tilde Q_3$ ($\tilde Q_j=z_j^{u/h}q_j$), which vanishes exactly on the 12 product eigenstates (there: F-site polynomial $u(R)$ times A-site determinant). The weight row is
+cubic in $r$, while a determinant of $Q$-values with F columns at $\theta_2-h,\theta_2$ is at most linear in $r$, so no single $Q$-only determinant reproduces a general bra.
+
+\paragraph{Torus} \ex. For $X\in\mathbb C[G^T]$ the global rotation $\rho(X)=X\otimes X^{-T}$ commutes with all $t_a$ and, the 16 words being independent,
+$\rho(X)=\sum_{a,k}c_{ak}(e_1X,e_4X^{-T})\,t_a(\theta_1-h)\,t_1(\theta_2)^k$ as operators. Hence the determinant is multiplied by the character,
+$\det[w(gX);Q]/D_0=\chi_X\det[w(g);Q]/D_0$, $\chi_X=f(z_a)/f(z_b)$ on the product eigenstate labelled $(a,b)$ ($X=f(G^T)$), $\chi_X=1$ on the four zero-weight states.
+
+\paragraph{Two pairs: no factorisation.} The $16\times16$ matrix of coefficients $c_{(a_1,k_2),(a_3,k_4)}$ (pair-1 word labels against pair-2 word labels) has rank 16 for a generic product bra (3 if pair 2
+is at the vacuum, 2 for an F-only degree-one bra); no normalisation factorises. For F sites $u_s=e_4(\gamma_s+\delta_sG)$ ($s=2,4$) and A sites at the vacuum \ex,
+\begin{multline}\label{eq:sov-FF}
+ \frac{\braket{e_1\otimes u_2\otimes e_1\otimes u_4}{\Psi}}{\braket0\Psi}=(\gamma_2+\delta_2\rho_2)(\gamma_4+\delta_4\rho_4)-\frac{h\gamma_2\delta_4\rho_2}{\theta_{24}}-\frac{h\delta_2\delta_4\rho_2\rho_4}{\theta_{24}+h},\\
+ \rho_2=\frac{\tau_1(\theta_2)}{h\theta_{12}\theta_{23}(\theta_{24}-h)},\qquad\rho_4=\frac{\tau_1(\theta_4)}{h\theta_{14}\theta_{24}\theta_{34}},
+\end{multline}
+the exchange terms coming from $\bra0t_1(\theta_4)=h\theta_{14}\theta_{34}\big[h\,e_1\otimes e_3\otimes e_1\otimes e_4+\theta_{24}\,e_1\otimes e_4\otimes e_1\otimes e_3\big]$. The F--F exchange is
+\emph{not} a Vandermonde measure: the cross term $\gamma_2\delta_4$ carries $\rho_2$, not $\rho_4$, and the determinant of the $2\times2$ bilinear form, $h\rho_2[\rho_2/\theta_{24}-\rho_4/(\theta_{24}+h)]$, is
+not separable; the same holds for A--A pairs. So no one-row-per-site determinant exists in the left-basis/$\tau$ language; a 2603-type determinant needs a right SoV basis and a non-diagonal measure
+for the mixed chain (open).
+
+%======================================================================
+\subsection{Two-block bras and the companion vacuum in the highest-weight orbit}\label{sec:sov-twoblock}
+%======================================================================
+
+[\nb{sov-twoblock-expansion-L4.wb}, \nb{even-bridge-sov-formula.wb}]
+
+\paragraph{Cost of block bras} \ex. In the basis \eqref{eq:sov-words} a bra with a generic block on sites $\{1,2\}$ and $\{3,4\}$ at the vacuum needs 36 words ($a_3=0$, $k_4\le2$; pair-cut rank 3);
+the reverse needs 130 words (pair-cut rank 16); the common rotation $1-\kappa G_c^T$ on pair 1 needs 20 words.
+
+\paragraph{The companion SoV vacuum is in the orbit of the physical vacuum} \ex. With $\lambda_j=\prod_{m\ne j}(z_j-z_m)^{-1}$ and $r_j=\lambda_j/\lambda_1$, in the diagonal frame
+($\rho(g)=g$ on A sites, $g^{-T}$ on F sites), at every $L$,
+\begin{equation}\label{eq:sov-orbit}
+ \bra0_{\rm comp}=\lambda_1^{L}\,\bra{\vac^{\otimes L}}\,\rho(n'D'),\qquad
+ n'=\begin{pmatrix}1&1&1&r_4\\0&1&0&-r_2\\0&0&1&-r_3\\0&0&0&1\end{pmatrix},\quad D'=\mathrm{diag}(1,r_2,r_3,1),
+\end{equation}
+finite as $z\to1$. So the SoV vacuum is in the Borel (highest-weight) orbit of the physical vacuum $\vac=e_1\otimes e_4$ per pair. Rotating the two blocks by $g_1=1+b\,\mathbb E$, $g_2=1+b'\mathbb E$
+($\mathbb E=E_{14}$ in the twist eigenbasis) gives the physical two-block bras; the sparsest choice is $b'=0$.
+
+\paragraph{One-pair rotation.} For $b'=0$ the bra in the companion frame is
+\begin{equation}
+ B(b)=(e_1+b\lambda_1v_{z_4})\otimes(e_4-b\ell_1)\otimes e_1\otimes e_4,\quad v_{z_4}=e_1\prod_{m\ne4}(G_c^T-z_m),\quad\ell_1=\lambda_1\,e_4\prod_{m\ne1}(G_c-z_m),
+\end{equation}
+36 SoV words (1, 17, 36 words at orders $b^0,b^1,b^2$) \ex; the 36-term sum equals the direct overlap to $10^{-44}$ (exact $c_x$, 60-digit eigenvalues; double precision fails, $\mathrm{cond}\,M\sim10^{18}$--$10^{25}$) \hp. Untwisting: for the two $L=2$ singlets, $\braket{B(b)}{\Psi_\varepsilon}/(\lambda_1^2b^2)$ tends linearly in $\varepsilon$ to the data value $C_2$
+($-0.15807\to-1/\sqrt{40}$, $0.20408\to1/\sqrt{24}$) \num{10^{-4}}. With $r_2=\tau_1(\theta_2)$, $r_4=\tau_1(\theta_4)$ and polynomials $P_\beta(r_2,r_4)$ collecting the F-site words,
+\begin{equation}
+ K_b=\frac{\braket{B(b)}{\Psi}}{\braket0\Psi}=\sum_{a=0}^3\tau_a(\theta_1-h)P_a(r_2,r_4)=\frac{\det\big[\,(-1)^\beta P_\beta(r_2,r_4)\,;\ Q_i(x_\beta)\,\big]_{\beta=0}^{3}}{D_0},
+\end{equation}
+one bordered $4\times4$ Casoratian ($x_\beta$ as in \eqref{eq:sov-det}); no finer structure was found (no sparser word basis, tensor rank 7).
+
+%======================================================================
+\subsection{The ABJM point}\label{sec:sov-abjm}
+%======================================================================
+
+[\nb{sov-abjm-point-limit.wb}, \nb{abjm-sov-norm-L4.wb}, python \nb{checks/abjmlimit/}] Pair-by-pair $\theta=(\theta_{F1}+d,\theta_{F1},\theta_{F2}+d,\theta_{F2})$, $d=\theta_A-\theta_F\to2h$
+(\S\ref{sec:abjm}), $u_0:=\theta_A-h=\theta_F+h$. RV's genericity condition (2.9) fails ($\theta^{\rm RV}_A-\theta^{\rm RV}_F=h$), the generic words degenerate, and the ``degenerate $B$'' of the
+first write-up (169 distinct eigenvalues, $169=13^2$) is resolved as follows.%
+\footnote{This replaces ``the SoV basis survives at the ABJM point with shifted evaluation points'' (the words at $\theta_A-3h$ or $\theta_A+2h$ are a basis, but only the 16 F-only words are $B$-eigen)
+and ``the Ryan--Volin $B$ is degenerate at the ABJM point''.}
+
+\paragraph{Degeneration of the generic basis} \ex. Pair-by-pair $\theta$: the generic words have rank 256 for generic $d$ and $81=9^2$ at $d=2h$ (the $16\times16$ one-pair word matrix $M(d)$ has rank 9 there, $\det M(d)\propto(d-2h)^7\cdots$). For fully pair-periodic $\theta$ (coincident inhomogeneities, e.g.\ $t_a(\theta_1-h)=t_a(\theta_3-h)$) the generic words
+have rank 70 for every $d$.
+
+\paragraph{Exact identities and Jordan structure} \ex. At $u_0$, as operator identities (the exact identities of \S\ref{sec:abjm}),
+\begin{equation}\label{eq:sov-ident}
+ t_3(u_0)=0,\qquad t_2(u_0)=t_1(u_0)\,t_1(\theta_F),
+\end{equation}
+hence $\tau_3(u_0)=0$ and $\tau_2(u_0)=\tau_1(u_0)\tau_F$ on states, $\tau_F:=\tau_1(\theta_F)$: the collisions of the $B$-spectrum. On the ket side $t_2(\theta_A)=t_1(\theta_A)t_1(u_0)$, $t_3(\theta_A+h)=0$.
+The LR map $\cP$ ($\cP\tb_1(u)\cP^{-1}=\tb_3(u+h)$, \S\ref{sec:sym}) sends $\tb_1(\theta_F)$ to $\tb_3(\theta_A-h)$ exactly at $d=2h$, and the five-word pair rotation $K_\kappa$ of \S\ref{sec:kappa} is built from exactly these
+regularised pair words ($X_1=t_1(\theta_F)$, $X_2=t_1(u_0)X_1$, $X_3\propto Z$ below). $B$ has Jordan blocks: per resonant pair 10 simple eigenvalues and three $J_2$ blocks ($10+3\cdot2=16$), i.e.\ 13 distinct
+eigenvalues per pair. In Q-language the columns $Q_i(\theta_A-2h)$, $Q_i(\theta_A-3h)$ of the A-site Casoratian are proportional (ratio $\tau_F$, by \eqref{eq:sov-dictF}), so $D_0=D_3=0$, $D_2=\tau_FD_1$, and
+\eqref{eq:sov-dictA} becomes $0/0$: its content moves to the $u$-derivatives of the Baxter equation.%
+\footnote{The source (session report of 12-10-2026, \S9) writes the proportional columns at $\theta_A-h,\theta_A-2h$, i.e.\ in the labelling shifted by $h$ (footnote to \eqref{eq:sov-baxter}); re-indexed here.}
+
+\paragraph{Regularised bra basis} (the $d\to2h$ limit of RV's basis = Jordan basis of $B$). For every resonant A site replace the word operator by
+\begin{center}
+\begin{tabular}{cll}
+\toprule
+$a$ & $O(a,k)$ & factor $\lambda(a,k)$ in the wave function\\
+\midrule
+0 & $1$ & $1$\\
+1 & $t_1(u_0)$ & $x=\tau_1(u_0)$\\
+2 & $W=t_2'(u_0)-t_1'(u_0)t_1(\theta_F)$ ($k\le2$) & $w=\tau_2'(u_0)-\tau_1'(u_0)\tau_F$ ($k\le2$)\\
+ & $t_2(u_0)$ ($k=3$) & $x\tau_F$ ($k=3$)\\
+3 & $Z=t_3'(u_0)=g_3'\,\widehat t_3(u_0)$ & $y=\tau_3'(u_0)$\\
+\bottomrule
+\end{tabular}
+\end{center}
+($'=\partial_u$; $\widehat t_3$ the reduced $t_3$). The words $\bra0O_1\,t_1(\theta_2)^{k_2}\,O_3\,t_1(\theta_4)^{k_4}$, $O_1=O(a_1,k_2)$, $O_3=O(a_3,k_4)$, have rank 256 \ex, and
+$\braket x\Psi=\braket0\Psi\prod_{\rm pairs}\lambda(a,k)\,\tau_F^{\,k}$ \hp\ ($3\cdot10^{-48}$). The data $x,w,y$ follow from the $u$-derivative of \eqref{eq:sov-baxter} at $u_0$ (a $3\times3$ Cramer system, any three of the
+four $Q_i$),
+\begin{equation}
+ Q_i'(u_0)-x\,D_i+w\,Q_i(u_0-2h)-y\,Q_i(u_0-3h)=0,\qquad D_i=Q_i'(u_0-h)-\tau_FQ_i'(u_0-2h),
+\end{equation}
+with $\tau_F$ to $4.5\cdot10^{-49}$ and $x,w,y$ to $3\cdot10^{-27}$ \hp. The coefficients of a \emph{fixed} bra diverge like $\delta^{-\#\text{resonant pairs}}$, $\delta=d-2h$, but the overlaps converge
+(verified to $10^{-45}$).
+
+\paragraph{Regularised ket basis.} The resonant ket sites are the F sites: levels $n=0,1,2,3$ use the operators $1$, $t_1(u_0)$,
+$\widetilde W=t_2'(\theta_A)-t_1(\theta_A)t_1'(u_0)$, $\widetilde Z=t_3'(\theta_A+h)$ and A sites keep $t_1(\theta_A)^m$. The pair factor of the ket wave function is
+$\tau_1(\theta_A)^m\,\{1,x,\tilde w,\tilde y\}$, $\tilde w=\tau_2'(\theta_A)-\tau_1(\theta_A)\tau_1'(u_0)$, $\tilde y=\tau_3'(\theta_A+h)$ (rank 256 \ex). The Gram matrix of the regularised bases has 3323 nonzero
+entries at every tested $\varepsilon$ and is \emph{no longer} triangular or charge graded. $1/\cN=\sum\sovT M\tau$ with $M=\mathrm{Gram}^{-1}$ reproduces the direct value of \eqref{eq:sov-norm} on the 28 zero-weight states for
+$\varepsilon=1/50,\dots,1/1600$ (relative error $<10^{-29}$ at 100--120 digits, limited by the degeneration of $\mathrm{Gram}$ as $\theta_{F1}-\theta_{F2}=O(\varepsilon)$) \hp.
+
+\paragraph{Caveats.} (i) For fully pair-periodic $\theta$ the regularisation needs shift-derivatives up to order 7; the homogeneous limit is open, and pair-by-pair $\theta_F$ must be used. (ii) At $z_2=z_3$ the companion frame
+is singular and the diagonal-twist chain has a $\mathfrak{gl}(2)$ symmetry, so there is no SoV basis there; the $K_\kappa$ route of \S\ref{sec:kappa} (which needs $z_2=z_3$) must be combined with SoV at
+$z_2-z_3=O(\varepsilon)$, which suffices for the limit (\S\ref{sec:kappa}).
+
+%======================================================================
+\subsection{SoV expansion of $\langle W_a^L|$ and of twisted vacua}\label{sec:sov-Wa}
+%======================================================================
+
+[\nb{Wa-sov-expansion-L4.wb}; python \nb{checks/session-2026-10-13/wasov/}] $L=2$ pairs, generic $\theta,z$.
+
+\paragraph{Companion image} \ex. Per pair $W_a=(e_1+ae_4)\otimes(e_4-ae_1)$ (diagonal frame). With $v(x)=(x^3,x^2,x,1)$, $\tilde u_j$ the $j$-th row of $V^{-1}$ and $R^{-1}=V^T$ (A) $\otimes V^{-1}$ (F),
+\begin{equation}
+ \bra{W_a^{L}}R^{-1}=\big[(v(z_1)+a\,v(z_4))\otimes(\tilde u_4-a\,\tilde u_1)\big]^{\otimes L}
+\end{equation}
+with coefficient exactly 1 (symbolic $a$). For $a=0$ this is the companion Bethe vacuum $\bra{0_w}$ at $w=z$ (below), \emph{not} the SoV vacuum $(\lambda\otimes\mathbf1)^{\otimes2}R^{-1}=e_1\otimes e_4\otimes e_1\otimes e_4$;
+overlaps are $\braket{W_a}{\Psi_\Lambda}=\langle W_aR^{-1}|\Psi_c\rangle$ with $\ket{\Psi_c}=R\ket{\Psi_\Lambda}$.
+
+\paragraph{The expansion is dense.} Write $\bra{W_a^L}R^{-1}=\sum_xc_x(a)\bra x$, $c_x(a)=(\langle W_a|R^{-1}Y)_x$, $Y$ the inverse word matrix (block diagonal in $|x|$). Each $c_x(a)$ is a degree-4 polynomial in $a$ containing all
+five powers, for all 256 words, and every component $\bra{\vac^L}\rho(E_{14})^n/n!$ is dense too \ex\ (physical frame sparse, SoV frame dense). The words are $z$-independent, the bra is not:
+\begin{equation}
+ c_x(a;\kappa z)=\kappa^{6-|x|}\,c_x(a;z)\qquad\ex\ (\text{symbolic }a,\ \kappa=2/3).
+\end{equation}
+Ranks of the components $n=0,\dots,4$ (each with 256 nonzero words and site ranks 4, 4, 4, 4) \ex: pair cut $(12)|(34)$: 11, 13, 16, 13, 11; cut $(13)|(24)$: 4, 12, 16, 12, 4; rank of $m_{a_1a_3}$ over
+$\mathbb Q(r_2,r_4)$ (below): 2, 2, 4, 2, 2; the generic bra ($a=3/7$) has 16, 16, 4. The ranks are palindromic under $n\leftrightarrow4-n$ ($W_a=-a^2\langle{\rm LW}|\rho(e^{E_{41}/a})$ per pair) but there is no simple map between
+the coefficient tensors. The $n=0$ and $n=4$ components are exact eigenbras of $t^{G_c(z)}$ \ex, $(v(z_1)\otimes\tilde u_4)^{\otimes2}$ with the vacuum eigenvalue of the twisted-vacuum formula below and
+$(v(z_4)\otimes\tilde u_1)^{\otimes2}$ with $(z_1,z_2,z_3,z_4)\to(z_4,z_2,z_3,z_1)$ in it; $n=1,2,3$ are not eigenbras.
+
+\paragraph{Sectors and exactness.} $\bra{\vac^L}\rho(E_{14})^n/n!\,\ket\Psi\ne0$ only for weight $(2-n,0,0,n-2)$: sector sizes 1, 12, 28, 12, 1 (54 of the 256 eigenstates), and $\braket{W_a}\Psi=a^n\braket{W_1}\Psi$. The SoV sum
+$\sum_xc^{(n)}_x\tau_x(\Psi)\braket0\Psi$ equals the direct overlap on all 256 states, including the vanishing on the other 202 (maximal error $\le5\cdot10^{-41}$) \hp. Since the 256 monomials $\tau_x$
+are independent functions on the 256 states, $c_x(a)$ is \emph{the} unique representation valid on all 256 states.
+
+\paragraph{The A--A coefficient matrix; no determinant form.} $\langle W^{(n)}|\Psi\rangle/\braket0\Psi=\sum_{a_1,a_3}\tau_{a_1}(\theta_1-h)\,m^{(n)}_{a_1a_3}(r_2,r_4)\,\tau_{a_3}(\theta_3-h)$, $r_s=\tau_1(\theta_s)$,
+$m_{a_1a_3}=\sum_{k_2,k_4}c_{a_1k_2a_3k_4}r_2^{k_2}r_4^{k_4}$ of bidegree $(3,3)$. Rank 2 ($n=0,1,3,4$) means a sum of two products of bordered $4\times4$ Casoratians $B^{(1)}_kB^{(3)}_k/(D_0(\theta_1)D_0(\theta_3))$, equivalently one $8\times8$ determinant
+with two border rows; rank 4 ($n=2$ and generic $a$) is no compression, so the singlet sector (weight 0, 28 states) is the structurally hardest. For $n=0,4$ the entries share a common factor of bidegree $(2,2)$ and the column space is cut out by two bilinear
+equations (the vacuum structure); for $n=1,3$ there is no common factor and the $2\times2$ minors are products of two irreducible $(3,3)$ polynomials \ex.
+Candidates tested on the 256 eigenstates and excluded \hp: a product over pairs of bordered Casoratians (the pair-cut rank would have to be 1, it is 11--16), a sum $\alpha P_1+\beta P_2+\gamma$ of one-pair overlaps, a single $8\times8$ bordered determinant for $n=2$
+or generic $a$, a few pair-factorised terms ($\ge11$ needed), and a GLMR/2603-type bracket determinant (it needs the non-diagonal measure of \S\ref{sec:sov-dual}). So on all 256 states there is no determinant or pair-factorised form of $\braket{W_a^L}\Psi$.
+Likewise the dual wave functions $y\mapsto\braket{W^{(n)}}{y}$ do not factorise \ex: tensor ranks 1, 1, 1, 1 (pair cut 1) for $n=0,4$; 4, 4, 4, 4 (pair cut 6) for $n=1,3$; 4, 4, 4, 4 (pair cut 15) for $n=2$; for $a=3/7$ site ranks 4, 3, 4, 3 and pair cut 9
+(``$\bra{W_a^L}$ has the Q-functions of $\bra{\vac}$ but is not a twisted vacuum'').
+
+\paragraph{Twisted vacua} \ex/\hp. Words, kets and hence $\mathrm{Gram}$, $M$ are independent of the twist: those built with $t^{G_c(w)}$ equal those built with $t^{G_c(z)}$ (exact, $256\times256$). The twisted vacuum
+$\bra{0_w}=(v(w_1)\otimes\tilde u_w)^{\otimes2}$ ($\tilde u_w$ = row 4 of $V(w)^{-1}$) is an exact eigenbra of $t_a^{G_c(w)}$, $a=1,2,3$, with the vacuum eigenvalues $\tau_a(u)=\sum_{|I|=a}\prod_{k=1}^aw_{i_k}V_{i_k}(u-(k-1)h)$ ($V_i$ as in \S\ref{sec:conv}). Its dual wave functions \emph{factorise},
+\begin{equation}
+ \braket{0_w}{y}=\braket{0_w}{\bar0}\prod_sf_s(y_s),\qquad f_A(m)=\tau_1(\theta_A)^m,\quad f_F(n)=\tau_n(\theta_F+n h),
+\end{equation}
+where $\tau$ are the vacuum eigenvalues of twist $w$, for all 256 $y$ (relative error exactly 0, all tensor ranks 1; $\braket{0_w}{\bar0}=651015225/2427364$ at the standard point). In terms of the dual $Q$'s of the twist-$w$ vacuum ($w_I(u)\propto Z_I^{u/h}q_I(u)$, $Z_I=\prod_{i\in I}w_i$, triples $I$), $\sovT_y(\mathrm{vac}_w)$ is per A site the $m$-th power of a ratio of one dual $Q$ at two points and per F site of level $n$ a ratio of two
+$3\times3$ determinants of dual $Q$'s, up to rational constants independent of twist and state \ex. The bra-side dictionary \eqref{eq:sov-dictF}--\eqref{eq:sov-dictA} holds on the same vacua. Completeness gives $\bra{0_w}=\sum_x\big(\sum_y\braket{0_w}{y}M_{yx}\big)\bra x$
+(dense, 256 words), hence the finite Q-sum
+\begin{equation}\label{eq:sov-Wsum}
+ \bbW_w(\Psi):=\frac{\braket{0_w}{\Psi_z}}{\braket{0_w}{\bar0}\braket0{\Psi_z}}=\sum_{x,y}\sovT_y(\mathrm{vac}_w)\,M_{yx}\,\tau_x(\Psi),
+\end{equation}
+exact on all 256 eigenstates $\Psi_z$ (maximal relative deviation $<10^{-44}$; $\min_n|\bbW_w|=2.9\cdot10^{-8}$) \hp. Biorthogonality is the case $w=z$: $\bbW_z(\Psi)=0$ on all 255 non-vacuum states ($<10^{-45}$ relative to $|\bbW_z(\mathrm{vac})|=1.3477\cdot10^{-4}$) \hp.
+No determinant form of \eqref{eq:sov-Wsum} was attempted (it needs the mixed-chain measure).
+
+\paragraph{Global Borel rotations of $\bra0$} \ex. For $\bra0\rho(1+bE_{ij})$ on all four sites, the six generators $E_{12},E_{34},E_{14},E_{13},E_{24},E_{23}$ transported from the
+diagonal frame ($g_c=V^{-T}gV^T$ on A, $Vg^{-T}V^{-1}$ on F) all give dense bras, with $1,30,140,236,256$ words at orders $b^0,\dots,b^4$ (union 256). Acting directly in the companion frame the numbers of words are
+13 for $E_{12}$ (1, 4, 8 at $b^0,b^1,b^2$), 4 for $E_{34}$, 5 for $E_{24}$, 33 for $E_{13}$, 70 for $E_{14}$ and 1 for $E_{23}$. So no physical-frame Borel rotation is few-word in the SoV basis (same reason as for $\bra{W_a}$); the few-word global
+rotations are the $E_{12}/E_{34}/E_{24}$-type steps of the \emph{companion} $\mathfrak{gl}(4)$ (\S\ref{sec:loc}).
+
+\paragraph{Nevertheless a Q-form on the relevant sectors.} The dense expansion is the unique representation on all 256 states and encodes the vanishing off the sectors; it does not preclude a short formula on the weight sectors
+$(\mu,0,0,-\mu)$ where $\bra{W_a^L}$ has support. There $\braket{W_a^L}\Psi$ equals, up to explicit factors, the overlap with the twisted vacuum $\bra{0_w}$, $w=(w_1,z_2,z_3,w_4)$, and the $w_1\to\infty$ limit of \eqref{eq:sov-Wsum} isolates exactly 9 F-only words
+$\bra0t_1(\theta_2)^{k_2}t_1(\theta_4)^{k_4}$, $k_s\le2$: at $L=2$ a polynomial of bidegree $(2,2)$ in the two F-site single-$Q$ ratios $\tau_1(\theta_2),\tau_1(\theta_4)$ ($10^{-46}$ to $10^{-51}$ on the 54 states of the sectors) \hp.
+The derivation, the factorised $L$-pair form and its use for the even bridge are in \S\ref{sec:qform}.%
+\footnote{This supersedes the first-pass conclusion ``no closed Q-form'' (morning of 13-10-2026; sections 3 and 6 of the report of \nb{Wa-sov-expansion-L4.wb}), which is withdrawn: what holds is that no determinant or
+pair-factorised form exists on all 256 states, while on the sectors of weight $(\mu,0,0,-\mu)$ the F-only Q-form exists.}
